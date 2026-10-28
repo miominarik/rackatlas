@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { update } from '@/routes/password';
+import { TurnstileField, useTurnstile } from '@/hooks/use-turnstile';
 import { useTranslation } from '@/hooks/use-translation';
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 
 export default function ResetPassword({ token, email, passwordRules }: Props) {
     const { t } = useTranslation();
+    const turnstile = useTurnstile('reset-password');
     return (
         <>
             <Head title={t('Reset password')} />
@@ -24,6 +26,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                 {...update.form()}
                 transform={(data) => ({ ...data, token, email })}
                 resetOnSuccess={['password', 'password_confirmation']}
+                onFinish={turnstile.reset}
             >
                 {({ processing, errors }) => (
                     <div className="grid gap-6">
@@ -76,10 +79,15 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                             />
                         </div>
 
+                        <TurnstileField
+                            turnstile={turnstile}
+                            error={errors.turnstile_token}
+                        />
+
                         <Button
                             type="submit"
                             className="mt-4 w-full"
-                            disabled={processing}
+                            disabled={processing || !turnstile.ready}
                             data-test="reset-password-button"
                         >
                             {processing && <Spinner />}

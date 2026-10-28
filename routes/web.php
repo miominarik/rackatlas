@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CurrentTeamController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Servers\ServerCategoryController;
 use App\Http\Controllers\Servers\ServerController;
 use App\Http\Controllers\Servers\SshKeyController;
@@ -10,7 +11,9 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/app')->name('home');
 
 Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('/', 'dashboard')->name('dashboard');
+    Route::get('/', [DashboardController::class, 'show'])->name('dashboard');
+    Route::put('dashboard/settings', [DashboardController::class, 'update'])->name('dashboard.settings.update');
+    Route::delete('dashboard/settings', [DashboardController::class, 'reset'])->name('dashboard.settings.reset');
     Route::put('current-team', [CurrentTeamController::class, 'update'])->name('current-team.update');
 
     Route::get('servers', [ServerController::class, 'index'])->name('servers.index');

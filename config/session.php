@@ -169,8 +169,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
-
+    'secure' => env('APP_DEBUG') == true ? false : true,
     /*
     |--------------------------------------------------------------------------
     | HTTP Access Only

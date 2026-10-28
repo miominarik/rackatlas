@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Http\Controllers\CurrentTeamController;
+use App\Services\TurnstileVerifier;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -52,6 +53,9 @@ class HandleInertiaRequests extends Middleware
             'teams' => $teams->values(),
             'currentTeam' => $currentTeam,
             'name' => config('app.name'),
+            'turnstile' => [
+                'siteKey' => app(TurnstileVerifier::class)->enabled() ? config('services.turnstile.site_key') : null,
+            ],
             'locale' => app()->getLocale(),
             'locales' => config('app.supported_locales'),
             'translations' => $this->translations(),
