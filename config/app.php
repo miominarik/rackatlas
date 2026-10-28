@@ -92,6 +92,17 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cron Token
+    |--------------------------------------------------------------------------
+    |
+    | Secret for public/cron.php when the scheduler is triggered by a URL.
+    |
+    */
+
+    'cron_token' => env('CRON_TOKEN'),
+
     'supported_locales' => [
         'sk' => 'Slovenčina',
         'cs' => 'Čeština',

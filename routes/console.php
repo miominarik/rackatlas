@@ -8,16 +8,23 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('servers:collect-metrics')
+// The tasks run inside the scheduler process instead of starting `php artisan`
+// sub-processes, because many shared hostings do not allow that.
+Schedule::call(fn () => Artisan::call('servers:collect-metrics'))
+    ->name('servers:collect-metrics')
     ->everyMinute()
-    ->withoutOverlapping(5)
-    ->onOneServer();
+    ->withoutOverlapping(5);
 
-Schedule::command('model:prune')->daily();
+Schedule::call(fn () => Artisan::call('model:prune'))
+    ->name('model:prune')
+    ->daily();
 
-// Processes the queued jobs (metrics collection) without a permanent worker,
-// so one `schedule:run` cron entry is enough, also on shared hosting.
-Schedule::command('queue:work', ['--stop-when-empty', '--max-time=50', '--sleep=1'])
+// Processes the queued jobs (metrics collection) without a permanent worker.
+Schedule::call(fn () => Artisan::call('queue:work', [
+    '--stop-when-empty' => true,
+    '--max-time' => 45,
+    '--sleep' => 1,
+]))
+    ->name('queue:work')
     ->everyMinute()
-    ->withoutOverlapping(2)
-    ->onOneServer();
+    ->withoutOverlapping(2);
