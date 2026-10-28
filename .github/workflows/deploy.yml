@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -38,7 +38,7 @@ jobs:
           coverage: none
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -70,7 +70,7 @@ jobs:
       # The marker is saved to the cache only when the whole job (and so the upload) succeeded.
       - name: Check whether this vendor was already uploaded
         id: vendor
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/vendor-deployed
           key: vendor-deployed-${{ hashFiles('composer.lock') }}
