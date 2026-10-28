@@ -5,11 +5,16 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      full_upload:
+        description: Upload the whole vendor directory again
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
-# Never run two deploys at once, the FTP state file would get out of sync.
+# Never run two deploys at once.
 concurrency:
   group: deploy
   cancel-in-progress: false
@@ -51,46 +56,52 @@ jobs:
           npm ci
           npm run build
 
-      # The real .env lives only on the server.
-      - name: Remove the temporary environment
-        run: rm -f .env
+      # Everything that is left in the workspace after this step is uploaded.
+      # The real .env lives only on the server and is never uploaded or deleted.
+      - name: Remove files the server does not need
+        run: |
+          rm -rf .git .github .claude .agents node_modules tests
+          rm -rf resources/js resources/css storage/logs database/*.sqlite
+          rm -f .env .env.* .mcp.json AGENTS.md boost.json components.json
+          rm -f package.json package-lock.json pnpm-workspace.yaml tsconfig.json vite.config.ts
+          rm -f phpunit.xml phpstan.neon pint.json .editorconfig .gitattributes .npmrc
 
-      - name: Upload over FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      # vendor holds ~9000 files, so it is only uploaded again when composer.lock changed.
+      # The marker is saved to the cache only when the whole job (and so the upload) succeeded.
+      - name: Check whether this vendor was already uploaded
+        id: vendor
+        uses: actions/cache@v4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          port: ${{ secrets.FTP_PORT || 21 }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          local-dir: ./
-          server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
-          exclude: |
-            **/.git*
-            **/.git*/**
-            .github/**
-            .claude/**
-            .agents/**
-            node_modules/**
-            tests/**
-            resources/js/**
-            resources/css/**
-            storage/logs/**
-            database/*.sqlite
-            .env
-            .env.*
-            .mcp.json
-            AGENTS.md
-            boost.json
-            components.json
-            package.json
-            package-lock.json
-            pnpm-workspace.yaml
-            tsconfig.json
-            vite.config.ts
-            phpunit.xml
-            phpstan.neon
-            pint.json
-            .editorconfig
-            .gitattributes
-            .npmrc
+          path: ~/vendor-deployed
+          key: vendor-deployed-${{ hashFiles('composer.lock') }}
+
+      # vendor/composer and vendor/autoload.php change with every app change
+      # (the optimized class map), so they are always uploaded.
+      - name: Skip the unchanged vendor packages
+        if: steps.vendor.outputs.cache-hit == 'true' && !inputs.full_upload
+        run: find vendor -mindepth 1 -maxdepth 1 ! -name composer ! -name autoload.php -exec rm -rf {} +
+
+      - name: Mark this vendor as uploaded
+        run: touch ~/vendor-deployed
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Upload over SFTP
+        env:
+          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT || '22' }}
+          SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
+          SFTP_DIR: ${{ secrets.SFTP_DIR || '.' }}
+        run: |
+          cat > /tmp/deploy.lftp <<EOF
+          set cmd:fail-exit yes
+          set sftp:auto-confirm yes
+          set net:max-retries 5
+          set net:timeout 30
+          set net:reconnect-interval-base 5
+          open --env-password -u "$SFTP_USERNAME" -p "$SFTP_PORT" "sftp://$SFTP_HOST"
+          mirror -R --parallel=3 --no-perms --verbose=1 ./ "$SFTP_DIR"
+          EOF
+          lftp -f /tmp/deploy.lftp
