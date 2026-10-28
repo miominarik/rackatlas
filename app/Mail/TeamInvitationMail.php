@@ -26,6 +26,7 @@ class TeamInvitationMail extends Mailable
                 'url' => route('team-invitations.accept', $this->invitation->token),
                 'team' => $this->invitation->team->name,
                 'inviter' => $this->invitation->inviter->name,
+                'role' => __(ucfirst($this->invitation->role->value)),
                 'expiresAt' => $this->invitation->expires_at,
             ],
         );

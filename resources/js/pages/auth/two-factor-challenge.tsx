@@ -11,10 +11,12 @@ import {
 } from '@/components/ui/input-otp';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import { store } from '@/routes/two-factor/login';
+import { TurnstileField, useTurnstile } from '@/hooks/use-turnstile';
 import { useTranslation } from '@/hooks/use-translation';
 
 export default function TwoFactorChallenge() {
     const { t } = useTranslation();
+    const turnstile = useTurnstile('two-factor-challenge');
     const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
     const [code, setCode] = useState<string>('');
 
@@ -60,6 +62,7 @@ export default function TwoFactorChallenge() {
                     {...store.form()}
                     className="space-y-4"
                     resetOnError
+                    onFinish={turnstile.reset}
                     resetOnSuccess={!showRecoveryInput}
                 >
                     {({ errors, processing, clearErrors }) => (
@@ -106,10 +109,15 @@ export default function TwoFactorChallenge() {
                                 </div>
                             )}
 
+                            <TurnstileField
+                                turnstile={turnstile}
+                                error={errors.turnstile_token}
+                            />
+
                             <Button
                                 type="submit"
                                 className="w-full"
-                                disabled={processing}
+                                disabled={processing || !turnstile.ready}
                             >
                                 {t('Continue')}
                             </Button>

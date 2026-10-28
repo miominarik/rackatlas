@@ -3,11 +3,21 @@
 
 {{ __(':inviter has invited you to join the team **:team** on :app.', ['inviter' => $inviter, 'team' => $team, 'app' => config('app.name')]) }}
 
+<x-mail::panel>
+**{{ __('Team') }}:** {{ $team }}
+
+**{{ __('Role') }}:** {{ $role }}
+
+**{{ __('Valid until') }}:** {{ $expiresAt->isoFormat('LL') }}
+</x-mail::panel>
+
 <x-mail::button :url="$url">
 {{ __('Accept invitation') }}
 </x-mail::button>
 
-{{ __('This invitation expires on :date. Use the email address this message was sent to when you log in or register.', ['date' => $expiresAt->format('j. n. Y')]) }}
+<x-slot:subcopy>
+{{ __('Use the email address this message was sent to when you log in or register.') }}
 
 {{ __('If you were not expecting this invitation, you can ignore this email.') }}
+</x-slot:subcopy>
 </x-mail::message>

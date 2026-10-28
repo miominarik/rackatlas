@@ -3,3 +3,4 @@ export type * from './navigation';
 export type * from './ui';
 export type * from './teams';
 export type * from './servers';
+export type * from './dashboard';

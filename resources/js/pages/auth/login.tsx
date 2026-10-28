@@ -11,6 +11,7 @@ import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import PasskeyVerify from '@/components/passkey-verify';
+import { TurnstileField, useTurnstile } from '@/hooks/use-turnstile';
 import { useTranslation } from '@/hooks/use-translation';
 
 type Props = {
@@ -20,6 +21,7 @@ type Props = {
 
 export default function Login({ status, canResetPassword }: Props) {
     const { t } = useTranslation();
+    const turnstile = useTurnstile('login');
     return (
         <>
             <Head title={t('Log in')} />
@@ -29,6 +31,7 @@ export default function Login({ status, canResetPassword }: Props) {
             <Form
                 {...store.form()}
                 resetOnSuccess={['password']}
+                onFinish={turnstile.reset}
                 className="flex flex-col gap-6"
             >
                 {({ processing, errors }) => (
@@ -82,11 +85,16 @@ export default function Login({ status, canResetPassword }: Props) {
                                 <Label htmlFor="remember">{t('Remember me')}</Label>
                             </div>
 
+                            <TurnstileField
+                                turnstile={turnstile}
+                                error={errors.turnstile_token}
+                            />
+
                             <Button
                                 type="submit"
                                 className="mt-4 w-full"
                                 tabIndex={4}
-                                disabled={processing}
+                                disabled={processing || !turnstile.ready}
                                 data-test="login-button"
                             >
                                 {processing && <Spinner />}
