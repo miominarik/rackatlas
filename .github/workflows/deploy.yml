@@ -1,0 +1,96 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two deploys at once, the FTP state file would get out of sync.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # The locked dependencies need PHP 8.4.1 or newer, so the hosting has to run PHP 8.4+.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install PHP dependencies (production only)
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      # The frontend build runs artisan (Wayfinder), which needs a bootable app.
+      - name: Prepare a temporary environment for the build
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
+      - name: Build the frontend
+        run: |
+          npm ci
+          npm run build
+
+      # The real .env lives only on the server.
+      - name: Remove the temporary environment
+        run: rm -f .env
+
+      - name: Upload over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./
+          server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            .claude/**
+            .agents/**
+            node_modules/**
+            tests/**
+            resources/js/**
+            resources/css/**
+            storage/logs/**
+            database/*.sqlite
+            .env
+            .env.*
+            .mcp.json
+            AGENTS.md
+            boost.json
+            components.json
+            package.json
+            package-lock.json
+            pnpm-workspace.yaml
+            tsconfig.json
+            vite.config.ts
+            phpunit.xml
+            phpstan.neon
+            pint.json
+            .editorconfig
+            .gitattributes
+            .npmrc
