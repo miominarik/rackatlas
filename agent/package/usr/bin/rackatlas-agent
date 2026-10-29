@@ -202,10 +202,6 @@ if ! { [ -s "$PROC_PREV_FILE" ] && [ -n "$(find "$PROC_PREV_FILE" -mmin -5 2>/de
 fi
 proc_scan full > "$TMP.proc"
 
-if [ -z "$DRY_RUN" ]; then
-  awk '{ print $1, $2, $3 }' "$TMP.proc" > "$PROC_PREV_FILE.tmp" 2>/dev/null && mv "$PROC_PREV_FILE.tmp" "$PROC_PREV_FILE" 2>/dev/null
-fi
-
 {
   echo '###CPU1'; echo "$CPU_FIRST"
   echo '###CPU2'; echo "$CPU_NOW"
@@ -227,6 +223,11 @@ fi
     systemctl --failed --no-legend --plain --no-pager 2>/dev/null | head -n 30
   fi
 } > "$TMP"
+
+# Saved only now: the report above has read the previous counters from the same file.
+if [ -z "$DRY_RUN" ]; then
+  awk '{ print $1, $2, $3 }' "$TMP.proc" > "$PROC_PREV_FILE.tmp" 2>/dev/null && mv "$PROC_PREV_FILE.tmp" "$PROC_PREV_FILE" 2>/dev/null
+fi
 
 if [ -n "$DRY_RUN" ]; then
   cat "$TMP"

@@ -21,7 +21,7 @@ type Answer = {
 };
 
 /** The first agent that sends the processes. */
-const MIN_AGENT = [1, 2, 0];
+const MIN_AGENT = [1, 2, 1];
 
 function agentSupportsProcesses(version: string | null): boolean {
     if (!version) {
@@ -203,7 +203,7 @@ export default function ProcessesPanel({
                 <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
                     {t(
                         'This server does not report processes. Install or update the agent to version :version or newer.',
-                        { version: '1.2.0' },
+                        { version: '1.2.1' },
                     )}
                 </p>
             ) : failed ? (
