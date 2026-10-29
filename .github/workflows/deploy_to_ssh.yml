@@ -88,19 +88,8 @@ jobs:
           sshpass -e ssh -p ${{ secrets.SSH_PORT }} \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd ${{ secrets.DEPLOY_PATH }} && \
-             php artisan migrate --force && \
-             php artisan config:cache && \
-             php artisan view:cache && \
-             php artisan event:cache && \
-             php artisan queue:restart"
-
-      - name: Post-deploy commands
-        run: |
-          ssh -i ~/.ssh/id_deploy -p ${{ secrets.SSH_PORT }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ${{ secrets.DEPLOY_PATH }} && \
-             php artisan migrate --force && \
-             php artisan config:cache && \
-             php artisan view:cache && \
-             php artisan event:cache && \
-             php artisan queue:restart"
+             php8.5 artisan migrate --force && \
+             php8.5 artisan config:cache && \
+             php8.5 artisan view:cache && \
+             php8.5 artisan event:cache && \
+             php8.5 artisan queue:restart"
