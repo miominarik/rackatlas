@@ -191,8 +191,8 @@ SH;
     }
 
     /**
-     * Every data disk once, even when the same device is mounted several times. Boot partitions and
-     * other mounts of the system itself are skipped.
+     * Every data disk once, even when the same device is mounted several times. Boot partitions,
+     * other mounts of the system itself and file systems under 1 GiB are skipped.
      *
      * @return array<int, array{device: string, mount: string, filesystem: string, total_bytes: int, used_bytes: int}>
      */
@@ -210,7 +210,7 @@ SH;
             [$device, $type, $total, $used] = $parts;
             $mount = $parts[6];
 
-            if ((int) $total === 0 || isset($disks[$device]) || ! ServerMetricDisk::isMonitored($device, $mount)) {
+            if ((int) $total === 0 || isset($disks[$device]) || ! ServerMetricDisk::isMonitored($device, $mount, (int) $total)) {
                 continue;
             }
 

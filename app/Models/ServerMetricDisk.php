@@ -21,11 +21,14 @@ class ServerMetricDisk extends Model
     /** Mounts of the system itself (boot partitions, snap images, virtual file systems). Not data disks. */
     public const SYSTEM_MOUNTS = ['/boot', '/efi', '/run', '/snap', '/sys', '/dev', '/proc'];
 
+    /** Smaller file systems (1 GiB) are no data disks and are not stored. */
+    public const MIN_TOTAL_BYTES = 1073741824;
+
     public $timestamps = false;
 
-    public static function isMonitored(string $device, string $mount): bool
+    public static function isMonitored(string $device, string $mount, int $totalBytes): bool
     {
-        if (str_starts_with($device, '/dev/loop')) {
+        if ($totalBytes < self::MIN_TOTAL_BYTES || str_starts_with($device, '/dev/loop')) {
             return false;
         }
 
@@ -47,9 +50,9 @@ class ServerMetricDisk extends Model
      * @param  TBuilder  $query
      * @return TBuilder
      */
-    public static function onlyMonitored(object $query, string $mountColumn = 'mount', string $deviceColumn = 'device'): object
+    public static function onlyMonitored(object $query, string $mountColumn = 'mount', string $deviceColumn = 'device', string $totalColumn = 'total_bytes'): object
     {
-        $query->where($deviceColumn, 'not like', '/dev/loop%');
+        $query->where($totalColumn, '>=', self::MIN_TOTAL_BYTES)->where($deviceColumn, 'not like', '/dev/loop%');
 
         foreach (self::SYSTEM_MOUNTS as $system) {
             $query->where($mountColumn, '!=', $system)->where($mountColumn, 'not like', $system.'/%');

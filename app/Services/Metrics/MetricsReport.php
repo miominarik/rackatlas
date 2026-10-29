@@ -126,7 +126,7 @@ class MetricsReport
     {
         $epoch = $this->epoch('m.collected_at');
 
-        return ServerMetricDisk::onlyMonitored(DB::table('server_metric_disks as d'), 'd.mount', 'd.device')
+        return ServerMetricDisk::onlyMonitored(DB::table('server_metric_disks as d'), 'd.mount', 'd.device', 'd.total_bytes')
             ->join('server_metrics as m', 'm.id', '=', 'd.server_metric_id')
             ->where('m.server_id', $this->server->id)
             ->where('m.collected_at', '>=', $since)
