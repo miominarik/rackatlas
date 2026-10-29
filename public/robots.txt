@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /app/
+Disallow: /api/
+
+Sitemap: https://rackatlas.dev/sitemap.xml

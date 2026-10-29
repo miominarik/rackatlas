@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
 * @see app/Http/Controllers/Settings/LanguageController.php:18
-* @route '/app/settings/language'
+* @route '/language'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(options),
@@ -11,13 +11,13 @@ export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => (
 
 update.definition = {
     methods: ["put"],
-    url: '/app/settings/language',
+    url: '/language',
 } satisfies RouteDefinition<["put"]>
 
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
 * @see app/Http/Controllers/Settings/LanguageController.php:18
-* @route '/app/settings/language'
+* @route '/language'
 */
 update.url = (options?: RouteQueryOptions) => {
     return update.definition.url + queryParams(options)
@@ -26,7 +26,7 @@ update.url = (options?: RouteQueryOptions) => {
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
 * @see app/Http/Controllers/Settings/LanguageController.php:18
-* @route '/app/settings/language'
+* @route '/language'
 */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(options),
@@ -36,7 +36,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
 * @see app/Http/Controllers/Settings/LanguageController.php:18
-* @route '/app/settings/language'
+* @route '/language'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url({
@@ -51,7 +51,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
 * @see app/Http/Controllers/Settings/LanguageController.php:18
-* @route '/app/settings/language'
+* @route '/language'
 */
 updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url({

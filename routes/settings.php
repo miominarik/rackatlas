@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Settings\AcceptTeamInvitationController;
 use App\Http\Controllers\Settings\DeviceController;
-use App\Http\Controllers\Settings\LanguageController;
 use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\NotificationDiagnosticsController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -21,7 +20,6 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('app/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::redirect('app/settings/language', '/app/settings/profile')->name('language.edit');
-    Route::put('app/settings/language', [LanguageController::class, 'update'])->name('language.update');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

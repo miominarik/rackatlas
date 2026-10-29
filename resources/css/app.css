@@ -162,3 +162,36 @@
         }
     }
 }
+
+/* Colours of the public home page. They follow the light/dark choice of the app. */
+.landing {
+    --l-bg: #fbfbfa;
+    --l-card: #ffffff;
+    --l-soft: #f4f5f3;
+    --l-ink: #0e1110;
+    --l-body: #4b5451;
+    --l-muted: #6f7873;
+    --l-border: #e4e6e3;
+    --l-accent: #0b7a55;
+    --l-dot: #2fbf7f;
+    --l-warn-bg: #fffaf0;
+    --l-warn-border: #f0d9a8;
+    --l-bad-bg: #fff7f6;
+    --l-bad-border: #f1c9c4;
+}
+
+.dark .landing {
+    --l-bg: #0a0d0c;
+    --l-card: #111513;
+    --l-soft: #171c1a;
+    --l-ink: #f1f4f2;
+    --l-body: #a7b1ac;
+    --l-muted: #8a948f;
+    --l-border: #232a27;
+    --l-accent: #34d399;
+    --l-dot: #34d399;
+    --l-warn-bg: #211b0e;
+    --l-warn-border: #4a3a14;
+    --l-bad-bg: #231210;
+    --l-bad-border: #4d2420;
+}
