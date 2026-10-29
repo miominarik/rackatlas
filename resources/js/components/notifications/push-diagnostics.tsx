@@ -97,7 +97,7 @@ async function clientChecks(vapidPublicKey: string | null, registeredHashes: str
     try {
         const response = await fetch('/sw.js', { cache: 'no-store' });
         const text = await response.text();
-        const hasPush = text.includes("addEventListener('push'");
+        const hasPush = /addEventListener\(\s*['"]push['"]/.test(text);
 
         add(
             'worker_file',
