@@ -17,6 +17,7 @@ import datetime
 import gzip
 import hashlib
 import io
+import lzma
 import os
 import re
 import shutil
@@ -33,6 +34,43 @@ POOL = "pool/main/r/rackatlas-agent"
 
 def fail(message):
     sys.exit(f"Error: {message}")
+
+
+def check_tar(label, name, body):
+    """
+    dpkg is stricter than Python: it refuses tar archives with PAX extended headers (typeflag x or g),
+    which bsdtar on macOS adds for extended attributes, and files that are not owned by root.
+    """
+    try:
+        raw = gzip.decompress(body) if name.endswith(".gz") else lzma.decompress(body) if name.endswith(".xz") else None
+    except (OSError, lzma.LZMAError, EOFError) as error:
+        fail(f"{label}: {name} cannot be decompressed ({error})")
+
+    if raw is None:
+        fail(f"{label}: {name} must be compressed with gzip or xz")
+
+    offset = 0
+
+    while offset + 512 <= len(raw):
+        header = raw[offset : offset + 512]
+
+        if header == b"\0" * 512:
+            break
+
+        entry = header[:100].split(b"\0")[0].decode(errors="replace")
+        flag = header[156:157]
+        size = int(header[124:136].strip(b"\0 ") or b"0", 8)
+
+        if flag in (b"x", b"g"):
+            fail(
+                f"{label}: {name} contains PAX extended headers (entry {entry!r}). dpkg cannot unpack it. "
+                "Build the package with agent/build-deb.sh, which writes a plain ustar archive."
+            )
+
+        if int(header[108:116].strip(b"\0 ") or b"0", 8) != 0 or int(header[116:124].strip(b"\0 ") or b"0", 8) != 0:
+            fail(f"{label}: {entry!r} in {name} is not owned by root (uid/gid 0)")
+
+        offset += 512 + ((size + 511) // 512) * 512
 
 
 def read_deb(path):
@@ -58,6 +96,9 @@ def read_deb(path):
 
     if control_name is None or data_name is None:
         fail(f"{path} has no control.tar or data.tar")
+
+    check_tar(path, control_name, members[control_name])
+    check_tar(path, data_name, members[data_name])
 
     try:
         with tarfile.open(fileobj=io.BytesIO(members[control_name]), mode="r:*") as tar:

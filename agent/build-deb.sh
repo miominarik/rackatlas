@@ -41,7 +41,9 @@ else
   if tar --version 2>/dev/null | grep -q 'GNU tar'; then
     TAR_OWNER="--owner=0 --group=0 --numeric-owner"
   else
-    TAR_OWNER="--uid 0 --gid 0 --uname root --gname root"
+    # bsdtar (macOS) adds PAX extended headers with the extended attributes of the files, and
+    # dpkg refuses such an archive ("unsupported PAX tar header type 'x'"). Plain ustar has none.
+    TAR_OWNER="--uid 0 --gid 0 --uname root --gname root --format ustar --no-xattrs --no-acls --no-fflags"
   fi
 
   WORK="$(mktemp -d)"
