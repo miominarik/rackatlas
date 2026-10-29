@@ -33,6 +33,9 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
 
     Route::get('logs', [LogController::class, 'index'])->name('logs.index');
+    Route::post('logs/resolve-all', [LogController::class, 'resolveAll'])->name('logs.resolve-all');
+    Route::post('logs/{log}/resolve', [LogController::class, 'resolve'])->name('logs.resolve');
+    Route::delete('logs/{log}/resolve', [LogController::class, 'reopen'])->name('logs.reopen');
 
     Route::get('ssh-keys', [SshKeyController::class, 'index'])->name('ssh-keys.index');
     Route::post('ssh-keys', [SshKeyController::class, 'store'])->name('ssh-keys.store');

@@ -66,9 +66,32 @@ class AgentIngestor
             ])->save();
         });
 
+        $this->resolveRecoveredUnits($server, $failedNow);
+
         // Live: a problem is reported as soon as the agent sends the report that shows it.
         $this->alerts->evaluate($server);
         $this->alerts->notifyLogs($server, $fresh);
+    }
+
+    /**
+     * A "unit failed" entry is resolved by itself as soon as the unit is not failed any more.
+     *
+     * @param  array<int, string>  $failedNow
+     */
+    private function resolveRecoveredUnits(Server $server, array $failedNow): void
+    {
+        $recovered = $server->logs()
+            ->open()
+            ->where('source', 'systemd')
+            ->where('message', 'like', 'Unit % failed')
+            ->get(['id', 'message'])
+            ->filter(fn ($log) => preg_match('/^Unit (.+) failed$/', $log->message, $match) === 1
+                && ! in_array($match[1], $failedNow, true))
+            ->pluck('id');
+
+        if ($recovered->isNotEmpty()) {
+            $server->logs()->whereIn('id', $recovered)->update(['resolved_at' => now(), 'resolved_by' => null]);
+        }
     }
 
     /**

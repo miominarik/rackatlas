@@ -12,6 +12,7 @@ use App\Models\ServerMetricDisk;
 use App\Support\DashboardSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -127,7 +128,7 @@ class DashboardController extends Controller
     /**
      * CPU and memory of the last hour per server, for the small charts.
      *
-     * @param  \Illuminate\Support\Collection<int, Server>  $servers
+     * @param  Collection<int, Server>  $servers
      * @return array<int, array<int, array{cpu: float, ram: float}>>
      */
     private function history($servers): array
@@ -148,14 +149,15 @@ class DashboardController extends Controller
     /**
      * The newest serious entries from the logs of the servers (agent only).
      *
-     * @param  \Illuminate\Support\Collection<int, Server>  $servers
-     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     * @param  Collection<int, Server>  $servers
+     * @return Collection<int, array<string, mixed>>
      */
     private function recentLogs($servers)
     {
         $names = $servers->pluck('name', 'id');
 
         return ServerLog::query()
+            ->open()
             ->whereIn('server_id', $servers->pluck('id'))
             ->where('occurred_at', '>=', now()->subHours(self::ERROR_HOURS))
             ->orderByDesc('occurred_at')
@@ -174,8 +176,8 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, Server>  $servers
-     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     * @param  Collection<int, Server>  $servers
+     * @return Collection<int, array<string, mixed>>
      */
     private function recentErrors($servers)
     {

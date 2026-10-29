@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\DashboardController::update
-* @see app/Http/Controllers/DashboardController.php:58
+* @see app/Http/Controllers/DashboardController.php:59
 * @route '/app/dashboard/settings'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -16,7 +16,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\DashboardController::update
-* @see app/Http/Controllers/DashboardController.php:58
+* @see app/Http/Controllers/DashboardController.php:59
 * @route '/app/dashboard/settings'
 */
 update.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DashboardController::update
-* @see app/Http/Controllers/DashboardController.php:58
+* @see app/Http/Controllers/DashboardController.php:59
 * @route '/app/dashboard/settings'
 */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -35,7 +35,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\DashboardController::update
-* @see app/Http/Controllers/DashboardController.php:58
+* @see app/Http/Controllers/DashboardController.php:59
 * @route '/app/dashboard/settings'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -50,7 +50,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\DashboardController::update
-* @see app/Http/Controllers/DashboardController.php:58
+* @see app/Http/Controllers/DashboardController.php:59
 * @route '/app/dashboard/settings'
 */
 updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -67,7 +67,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\DashboardController::reset
-* @see app/Http/Controllers/DashboardController.php:75
+* @see app/Http/Controllers/DashboardController.php:76
 * @route '/app/dashboard/settings'
 */
 export const reset = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -82,7 +82,7 @@ reset.definition = {
 
 /**
 * @see \App\Http\Controllers\DashboardController::reset
-* @see app/Http/Controllers/DashboardController.php:75
+* @see app/Http/Controllers/DashboardController.php:76
 * @route '/app/dashboard/settings'
 */
 reset.url = (options?: RouteQueryOptions) => {
@@ -91,7 +91,7 @@ reset.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DashboardController::reset
-* @see app/Http/Controllers/DashboardController.php:75
+* @see app/Http/Controllers/DashboardController.php:76
 * @route '/app/dashboard/settings'
 */
 reset.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -101,7 +101,7 @@ reset.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
 /**
 * @see \App\Http\Controllers\DashboardController::reset
-* @see app/Http/Controllers/DashboardController.php:75
+* @see app/Http/Controllers/DashboardController.php:76
 * @route '/app/dashboard/settings'
 */
 const resetForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -116,7 +116,7 @@ const resetForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\DashboardController::reset
-* @see app/Http/Controllers/DashboardController.php:75
+* @see app/Http/Controllers/DashboardController.php:76
 * @route '/app/dashboard/settings'
 */
 resetForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

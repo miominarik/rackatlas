@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -15,9 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $source
  * @property string $message
  * @property int $count
- * @property \Illuminate\Support\Carbon $occurred_at
+ * @property Carbon $occurred_at
+ * @property Carbon|null $resolved_at
+ * @property int|null $resolved_by The user who resolved it, null when it was resolved automatically
  */
-#[Fillable(['server_id', 'level', 'source', 'message', 'count', 'occurred_at'])]
+#[Fillable(['server_id', 'level', 'source', 'message', 'count', 'occurred_at', 'resolved_at', 'resolved_by'])]
 class ServerLog extends Model
 {
     use Prunable;
@@ -32,7 +35,23 @@ class ServerLog extends Model
     {
         return [
             'occurred_at' => 'datetime',
+            'resolved_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Entries nobody has marked as resolved yet.
+     *
+     * @param  Builder<ServerLog>  $query
+     */
+    public function scopeOpen(Builder $query): void
+    {
+        $query->whereNull('resolved_at');
+    }
+
+    public function resolver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
     }
 
     public function server(): BelongsTo
