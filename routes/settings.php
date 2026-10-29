@@ -1,8 +1,10 @@
 <?php
 
-use App\Http\Controllers\Settings\LanguageController;
-use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\AcceptTeamInvitationController;
+use App\Http\Controllers\Settings\LanguageController;
+use App\Http\Controllers\Settings\NotificationController;
+use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\PushSubscriptionController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Settings\TeamController;
 use App\Http\Controllers\Settings\TeamInvitationController;
@@ -32,6 +34,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('app/settings/appearance', 'settings/appearance')->name('appearance.edit');
+
+    Route::get('app/settings/notifications', [NotificationController::class, 'edit'])->name('notifications.edit');
+    Route::put('app/settings/notifications', [NotificationController::class, 'update'])->name('notifications.update');
+    Route::post('app/settings/notifications/test', [NotificationController::class, 'test'])
+        ->middleware('throttle:6,1')
+        ->name('notifications.test');
+    Route::post('app/settings/notifications/push', [PushSubscriptionController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('push-subscriptions.store');
+    Route::delete('app/settings/notifications/push/{subscription}', [PushSubscriptionController::class, 'destroy'])
+        ->name('push-subscriptions.destroy');
 
     Route::get('app/settings/teams', [TeamController::class, 'index'])->name('teams.index');
     Route::post('app/settings/teams', [TeamController::class, 'store'])->name('teams.store');

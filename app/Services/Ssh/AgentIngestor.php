@@ -5,6 +5,7 @@ namespace App\Services\Ssh;
 use App\Enums\ServerStatus;
 use App\Exceptions\MetricsCollectionException;
 use App\Models\Server;
+use App\Services\Alerts\AlertEvaluator;
 use Illuminate\Support\Facades\DB;
 
 class AgentIngestor
@@ -13,6 +14,7 @@ class AgentIngestor
         private readonly MetricsParser $metrics,
         private readonly LogParser $logs,
         private readonly ServerMetricsCollector $collector,
+        private readonly AlertEvaluator $alerts,
     ) {}
 
     /**
@@ -44,13 +46,15 @@ class AgentIngestor
             ];
         }
 
-        DB::transaction(function () use ($server, $data, $entries, $failedNow, $agentVersion) {
+        $fresh = [];
+
+        DB::transaction(function () use ($server, $data, $entries, $failedNow, $agentVersion, &$fresh) {
             $this->collector->store($server, $data);
 
-            $entries = $this->withoutKnown($server, $entries);
+            $fresh = $this->withoutKnown($server, $entries);
 
-            if ($entries !== []) {
-                $server->logs()->createMany($entries);
+            if ($fresh !== []) {
+                $server->logs()->createMany($fresh);
             }
 
             $server->forceFill([
@@ -61,6 +65,10 @@ class AgentIngestor
                 'failed_units' => $failedNow,
             ])->save();
         });
+
+        // Live: a problem is reported as soon as the agent sends the report that shows it.
+        $this->alerts->evaluate($server);
+        $this->alerts->notifyLogs($server, $fresh);
     }
 
     /**

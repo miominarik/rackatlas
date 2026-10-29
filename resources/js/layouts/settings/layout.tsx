@@ -7,6 +7,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editLanguage } from '@/routes/language';
+import { edit as editNotifications } from '@/routes/notifications';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import { index as teamsIndex } from '@/routes/teams';
@@ -27,6 +28,11 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'Teams',
         href: teamsIndex(),
+        icon: null,
+    },
+    {
+        title: 'Notifications',
+        href: editNotifications(),
         icon: null,
     },
     {

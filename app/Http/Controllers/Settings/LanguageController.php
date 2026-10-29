@@ -34,6 +34,8 @@ class LanguageController extends Controller
 
         app()->setLocale($validated['locale']);
 
+        $request->user()?->forceFill(['locale' => $validated['locale']])->save();
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Language updated.')]);
 
         return to_route('language.edit');

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -27,8 +28,8 @@ use Illuminate\Support\Str;
  * @property string|null $agent_version
  * @property array<int, string>|null $failed_units
  * @property ServerStatus $status
- * @property \Illuminate\Support\Carbon|null $last_checked_at
- * @property \Illuminate\Support\Carbon|null $last_seen_at
+ * @property Carbon|null $last_checked_at
+ * @property Carbon|null $last_seen_at
  */
 #[Fillable(['team_id', 'server_category_id', 'name', 'host', 'port', 'username', 'auth_type', 'password', 'ssh_key_id'])]
 #[Hidden(['password', 'agent_token_hash'])]
@@ -93,6 +94,11 @@ class Server extends Model
         return static::where('agent_token_hash', hash('sha256', $token))
             ->where('auth_type', ServerAuthType::Agent)
             ->first();
+    }
+
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(ServerAlert::class);
     }
 
     public function errors(): HasMany
