@@ -4,6 +4,7 @@ Builds the apt repository of the RackAtlas agent as plain files, signed with GPG
 
     agent/apt-repo.py --deb rackatlas-agent.deb --repo public/apt --key KEYID
     agent/apt-repo.py --deb rackatlas-agent.deb --repo public/apt --no-sign
+    agent/apt-repo.py --repo public/apt --key KEYID          (only sign the indexes again)
 
 The repository is static: copy it to the web root and apt can use it. Every version that
 was ever published stays in pool/, so an older one can be installed again
@@ -24,6 +25,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 
 SUITE = "stable"
 COMPONENT = "main"
@@ -270,10 +272,34 @@ def sign(repo, release, key):
     write(os.path.join(repo, "rackatlas.asc"), gpg("--armor", "--export", key))
 
 
+def signed_text(path):
+    """The text inside a clearsigned InRelease (dash escaping removed)."""
+    text = open(path).read()
+    match = re.search(r"-----BEGIN PGP SIGNED MESSAGE-----\n(?:[A-Za-z0-9-]+: .*\n)*\n(.*?)\n-----BEGIN PGP SIGNATURE-----", text, re.DOTALL)
+
+    if not match:
+        fail("InRelease is not a clearsigned message")
+
+    return "\n".join(line[2:] if line.startswith("- ") else line for line in match.group(1).split("\n"))
+
+
 def verify(repo, signed):
-    """Checks the finished repository the way apt would: hashes of every file, then the signature."""
+    """
+    Checks the finished repository the way apt would. For a signed repository that means: the
+    signature is valid, InRelease says the same as Release, and every file matches the hashes
+    in the signed text.
+    """
     base = os.path.join(repo, "dists", SUITE)
     release = open(os.path.join(base, "Release")).read()
+
+    if signed:
+        keyring = os.path.join(repo, "rackatlas.gpg")
+        gpg("--no-default-keyring", "--keyring", keyring, "--verify", os.path.join(base, "InRelease"))
+        gpg("--no-default-keyring", "--keyring", keyring, "--verify",
+            os.path.join(base, "Release.gpg"), os.path.join(base, "Release"))
+
+        if signed_text(os.path.join(base, "InRelease")).strip() != release.strip():
+            fail("InRelease and Release differ (a stale signature). Nothing was changed.")
 
     for match in re.finditer(r"^ ([0-9a-f]{64}) +(\d+) (\S+)$", release, re.MULTILINE):
         checksum, size, relative = match.groups()
@@ -290,16 +316,10 @@ def verify(repo, signed):
         if not os.path.exists(path) or digests(path)[2] != checksum:
             fail(f"{filename} does not match the Packages file")
 
-    if signed:
-        keyring = os.path.join(repo, "rackatlas.gpg")
-        gpg("--no-default-keyring", "--keyring", keyring, "--verify", os.path.join(base, "InRelease"))
-        gpg("--no-default-keyring", "--keyring", keyring, "--verify",
-            os.path.join(base, "Release.gpg"), os.path.join(base, "Release"))
-
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--deb", required=True)
+    parser.add_argument("--deb", help="package to add; without it the indexes are only rebuilt and signed again")
     parser.add_argument("--repo", required=True)
     parser.add_argument("--key", help="id or fingerprint of the GPG key that signs the repository")
     parser.add_argument("--no-sign", action="store_true", help="write the repository unsigned (tests only)")
@@ -310,14 +330,61 @@ def main():
     if not args.key and not args.no_sign:
         fail("give --key KEYID (or --no-sign for a test)")
 
-    version = add_to_pool(args.deb, args.repo, args.replace, args.allow_older)
-    release = build_release(args.repo, build_indexes(args.repo))
+    # All or nothing: when anything fails (typically gpg), the repository is put back as it was,
+    # so a new Release is never left next to an old signature.
+    repo = args.repo
+    backup = tempfile.mkdtemp()
+    tracked = ["dists", "rackatlas.gpg", "rackatlas.asc"]
+    added = None
 
-    if not args.no_sign:
-        sign(args.repo, release, args.key)
+    for name in tracked:
+        source = os.path.join(repo, name)
 
-    verify(args.repo, signed=not args.no_sign)
-    print(f"Published rackatlas-agent {version} in {args.repo} ({'signed' if not args.no_sign else 'UNSIGNED'})")
+        if os.path.isdir(source):
+            shutil.copytree(source, os.path.join(backup, name))
+        elif os.path.exists(source):
+            shutil.copy2(source, os.path.join(backup, name))
+
+    try:
+        if args.deb:
+            pool_before = set(os.listdir(os.path.join(repo, POOL))) if os.path.isdir(os.path.join(repo, POOL)) else set()
+            version = add_to_pool(args.deb, repo, args.replace, args.allow_older)
+            pool_after = set(os.listdir(os.path.join(repo, POOL)))
+            added = (pool_after - pool_before) or None
+        else:
+            version = "(unchanged)"
+
+        release = build_release(repo, build_indexes(repo))
+
+        if not args.no_sign:
+            sign(repo, release, args.key)
+
+        verify(repo, signed=not args.no_sign)
+    except BaseException:
+        for name in tracked:
+            target = os.path.join(repo, name)
+
+            if os.path.isdir(target):
+                shutil.rmtree(target)
+            elif os.path.exists(target):
+                os.remove(target)
+
+            source = os.path.join(backup, name)
+
+            if os.path.isdir(source):
+                shutil.copytree(source, target)
+            elif os.path.exists(source):
+                shutil.copy2(source, target)
+
+        for name in added or ():
+            os.remove(os.path.join(repo, POOL, name))
+
+        print("The repository was restored to its previous state.", file=sys.stderr)
+        raise
+    finally:
+        shutil.rmtree(backup, ignore_errors=True)
+
+    print(f"Published rackatlas-agent {version} in {repo} ({'signed' if not args.no_sign else 'UNSIGNED'})")
 
 
 if __name__ == "__main__":
