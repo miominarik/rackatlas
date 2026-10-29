@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import CookieConsent from '@/components/cookie-consent';
 import { useDocumentLocale } from '@/hooks/use-translation';
 
 /**
@@ -7,5 +8,10 @@ import { useDocumentLocale } from '@/hooks/use-translation';
 export default function PublicLayout({ children }: { children: ReactNode }) {
     useDocumentLocale();
 
-    return <>{children}</>;
+    return (
+        <>
+            {children}
+            <CookieConsent />
+        </>
+    );
 }

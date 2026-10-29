@@ -1,9 +1,14 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import LanguageController from '@/actions/App/Http/Controllers/Settings/LanguageController';
+import {
+    openCookieSettings,
+    useCookieConsent,
+} from '@/hooks/use-cookie-consent';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
-import { dashboard, login, register } from '@/routes';
+import { dashboard, login, privacy, register } from '@/routes';
 
 type Props = {
     canRegister: boolean;
@@ -151,6 +156,14 @@ function Eyebrow({
 
 export default function Welcome({ canRegister, canonicalUrl }: Props) {
     const { t, locale } = useTranslation();
+    const { consent } = useCookieConsent();
+
+    useEffect(() => {
+        document.documentElement.classList.add('smooth-anchors');
+
+        return () =>
+            document.documentElement.classList.remove('smooth-anchors');
+    }, []);
     const { locales, auth } = usePage<{
         locales: Record<string, string>;
         auth: { user: unknown };
@@ -852,7 +865,22 @@ export default function Welcome({ canRegister, canonicalUrl }: Props) {
                 </section>
 
                 <footer className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-8 gap-y-3 px-4 pb-9 text-sm text-[var(--l-muted)] sm:px-8">
-                    <span>© {new Date().getFullYear()} RackAtlas</span>
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+                        <span>© {new Date().getFullYear()} RackAtlas</span>
+                        <Link
+                            href={privacy()}
+                            className="underline-offset-4 hover:text-[var(--l-ink)] hover:underline"
+                        >
+                            {t('Privacy and cookies')}
+                        </Link>
+                        <button
+                            type="button"
+                            onClick={openCookieSettings}
+                            className="underline-offset-4 hover:text-[var(--l-ink)] hover:underline"
+                        >
+                            {t('Cookie settings')}
+                        </button>
+                    </div>
                     <div
                         className="flex items-center gap-1 font-mono"
                         role="group"
@@ -866,7 +894,11 @@ export default function Welcome({ canRegister, canonicalUrl }: Props) {
                                 onClick={() =>
                                     router.put(
                                         LanguageController.update.url(),
-                                        { locale: code },
+                                        {
+                                            locale: code,
+                                            remember:
+                                                consent?.preferences === true,
+                                        },
                                         { preserveScroll: true },
                                     )
                                 }

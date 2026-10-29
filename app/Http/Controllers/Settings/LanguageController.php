@@ -19,15 +19,24 @@ class LanguageController extends Controller
     {
         $validated = $request->validate([
             'locale' => ['required', Rule::in(array_keys(config('app.supported_locales')))],
+            'remember' => ['sometimes', 'boolean'],
+            'silent' => ['sometimes', 'boolean'],
         ]);
 
-        Cookie::queue(Cookie::forever(SetLocale::COOKIE, $validated['locale']));
+        // Without cookie consent the choice only lives until the browser is closed.
+        Cookie::queue(
+            $request->boolean('remember', true)
+                ? Cookie::forever(SetLocale::COOKIE, $validated['locale'])
+                : Cookie::make(SetLocale::COOKIE, $validated['locale'], 0),
+        );
 
         app()->setLocale($validated['locale']);
 
         $request->user()?->forceFill(['locale' => $validated['locale']])->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Language updated.')]);
+        if (! $request->boolean('silent')) {
+            Inertia::flash('toast', ['type' => 'success', 'message' => __('Language updated.')]);
+        }
 
         return back();
     }

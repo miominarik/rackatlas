@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
+import { login, privacy } from '@/routes';
 import { store } from '@/routes/register';
 import { TurnstileField, useTurnstile } from '@/hooks/use-turnstile';
 import { useTranslation } from '@/hooks/use-translation';
@@ -50,7 +50,9 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">{t('Email address')}</Label>
+                                <Label htmlFor="email">
+                                    {t('Email address')}
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -64,7 +66,9 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password">{t('Password')}</Label>
+                                <Label htmlFor="password">
+                                    {t('Password')}
+                                </Label>
                                 <PasswordInput
                                     id="password"
                                     required
@@ -111,6 +115,14 @@ export default function Register({ passwordRules }: Props) {
                                 {t('Create account')}
                             </Button>
                         </div>
+
+                        <p className="text-center text-xs text-muted-foreground">
+                            {t('By registering you acknowledge our')}{' '}
+                            <TextLink href={privacy()} tabIndex={7}>
+                                {t('privacy policy')}
+                            </TextLink>
+                            .
+                        </p>
 
                         <div className="text-center text-sm text-muted-foreground">
                             {t('Already have an account?')}{' '}

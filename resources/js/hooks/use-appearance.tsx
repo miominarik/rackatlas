@@ -1,3 +1,4 @@
+import { preferencesAllowed } from '@/hooks/use-cookie-consent';
 import { useSyncExternalStore } from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';
@@ -25,8 +26,11 @@ const setCookie = (name: string, value: string, days = 365): void => {
         return;
     }
 
-    const maxAge = days * 24 * 60 * 60;
-    document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
+    // Without consent to preference cookies the cookie only lives until the browser is closed.
+    const lifetime = preferencesAllowed()
+        ? `;max-age=${days * 24 * 60 * 60}`
+        : '';
+    document.cookie = `${name}=${value};path=/${lifetime};SameSite=Lax`;
 };
 
 const getStoredAppearance = (): Appearance => {

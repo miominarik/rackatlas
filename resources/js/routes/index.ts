@@ -299,6 +299,87 @@ homeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 home.form = homeForm
 
 /**
+* @see \App\Http\Controllers\PrivacyController::__invoke
+* @see app/Http/Controllers/PrivacyController.php:13
+* @route '/privacy'
+*/
+export const privacy = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: privacy.url(options),
+    method: 'get',
+})
+
+privacy.definition = {
+    methods: ["get","head"],
+    url: '/privacy',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\PrivacyController::__invoke
+* @see app/Http/Controllers/PrivacyController.php:13
+* @route '/privacy'
+*/
+privacy.url = (options?: RouteQueryOptions) => {
+    return privacy.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\PrivacyController::__invoke
+* @see app/Http/Controllers/PrivacyController.php:13
+* @route '/privacy'
+*/
+privacy.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: privacy.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\PrivacyController::__invoke
+* @see app/Http/Controllers/PrivacyController.php:13
+* @route '/privacy'
+*/
+privacy.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: privacy.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\PrivacyController::__invoke
+* @see app/Http/Controllers/PrivacyController.php:13
+* @route '/privacy'
+*/
+const privacyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: privacy.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\PrivacyController::__invoke
+* @see app/Http/Controllers/PrivacyController.php:13
+* @route '/privacy'
+*/
+privacyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: privacy.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\PrivacyController::__invoke
+* @see app/Http/Controllers/PrivacyController.php:13
+* @route '/privacy'
+*/
+privacyForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: privacy.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+privacy.form = privacyForm
+
+/**
 * @see \App\Http\Controllers\DashboardController::dashboard
 * @see app/Http/Controllers/DashboardController.php:32
 * @route '/app'

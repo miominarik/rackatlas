@@ -195,3 +195,10 @@
     --l-bad-bg: #231210;
     --l-bad-border: #4d2420;
 }
+
+/* Anchor links on public pages scroll smoothly, unless the visitor asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+    html.smooth-anchors {
+        scroll-behavior: smooth;
+    }
+}

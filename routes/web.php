@@ -4,6 +4,7 @@ use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MetricsController;
+use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\Servers\LogController;
 use App\Http\Controllers\Servers\ServerAgentController;
 use App\Http\Controllers\Servers\ServerCategoryController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Settings\LanguageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('privacy', PrivacyController::class)->name('privacy');
 
 // Public on purpose: visitors without an account pick the language of the home page too.
 Route::put('language', [LanguageController::class, 'update'])->name('language.update');
