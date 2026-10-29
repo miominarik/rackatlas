@@ -1,5 +1,5 @@
-import { router } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, RotateCcw } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { ArrowDown, ArrowUp, Copy, RotateCcw, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import DashboardController from '@/actions/App/Http/Controllers/DashboardController';
 import InputError from '@/components/input-error';
@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/sheet';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/hooks/use-translation';
+import { index as devicesIndex } from '@/routes/devices';
 import type {
     DashboardMetricId,
     DashboardSettings,
@@ -34,6 +35,8 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     settings: DashboardSettings;
+    device: { id: number; label: string } | null;
+    otherDevices: { id: number; label: string }[];
 };
 
 const THRESHOLD_KEYS = ['cpu', 'ram', 'disk'] as const;
@@ -385,8 +388,15 @@ function Form({
     );
 }
 
-export default function CustomizeSheet({ open, onOpenChange, settings }: Props) {
+export default function CustomizeSheet({
+    open,
+    onOpenChange,
+    settings,
+    device,
+    otherDevices,
+}: Props) {
     const { t } = useTranslation();
+    const [copyFrom, setCopyFrom] = useState<string>('');
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -394,9 +404,60 @@ export default function CustomizeSheet({ open, onOpenChange, settings }: Props) 
                 <SheetHeader>
                     <SheetTitle>{t('Customize the dashboard')}</SheetTitle>
                     <SheetDescription>
-                        {t('The layout is saved for you only and for this team.')}
+                        {t('Every device has its own layout, so a phone can show less than a computer.')}
                     </SheetDescription>
                 </SheetHeader>
+
+                {device && (
+                    <div className="mx-4 space-y-3 rounded-lg border bg-muted/30 p-3 text-sm">
+                        <p className="flex items-center gap-2">
+                            <Smartphone className="size-4 shrink-0 text-muted-foreground" />
+                            <span>
+                                {t('Saved for this device:')} <span className="font-medium">{device.label}</span>
+                            </span>
+                        </p>
+
+                        {otherDevices.length > 0 && (
+                            <div className="flex gap-2">
+                                <Select value={copyFrom} onValueChange={setCopyFrom}>
+                                    <SelectTrigger className="min-w-0 flex-1" aria-label={t('Copy the layout from')}>
+                                        <SelectValue placeholder={t('Copy the layout from…')} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {otherDevices.map((other) => (
+                                            <SelectItem key={other.id} value={String(other.id)}>
+                                                {other.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={copyFrom === ''}
+                                    onClick={() =>
+                                        router.post(
+                                            DashboardController.copy.url(),
+                                            { device_id: Number(copyFrom) },
+                                            {
+                                                preserveScroll: true,
+                                                onSuccess: () => onOpenChange(false),
+                                            },
+                                        )
+                                    }
+                                >
+                                    <Copy className="size-4" />
+                                    {t('Copy')}
+                                </Button>
+                            </div>
+                        )}
+
+                        <Link href={devicesIndex()} className="block text-xs text-muted-foreground underline-offset-4 hover:underline">
+                            {t('Manage devices')}
+                        </Link>
+                    </div>
+                )}
+
                 <Form settings={settings} onClose={() => onOpenChange(false)} />
             </SheetContent>
         </Sheet>

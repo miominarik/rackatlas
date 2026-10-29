@@ -82,10 +82,10 @@ function Tile({
     level?: 'ok' | 'warning' | 'critical';
 }) {
     return (
-        <div className="rounded-xl border bg-card p-4">
-            <p className="text-xs text-muted-foreground">{title}</p>
-            <p className={cn('mt-1 text-2xl font-semibold tracking-tight', levelText[level])}>{value}</p>
-            {detail && <p className="mt-0.5 truncate text-xs text-muted-foreground">{detail}</p>}
+        <div className="min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+            <p className="truncate text-xs text-muted-foreground">{title}</p>
+            <p className={cn('mt-1 text-xl font-semibold tracking-tight sm:text-2xl', levelText[level])}>{value}</p>
+            {detail && <p className="mt-0.5 line-clamp-2 text-xs break-words text-muted-foreground">{detail}</p>}
         </div>
     );
 }
@@ -104,7 +104,7 @@ function ChartCard({
     className?: string;
 }) {
     return (
-        <section className={cn('space-y-3 rounded-xl border bg-card p-4', className)}>
+        <section className={cn('min-w-0 space-y-3 rounded-xl border bg-card p-3 sm:p-4', className)}>
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <h2 className="text-sm font-medium">{title}</h2>
                 {summary && <p className="text-xs text-muted-foreground">{summary}</p>}
@@ -277,7 +277,7 @@ export default function Metrics({
         <>
             <Head title={t('Metrics')} />
 
-            <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
+            <div className="mx-auto w-full max-w-[100rem] min-w-0 space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight">{t('Metrics')}</h1>
@@ -319,7 +319,7 @@ export default function Metrics({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
                     <Tile
                         title={t('Status')}
                         value={
@@ -377,7 +377,7 @@ export default function Metrics({
                         {t('No data for this period yet.')}
                     </div>
                 ) : (
-                    <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <ChartCard
                             title={t('CPU usage')}
                             summary={t('Average :avg · peak :peak', {

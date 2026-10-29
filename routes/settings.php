@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\AcceptTeamInvitationController;
+use App\Http\Controllers\Settings\DeviceController;
 use App\Http\Controllers\Settings\LanguageController;
 use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\NotificationDiagnosticsController;
@@ -19,7 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('app/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('app/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::get('app/settings/language', [LanguageController::class, 'edit'])->name('language.edit');
+    Route::redirect('app/settings/language', '/app/settings/profile')->name('language.edit');
     Route::put('app/settings/language', [LanguageController::class, 'update'])->name('language.update');
 });
 
@@ -34,7 +35,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:6,1')
         ->name('user-password.update');
 
-    Route::inertia('app/settings/appearance', 'settings/appearance')->name('appearance.edit');
+    Route::redirect('app/settings/appearance', '/app/settings/profile')->name('appearance.edit');
+
+    Route::get('app/settings/devices', [DeviceController::class, 'index'])->name('devices.index');
+    Route::post('app/settings/devices/sign-out-others', [DeviceController::class, 'destroyOthers'])
+        ->middleware('throttle:10,1')
+        ->name('devices.destroy-others');
+    Route::patch('app/settings/devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
+    Route::delete('app/settings/devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
 
     Route::get('app/settings/notifications', [NotificationController::class, 'edit'])->name('notifications.edit');
     Route::put('app/settings/notifications', [NotificationController::class, 'update'])->name('notifications.update');

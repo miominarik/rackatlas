@@ -9,18 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class LanguageController extends Controller
 {
-    /**
-     * Show the language settings page.
-     */
-    public function edit(): Response
-    {
-        return Inertia::render('settings/language');
-    }
-
     /**
      * Remember the language the user picked.
      */
@@ -38,6 +29,6 @@ class LanguageController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Language updated.')]);
 
-        return to_route('language.edit');
+        return back();
     }
 }

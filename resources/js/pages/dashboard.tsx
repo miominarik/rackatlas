@@ -27,6 +27,8 @@ import type {
 
 type Props = {
     team: { id: number; name: string } | null;
+    device: { id: number; label: string } | null;
+    other_devices: { id: number; label: string }[];
     settings: DashboardSettings;
     generated_at: string;
     servers: DashboardServer[];
@@ -163,6 +165,8 @@ function ServerGrid({
 
 function DashboardContent({
     team,
+    device,
+    other_devices,
     settings,
     generated_at,
     servers,
@@ -261,6 +265,8 @@ function DashboardContent({
                 open={customizing}
                 onOpenChange={setCustomizing}
                 settings={settings}
+                device={device}
+                otherDevices={other_devices}
             />
         </>
     );

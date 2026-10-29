@@ -1,7 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { ChevronRight, Users } from 'lucide-react';
 import TeamController from '@/actions/App/Http/Controllers/Settings/TeamController';
-import Heading from '@/components/heading';
+import { SettingsSection } from '@/components/settings/section';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,21 +23,17 @@ export default function Teams({ teams }: { teams: TeamSummary[] }) {
         <>
             <Head title={t('Teams')} />
 
-            <h1 className="sr-only">{t('Teams')}</h1>
-
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title={t('Your teams')}
-                    description={t('Teams you own or have been invited to')}
-                />
-
+            <SettingsSection
+                title={t('Your teams')}
+                description={t('Teams you own or have been invited to')}
+                flush={teams.length > 0}
+            >
                 {teams.length === 0 ? (
                     <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
                         {t('You are not in any team yet. Create one below.')}
                     </p>
                 ) : (
-                    <ul className="divide-y rounded-lg border">
+                    <ul className="divide-y">
                         {teams.map((team) => (
                             <li key={team.id}>
                                 <Link
@@ -70,15 +66,12 @@ export default function Teams({ teams }: { teams: TeamSummary[] }) {
                         ))}
                     </ul>
                 )}
-            </div>
+            </SettingsSection>
 
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title={t('Create team')}
-                    description={t('Group people and, later, servers that belong together')}
-                />
-
+            <SettingsSection
+                title={t('Create team')}
+                description={t('Group people and, later, servers that belong together')}
+            >
                 <Form
                     {...TeamController.store.form()}
                     options={{ preserveScroll: true }}
@@ -108,7 +101,7 @@ export default function Teams({ teams }: { teams: TeamSummary[] }) {
                         </>
                     )}
                 </Form>
-            </div>
+            </SettingsSection>
         </>
     );
 }

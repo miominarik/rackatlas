@@ -99,7 +99,7 @@ export default function Logs({
         <>
             <Head title={t('Logs')} />
 
-            <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:py-8">
+            <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight">

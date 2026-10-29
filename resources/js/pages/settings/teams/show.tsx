@@ -3,7 +3,7 @@ import { Mail, RefreshCw, Trash2, UserMinus } from 'lucide-react';
 import TeamController from '@/actions/App/Http/Controllers/Settings/TeamController';
 import TeamInvitationController from '@/actions/App/Http/Controllers/Settings/TeamInvitationController';
 import TeamMemberController from '@/actions/App/Http/Controllers/Settings/TeamMemberController';
-import Heading from '@/components/heading';
+import { SettingsSection } from '@/components/settings/section';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,16 +89,11 @@ export default function ShowTeam({
         <>
             <Head title={team.name} />
 
-            <h1 className="sr-only">{team.name}</h1>
-
             {canManage && (
-                <div className="space-y-6">
-                    <Heading
-                        variant="small"
-                        title={t('Team name')}
-                        description={t('Rename the team')}
-                    />
-
+                <SettingsSection
+                    title={t('Team name')}
+                    description={t('Rename the team')}
+                >
                     <Form
                         {...TeamController.update.form(team.id)}
                         options={{ preserveScroll: true }}
@@ -120,21 +115,19 @@ export default function ShowTeam({
                             </>
                         )}
                     </Form>
-                </div>
+                </SettingsSection>
             )}
 
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title={t('Members')}
-                    description={
-                        canManage
-                            ? t('People in this team and what they are allowed to do')
-                            : team.name
-                    }
-                />
-
-                <ul className="divide-y rounded-lg border">
+            <SettingsSection
+                flush
+                title={t('Members')}
+                description={
+                    canManage
+                        ? t('People in this team and what they are allowed to do')
+                        : team.name
+                }
+            >
+                <ul className="divide-y">
                     {members.map((member) => {
                         const isSelf = member.id === auth.user.id;
                         const isOwner = member.role === 'owner';
@@ -205,18 +198,15 @@ export default function ShowTeam({
                         );
                     })}
                 </ul>
-            </div>
+            </SettingsSection>
 
             {canManage && (
-                <div className="space-y-6">
-                    <Heading
-                        variant="small"
-                        title={t('Invite people')}
-                        description={t(
-                            'They get an email with a link that is valid for 7 days. They have to use the invited email address.',
-                        )}
-                    />
-
+                <SettingsSection
+                    title={t('Invite people')}
+                    description={t(
+                        'They get an email with a link that is valid for 7 days. They have to use the invited email address.',
+                    )}
+                >
                     <Form
                         {...TeamInvitationController.store.form(team.id)}
                         options={{ preserveScroll: true }}
@@ -356,20 +346,19 @@ export default function ShowTeam({
                             </ul>
                         </div>
                     )}
-                </div>
+                </SettingsSection>
             )}
 
             {canDelete && (
-                <div className="space-y-6">
-                    <Heading
-                        variant="small"
-                        title={t('Delete team')}
-                        description={t(
-                            'Removes the team and all memberships and invitations',
-                        )}
-                    />
-                    <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                        <p className="text-sm text-red-600 dark:text-red-100">
+                <SettingsSection
+                    danger
+                    title={t('Delete team')}
+                    description={t(
+                        'Removes the team and all memberships and invitations',
+                    )}
+                >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm text-muted-foreground">
                             {t('This cannot be undone.')}
                         </p>
                         <Button
@@ -391,7 +380,7 @@ export default function ShowTeam({
                             {t('Delete team')}
                         </Button>
                     </div>
-                </div>
+                </SettingsSection>
             )}
         </>
     );

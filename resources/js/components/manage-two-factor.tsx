@@ -1,7 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import Heading from '@/components/heading';
+import { SettingsSection } from '@/components/settings/section';
 import TwoFactorRecoveryCodes from '@/components/two-factor-recovery-codes';
 import TwoFactorSetupModal from '@/components/two-factor-setup-modal';
 import { Button } from '@/components/ui/button';
@@ -47,12 +47,21 @@ export default function ManageTwoFactor(props: Props) {
     }
 
     return (
-        <div className="space-y-6">
-            <Heading
-                variant="small"
-                title={t('Two-factor authentication')}
-                description={t('Manage your two-factor authentication settings')}
-            />
+        <SettingsSection
+            title={t('Two-factor authentication')}
+            description={t('Manage your two-factor authentication settings')}
+            action={
+                <span
+                    className={
+                        twoFactorEnabled
+                            ? 'rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400'
+                            : 'rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground'
+                    }
+                >
+                    {twoFactorEnabled ? t('Enabled') : t('Disabled')}
+                </span>
+            }
+        >
             {twoFactorEnabled ? (
                 <div className="flex flex-col items-start justify-start space-y-4">
                     <p className="text-sm text-muted-foreground">
@@ -122,6 +131,6 @@ export default function ManageTwoFactor(props: Props) {
                 fetchSetupData={fetchSetupData}
                 errors={errors}
             />
-        </div>
+        </SettingsSection>
     );
 }

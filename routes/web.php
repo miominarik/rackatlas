@@ -17,6 +17,7 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [DashboardController::class, 'show'])->name('dashboard');
     Route::put('dashboard/settings', [DashboardController::class, 'update'])->name('dashboard.settings.update');
     Route::delete('dashboard/settings', [DashboardController::class, 'reset'])->name('dashboard.settings.reset');
+    Route::post('dashboard/settings/copy', [DashboardController::class, 'copy'])->name('dashboard.settings.copy');
     Route::put('current-team', [CurrentTeamController::class, 'update'])->name('current-team.update');
 
     Route::get('servers', [ServerController::class, 'index'])->name('servers.index');

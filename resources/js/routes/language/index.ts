@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
-* @see \App\Http\Controllers\Settings\LanguageController::edit
-* @see app/Http/Controllers/Settings/LanguageController.php:19
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
 * @route '/app/settings/language'
 */
 export const edit = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -10,13 +10,13 @@ export const edit = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 edit.definition = {
-    methods: ["get","head"],
+    methods: ["get","head","post","put","patch","delete","options","query"],
     url: '/app/settings/language',
-} satisfies RouteDefinition<["get","head"]>
+} satisfies RouteDefinition<["get","head","post","put","patch","delete","options","query"]>
 
 /**
-* @see \App\Http\Controllers\Settings\LanguageController::edit
-* @see app/Http/Controllers/Settings/LanguageController.php:19
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
 * @route '/app/settings/language'
 */
 edit.url = (options?: RouteQueryOptions) => {
@@ -24,8 +24,8 @@ edit.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\Settings\LanguageController::edit
-* @see app/Http/Controllers/Settings/LanguageController.php:19
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
 * @route '/app/settings/language'
 */
 edit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,8 +34,8 @@ edit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Settings\LanguageController::edit
-* @see app/Http/Controllers/Settings/LanguageController.php:19
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
 * @route '/app/settings/language'
 */
 edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,8 +44,68 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Settings\LanguageController::edit
-* @see app/Http/Controllers/Settings/LanguageController.php:19
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+edit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: edit.url(options),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+edit.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: edit.url(options),
+    method: 'put',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+edit.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: edit.url(options),
+    method: 'patch',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+edit.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: edit.url(options),
+    method: 'delete',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+edit.options = (options?: RouteQueryOptions): RouteDefinition<'options'> => ({
+    url: edit.url(options),
+    method: 'options',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+edit.query = (options?: RouteQueryOptions): RouteDefinition<'query'> => ({
+    url: edit.url(options),
+    method: 'query',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
 * @route '/app/settings/language'
 */
 const editForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,8 +114,8 @@ const editForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Settings\LanguageController::edit
-* @see app/Http/Controllers/Settings/LanguageController.php:19
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
 * @route '/app/settings/language'
 */
 editForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -64,8 +124,8 @@ editForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Settings\LanguageController::edit
-* @see app/Http/Controllers/Settings/LanguageController.php:19
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
 * @route '/app/settings/language'
 */
 editForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -78,11 +138,96 @@ editForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     method: 'get',
 })
 
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url(options),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.options = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'OPTIONS',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.query = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'QUERY',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
 edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
-* @see app/Http/Controllers/Settings/LanguageController.php:27
+* @see app/Http/Controllers/Settings/LanguageController.php:18
 * @route '/app/settings/language'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +242,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
-* @see app/Http/Controllers/Settings/LanguageController.php:27
+* @see app/Http/Controllers/Settings/LanguageController.php:18
 * @route '/app/settings/language'
 */
 update.url = (options?: RouteQueryOptions) => {
@@ -106,7 +251,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
-* @see app/Http/Controllers/Settings/LanguageController.php:27
+* @see app/Http/Controllers/Settings/LanguageController.php:18
 * @route '/app/settings/language'
 */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -116,7 +261,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
-* @see app/Http/Controllers/Settings/LanguageController.php:27
+* @see app/Http/Controllers/Settings/LanguageController.php:18
 * @route '/app/settings/language'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -131,7 +276,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
-* @see app/Http/Controllers/Settings/LanguageController.php:27
+* @see app/Http/Controllers/Settings/LanguageController.php:18
 * @route '/app/settings/language'
 */
 updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

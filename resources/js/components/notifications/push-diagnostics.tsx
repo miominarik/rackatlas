@@ -279,7 +279,7 @@ export function PushDiagnostics({ vapidPublicKey, registeredHashes, onReregister
         );
 
     return (
-        <Collapsible open={open} onOpenChange={setOpen} className="space-y-3">
+        <Collapsible open={open} onOpenChange={setOpen} className="space-y-4 rounded-xl border bg-card p-4 shadow-xs sm:p-6">
             <div className="flex items-start justify-between gap-3">
                 <Heading
                     variant="small"

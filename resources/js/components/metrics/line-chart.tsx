@@ -32,7 +32,8 @@ type Props = {
     className?: string;
 };
 
-const PAD = { left: 44, right: 10, top: 10, bottom: 24 };
+/** Phones get less room for the axis labels and a lower chart. */
+const COMPACT_WIDTH = 480;
 
 function niceCeil(value: number): number {
     if (value <= 0) {
@@ -46,10 +47,11 @@ function niceCeil(value: number): number {
     return nice * magnitude;
 }
 
-const STEPS = [300, 600, 900, 1800, 3600, 7200, 10800, 21600, 43200, 86400, 172800, 604800];
+const STEPS = [300, 600, 900, 1800, 3600, 7200, 10800, 21600, 43200, 86400, 172800, 259200, 604800];
 
 function timeTicks(from: number, to: number, count: number): number[] {
-    const step = STEPS.find((candidate) => (to - from) / candidate <= count) ?? STEPS[STEPS.length - 1];
+    // A little more than `count` is fine, a single label on a narrow chart is not.
+    const step = STEPS.find((candidate) => (to - from) / candidate <= count + 0.5) ?? STEPS[STEPS.length - 1];
     const ticks: number[] = [];
 
     if (step >= 86400) {
@@ -115,11 +117,12 @@ export default function LineChart({
     formatValue,
     locale,
     label,
-    height = 220,
+    height,
     className,
 }: Props) {
     const wrapper = useRef<HTMLDivElement>(null);
-    const [width, setWidth] = useState(600);
+    // Unknown until measured: a fixed first guess would stretch a grid cell on narrow screens.
+    const [width, setWidth] = useState(0);
     const [hover, setHover] = useState<number | null>(null);
 
     useEffect(() => {
@@ -129,16 +132,19 @@ export default function LineChart({
             return;
         }
 
-        const observer = new ResizeObserver(([entry]) => setWidth(Math.max(240, entry.contentRect.width)));
+        const observer = new ResizeObserver(([entry]) => setWidth(Math.floor(entry.contentRect.width)));
 
         observer.observe(element);
-        setWidth(Math.max(240, element.clientWidth));
+        setWidth(Math.floor(element.clientWidth));
 
         return () => observer.disconnect();
     }, []);
 
-    const plotWidth = width - PAD.left - PAD.right;
-    const plotHeight = height - PAD.top - PAD.bottom;
+    const compact = width < COMPACT_WIDTH;
+    const PAD = { left: compact ? 38 : 44, right: compact ? 6 : 10, top: 10, bottom: 24 };
+    const chartHeight = height ?? (compact ? 180 : 220);
+    const plotWidth = Math.max(1, width - PAD.left - PAD.right);
+    const plotHeight = chartHeight - PAD.top - PAD.bottom;
 
     const top = useMemo(() => {
         if (max !== undefined) {
@@ -154,7 +160,7 @@ export default function LineChart({
     const y = (value: number) => PAD.top + plotHeight - ((value - min) / Math.max(1e-9, top - min)) * plotHeight;
 
     const yTicks = [0, 1, 2, 3, 4].map((i) => min + ((top - min) * i) / 4);
-    const xTicks = timeTicks(from, to, Math.max(2, Math.floor(plotWidth / 90)));
+    const xTicks = timeTicks(from, to, Math.max(2, Math.floor(plotWidth / (compact ? 64 : 90))));
 
     const tickFormat = new Intl.DateTimeFormat(
         locale,
@@ -188,8 +194,9 @@ export default function LineChart({
     const hoverX = hover !== null ? x(times[hover]) : 0;
 
     return (
-        <div ref={wrapper} className={cn('relative w-full', className)}>
-            <svg width={width} height={height} role="img" aria-label={label} className="block select-none">
+        <div ref={wrapper} className={cn('relative w-full min-w-0', className)} style={{ minHeight: chartHeight }}>
+            {width > 0 && (
+            <svg width={width} height={chartHeight} role="img" aria-label={label} className="block max-w-full select-none">
                 {yTicks.map((tick) => (
                     <g key={tick}>
                         <line
@@ -215,7 +222,7 @@ export default function LineChart({
                     <text
                         key={tick}
                         x={x(tick)}
-                        y={height - 6}
+                        y={chartHeight - 6}
                         textAnchor="middle"
                         className="fill-muted-foreground text-[10px]"
                     >
@@ -330,10 +337,11 @@ export default function LineChart({
                     onPointerLeave={() => setHover(null)}
                 />
             </svg>
+            )}
 
-            {hover !== null && (
+            {width > 0 && hover !== null && (
                 <div
-                    className="pointer-events-none absolute top-2 z-10 min-w-36 rounded-lg border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
+                    className="pointer-events-none absolute top-2 z-10 max-w-[70%] min-w-32 rounded-lg border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
                     style={
                         hoverX > width * 0.6
                             ? { left: hoverX - 12, transform: 'translateX(-100%)' }

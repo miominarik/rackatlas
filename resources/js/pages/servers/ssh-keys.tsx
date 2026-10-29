@@ -47,7 +47,7 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
         <>
             <Head title={t('SSH keys')} />
 
-            <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:py-8">
+            <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight">
@@ -78,9 +78,9 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                         </p>
                     </div>
                 ) : (
-                    <ul className="divide-y rounded-xl border">
+                    <ul className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3">
                         {sshKeys.map((key) => (
-                            <li key={key.id} className="space-y-3 p-4">
+                            <li key={key.id} className="space-y-3 rounded-xl border bg-card p-4">
                                 <div className="flex items-center gap-3">
                                     <KeyRound className="size-4 shrink-0 text-muted-foreground" />
                                     <div className="min-w-0 flex-1">

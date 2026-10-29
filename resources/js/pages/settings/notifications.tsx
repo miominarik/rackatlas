@@ -3,7 +3,7 @@ import { BellRing, Mail, Smartphone, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import NotificationController from '@/actions/App/Http/Controllers/Settings/NotificationController';
 import PushSubscriptionController from '@/actions/App/Http/Controllers/Settings/PushSubscriptionController';
-import Heading from '@/components/heading';
+import { SettingsSection } from '@/components/settings/section';
 import { PushDiagnostics } from '@/components/notifications/push-diagnostics';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -126,17 +126,12 @@ export default function Notifications({
         <>
             <Head title={t('Notifications')} />
 
-            <h1 className="sr-only">{t('Notifications')}</h1>
-
-            <div className="space-y-10">
-                <section className="space-y-2">
-                    <Heading
-                        variant="small"
-                        title={t('Notifications')}
-                        description={t('Get a message when something is wrong on your servers.')}
-                    />
-
-                    <div className="divide-y rounded-xl border px-4">
+            <SettingsSection
+                title={t('Channels')}
+                description={t('Choose where the notifications are sent.')}
+            >
+                <div className="space-y-4">
+                    <div className="divide-y">
                         <Row
                             id="email_enabled"
                             icon={<Mail className="size-5" />}
@@ -158,16 +153,15 @@ export default function Notifications({
                             onChange={set('push_enabled')}
                         />
                     </div>
-                </section>
+                </div>
+            </SettingsSection>
 
-                <section className="space-y-2">
-                    <Heading
-                        variant="small"
-                        title={t('What to notify about')}
-                        description={t('The same choice applies to email and push.')}
-                    />
-
-                    <div className="divide-y rounded-xl border px-4">
+            <SettingsSection
+                title={t('What to notify about')}
+                description={t('The same choice applies to email and push.')}
+            >
+                <div className="space-y-4">
+                    <div className="divide-y">
                         <Row
                             id="notify_offline"
                             title={t('Server is offline')}
@@ -205,7 +199,7 @@ export default function Notifications({
                         />
                     </div>
 
-                    <div className="flex flex-wrap gap-2 pt-2">
+                    <div className="flex flex-wrap gap-2 border-t pt-4">
                         <Button onClick={save} disabled={form.processing || !form.isDirty}>
                             {t('Save')}
                         </Button>
@@ -220,14 +214,13 @@ export default function Notifications({
                             {t('Send a test')}
                         </Button>
                     </div>
-                </section>
+                </div>
+            </SettingsSection>
 
-                <section className="space-y-3">
-                    <Heading
-                        variant="small"
-                        title={t('Devices for push')}
-                        description={t('Register this browser or phone to receive push notifications.')}
-                    />
+            <SettingsSection
+                title={t('Devices for push')}
+                description={t('Register this browser or phone to receive push notifications.')}
+            >
 
                     {!pushAvailable ? (
                         <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
@@ -292,9 +285,9 @@ export default function Notifications({
                             ))}
                         </ul>
                     )}
-                </section>
+            </SettingsSection>
 
-                <PushDiagnostics
+            <PushDiagnostics
                     vapidPublicKey={vapidPublicKey}
                     registeredHashes={devices.map((device) => device.endpoint_hash)}
                     onReregister={async () => {
@@ -303,7 +296,6 @@ export default function Notifications({
                         router.reload({ only: ['devices'] });
                     }}
                 />
-            </div>
         </>
     );
 }

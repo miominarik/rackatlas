@@ -57,7 +57,7 @@ function ServerRow({
     }[server.status];
 
     return (
-        <li className="flex items-center gap-4 p-4">
+        <li className="flex items-center gap-4 rounded-xl border bg-card p-4">
             <div className="relative flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
                 <Server className="size-5 text-muted-foreground" />
                 <span
@@ -211,7 +211,7 @@ export default function Servers({
         <>
             <Head title={t('Servers')} />
 
-            <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:py-8">
+            <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight">
@@ -313,7 +313,7 @@ export default function Servers({
                                             {group.items.length}
                                         </span>
                                     </h2>
-                                    <ul className="divide-y rounded-xl border">
+                                    <ul className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
                                         {group.items.map((server) => (
                                             <ServerRow
                                                 key={server.id}

@@ -1,9 +1,9 @@
 import { Form, Head } from '@inertiajs/react';
 import { useRef } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import { SettingsSection } from '@/components/settings/section';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/security';
@@ -28,17 +28,12 @@ export default function Security(props: Props) {
         <>
             <Head title={t('Security settings')} />
 
-            <h1 className="sr-only">{t('Security settings')}</h1>
-
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title={t('Update password')}
-                    description={t(
-                        'Ensure your account is using a long, random password to stay secure',
-                    )}
-                />
-
+            <SettingsSection
+                title={t('Update password')}
+                description={t(
+                    'Ensure your account is using a long, random password to stay secure',
+                )}
+            >
                 <Form
                     {...SecurityController.update.form()}
                     options={{
@@ -80,6 +75,7 @@ export default function Security(props: Props) {
                                 <InputError message={errors.current_password} />
                             </div>
 
+                            <div className="grid gap-6 md:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="password">{t('New password')}</Label>
 
@@ -114,6 +110,7 @@ export default function Security(props: Props) {
                                     message={errors.password_confirmation}
                                 />
                             </div>
+                            </div>
 
                             <div className="flex items-center gap-4">
                                 <Button
@@ -126,7 +123,7 @@ export default function Security(props: Props) {
                         </>
                     )}
                 </Form>
-            </div>
+            </SettingsSection>
 
             <ManageTwoFactor
                 canManageTwoFactor={props.canManageTwoFactor}
