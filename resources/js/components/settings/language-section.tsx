@@ -14,7 +14,11 @@ export default function LanguageSection() {
             title={t('Language')}
             description={t('Choose the language of the application')}
         >
-            <div className="grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label={t('Language')}>
+            <div
+                className="grid gap-3 sm:grid-cols-3"
+                role="radiogroup"
+                aria-label={t('Language')}
+            >
                 {Object.entries(locales).map(([code, name]) => {
                     const active = code === locale;
 
@@ -33,14 +37,22 @@ export default function LanguageSection() {
                             }
                             className={cn(
                                 'flex items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors',
-                                active ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:bg-muted/50',
+                                active
+                                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                    : 'hover:bg-muted/50',
                             )}
                         >
                             <span>
-                                <span className="block text-sm font-medium">{name}</span>
-                                <span className="block text-xs text-muted-foreground uppercase">{code}</span>
+                                <span className="block text-sm font-medium">
+                                    {name}
+                                </span>
+                                <span className="block text-xs text-muted-foreground uppercase">
+                                    {code}
+                                </span>
                             </span>
-                            {active && <Check className="size-4 text-primary" />}
+                            {active && (
+                                <Check className="size-4 text-primary" />
+                            )}
                         </button>
                     );
                 })}

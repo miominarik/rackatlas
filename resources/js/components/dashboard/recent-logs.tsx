@@ -41,14 +41,20 @@ export default function RecentLogs({
                             key={log.id}
                             className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 px-4 py-2.5 text-sm"
                         >
-                            <span className="font-medium">{log.server_name}</span>
+                            <span className="font-medium">
+                                {log.server_name}
+                            </span>
                             <span
                                 className={cn(
                                     'rounded-md px-1.5 py-0.5 text-[11px] tracking-wide uppercase',
                                     levelStyle[log.level],
                                 )}
                             >
-                                {t(log.level === 'critical' ? 'Critical' : 'Error')}
+                                {t(
+                                    log.level === 'critical'
+                                        ? 'Critical'
+                                        : 'Error',
+                                )}
                             </span>
                             <span className="text-xs text-muted-foreground">
                                 {log.source}

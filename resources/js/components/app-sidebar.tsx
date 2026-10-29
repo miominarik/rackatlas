@@ -1,5 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { Activity, KeyRound, LayoutGrid, ScrollText, Server } from 'lucide-react';
+import {
+    Activity,
+    KeyRound,
+    LayoutGrid,
+    ScrollText,
+    Server,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';

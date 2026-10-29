@@ -7,17 +7,17 @@ server. It is shipped as the `.deb` package `rackatlas-agent` from our own signe
 
 ## Layout
 
-| Path | What it is |
-|---|---|
-| `agent/VERSION` | The version, one line (`1.1.0`). Substituted for `@VERSION@` in the script and in `DEBIAN/control`. |
-| `agent/package/usr/bin/rackatlas-agent` | The agent itself (POSIX `sh`). |
-| `agent/package/lib/systemd/system/rackatlas-agent.{service,timer}` | Runs the agent once a minute as the user `rackatlas-agent`. |
-| `agent/package/DEBIAN/{control,postinst,prerm,postrm}` | Package metadata and maintainer scripts. |
-| `agent/build-deb.sh [dir]` | Builds the `.deb` (`dpkg-deb`, or `tar` + `ar` on macOS). |
-| `agent/apt-repo.py` | Adds a `.deb` to the apt repository, writes the indexes, signs them with GPG, verifies the result. |
-| `agent/publish-apt.sh KEYID` | Build + publish in one step, writes `public/apt`. |
-| `public/agent/install.sh` | The installer users run with `curl ... \| sudo bash`: adds the repository, installs the package, writes the token. |
-| `public/apt/` | The published repository (committed, served as static files). |
+| Path                                                               | What it is                                                                                                         |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `agent/VERSION`                                                    | The version, one line (`1.1.0`). Substituted for `@VERSION@` in the script and in `DEBIAN/control`.                |
+| `agent/package/usr/bin/rackatlas-agent`                            | The agent itself (POSIX `sh`).                                                                                     |
+| `agent/package/lib/systemd/system/rackatlas-agent.{service,timer}` | Runs the agent once a minute as the user `rackatlas-agent`.                                                        |
+| `agent/package/DEBIAN/{control,postinst,prerm,postrm}`             | Package metadata and maintainer scripts.                                                                           |
+| `agent/build-deb.sh [dir]`                                         | Builds the `.deb` (`dpkg-deb`, or `tar` + `ar` on macOS).                                                          |
+| `agent/apt-repo.py`                                                | Adds a `.deb` to the apt repository, writes the indexes, signs them with GPG, verifies the result.                 |
+| `agent/publish-apt.sh KEYID`                                       | Build + publish in one step, writes `public/apt`.                                                                  |
+| `public/agent/install.sh`                                          | The installer users run with `curl ... \| sudo bash`: adds the repository, installs the package, writes the token. |
+| `public/apt/`                                                      | The published repository (committed, served as static files).                                                      |
 
 Server side (Laravel): `routes/api.php` (`POST /api/agent/ingest`), `app/Http/Middleware/AuthenticateAgent.php`,
 `app/Http/Controllers/Api/AgentIngestController.php`, `app/Services/Ssh/{AgentIngestor,MetricsParser,LogParser}.php`,
@@ -69,11 +69,11 @@ are monitored over SSH by `MetricsParser::SCRIPT`, so metrics sections must stay
 3. Update the server side if the report format changed (see above).
 4. **Stop here and hand over to the owner.** Publishing needs the owner's GPG private key (its public fingerprint is in `agent/SIGNING_KEY`, the script uses it by default), which must never be
    created, read, exported or used by an AI session, and the owner commits and pushes themselves. Tell them to run:
-   ```bash
-   agent/publish-apt.sh
-   git add public/apt agent public/agent
-   ```
-   Then commit, push and deploy. Servers get the update with `sudo apt update && sudo apt upgrade`.
+    ```bash
+    agent/publish-apt.sh
+    git add public/apt agent public/agent
+    ```
+    Then commit, push and deploy. Servers get the update with `sudo apt update && sudo apt upgrade`.
 5. A published version is immutable: `apt-repo.py` refuses a different file with the same version, and a version
    that is not newer than the published one. Do not work around this with `--replace` / `--allow-older`
    unless the owner asks for it explicitly.

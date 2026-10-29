@@ -25,7 +25,9 @@ export default function RecentErrors({
                             key={error.id}
                             className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 px-4 py-2.5 text-sm"
                         >
-                            <span className="font-medium">{error.server_name}</span>
+                            <span className="font-medium">
+                                {error.server_name}
+                            </span>
                             <span className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] tracking-wide text-muted-foreground uppercase">
                                 {error.type}
                             </span>
@@ -33,7 +35,11 @@ export default function RecentErrors({
                                 {error.message}
                             </span>
                             <span className="text-xs text-muted-foreground/70">
-                                {timeAgo(error.occurred_at, generatedAt, locale)}
+                                {timeAgo(
+                                    error.occurred_at,
+                                    generatedAt,
+                                    locale,
+                                )}
                             </span>
                         </li>
                     ))}

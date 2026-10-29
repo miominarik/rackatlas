@@ -74,10 +74,7 @@ export type DashboardError = {
     occurred_at: string;
 };
 
-export type DashboardHistory = Record<
-    string,
-    { cpu: number; ram: number }[]
->;
+export type DashboardHistory = Record<string, { cpu: number; ram: number }[]>;
 
 export type DashboardLog = {
     id: number;

@@ -127,10 +127,17 @@ export function TurnstileField({
     return (
         <div>
             <div ref={turnstile.container} />
-            <input type="hidden" name="turnstile_token" value={turnstile.token} />
+            <input
+                type="hidden"
+                name="turnstile_token"
+                value={turnstile.token}
+            />
             <InputError message={error} />
             {!turnstile.ready && (
-                <p className="text-center text-xs text-muted-foreground" role="status">
+                <p
+                    className="text-center text-xs text-muted-foreground"
+                    role="status"
+                >
                     {t('Running the security check…')}
                 </p>
             )}

@@ -17,12 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { index, show } from '@/routes/teams';
-import type {
-    Auth,
-    TeamInvitation,
-    TeamMember,
-    TeamRole,
-} from '@/types';
+import type { Auth, TeamInvitation, TeamMember, TeamRole } from '@/types';
 import { useTranslation } from '@/hooks/use-translation';
 
 type Props = {
@@ -54,7 +49,10 @@ export default function ShowTeam({
 
     const changeRole = (member: TeamMember, role: string) => {
         router.patch(
-            TeamMemberController.update.url({ team: team.id, member: member.id }),
+            TeamMemberController.update.url({
+                team: team.id,
+                member: member.id,
+            }),
             { role },
             { preserveScroll: true },
         );
@@ -111,7 +109,9 @@ export default function ShowTeam({
                                     />
                                     <InputError message={errors.name} />
                                 </div>
-                                <Button disabled={processing}>{t('Save')}</Button>
+                                <Button disabled={processing}>
+                                    {t('Save')}
+                                </Button>
                             </>
                         )}
                     </Form>
@@ -123,7 +123,9 @@ export default function ShowTeam({
                 title={t('Members')}
                 description={
                     canManage
-                        ? t('People in this team and what they are allowed to do')
+                        ? t(
+                              'People in this team and what they are allowed to do',
+                          )
                         : team.name
                 }
             >
@@ -242,16 +244,14 @@ export default function ShowTeam({
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {assignableRoles.map(
-                                                    (role) => (
-                                                        <SelectItem
-                                                            key={role}
-                                                            value={role}
-                                                        >
-                                                            {t(roleLabel[role])}
-                                                        </SelectItem>
-                                                    ),
-                                                )}
+                                                {assignableRoles.map((role) => (
+                                                    <SelectItem
+                                                        key={role}
+                                                        value={role}
+                                                    >
+                                                        {t(roleLabel[role])}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                         <InputError message={errors.role} />
@@ -286,7 +286,8 @@ export default function ShowTeam({
                                                 {invitation.email}
                                             </p>
                                             <p className="text-sm text-muted-foreground">
-                                                {t(roleLabel[invitation.role])} ·{' '}
+                                                {t(roleLabel[invitation.role])}{' '}
+                                                ·{' '}
                                                 {invitation.expired
                                                     ? t('expired')
                                                     : t('expires :date', {
@@ -301,9 +302,12 @@ export default function ShowTeam({
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            aria-label={t('Resend invitation to :email', {
-                                                email: invitation.email,
-                                            })}
+                                            aria-label={t(
+                                                'Resend invitation to :email',
+                                                {
+                                                    email: invitation.email,
+                                                },
+                                            )}
                                             onClick={() =>
                                                 router.post(
                                                     TeamInvitationController.resend.url(
@@ -323,9 +327,12 @@ export default function ShowTeam({
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            aria-label={t('Cancel invitation to :email', {
-                                                email: invitation.email,
-                                            })}
+                                            aria-label={t(
+                                                'Cancel invitation to :email',
+                                                {
+                                                    email: invitation.email,
+                                                },
+                                            )}
                                             onClick={() =>
                                                 router.delete(
                                                     TeamInvitationController.destroy.url(

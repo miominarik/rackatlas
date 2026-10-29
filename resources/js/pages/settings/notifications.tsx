@@ -64,7 +64,9 @@ function Row({
                     {title}
                 </Label>
                 {description && (
-                    <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                        {description}
+                    </p>
                 )}
             </div>
             <Switch
@@ -139,7 +141,9 @@ export default function Notifications({
                             description={
                                 emailVerified
                                     ? t('Sent to :email', { email })
-                                    : t('Verify your email address to receive notifications by email.')
+                                    : t(
+                                          'Verify your email address to receive notifications by email.',
+                                      )
                             }
                             checked={form.data.email_enabled}
                             onChange={set('email_enabled')}
@@ -148,7 +152,9 @@ export default function Notifications({
                             id="push_enabled"
                             icon={<Smartphone className="size-5" />}
                             title={t('Push notifications')}
-                            description={t('Instant messages on your phone or computer, even when the app is closed.')}
+                            description={t(
+                                'Instant messages on your phone or computer, even when the app is closed.',
+                            )}
                             checked={form.data.push_enabled}
                             onChange={set('push_enabled')}
                         />
@@ -165,48 +171,65 @@ export default function Notifications({
                         <Row
                             id="notify_offline"
                             title={t('Server is offline')}
-                            description={t('The server did not respond for more than 3 minutes.')}
+                            description={t(
+                                'The server did not respond for more than 3 minutes.',
+                            )}
                             checked={form.data.notify_offline}
                             onChange={set('notify_offline')}
                         />
                         <Row
                             id="notify_resources"
                             title={t('Critical resource usage')}
-                            description={t('CPU, memory or a disk above the critical limit.')}
+                            description={t(
+                                'CPU, memory or a disk above the critical limit.',
+                            )}
                             checked={form.data.notify_resources}
                             onChange={set('notify_resources')}
                         />
                         <Row
                             id="notify_services"
                             title={t('A service failed')}
-                            description={t('A systemd unit on the server is in the failed state.')}
+                            description={t(
+                                'A systemd unit on the server is in the failed state.',
+                            )}
                             checked={form.data.notify_services}
                             onChange={set('notify_services')}
                         />
                         <Row
                             id="notify_logs"
                             title={t('Critical errors in the log')}
-                            description={t('At most one message every 15 minutes per server.')}
+                            description={t(
+                                'At most one message every 15 minutes per server.',
+                            )}
                             checked={form.data.notify_logs}
                             onChange={set('notify_logs')}
                         />
                         <Row
                             id="notify_recovery"
                             title={t('Also tell me when it is resolved')}
-                            description={t('One more message when the problem is gone.')}
+                            description={t(
+                                'One more message when the problem is gone.',
+                            )}
                             checked={form.data.notify_recovery}
                             onChange={set('notify_recovery')}
                         />
                     </div>
 
                     <div className="flex flex-wrap gap-2 border-t pt-4">
-                        <Button onClick={save} disabled={form.processing || !form.isDirty}>
+                        <Button
+                            onClick={save}
+                            disabled={form.processing || !form.isDirty}
+                        >
                             {t('Save')}
                         </Button>
                         <Button
                             variant="outline"
                             onClick={() =>
-                                router.post(NotificationController.test.url(), {}, { preserveScroll: true })
+                                router.post(
+                                    NotificationController.test.url(),
+                                    {},
+                                    { preserveScroll: true },
+                                )
                             }
                             disabled={form.isDirty}
                         >
@@ -219,83 +242,109 @@ export default function Notifications({
 
             <SettingsSection
                 title={t('Devices for push')}
-                description={t('Register this browser or phone to receive push notifications.')}
+                description={t(
+                    'Register this browser or phone to receive push notifications.',
+                )}
             >
+                {!pushAvailable ? (
+                    <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                        {t(
+                            'Push notifications are not set up on this server yet (VAPID keys are missing).',
+                        )}
+                    </p>
+                ) : push.state === 'unsupported' ? (
+                    <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                        {t(
+                            'This browser does not support push notifications. On iPhone, add the app to the home screen first.',
+                        )}
+                    </p>
+                ) : push.state === 'denied' ? (
+                    <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                        {t(
+                            'Notifications are blocked for this site. Allow them in the browser settings and reload the page.',
+                        )}
+                    </p>
+                ) : (
+                    !currentRegistered && (
+                        <div className="space-y-2">
+                            <Button
+                                onClick={() => void registerDevice()}
+                                disabled={push.busy}
+                            >
+                                <Smartphone className="size-4" />
+                                {t('Register this device')}
+                            </Button>
+                            {push.error && (
+                                <p className="text-sm text-destructive">
+                                    {push.error === 'error'
+                                        ? t(
+                                              'The device could not be registered.',
+                                          )
+                                        : push.error}
+                                </p>
+                            )}
+                        </div>
+                    )
+                )}
 
-                    {!pushAvailable ? (
-                        <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                            {t('Push notifications are not set up on this server yet (VAPID keys are missing).')}
-                        </p>
-                    ) : push.state === 'unsupported' ? (
-                        <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                            {t('This browser does not support push notifications. On iPhone, add the app to the home screen first.')}
-                        </p>
-                    ) : push.state === 'denied' ? (
-                        <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                            {t('Notifications are blocked for this site. Allow them in the browser settings and reload the page.')}
-                        </p>
-                    ) : (
-                        !currentRegistered && (
-                            <div className="space-y-2">
-                                <Button onClick={() => void registerDevice()} disabled={push.busy}>
-                                    <Smartphone className="size-4" />
-                                    {t('Register this device')}
-                                </Button>
-                                {push.error && (
-                                    <p className="text-sm text-destructive">
-                                        {push.error === 'error'
-                                            ? t('The device could not be registered.')
-                                            : push.error}
+                {devices.length > 0 && (
+                    <ul className="divide-y rounded-xl border">
+                        {devices.map((device) => (
+                            <li
+                                key={device.id}
+                                className="flex items-center gap-3 px-4 py-3"
+                            >
+                                <Smartphone className="size-5 shrink-0 text-muted-foreground" />
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-medium">
+                                        {device.name ?? t('Device')}
+                                        {device.endpoint_hash ===
+                                            push.endpointHash && (
+                                            <span className="ml-2 rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-normal text-primary">
+                                                {t('This device')}
+                                            </span>
+                                        )}
                                     </p>
-                                )}
-                            </div>
-                        )
-                    )}
-
-                    {devices.length > 0 && (
-                        <ul className="divide-y rounded-xl border">
-                            {devices.map((device) => (
-                                <li key={device.id} className="flex items-center gap-3 px-4 py-3">
-                                    <Smartphone className="size-5 shrink-0 text-muted-foreground" />
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-medium">
-                                            {device.name ?? t('Device')}
-                                            {device.endpoint_hash === push.endpointHash && (
-                                                <span className="ml-2 rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-normal text-primary">
-                                                    {t('This device')}
-                                                </span>
-                                            )}
-                                        </p>
-                                        <p className="truncate text-xs text-muted-foreground">
-                                            {device.last_used_at
-                                                ? t('Last used :time', { time: formatDate(device.last_used_at) ?? '' })
-                                                : t('Registered :time', { time: formatDate(device.created_at) ?? '' })}
-                                        </p>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="size-10 md:size-9"
-                                        aria-label={t('Remove device')}
-                                        onClick={() => void removeDevice(device)}
-                                    >
-                                        <Trash2 className="size-4" />
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                    <p className="truncate text-xs text-muted-foreground">
+                                        {device.last_used_at
+                                            ? t('Last used :time', {
+                                                  time:
+                                                      formatDate(
+                                                          device.last_used_at,
+                                                      ) ?? '',
+                                              })
+                                            : t('Registered :time', {
+                                                  time:
+                                                      formatDate(
+                                                          device.created_at,
+                                                      ) ?? '',
+                                              })}
+                                    </p>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-10 md:size-9"
+                                    aria-label={t('Remove device')}
+                                    onClick={() => void removeDevice(device)}
+                                >
+                                    <Trash2 className="size-4" />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </SettingsSection>
 
             <PushDiagnostics
-                    vapidPublicKey={vapidPublicKey}
-                    registeredHashes={devices.map((device) => device.endpoint_hash)}
-                    onReregister={async () => {
-                        await push.unsubscribe();
-                        await push.subscribe();
-                        router.reload({ only: ['devices'] });
-                    }}
-                />
+                vapidPublicKey={vapidPublicKey}
+                registeredHashes={devices.map((device) => device.endpoint_hash)}
+                onReregister={async () => {
+                    await push.unsubscribe();
+                    await push.subscribe();
+                    router.reload({ only: ['devices'] });
+                }}
+            />
         </>
     );
 }

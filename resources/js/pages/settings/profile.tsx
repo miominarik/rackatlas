@@ -46,51 +46,55 @@ export default function Profile({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-6 md:grid-cols-2">
-                            <div className="grid gap-2">
-                                <Label htmlFor="name">{t('Name')}</Label>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="name">{t('Name')}</Label>
 
-                                <Input
-                                    id="name"
-                                    className="mt-1 block w-full"
-                                    defaultValue={auth.user.name}
-                                    name="name"
-                                    required
-                                    autoComplete="name"
-                                    placeholder={t('Full name')}
-                                />
+                                    <Input
+                                        id="name"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.name}
+                                        name="name"
+                                        required
+                                        autoComplete="name"
+                                        placeholder={t('Full name')}
+                                    />
 
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.name}
-                                />
-                            </div>
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.name}
+                                    />
+                                </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">{t('Email address')}</Label>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="email">
+                                        {t('Email address')}
+                                    </Label>
 
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    className="mt-1 block w-full"
-                                    defaultValue={auth.user.email}
-                                    name="email"
-                                    required
-                                    autoComplete="username"
-                                    placeholder={t('Email address')}
-                                />
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.email}
+                                        name="email"
+                                        required
+                                        autoComplete="username"
+                                        placeholder={t('Email address')}
+                                    />
 
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.email}
-                                />
-                            </div>
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.email}
+                                    />
+                                </div>
                             </div>
 
                             {mustVerifyEmail &&
                                 auth.user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
-                                            {t('Your email address is unverified.')}{' '}
+                                            {t(
+                                                'Your email address is unverified.',
+                                            )}{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"

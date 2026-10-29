@@ -51,7 +51,7 @@ const content: Record<string, Copy> = {
                 title: 'Aké údaje spracúvame a prečo',
                 items: [
                     'Účet: meno, e-mail, heslo (ukladá sa len ako hash), nastavenia dvojfázového overenia, passkeys a zvolený jazyk. Účel: vytvorenie a prevádzka účtu. Právny základ: plnenie zmluvy (čl. 6 ods. 1 písm. b GDPR).',
-                    'Servery a monitoring: názov servera a údaje, ktoré pošle agent: využitie CPU, pamäte a diskov, stav služieb a kritické záznamy z logov. Účel: poskytovanie monitoringu a upozornení. Právny základ: plnenie zmluvy. Záznamy z logov môžu obsahovať osobné údaje; agent posiela len vážne chyby.',
+                    'Servery a monitoring: názov servera a údaje, ktoré pošle agent: využitie CPU, pamäte a diskov, názvy a využitie zdrojov najnáročnejších procesov, stav služieb a kritické záznamy z logov. Účel: poskytovanie monitoringu a upozornení. Právny základ: plnenie zmluvy. Záznamy z logov môžu obsahovať osobné údaje; agent posiela len vážne chyby.',
                     'Zariadenia a bezpečnosť: IP adresa, typ prehliadača a zariadenia, čas poslednej aktivity a identifikátor zariadenia. Účel: zoznam prihlásených zariadení, ich odhlásenie a ochrana pred zneužitím účtu. Právny základ: oprávnený záujem na bezpečnosti (čl. 6 ods. 1 písm. f GDPR).',
                     'Upozornenia: e-mailová adresa a, ak ich zapnete, registrácia zariadenia pre push notifikácie. Právny základ: plnenie zmluvy; push notifikácie navyše povoľujete v prehliadači vy.',
                     'Ochrana formulárov: pri prihlásení a registrácii overuje, že ide o človeka, služba Cloudflare Turnstile. Právny základ: oprávnený záujem na ochrane pred automatizovaným zneužitím.',
@@ -167,7 +167,7 @@ const content: Record<string, Copy> = {
                 title: 'Jaké údaje zpracováváme a proč',
                 items: [
                     'Účet: jméno, e-mail, heslo (ukládá se jen jako hash), nastavení dvoufázového ověření, passkeys a zvolený jazyk. Účel: vytvoření a provoz účtu. Právní základ: plnění smlouvy (čl. 6 odst. 1 písm. b GDPR).',
-                    'Servery a monitoring: název serveru a údaje, které pošle agent: využití CPU, paměti a disků, stav služeb a kritické záznamy z logů. Účel: poskytování monitoringu a upozornění. Právní základ: plnění smlouvy. Záznamy z logů mohou obsahovat osobní údaje; agent posílá jen vážné chyby.',
+                    'Servery a monitoring: název serveru a údaje, které pošle agent: využití CPU, paměti a disků, názvy a využití zdrojů nejnáročnějších procesů, stav služeb a kritické záznamy z logů. Účel: poskytování monitoringu a upozornění. Právní základ: plnění smlouvy. Záznamy z logů mohou obsahovat osobní údaje; agent posílá jen vážné chyby.',
                     'Zařízení a bezpečnost: IP adresa, typ prohlížeče a zařízení, čas poslední aktivity a identifikátor zařízení. Účel: seznam přihlášených zařízení, jejich odhlášení a ochrana před zneužitím účtu. Právní základ: oprávněný zájem na bezpečnosti (čl. 6 odst. 1 písm. f GDPR).',
                     'Upozornění: e-mailová adresa a, pokud je zapnete, registrace zařízení pro push notifikace. Právní základ: plnění smlouvy; push notifikace navíc povolujete v prohlížeči vy.',
                     'Ochrana formulářů: při přihlášení a registraci ověřuje, že jde o člověka, služba Cloudflare Turnstile. Právní základ: oprávněný zájem na ochraně před automatizovaným zneužitím.',
@@ -283,7 +283,7 @@ const content: Record<string, Copy> = {
                 title: 'What data we process and why',
                 items: [
                     'Account: name, email, password (stored only as a hash), two-factor and passkey settings and your language. Purpose: creating and running your account. Legal basis: performance of a contract (Art. 6(1)(b) GDPR).',
-                    'Servers and monitoring: the server name and what the agent sends: CPU, memory and disk usage, service status and critical log entries. Purpose: providing monitoring and alerts. Legal basis: performance of a contract. Log entries may contain personal data; the agent only sends serious errors.',
+                    'Servers and monitoring: the server name and what the agent sends: CPU, memory and disk usage, the names and resource use of the busiest processes, service status and critical log entries. Purpose: providing monitoring and alerts. Legal basis: performance of a contract. Log entries may contain personal data; the agent only sends serious errors.',
                     'Devices and security: IP address, browser and device type, last activity and a device identifier. Purpose: the list of signed-in devices, signing them out and protecting your account from abuse. Legal basis: legitimate interest in security (Art. 6(1)(f) GDPR).',
                     'Alerts: your email address and, if you turn it on, a device registration for push notifications. Legal basis: performance of a contract; you also allow push notifications in your browser.',
                     'Form protection: Cloudflare Turnstile checks that a visitor is human when signing in or registering. Legal basis: legitimate interest in protection from automated abuse.',

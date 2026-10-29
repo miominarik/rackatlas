@@ -1,5 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { Activity, LayoutGrid, ScrollText, Server, Settings } from 'lucide-react';
+import {
+    Activity,
+    LayoutGrid,
+    ScrollText,
+    Server,
+    Settings,
+} from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';

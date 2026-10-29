@@ -86,7 +86,12 @@ function CategoryRow({
                         onChange={(e) => setName(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && save()}
                     />
-                    <Button size="icon" variant="ghost" onClick={save} aria-label={t('Save')}>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={save}
+                        aria-label={t('Save')}
+                    >
                         <Check className="size-4" />
                     </Button>
                     <Button
@@ -103,7 +108,11 @@ function CategoryRow({
                         <X className="size-4" />
                     </Button>
                 </div>
-                <ColorPicker colors={colors} value={color} onChange={setColor} />
+                <ColorPicker
+                    colors={colors}
+                    value={color}
+                    onChange={setColor}
+                />
                 <InputError message={error} />
             </li>
         );
@@ -111,8 +120,15 @@ function CategoryRow({
 
     return (
         <li className="flex items-center gap-3 p-3">
-            <span className={cn('size-2.5 rounded-full', dotClass(category.color))} />
-            <span className="min-w-0 flex-1 truncate font-medium">{category.name}</span>
+            <span
+                className={cn(
+                    'size-2.5 rounded-full',
+                    dotClass(category.color),
+                )}
+            />
+            <span className="min-w-0 flex-1 truncate font-medium">
+                {category.name}
+            </span>
             <span className="text-xs text-muted-foreground">
                 {t(':count servers', { count: category.servers_count ?? 0 })}
             </span>
@@ -131,14 +147,20 @@ function CategoryRow({
                 onClick={() => {
                     if (
                         window.confirm(
-                            t('Delete the category :name? Its servers stay, just without a category.', {
-                                name: category.name,
-                            }),
+                            t(
+                                'Delete the category :name? Its servers stay, just without a category.',
+                                {
+                                    name: category.name,
+                                },
+                            ),
                         )
                     ) {
-                        router.delete(ServerCategoryController.destroy.url(category.id), {
-                            preserveScroll: true,
-                        });
+                        router.delete(
+                            ServerCategoryController.destroy.url(category.id),
+                            {
+                                preserveScroll: true,
+                            },
+                        );
                     }
                 }}
             >
@@ -166,7 +188,9 @@ export default function CategoryManager({
             <DialogContent>
                 <DialogTitle>{t('Server categories')}</DialogTitle>
                 <DialogDescription>
-                    {t('Group servers, for example by provider, project or client.')}
+                    {t(
+                        'Group servers, for example by provider, project or client.',
+                    )}
                 </DialogDescription>
 
                 {categories.length > 0 && (
@@ -201,7 +225,11 @@ export default function CategoryManager({
                                     {t('Add')}
                                 </Button>
                             </div>
-                            <ColorPicker colors={colors} value={color} onChange={setColor} />
+                            <ColorPicker
+                                colors={colors}
+                                value={color}
+                                onChange={setColor}
+                            />
                             <InputError message={errors.name ?? errors.color} />
                         </>
                     )}

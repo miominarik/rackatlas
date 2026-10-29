@@ -51,7 +51,9 @@ export default function PasskeyItem({ passkey, onDelete }: Props) {
                                 <span className="mx-1 text-muted-foreground/50">
                                     /
                                 </span>
-                                {t('Last used :time', { time: passkey.last_used_at_diff })}
+                                {t('Last used :time', {
+                                    time: passkey.last_used_at_diff,
+                                })}
                             </>
                         )}
                     </p>
@@ -86,7 +88,9 @@ export default function PasskeyItem({ passkey, onDelete }: Props) {
                             onClick={handleDelete}
                             disabled={isDeleting}
                         >
-                            {isDeleting ? t('Removing...') : t('Remove passkey')}
+                            {isDeleting
+                                ? t('Removing...')
+                                : t('Remove passkey')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

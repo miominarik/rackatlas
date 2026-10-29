@@ -13,6 +13,10 @@ SupplementaryGroups=systemd-journal
 StateDirectory=rackatlas-agent
 ExecStart=/usr/bin/rackatlas-agent
 TimeoutStartSec=45
+# Reading the memory accounting (PSS) of the processes of other users needs this one capability.
+# The agent still runs as its own unprivileged user and cannot change anything.
+AmbientCapabilities=CAP_SYS_PTRACE
+CapabilityBoundingSet=CAP_SYS_PTRACE
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes

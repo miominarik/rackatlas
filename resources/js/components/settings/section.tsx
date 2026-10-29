@@ -37,7 +37,8 @@ export function SettingsSection({
             <header
                 className={cn(
                     'flex flex-wrap items-start justify-between gap-3 border-b px-4 py-4 sm:px-6',
-                    danger && 'border-red-200 bg-red-50/60 dark:border-red-500/25 dark:bg-red-500/[0.06]',
+                    danger &&
+                        'border-red-200 bg-red-50/60 dark:border-red-500/25 dark:bg-red-500/[0.06]',
                 )}
             >
                 <div className="min-w-0 space-y-1">
@@ -50,12 +51,16 @@ export function SettingsSection({
                         {title}
                     </h2>
                     {description && (
-                        <p className="text-sm text-muted-foreground">{description}</p>
+                        <p className="text-sm text-muted-foreground">
+                            {description}
+                        </p>
                     )}
                 </div>
                 {action}
             </header>
-            <div className={cn(!flush && 'space-y-6 px-4 py-5 sm:px-6')}>{children}</div>
+            <div className={cn(!flush && 'space-y-6 px-4 py-5 sm:px-6')}>
+                {children}
+            </div>
         </section>
     );
 }

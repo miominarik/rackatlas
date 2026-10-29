@@ -3,7 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 export type PushState = 'unsupported' | 'denied' | 'idle' | 'subscribed';
 
 function urlBase64ToUint8Array(value: string): Uint8Array<ArrayBuffer> {
-    const padded = value.padEnd(value.length + ((4 - (value.length % 4)) % 4), '=');
+    const padded = value.padEnd(
+        value.length + ((4 - (value.length % 4)) % 4),
+        '=',
+    );
     const raw = window.atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
     const bytes = new Uint8Array(new ArrayBuffer(raw.length));
 
@@ -73,7 +76,10 @@ function supported(): boolean {
 /**
  * Registers this browser for push notifications and reports whether it already is.
  */
-export function usePushSubscription(vapidPublicKey: string | null, subscribeUrl: string) {
+export function usePushSubscription(
+    vapidPublicKey: string | null,
+    subscribeUrl: string,
+) {
     const [state, setState] = useState<PushState>('idle');
     const [endpointHash, setEndpointHash] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
@@ -93,8 +99,10 @@ export function usePushSubscription(vapidPublicKey: string | null, subscribeUrl:
         }
 
         try {
-            const registration = await navigator.serviceWorker.getRegistration('/');
-            const subscription = await registration?.pushManager.getSubscription();
+            const registration =
+                await navigator.serviceWorker.getRegistration('/');
+            const subscription =
+                await registration?.pushManager.getSubscription();
 
             if (subscription) {
                 const digest = await crypto.subtle.digest(
@@ -171,7 +179,9 @@ export function usePushSubscription(vapidPublicKey: string | null, subscribeUrl:
             });
 
             if (!response.ok) {
-                const body = (await response.json().catch(() => null)) as { message?: string } | null;
+                const body = (await response.json().catch(() => null)) as {
+                    message?: string;
+                } | null;
 
                 await subscription.unsubscribe();
                 setError(body?.message ?? 'error');

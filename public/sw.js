@@ -24,7 +24,10 @@ self.addEventListener('activate', (event) => {
             .then((keys) =>
                 Promise.all(
                     keys
-                        .filter((key) => key.startsWith('rackatlas-') && key !== ASSETS)
+                        .filter(
+                            (key) =>
+                                key.startsWith('rackatlas-') && key !== ASSETS,
+                        )
                         .map((key) => caches.delete(key)),
                 ),
             )
@@ -48,7 +51,10 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/')) {
+    if (
+        url.pathname.startsWith('/build/') ||
+        url.pathname.startsWith('/icons/')
+    ) {
         event.respondWith(
             caches.open(ASSETS).then((cache) =>
                 cache.match(request).then(
@@ -91,17 +97,24 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
-    const target = new URL(event.notification.data?.url || '/app', self.location.origin).href;
+    const target = new URL(
+        event.notification.data?.url || '/app',
+        self.location.origin,
+    ).href;
 
     event.waitUntil(
-        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
-            const open = windows.find((client) => client.url.startsWith(self.location.origin));
+        self.clients
+            .matchAll({ type: 'window', includeUncontrolled: true })
+            .then((windows) => {
+                const open = windows.find((client) =>
+                    client.url.startsWith(self.location.origin),
+                );
 
-            if (open) {
-                return open.focus().then(() => open.navigate(target));
-            }
+                if (open) {
+                    return open.focus().then(() => open.navigate(target));
+                }
 
-            return self.clients.openWindow(target);
-        }),
+                return self.clients.openWindow(target);
+            }),
     );
 });

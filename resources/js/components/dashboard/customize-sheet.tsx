@@ -93,7 +93,10 @@ function Form({
                 return current;
             }
 
-            [widgets[index], widgets[target]] = [widgets[target], widgets[index]];
+            [widgets[index], widgets[target]] = [
+                widgets[target],
+                widgets[index],
+            ];
 
             return { ...current, widgets };
         });
@@ -147,7 +150,9 @@ function Form({
                 <section className="space-y-3">
                     <h3 className="text-sm font-medium">{t('Sections')}</h3>
                     <p className="text-xs text-muted-foreground">
-                        {t('Show, hide and reorder the parts of the dashboard.')}
+                        {t(
+                            'Show, hide and reorder the parts of the dashboard.',
+                        )}
                     </p>
                     <ul className="divide-y rounded-lg border">
                         {draft.widgets.map((widget, index) => (
@@ -161,10 +166,16 @@ function Form({
                                     onCheckedChange={(checked) =>
                                         setDraft((current) => ({
                                             ...current,
-                                            widgets: current.widgets.map((item) =>
-                                                item.id === widget.id
-                                                    ? { ...item, visible: checked === true }
-                                                    : item,
+                                            widgets: current.widgets.map(
+                                                (item) =>
+                                                    item.id === widget.id
+                                                        ? {
+                                                              ...item,
+                                                              visible:
+                                                                  checked ===
+                                                                  true,
+                                                          }
+                                                        : item,
                                             ),
                                         }))
                                     }
@@ -191,7 +202,9 @@ function Form({
                                     variant="ghost"
                                     size="icon"
                                     className="size-7"
-                                    disabled={index === draft.widgets.length - 1}
+                                    disabled={
+                                        index === draft.widgets.length - 1
+                                    }
                                     onClick={() => moveWidget(index, 1)}
                                     aria-label={t('Move down')}
                                 >
@@ -219,11 +232,13 @@ function Form({
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                {Object.entries(sortLabel).map(([value, label]) => (
-                                    <SelectItem key={value} value={value}>
-                                        {label}
-                                    </SelectItem>
-                                ))}
+                                {Object.entries(sortLabel).map(
+                                    ([value, label]) => (
+                                        <SelectItem key={value} value={value}>
+                                            {label}
+                                        </SelectItem>
+                                    ),
+                                )}
                             </SelectContent>
                         </Select>
                     </div>
@@ -234,7 +249,8 @@ function Form({
                             value={draft.servers.density}
                             onValueChange={(value) =>
                                 setServers({
-                                    density: value as DashboardSettings['servers']['density'],
+                                    density:
+                                        value as DashboardSettings['servers']['density'],
                                 })
                             }
                         >
@@ -245,7 +261,9 @@ function Form({
                                 <SelectItem value="comfortable">
                                     {t('Detailed')}
                                 </SelectItem>
-                                <SelectItem value="compact">{t('Compact')}</SelectItem>
+                                <SelectItem value="compact">
+                                    {t('Compact')}
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -255,7 +273,9 @@ function Form({
                             id="group"
                             checked={draft.servers.group_by_category}
                             onCheckedChange={(checked) =>
-                                setServers({ group_by_category: checked === true })
+                                setServers({
+                                    group_by_category: checked === true,
+                                })
                             }
                         />
                         <Label htmlFor="group" className="font-normal">
@@ -279,33 +299,45 @@ function Form({
                     <div className="space-y-2">
                         <p className="text-sm">{t('Shown on each card')}</p>
                         <div className="grid grid-cols-2 gap-2">
-                            {(Object.keys(metricLabel) as DashboardMetricId[]).map(
-                                (metric) => (
-                                    <div key={metric} className="flex items-center gap-3">
-                                        <Checkbox
-                                            id={`metric-${metric}`}
-                                            checked={draft.servers.metrics.includes(metric)}
-                                            onCheckedChange={(checked) =>
-                                                toggleMetric(metric, checked === true)
-                                            }
-                                        />
-                                        <Label
-                                            htmlFor={`metric-${metric}`}
-                                            className="font-normal"
-                                        >
-                                            {metricLabel[metric]}
-                                        </Label>
-                                    </div>
-                                ),
-                            )}
+                            {(
+                                Object.keys(metricLabel) as DashboardMetricId[]
+                            ).map((metric) => (
+                                <div
+                                    key={metric}
+                                    className="flex items-center gap-3"
+                                >
+                                    <Checkbox
+                                        id={`metric-${metric}`}
+                                        checked={draft.servers.metrics.includes(
+                                            metric,
+                                        )}
+                                        onCheckedChange={(checked) =>
+                                            toggleMetric(
+                                                metric,
+                                                checked === true,
+                                            )
+                                        }
+                                    />
+                                    <Label
+                                        htmlFor={`metric-${metric}`}
+                                        className="font-normal"
+                                    >
+                                        {metricLabel[metric]}
+                                    </Label>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </section>
 
                 <section className="space-y-3">
-                    <h3 className="text-sm font-medium">{t('Alert thresholds')}</h3>
+                    <h3 className="text-sm font-medium">
+                        {t('Alert thresholds')}
+                    </h3>
                     <p className="text-xs text-muted-foreground">
-                        {t('From these values (in %) a server is shown as a warning or as critical.')}
+                        {t(
+                            'From these values (in %) a server is shown as a warning or as critical.',
+                        )}
                     </p>
                     <div className="grid grid-cols-[1fr_5rem_5rem] items-center gap-x-3 gap-y-2 text-sm">
                         <span />
@@ -317,23 +349,32 @@ function Form({
                         </span>
                         {THRESHOLD_KEYS.map((key) => (
                             <div key={key} className="contents">
-                                <Label htmlFor={`${key}-warn`} className="font-normal">
+                                <Label
+                                    htmlFor={`${key}-warn`}
+                                    className="font-normal"
+                                >
                                     {metricLabel[key]}
                                 </Label>
-                                {(['warn', 'critical'] as const).map((level) => (
-                                    <Input
-                                        key={level}
-                                        id={`${key}-${level}`}
-                                        type="number"
-                                        min={1}
-                                        max={100}
-                                        value={draft.thresholds[key][level]}
-                                        onChange={(e) =>
-                                            setThreshold(key, level, e.target.value)
-                                        }
-                                        aria-label={`${metricLabel[key]} ${level}`}
-                                    />
-                                ))}
+                                {(['warn', 'critical'] as const).map(
+                                    (level) => (
+                                        <Input
+                                            key={level}
+                                            id={`${key}-${level}`}
+                                            type="number"
+                                            min={1}
+                                            max={100}
+                                            value={draft.thresholds[key][level]}
+                                            onChange={(e) =>
+                                                setThreshold(
+                                                    key,
+                                                    level,
+                                                    e.target.value,
+                                                )
+                                            }
+                                            aria-label={`${metricLabel[key]} ${level}`}
+                                        />
+                                    ),
+                                )}
                             </div>
                         ))}
                     </div>
@@ -351,14 +392,25 @@ function Form({
                             }))
                         }
                     >
-                        <SelectTrigger className="w-full" aria-label={t('Refresh')}>
+                        <SelectTrigger
+                            className="w-full"
+                            aria-label={t('Refresh')}
+                        >
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="15">{t('Every 15 seconds')}</SelectItem>
-                            <SelectItem value="30">{t('Every 30 seconds')}</SelectItem>
-                            <SelectItem value="60">{t('Every minute')}</SelectItem>
-                            <SelectItem value="0">{t('Never, I will reload myself')}</SelectItem>
+                            <SelectItem value="15">
+                                {t('Every 15 seconds')}
+                            </SelectItem>
+                            <SelectItem value="30">
+                                {t('Every 30 seconds')}
+                            </SelectItem>
+                            <SelectItem value="60">
+                                {t('Every minute')}
+                            </SelectItem>
+                            <SelectItem value="0">
+                                {t('Never, I will reload myself')}
+                            </SelectItem>
                         </SelectContent>
                     </Select>
                 </section>
@@ -400,11 +452,16 @@ export default function CustomizeSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="flex w-full flex-col gap-4 sm:max-w-md">
+            <SheetContent
+                side="right"
+                className="flex w-full flex-col gap-4 sm:max-w-md"
+            >
                 <SheetHeader>
                     <SheetTitle>{t('Customize the dashboard')}</SheetTitle>
                     <SheetDescription>
-                        {t('Every device has its own layout, so a phone can show less than a computer.')}
+                        {t(
+                            'Every device has its own layout, so a phone can show less than a computer.',
+                        )}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -413,19 +470,35 @@ export default function CustomizeSheet({
                         <p className="flex items-center gap-2">
                             <Smartphone className="size-4 shrink-0 text-muted-foreground" />
                             <span>
-                                {t('Saved for this device:')} <span className="font-medium">{device.label}</span>
+                                {t('Saved for this device:')}{' '}
+                                <span className="font-medium">
+                                    {device.label}
+                                </span>
                             </span>
                         </p>
 
                         {otherDevices.length > 0 && (
                             <div className="flex gap-2">
-                                <Select value={copyFrom} onValueChange={setCopyFrom}>
-                                    <SelectTrigger className="min-w-0 flex-1" aria-label={t('Copy the layout from')}>
-                                        <SelectValue placeholder={t('Copy the layout from…')} />
+                                <Select
+                                    value={copyFrom}
+                                    onValueChange={setCopyFrom}
+                                >
+                                    <SelectTrigger
+                                        className="min-w-0 flex-1"
+                                        aria-label={t('Copy the layout from')}
+                                    >
+                                        <SelectValue
+                                            placeholder={t(
+                                                'Copy the layout from…',
+                                            )}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {otherDevices.map((other) => (
-                                            <SelectItem key={other.id} value={String(other.id)}>
+                                            <SelectItem
+                                                key={other.id}
+                                                value={String(other.id)}
+                                            >
                                                 {other.label}
                                             </SelectItem>
                                         ))}
@@ -441,7 +514,8 @@ export default function CustomizeSheet({
                                             { device_id: Number(copyFrom) },
                                             {
                                                 preserveScroll: true,
-                                                onSuccess: () => onOpenChange(false),
+                                                onSuccess: () =>
+                                                    onOpenChange(false),
                                             },
                                         )
                                     }
@@ -452,7 +526,10 @@ export default function CustomizeSheet({
                             </div>
                         )}
 
-                        <Link href={devicesIndex()} className="block text-xs text-muted-foreground underline-offset-4 hover:underline">
+                        <Link
+                            href={devicesIndex()}
+                            className="block text-xs text-muted-foreground underline-offset-4 hover:underline"
+                        >
                             {t('Manage devices')}
                         </Link>
                     </div>

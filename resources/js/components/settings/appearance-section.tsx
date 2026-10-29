@@ -6,14 +6,30 @@ import { useAppearance } from '@/hooks/use-appearance';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
-const options: { value: AppearanceMode; icon: LucideIcon; label: string; preview: string }[] = [
-    { value: 'light', icon: Sun, label: 'Light', preview: 'bg-white border-zinc-200' },
-    { value: 'dark', icon: Moon, label: 'Dark', preview: 'bg-zinc-900 border-zinc-700' },
+const options: {
+    value: AppearanceMode;
+    icon: LucideIcon;
+    label: string;
+    preview: string;
+}[] = [
+    {
+        value: 'light',
+        icon: Sun,
+        label: 'Light',
+        preview: 'bg-white border-zinc-200',
+    },
+    {
+        value: 'dark',
+        icon: Moon,
+        label: 'Dark',
+        preview: 'bg-zinc-900 border-zinc-700',
+    },
     {
         value: 'system',
         icon: Monitor,
         label: 'System',
-        preview: 'bg-gradient-to-r from-white from-50% to-zinc-900 to-50% border-zinc-300',
+        preview:
+            'bg-gradient-to-r from-white from-50% to-zinc-900 to-50% border-zinc-300',
     },
 ];
 
@@ -24,9 +40,15 @@ export default function AppearanceSection() {
     return (
         <SettingsSection
             title={t('Appearance')}
-            description={t('Choose how the application looks. System follows your device.')}
+            description={t(
+                'Choose how the application looks. System follows your device.',
+            )}
         >
-            <div className="grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label={t('Appearance')}>
+            <div
+                className="grid gap-3 sm:grid-cols-3"
+                role="radiogroup"
+                aria-label={t('Appearance')}
+            >
                 {options.map(({ value, icon: Icon, label, preview }) => {
                     const active = appearance === value;
 
@@ -39,7 +61,9 @@ export default function AppearanceSection() {
                             onClick={() => updateAppearance(value)}
                             className={cn(
                                 'flex items-center gap-3 rounded-xl border p-3 text-left transition-colors sm:flex-col sm:items-stretch',
-                                active ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:bg-muted/50',
+                                active
+                                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                    : 'hover:bg-muted/50',
                             )}
                         >
                             <div
@@ -56,7 +80,9 @@ export default function AppearanceSection() {
                                     <Icon className="size-4 text-muted-foreground" />
                                     {t(label)}
                                 </span>
-                                {active && <Check className="size-4 text-primary" />}
+                                {active && (
+                                    <Check className="size-4 text-primary" />
+                                )}
                             </div>
                         </button>
                     );

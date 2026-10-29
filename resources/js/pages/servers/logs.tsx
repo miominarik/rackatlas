@@ -30,7 +30,11 @@ type Props = {
         next_page_url: string | null;
     };
     servers: { id: number; name: string }[];
-    filters: { server: number | null; level: string | null; status: 'open' | 'resolved' | 'all' };
+    filters: {
+        server: number | null;
+        level: string | null;
+        status: 'open' | 'resolved' | 'all';
+    };
     open_count: number;
     retention_days: number;
     generated_at: string;
@@ -54,7 +58,9 @@ export default function Logs({
             <>
                 <Head title={t('Logs')} />
                 <div className="mx-auto max-w-md space-y-4 p-8 text-center">
-                    <h1 className="text-xl font-semibold">{t('Create a team first')}</h1>
+                    <h1 className="text-xl font-semibold">
+                        {t('Create a team first')}
+                    </h1>
                     <Button asChild>
                         <Link href={teamsIndex()}>{t('Create team')}</Link>
                     </Button>
@@ -63,9 +69,13 @@ export default function Logs({
         );
     }
 
-    const filter = (next: { server?: string; level?: string; status?: string }) => {
+    const filter = (next: {
+        server?: string;
+        level?: string;
+        status?: string;
+    }) => {
         const server = next.server ?? String(filters.server ?? ALL);
-        const level = next.level ?? (filters.level ?? ALL);
+        const level = next.level ?? filters.level ?? ALL;
         const status = next.status ?? filters.status;
 
         router.get(
@@ -80,10 +90,16 @@ export default function Logs({
     };
 
     const resolve = (log: LogEntry) =>
-        router.post(LogController.resolve.url(log.id), {}, { preserveScroll: true });
+        router.post(
+            LogController.resolve.url(log.id),
+            {},
+            { preserveScroll: true },
+        );
 
     const reopen = (log: LogEntry) =>
-        router.delete(LogController.reopen.url(log.id), { preserveScroll: true });
+        router.delete(LogController.reopen.url(log.id), {
+            preserveScroll: true,
+        });
 
     const resolveAll = () =>
         router.post(
@@ -102,37 +118,58 @@ export default function Logs({
             <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-semibold">
-                            {t('Logs')}
-                        </h1>
+                        <h1 className="text-2xl font-semibold">{t('Logs')}</h1>
                         <p className="text-sm text-muted-foreground">
-                            {t('Only what is wrong: critical and error entries from the servers with the agent. Kept for :days days.', {
-                                days: retention_days,
-                            })}
+                            {t(
+                                'Only what is wrong: critical and error entries from the servers with the agent. Kept for :days days.',
+                                {
+                                    days: retention_days,
+                                },
+                            )}
                         </p>
                     </div>
                     <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
-                        <Select value={filters.status} onValueChange={(status) => filter({ status })}>
-                            <SelectTrigger className="w-full sm:w-36" aria-label={t('Status')}>
+                        <Select
+                            value={filters.status}
+                            onValueChange={(status) => filter({ status })}
+                        >
+                            <SelectTrigger
+                                className="w-full sm:w-36"
+                                aria-label={t('Status')}
+                            >
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="open">{t('Open')}</SelectItem>
-                                <SelectItem value="resolved">{t('Resolved')}</SelectItem>
-                                <SelectItem value="all">{t('All entries')}</SelectItem>
+                                <SelectItem value="open">
+                                    {t('Open')}
+                                </SelectItem>
+                                <SelectItem value="resolved">
+                                    {t('Resolved')}
+                                </SelectItem>
+                                <SelectItem value="all">
+                                    {t('All entries')}
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                         <Select
                             value={String(filters.server ?? ALL)}
                             onValueChange={(server) => filter({ server })}
                         >
-                            <SelectTrigger className="w-full sm:w-44" aria-label={t('Server')}>
+                            <SelectTrigger
+                                className="w-full sm:w-44"
+                                aria-label={t('Server')}
+                            >
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={ALL}>{t('All servers')}</SelectItem>
+                                <SelectItem value={ALL}>
+                                    {t('All servers')}
+                                </SelectItem>
                                 {servers.map((server) => (
-                                    <SelectItem key={server.id} value={String(server.id)}>
+                                    <SelectItem
+                                        key={server.id}
+                                        value={String(server.id)}
+                                    >
                                         {server.name}
                                     </SelectItem>
                                 ))}
@@ -142,13 +179,22 @@ export default function Logs({
                             value={filters.level ?? ALL}
                             onValueChange={(level) => filter({ level })}
                         >
-                            <SelectTrigger className="w-full sm:w-36" aria-label={t('Level')}>
+                            <SelectTrigger
+                                className="w-full sm:w-36"
+                                aria-label={t('Level')}
+                            >
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={ALL}>{t('All levels')}</SelectItem>
-                                <SelectItem value="critical">{t('Critical')}</SelectItem>
-                                <SelectItem value="error">{t('Error')}</SelectItem>
+                                <SelectItem value={ALL}>
+                                    {t('All levels')}
+                                </SelectItem>
+                                <SelectItem value="critical">
+                                    {t('Critical')}
+                                </SelectItem>
+                                <SelectItem value="error">
+                                    {t('Error')}
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -159,7 +205,11 @@ export default function Logs({
                         <p className="text-sm text-muted-foreground">
                             {t(':count open entries', { count: open_count })}
                         </p>
-                        <Button size="sm" variant="outline" onClick={resolveAll}>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={resolveAll}
+                        >
                             <CheckCheck className="size-4" />
                             {t('Mark all as resolved')}
                         </Button>
@@ -172,10 +222,14 @@ export default function Logs({
                             <ScrollText className="size-7 text-muted-foreground" />
                         </div>
                         <p className="font-medium">
-                            {filters.status === 'resolved' ? t('No resolved entries yet') : t('No problems in the logs')}
+                            {filters.status === 'resolved'
+                                ? t('No resolved entries yet')
+                                : t('No problems in the logs')}
                         </p>
                         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-                            {t('When a server with the agent logs an error, it shows up here.')}
+                            {t(
+                                'When a server with the agent logs an error, it shows up here.',
+                            )}
                         </p>
                     </div>
                 ) : (
@@ -183,17 +237,26 @@ export default function Logs({
                         {logs.data.map((log) => (
                             <li
                                 key={log.id}
-                                className={cn('space-y-1 px-4 py-3', log.resolved_at && 'bg-muted/30 opacity-70')}
+                                className={cn(
+                                    'space-y-1 px-4 py-3',
+                                    log.resolved_at && 'bg-muted/30 opacity-70',
+                                )}
                             >
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                                    <span className="font-medium">{log.server_name}</span>
+                                    <span className="font-medium">
+                                        {log.server_name}
+                                    </span>
                                     <span
                                         className={cn(
                                             'rounded-md px-1.5 py-0.5 text-[11px] tracking-wide uppercase',
                                             levelStyle[log.level],
                                         )}
                                     >
-                                        {t(log.level === 'critical' ? 'Critical' : 'Error')}
+                                        {t(
+                                            log.level === 'critical'
+                                                ? 'Critical'
+                                                : 'Error',
+                                        )}
                                     </span>
                                     <span className="text-xs text-muted-foreground">
                                         {log.source}
@@ -205,9 +268,15 @@ export default function Logs({
                                     )}
                                     <span
                                         className="ml-auto text-xs text-muted-foreground/70"
-                                        title={new Date(log.occurred_at).toLocaleString(locale)}
+                                        title={new Date(
+                                            log.occurred_at,
+                                        ).toLocaleString(locale)}
                                     >
-                                        {timeAgo(log.occurred_at, generated_at, locale)}
+                                        {timeAgo(
+                                            log.occurred_at,
+                                            generated_at,
+                                            locale,
+                                        )}
                                     </span>
                                 </div>
                                 <p className="font-mono text-xs break-words whitespace-pre-wrap text-muted-foreground">
@@ -218,22 +287,36 @@ export default function Logs({
                                         <p className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
                                             <Check className="size-3.5" />
                                             {log.resolved_by
-                                                ? t('Resolved by :name', { name: log.resolved_by })
+                                                ? t('Resolved by :name', {
+                                                      name: log.resolved_by,
+                                                  })
                                                 : t('Resolved automatically')}
                                             <span className="text-muted-foreground">
-                                                {timeAgo(log.resolved_at, generated_at, locale)}
+                                                {timeAgo(
+                                                    log.resolved_at,
+                                                    generated_at,
+                                                    locale,
+                                                )}
                                             </span>
                                         </p>
                                     ) : (
                                         <span />
                                     )}
                                     {log.resolved_at ? (
-                                        <Button variant="ghost" size="sm" onClick={() => reopen(log)}>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => reopen(log)}
+                                        >
                                             <RotateCcw className="size-3.5" />
                                             {t('Reopen')}
                                         </Button>
                                     ) : (
-                                        <Button variant="outline" size="sm" onClick={() => resolve(log)}>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => resolve(log)}
+                                        >
                                             <Check className="size-3.5" />
                                             {t('Mark as resolved')}
                                         </Button>
@@ -246,16 +329,28 @@ export default function Logs({
 
                 {(logs.prev_page_url || logs.next_page_url) && (
                     <div className="flex justify-between">
-                        <Button variant="outline" disabled={!logs.prev_page_url} asChild={!!logs.prev_page_url}>
+                        <Button
+                            variant="outline"
+                            disabled={!logs.prev_page_url}
+                            asChild={!!logs.prev_page_url}
+                        >
                             {logs.prev_page_url ? (
-                                <Link href={logs.prev_page_url}>{t('Newer')}</Link>
+                                <Link href={logs.prev_page_url}>
+                                    {t('Newer')}
+                                </Link>
                             ) : (
                                 <span>{t('Newer')}</span>
                             )}
                         </Button>
-                        <Button variant="outline" disabled={!logs.next_page_url} asChild={!!logs.next_page_url}>
+                        <Button
+                            variant="outline"
+                            disabled={!logs.next_page_url}
+                            asChild={!!logs.next_page_url}
+                        >
                             {logs.next_page_url ? (
-                                <Link href={logs.next_page_url}>{t('Older')}</Link>
+                                <Link href={logs.next_page_url}>
+                                    {t('Older')}
+                                </Link>
                             ) : (
                                 <span>{t('Older')}</span>
                             )}

@@ -1,43 +1,103 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#059669">
-    <title>RackAtlas</title>
-    <style>
-        :root { color-scheme: light dark; }
-        body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font-family: system-ui, sans-serif; background: #fff; color: #171717; text-align: center; }
-        @media (prefers-color-scheme: dark) { body { background: #0a0a0a; color: #fafafa; } p { color: #a3a3a3 !important; } }
-        img { width: 72px; height: 72px; border-radius: 16px; }
-        h1 { font-size: 1.25rem; margin: 20px 0 8px; }
-        p { margin: 0 0 24px; color: #737373; max-width: 22rem; line-height: 1.5; }
-        button { font: inherit; font-weight: 500; padding: 10px 20px; border: 0; border-radius: 8px; background: #059669; color: #fff; }
-    </style>
-</head>
-<body>
-    <main>
-        <img src="/icons/icon-192.png" alt="">
-        <h1 id="title">You are offline</h1>
-        <p id="text">RackAtlas needs a connection to show current data. Check your network and try again.</p>
-        <button id="retry" type="button">Try again</button>
-    </main>
-    <script>
-        var texts = {
-            sk: ['Si offline', 'RackAtlas potrebuje pripojenie, aby zobrazil aktuálne dáta. Skontroluj sieť a skús to znova.', 'Skúsiť znova'],
-            cs: ['Jsi offline', 'RackAtlas potřebuje připojení, aby zobrazil aktuální data. Zkontroluj síť a zkus to znovu.', 'Zkusit znovu'],
-        };
-        var found = texts[(navigator.language || 'en').slice(0, 2)];
-        if (found) {
-            document.documentElement.lang = (navigator.language || 'en').slice(0, 2);
-            document.getElementById('title').textContent = found[0];
-            document.getElementById('text').textContent = found[1];
-            document.getElementById('retry').textContent = found[2];
-        } else {
-            document.getElementById('retry').textContent = 'Try again';
-        }
-        document.getElementById('retry').addEventListener('click', function () { location.reload(); });
-        window.addEventListener('online', function () { location.reload(); });
-    </script>
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#059669" />
+        <title>RackAtlas</title>
+        <style>
+            :root {
+                color-scheme: light dark;
+            }
+            body {
+                margin: 0;
+                min-height: 100dvh;
+                display: grid;
+                place-items: center;
+                padding: 24px;
+                box-sizing: border-box;
+                font-family: system-ui, sans-serif;
+                background: #fff;
+                color: #171717;
+                text-align: center;
+            }
+            @media (prefers-color-scheme: dark) {
+                body {
+                    background: #0a0a0a;
+                    color: #fafafa;
+                }
+                p {
+                    color: #a3a3a3 !important;
+                }
+            }
+            img {
+                width: 72px;
+                height: 72px;
+                border-radius: 16px;
+            }
+            h1 {
+                font-size: 1.25rem;
+                margin: 20px 0 8px;
+            }
+            p {
+                margin: 0 0 24px;
+                color: #737373;
+                max-width: 22rem;
+                line-height: 1.5;
+            }
+            button {
+                font: inherit;
+                font-weight: 500;
+                padding: 10px 20px;
+                border: 0;
+                border-radius: 8px;
+                background: #059669;
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <img src="/icons/icon-192.png" alt="" />
+            <h1 id="title">You are offline</h1>
+            <p id="text">
+                RackAtlas needs a connection to show current data. Check your
+                network and try again.
+            </p>
+            <button id="retry" type="button">Try again</button>
+        </main>
+        <script>
+            var texts = {
+                sk: [
+                    'Si offline',
+                    'RackAtlas potrebuje pripojenie, aby zobrazil aktuálne dáta. Skontroluj sieť a skús to znova.',
+                    'Skúsiť znova',
+                ],
+                cs: [
+                    'Jsi offline',
+                    'RackAtlas potřebuje připojení, aby zobrazil aktuální data. Zkontroluj síť a zkus to znovu.',
+                    'Zkusit znovu',
+                ],
+            };
+            var found = texts[(navigator.language || 'en').slice(0, 2)];
+            if (found) {
+                document.documentElement.lang = (
+                    navigator.language || 'en'
+                ).slice(0, 2);
+                document.getElementById('title').textContent = found[0];
+                document.getElementById('text').textContent = found[1];
+                document.getElementById('retry').textContent = found[2];
+            } else {
+                document.getElementById('retry').textContent = 'Try again';
+            }
+            document
+                .getElementById('retry')
+                .addEventListener('click', function () {
+                    location.reload();
+                });
+            window.addEventListener('online', function () {
+                location.reload();
+            });
+        </script>
+    </body>
 </html>

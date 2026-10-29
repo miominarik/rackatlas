@@ -1,5 +1,14 @@
 import { Head, Link, router, usePoll } from '@inertiajs/react';
-import { KeyRound, Lock, Pencil, Plus, Radio, Server, Tags, Trash2 } from 'lucide-react';
+import {
+    KeyRound,
+    Lock,
+    Pencil,
+    Plus,
+    Radio,
+    Server,
+    Tags,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 import ServerController from '@/actions/App/Http/Controllers/Servers/ServerController';
 import CategoryManager from '@/components/servers/category-manager';
@@ -77,14 +86,23 @@ function ServerRow({
                 </p>
                 {server.metrics ? (
                     <p className="mt-1 flex flex-wrap gap-x-3 font-mono text-xs">
-                        <span className={usageClass(server.metrics.cpu_percent)}>
+                        <span
+                            className={usageClass(server.metrics.cpu_percent)}
+                        >
                             CPU {Math.round(server.metrics.cpu_percent)}%
                         </span>
-                        <span className={usageClass(server.metrics.memory_percent)}>
+                        <span
+                            className={usageClass(
+                                server.metrics.memory_percent,
+                            )}
+                        >
                             RAM {Math.round(server.metrics.memory_percent)}%
                         </span>
-                        <span className={usageClass(server.metrics.disk_percent)}>
-                            {t('Disk')} {Math.round(server.metrics.disk_percent)}%
+                        <span
+                            className={usageClass(server.metrics.disk_percent)}
+                        >
+                            {t('Disk')}{' '}
+                            {Math.round(server.metrics.disk_percent)}%
                         </span>
                         <span className="text-muted-foreground">
                             {server.metrics.collected}
@@ -105,7 +123,9 @@ function ServerRow({
                     <>
                         <Radio className="size-3" />
                         {server.agent_version
-                            ? t('Agent :version', { version: server.agent_version })
+                            ? t('Agent :version', {
+                                  version: server.agent_version,
+                              })
                             : t('Agent')}
                     </>
                 ) : server.auth_type === 'key' ? (
@@ -122,7 +142,12 @@ function ServerRow({
             </span>
             {canManage && (
                 <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="size-10 md:size-9" asChild>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-10 md:size-9"
+                        asChild
+                    >
                         <Link
                             href={ServerController.edit(server.id)}
                             aria-label={t('Edit :name', { name: server.name })}
@@ -181,7 +206,9 @@ export default function Servers({
                         {t('Create a team first')}
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                        {t('Servers belong to a team, so you need one before you can add servers.')}
+                        {t(
+                            'Servers belong to a team, so you need one before you can add servers.',
+                        )}
                     </p>
                     <Button asChild>
                         <Link href={teamsIndex()}>{t('Create team')}</Link>
@@ -218,7 +245,9 @@ export default function Servers({
                             {t('Servers')}
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {t('Servers of the team :team', { team: team.name })}
+                            {t('Servers of the team :team', {
+                                team: team.name,
+                            })}
                         </p>
                     </div>
                     {canManage && (
@@ -250,7 +279,9 @@ export default function Servers({
                         </div>
                         <p className="font-medium">{t('No servers yet')}</p>
                         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-                            {t('Add your first server. It takes less than a minute.')}
+                            {t(
+                                'Add your first server. It takes less than a minute.',
+                            )}
                         </p>
                         {canManage && (
                             <Button asChild className="mt-4">
@@ -272,7 +303,11 @@ export default function Servers({
                                         label: c.name,
                                         color: c.color,
                                     })),
-                                    { key: NONE, label: t('No category'), color: null },
+                                    {
+                                        key: NONE,
+                                        label: t('No category'),
+                                        color: null,
+                                    },
                                 ].map((chip) => (
                                     <button
                                         key={chip.key}
@@ -287,7 +322,10 @@ export default function Servers({
                                     >
                                         {chip.color && (
                                             <span
-                                                className={cn('size-2 rounded-full', dotClass(chip.color))}
+                                                className={cn(
+                                                    'size-2 rounded-full',
+                                                    dotClass(chip.color),
+                                                )}
                                             />
                                         )}
                                         {chip.label}
@@ -304,11 +342,14 @@ export default function Servers({
                                             <span
                                                 className={cn(
                                                     'size-2 rounded-full',
-                                                    dotClass(group.category.color),
+                                                    dotClass(
+                                                        group.category.color,
+                                                    ),
                                                 )}
                                             />
                                         )}
-                                        {group.category?.name ?? t('No category')}
+                                        {group.category?.name ??
+                                            t('No category')}
                                         <span className="text-xs">
                                             {group.items.length}
                                         </span>

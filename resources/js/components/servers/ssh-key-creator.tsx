@@ -54,10 +54,7 @@ export default function SshKeyCreator({
                     <KeyRound className="size-4" />
                     {t('Key ":name" is ready.', { name: created.name })}
                 </div>
-                <CopyField
-                    label={t('Public key')}
-                    value={created.public_key}
-                />
+                <CopyField label={t('Public key')} value={created.public_key} />
                 <p className="text-sm text-muted-foreground">
                     {t(
                         'Add this public key to the ~/.ssh/authorized_keys file of the user you connect as. The private key stays encrypted in RackAtlas.',

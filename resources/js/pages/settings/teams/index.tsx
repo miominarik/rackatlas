@@ -70,7 +70,9 @@ export default function Teams({ teams }: { teams: TeamSummary[] }) {
 
             <SettingsSection
                 title={t('Create team')}
-                description={t('Group people and, later, servers that belong together')}
+                description={t(
+                    'Group people and, later, servers that belong together',
+                )}
             >
                 <Form
                     {...TeamController.store.form()}

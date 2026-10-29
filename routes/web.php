@@ -5,6 +5,7 @@ use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MetricsController;
+use App\Http\Controllers\MetricsProcessesController;
 use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\Servers\LogController;
 use App\Http\Controllers\Servers\ServerAgentController;
@@ -49,6 +50,9 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
 
     Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
+    Route::get('metrics/processes', MetricsProcessesController::class)
+        ->middleware('throttle:60,1')
+        ->name('metrics.processes');
 
     Route::get('logs', [LogController::class, 'index'])->name('logs.index');
     Route::post('logs/resolve-all', [LogController::class, 'resolveAll'])->name('logs.resolve-all');

@@ -18,7 +18,8 @@ export default function Sparkline({
     const step = width / (values.length - 1);
     const points = values
         .map((value, i) => {
-            const y = height - (Math.max(0, Math.min(100, value)) / 100) * height;
+            const y =
+                height - (Math.max(0, Math.min(100, value)) / 100) * height;
 
             return `${(i * step).toFixed(1)},${y.toFixed(1)}`;
         })

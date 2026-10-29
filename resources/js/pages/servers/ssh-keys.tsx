@@ -31,9 +31,13 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
             <>
                 <Head title={t('SSH keys')} />
                 <div className="mx-auto max-w-md space-y-4 p-8 text-center">
-                    <h1 className="text-xl font-semibold">{t('Create a team first')}</h1>
+                    <h1 className="text-xl font-semibold">
+                        {t('Create a team first')}
+                    </h1>
                     <p className="text-sm text-muted-foreground">
-                        {t('Servers belong to a team, so you need one before you can add servers.')}
+                        {t(
+                            'Servers belong to a team, so you need one before you can add servers.',
+                        )}
                     </p>
                     <Button asChild>
                         <Link href={teamsIndex()}>{t('Create team')}</Link>
@@ -54,9 +58,12 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                             {t('SSH keys')}
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {t('One key can be used by many servers of the team :team', {
-                                team: team.name,
-                            })}
+                            {t(
+                                'One key can be used by many servers of the team :team',
+                                {
+                                    team: team.name,
+                                },
+                            )}
                         </p>
                     </div>
                     {canManage && (
@@ -80,11 +87,16 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                 ) : (
                     <ul className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3">
                         {sshKeys.map((key) => (
-                            <li key={key.id} className="space-y-3 rounded-xl border bg-card p-4">
+                            <li
+                                key={key.id}
+                                className="space-y-3 rounded-xl border bg-card p-4"
+                            >
                                 <div className="flex items-center gap-3">
                                     <KeyRound className="size-4 shrink-0 text-muted-foreground" />
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate font-medium">{key.name}</p>
+                                        <p className="truncate font-medium">
+                                            {key.name}
+                                        </p>
                                         <p className="truncate font-mono text-xs text-muted-foreground">
                                             {key.fingerprint}
                                         </p>
@@ -101,24 +113,37 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            disabled={(key.servers_count ?? 0) > 0}
+                                            disabled={
+                                                (key.servers_count ?? 0) > 0
+                                            }
                                             title={
                                                 (key.servers_count ?? 0) > 0
-                                                    ? t('This key is used by a server. Change the server first.')
+                                                    ? t(
+                                                          'This key is used by a server. Change the server first.',
+                                                      )
                                                     : undefined
                                             }
-                                            aria-label={t('Delete :name', { name: key.name })}
+                                            aria-label={t('Delete :name', {
+                                                name: key.name,
+                                            })}
                                             onClick={() => {
                                                 if (
                                                     window.confirm(
-                                                        t('Delete the key :name?', {
-                                                            name: key.name,
-                                                        }),
+                                                        t(
+                                                            'Delete the key :name?',
+                                                            {
+                                                                name: key.name,
+                                                            },
+                                                        ),
                                                     )
                                                 ) {
                                                     router.delete(
-                                                        SshKeyController.destroy.url(key.id),
-                                                        { preserveScroll: true },
+                                                        SshKeyController.destroy.url(
+                                                            key.id,
+                                                        ),
+                                                        {
+                                                            preserveScroll: true,
+                                                        },
                                                     );
                                                 }
                                             }}
@@ -138,7 +163,9 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                 <DialogContent>
                     <DialogTitle>{t('Add an SSH key')}</DialogTitle>
                     <DialogDescription>
-                        {t('Generate a new key or import one you already have.')}
+                        {t(
+                            'Generate a new key or import one you already have.',
+                        )}
                     </DialogDescription>
                     {creating && (
                         <SshKeyCreator

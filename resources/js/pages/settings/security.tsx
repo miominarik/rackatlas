@@ -76,40 +76,42 @@ export default function Security(props: Props) {
                             </div>
 
                             <div className="grid gap-6 md:grid-cols-2">
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">{t('New password')}</Label>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password">
+                                        {t('New password')}
+                                    </Label>
 
-                                <PasswordInput
-                                    id="password"
-                                    ref={passwordInput}
-                                    name="password"
-                                    className="mt-1 block w-full"
-                                    autoComplete="new-password"
-                                    placeholder={t('New password')}
-                                    passwordrules={props.passwordRules}
-                                />
+                                    <PasswordInput
+                                        id="password"
+                                        ref={passwordInput}
+                                        name="password"
+                                        className="mt-1 block w-full"
+                                        autoComplete="new-password"
+                                        placeholder={t('New password')}
+                                        passwordrules={props.passwordRules}
+                                    />
 
-                                <InputError message={errors.password} />
-                            </div>
+                                    <InputError message={errors.password} />
+                                </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
-                                    {t('Confirm password')}
-                                </Label>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password_confirmation">
+                                        {t('Confirm password')}
+                                    </Label>
 
-                                <PasswordInput
-                                    id="password_confirmation"
-                                    name="password_confirmation"
-                                    className="mt-1 block w-full"
-                                    autoComplete="new-password"
-                                    placeholder={t('Confirm password')}
-                                    passwordrules={props.passwordRules}
-                                />
+                                    <PasswordInput
+                                        id="password_confirmation"
+                                        name="password_confirmation"
+                                        className="mt-1 block w-full"
+                                        autoComplete="new-password"
+                                        placeholder={t('Confirm password')}
+                                        passwordrules={props.passwordRules}
+                                    />
 
-                                <InputError
-                                    message={errors.password_confirmation}
-                                />
-                            </div>
+                                    <InputError
+                                        message={errors.password_confirmation}
+                                    />
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-4">

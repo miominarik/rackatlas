@@ -25,7 +25,7 @@ SH;
     /**
      * Turn the script output into metric values.
      *
-     * @return array{cpu_percent: float, cpu_cores: int, load_1: float, load_5: float, load_15: float, memory_total: int, memory_used: int, swap_total: int, swap_used: int, uptime_seconds: int, disks: array<int, array{device: string, mount: string, filesystem: string, total_bytes: int, used_bytes: int}>}
+     * @return array{cpu_percent: float, cpu_cores: int, load_1: float, load_5: float, load_15: float, memory_total: int, memory_used: int, swap_total: int, swap_used: int, uptime_seconds: int, top_processes: array<int, array{name: string, count: int, cpu: float, memory: int}>|null, disks: array<int, array{device: string, mount: string, filesystem: string, total_bytes: int, used_bytes: int}>}
      *
      * @throws MetricsCollectionException
      */
@@ -50,6 +50,7 @@ SH;
             'load_15' => $load15,
             ...$memory,
             'uptime_seconds' => (int) floor((float) trim($sections['UPTIME'])),
+            'top_processes' => $this->processes($sections['PROCESSES'] ?? null),
             'disks' => $this->disks($sections['DISK'] ?? ''),
         ];
     }
@@ -151,6 +152,40 @@ SH;
             'swap_total' => $swapTotal,
             'swap_used' => max(0, $swapTotal - ($values['SwapFree'] ?? 0)),
         ];
+    }
+
+    /**
+     * The busiest processes of the minute, one line per program: "name count cpu% memory_kb".
+     * Null when the agent is too old to send them, so that "none" and "unknown" differ.
+     *
+     * @return array<int, array{name: string, count: int, cpu: float, memory: int}>|null
+     */
+    private function processes(?string $section): ?array
+    {
+        if ($section === null) {
+            return null;
+        }
+
+        $processes = [];
+
+        foreach (explode("\n", $section) as $line) {
+            if (! preg_match('/^(\S+) (\d+) (\d+(?:\.\d+)?) (\d+)$/', trim($line), $match)) {
+                continue;
+            }
+
+            $processes[] = [
+                'name' => mb_substr(preg_replace('/[^\P{C}]/u', '', $match[1]) ?? '', 0, 64),
+                'count' => (int) $match[2],
+                'cpu' => round(min(100, (float) $match[3]), 2),
+                'memory' => (int) $match[4] * 1024,
+            ];
+
+            if (count($processes) === 12) {
+                break;
+            }
+        }
+
+        return $processes;
     }
 
     /**

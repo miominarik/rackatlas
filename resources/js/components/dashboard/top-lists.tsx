@@ -21,7 +21,9 @@ function TopCard({
         <div className="space-y-3 rounded-xl border bg-card p-4">
             <h3 className="text-sm font-medium">{title}</h3>
             {rows.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t('No data yet')}</p>
+                <p className="text-sm text-muted-foreground">
+                    {t('No data yet')}
+                </p>
             ) : (
                 <div className="space-y-2.5">
                     {rows.map((row) => (

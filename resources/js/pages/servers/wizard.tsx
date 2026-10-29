@@ -99,7 +99,9 @@ export default function ServerWizard({
 
     const isAgent = form.data.auth_type === 'agent';
 
-    const selectedKey = keys.find((key) => String(key.id) === form.data.ssh_key_id);
+    const selectedKey = keys.find(
+        (key) => String(key.id) === form.data.ssh_key_id,
+    );
     const selectedCategory = categories.find(
         (category) => String(category.id) === categoryChoice,
     );
@@ -127,17 +129,25 @@ export default function ServerWizard({
         setTestResult(null);
 
         const missing = fieldsToValidate().filter(
-            (field) => !String(form.data[field as keyof typeof form.data]).trim(),
+            (field) =>
+                !String(form.data[field as keyof typeof form.data]).trim(),
         );
 
-        if (categoryChoice === NEW_CATEGORY && step === 0 && !form.data.new_category.trim()) {
+        if (
+            categoryChoice === NEW_CATEGORY &&
+            step === 0 &&
+            !form.data.new_category.trim()
+        ) {
             missing.push('new_category');
         }
 
         if (missing.length > 0) {
             form.setError(
                 Object.fromEntries(
-                    missing.map((field) => [field, t('This field is required.')]),
+                    missing.map((field) => [
+                        field,
+                        t('This field is required.'),
+                    ]),
                 ),
             );
 
@@ -297,7 +307,10 @@ export default function ServerWizard({
                                     value={categoryChoice}
                                     onValueChange={chooseCategory}
                                 >
-                                    <SelectTrigger id="category" className="w-full">
+                                    <SelectTrigger
+                                        id="category"
+                                        className="w-full"
+                                    >
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -313,7 +326,9 @@ export default function ServerWizard({
                                                     <span
                                                         className={cn(
                                                             'size-2 rounded-full',
-                                                            dotClass(category.color),
+                                                            dotClass(
+                                                                category.color,
+                                                            ),
                                                         )}
                                                     />
                                                     {category.name}
@@ -359,19 +374,25 @@ export default function ServerWizard({
                                         [
                                             'agent',
                                             t('Agent'),
-                                            t('Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords.'),
+                                            t(
+                                                'Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords.',
+                                            ),
                                             Radio,
                                         ],
                                         [
                                             'key',
                                             t('SSH key'),
-                                            t('We log in over SSH. More secure than a password, reusable across servers.'),
+                                            t(
+                                                'We log in over SSH. More secure than a password, reusable across servers.',
+                                            ),
                                             KeyRound,
                                         ],
                                         [
                                             'password',
                                             t('Password'),
-                                            t('We log in over SSH with a password. Simple, but weaker than a key.'),
+                                            t(
+                                                'We log in over SSH with a password. Simple, but weaker than a key.',
+                                            ),
                                             Lock,
                                         ],
                                     ] as const
@@ -380,7 +401,9 @@ export default function ServerWizard({
                                         key={value}
                                         type="button"
                                         role="radio"
-                                        aria-checked={form.data.auth_type === value}
+                                        aria-checked={
+                                            form.data.auth_type === value
+                                        }
                                         onClick={() => {
                                             form.setData('auth_type', value);
                                             form.clearErrors();
@@ -411,58 +434,93 @@ export default function ServerWizard({
                                         {t('How the agent works')}
                                     </p>
                                     <ul className="list-disc space-y-1.5 pl-5 text-muted-foreground">
-                                        <li>{t('After saving you get one command to run on the server (Debian or Ubuntu).')}</li>
-                                        <li>{t('It installs the agent from the signed RackAtlas apt repository, so later updates are a normal apt upgrade.')}</li>
-                                        <li>{t('The agent sends CPU, memory, disks and serious log entries every minute over HTTPS.')}</li>
-                                        <li>{t('Nothing connects into your server, so no IP has to be allowed.')}</li>
+                                        <li>
+                                            {t(
+                                                'After saving you get one command to run on the server (Debian or Ubuntu).',
+                                            )}
+                                        </li>
+                                        <li>
+                                            {t(
+                                                'It installs the agent from the signed RackAtlas apt repository, so later updates are a normal apt upgrade.',
+                                            )}
+                                        </li>
+                                        <li>
+                                            {t(
+                                                'The agent sends CPU, memory, disks and serious log entries every minute over HTTPS.',
+                                            )}
+                                        </li>
+                                        <li>
+                                            {t(
+                                                'Nothing connects into your server, so no IP has to be allowed.',
+                                            )}
+                                        </li>
                                     </ul>
                                 </div>
                             )}
 
                             {!isAgent && (
                                 <>
-                                <div className="grid gap-4 sm:grid-cols-[1fr_7rem]">
+                                    <div className="grid gap-4 sm:grid-cols-[1fr_7rem]">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="host">
+                                                {t('Host or IP address')}
+                                            </Label>
+                                            <Input
+                                                id="host"
+                                                value={form.data.host}
+                                                onChange={(e) =>
+                                                    form.setData(
+                                                        'host',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                placeholder="203.0.113.10"
+                                                autoComplete="off"
+                                            />
+                                            <InputError
+                                                message={form.errors.host}
+                                            />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="port">
+                                                {t('SSH port')}
+                                            </Label>
+                                            <Input
+                                                id="port"
+                                                inputMode="numeric"
+                                                value={form.data.port}
+                                                onChange={(e) =>
+                                                    form.setData(
+                                                        'port',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            />
+                                            <InputError
+                                                message={form.errors.port}
+                                            />
+                                        </div>
+                                    </div>
+
                                     <div className="grid gap-2">
-                                        <Label htmlFor="host">
-                                            {t('Host or IP address')}
+                                        <Label htmlFor="username">
+                                            {t('Username')}
                                         </Label>
                                         <Input
-                                            id="host"
-                                            value={form.data.host}
+                                            id="username"
+                                            value={form.data.username}
                                             onChange={(e) =>
-                                                form.setData('host', e.target.value)
+                                                form.setData(
+                                                    'username',
+                                                    e.target.value,
+                                                )
                                             }
-                                            placeholder="203.0.113.10"
                                             autoComplete="off"
                                         />
-                                        <InputError message={form.errors.host} />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="port">{t('SSH port')}</Label>
-                                        <Input
-                                            id="port"
-                                            inputMode="numeric"
-                                            value={form.data.port}
-                                            onChange={(e) =>
-                                                form.setData('port', e.target.value)
-                                            }
+                                        <InputError
+                                            message={form.errors.username}
                                         />
-                                        <InputError message={form.errors.port} />
                                     </div>
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="username">{t('Username')}</Label>
-                                    <Input
-                                        id="username"
-                                        value={form.data.username}
-                                        onChange={(e) =>
-                                            form.setData('username', e.target.value)
-                                        }
-                                        autoComplete="off"
-                                    />
-                                    <InputError message={form.errors.username} />
-                                </div>
                                 </>
                             )}
 
@@ -475,16 +533,23 @@ export default function ServerWizard({
                                         id="password"
                                         value={form.data.password}
                                         onChange={(e) =>
-                                            form.setData('password', e.target.value)
+                                            form.setData(
+                                                'password',
+                                                e.target.value,
+                                            )
                                         }
                                         placeholder={
                                             editing
-                                                ? t('Leave empty to keep the current password')
+                                                ? t(
+                                                      'Leave empty to keep the current password',
+                                                  )
                                                 : undefined
                                         }
                                         autoComplete="off"
                                     />
-                                    <InputError message={form.errors.password} />
+                                    <InputError
+                                        message={form.errors.password}
+                                    />
                                     <p className="text-xs text-muted-foreground">
                                         {t('The password is stored encrypted.')}
                                     </p>
@@ -501,20 +566,32 @@ export default function ServerWizard({
                                             <Select
                                                 value={form.data.ssh_key_id}
                                                 onValueChange={(value) => {
-                                                    form.setData('ssh_key_id', value);
-                                                    form.clearErrors('ssh_key_id');
+                                                    form.setData(
+                                                        'ssh_key_id',
+                                                        value,
+                                                    );
+                                                    form.clearErrors(
+                                                        'ssh_key_id',
+                                                    );
                                                 }}
                                             >
-                                                <SelectTrigger id="ssh-key" className="w-full">
+                                                <SelectTrigger
+                                                    id="ssh-key"
+                                                    className="w-full"
+                                                >
                                                     <SelectValue
-                                                        placeholder={t('Select a key…')}
+                                                        placeholder={t(
+                                                            'Select a key…',
+                                                        )}
                                                     />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {keys.map((key) => (
                                                         <SelectItem
                                                             key={key.id}
-                                                            value={String(key.id)}
+                                                            value={String(
+                                                                key.id,
+                                                            )}
                                                         >
                                                             {key.name}
                                                             <span className="ml-2 text-xs text-muted-foreground">
@@ -529,8 +606,12 @@ export default function ServerWizard({
                                             />
                                             {selectedKey && (
                                                 <CopyField
-                                                    label={t('Public key (add it to authorized_keys)')}
-                                                    value={selectedKey.public_key}
+                                                    label={t(
+                                                        'Public key (add it to authorized_keys)',
+                                                    )}
+                                                    value={
+                                                        selectedKey.public_key
+                                                    }
                                                 />
                                             )}
                                             <Button
@@ -538,10 +619,14 @@ export default function ServerWizard({
                                                 variant="outline"
                                                 size="sm"
                                                 className="w-fit"
-                                                onClick={() => setAddingKey(true)}
+                                                onClick={() =>
+                                                    setAddingKey(true)
+                                                }
                                             >
                                                 <Plus className="size-4" />
-                                                {t('Generate or import a new key')}
+                                                {t(
+                                                    'Generate or import a new key',
+                                                )}
                                             </Button>
                                         </div>
                                     )}
@@ -553,7 +638,10 @@ export default function ServerWizard({
                                                 onCreated={keyAdded}
                                                 onCancel={
                                                     keys.length > 0
-                                                        ? () => setAddingKey(false)
+                                                        ? () =>
+                                                              setAddingKey(
+                                                                  false,
+                                                              )
                                                         : undefined
                                                 }
                                             />
@@ -593,7 +681,8 @@ export default function ServerWizard({
                                             ? t('Agent')
                                             : form.data.auth_type === 'key'
                                               ? t('SSH key: :name', {
-                                                    name: selectedKey?.name ?? '',
+                                                    name:
+                                                        selectedKey?.name ?? '',
                                                 })
                                               : t('Password'),
                                     ],
@@ -614,7 +703,9 @@ export default function ServerWizard({
 
                             {isAgent ? (
                                 <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
-                                    {t('After saving you get the install command for the server.')}
+                                    {t(
+                                        'After saving you get the install command for the server.',
+                                    )}
                                 </p>
                             ) : (
                                 <div className="space-y-3">
@@ -692,7 +783,11 @@ export default function ServerWizard({
                             ) : (
                                 <ServerCog className="size-4" />
                             )}
-                            {editing ? t('Save changes') : isAgent ? t('Add server and get the install command') : t('Add server')}
+                            {editing
+                                ? t('Save changes')
+                                : isAgent
+                                  ? t('Add server and get the install command')
+                                  : t('Add server')}
                         </Button>
                     )}
                 </div>

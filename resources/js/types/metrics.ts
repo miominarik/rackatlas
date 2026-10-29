@@ -73,3 +73,20 @@ export type MetricsServer = {
     agent_version: string | null;
     last_seen_at: string | null;
 };
+
+export type MetricsProcess = {
+    name: string;
+    count: number;
+    /** Share of the whole server, percent. */
+    cpu: number;
+    /** Bytes (PSS). */
+    memory: number;
+};
+
+export type MetricsProcessSample = {
+    collected_at: string;
+    cpu_percent: number;
+    memory_used: number;
+    memory_total: number;
+    processes: MetricsProcess[];
+};

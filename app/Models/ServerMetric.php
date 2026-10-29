@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $server_id
- * @property \Illuminate\Support\Carbon $collected_at
+ * @property Carbon $collected_at
  * @property string $cpu_percent
  * @property int $cpu_cores
  * @property string $load_1
@@ -23,10 +24,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $swap_total
  * @property int $swap_used
  * @property int $uptime_seconds
+ * @property array<int, array{name: string, count: int, cpu: float, memory: int}>|null $top_processes
  */
 #[Fillable([
     'server_id', 'collected_at', 'cpu_percent', 'cpu_cores', 'load_1', 'load_5', 'load_15',
-    'memory_total', 'memory_used', 'swap_total', 'swap_used', 'uptime_seconds',
+    'memory_total', 'memory_used', 'swap_total', 'swap_used', 'uptime_seconds', 'top_processes',
 ])]
 class ServerMetric extends Model
 {
@@ -40,6 +42,7 @@ class ServerMetric extends Model
     {
         return [
             'collected_at' => 'datetime',
+            'top_processes' => 'array',
         ];
     }
 

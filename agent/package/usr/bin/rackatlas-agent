@@ -2,7 +2,7 @@
 #
 # RackAtlas agent
 #
-# Collects CPU, memory and disk usage plus serious log entries (journal errors,
+# Collects CPU, memory and disk usage, the busiest processes, plus serious log entries (journal errors,
 # failed systemd units) and sends them to RackAtlas over HTTPS. Meant to run once a
 # minute from the systemd timer. Nothing connects into the server.
 #
@@ -19,6 +19,7 @@ CONF="${RACKATLAS_CONF:-/etc/rackatlas-agent/agent.conf}"
 STATE_DIR="${RACKATLAS_STATE:-/var/lib/rackatlas-agent}"
 PROC_DIR="${RACKATLAS_PROC:-/proc}"
 MAX_LOG_LINES=200
+PROC_TOP=5
 
 case "${1:-}" in
   --version) echo "rackatlas-agent $VERSION"; exit 0 ;;
@@ -47,7 +48,7 @@ fi
 
 mkdir -p "$STATE_DIR" 2>/dev/null || true
 TMP="$(mktemp)" || exit 1
-trap 'rm -f "$TMP" "$TMP.out" "$TMP".cursor-*' EXIT
+trap 'rm -f "$TMP" "$TMP.out" "$TMP.proc" "$TMP.proc-base" "$TMP".cursor-*' EXIT
 
 export LC_ALL=C
 
@@ -76,6 +77,100 @@ journal_section() {
 # a recent, valid one (first run, after a reboot, long pause) a one second sample is used.
 cpu_total() { awk '{ s = 0; for (i = 2; i <= 9; i++) s += $i; printf "%.0f\n", s }'; }
 
+# One line per process: pid, start time, CPU ticks and (with "full") name, RSS and PSS in kB.
+# The first line, "T <ticks>", is the CPU time of the whole machine, so that the ticks of a
+# process can be turned into a share of the machine. PSS (shared memory split fairly between
+# the processes that use it) needs the ptrace capability, see the .service file. Without it
+# the resident size is used.
+PAGE_KB=$(( $(getconf PAGESIZE 2>/dev/null || echo 4096) / 1024 ))
+MAX_PSS_PROCESSES=2000
+
+proc_scan() {
+  mode="$1"; count=0
+  read -r line < "$PROC_DIR/stat"
+  echo "T $(printf '%s\n' "$line" | cpu_total)"
+  for dir in "$PROC_DIR"/[0-9]*; do
+    pid="${dir##*/}"
+    read -r stat < "$dir/stat" 2>/dev/null || continue
+    # The name in the first field may contain spaces and brackets, so cut after the last ")".
+    set -- ${stat##*) }
+    [ "$#" -ge 20 ] || continue
+    ticks=$(( ${12} + ${13} ))
+    start="${20}"
+
+    if [ "$mode" != full ]; then
+      echo "$pid $start $ticks"
+      continue
+    fi
+
+    name=""
+    read -r name < "$dir/comm" 2>/dev/null || true
+    name="${name%% *}"
+    [ -n "$name" ] || name="?"
+
+    rss=0
+    read -r _ pages _ < "$dir/statm" 2>/dev/null || pages=0
+    rss=$(( pages * PAGE_KB ))
+    pss="$rss"
+
+    count=$(( count + 1 ))
+    if [ "$count" -le "$MAX_PSS_PROCESSES" ]; then
+      { while read -r key value _; do
+          if [ "$key" = "Pss:" ]; then pss="$value"; break; fi
+        done < "$dir/smaps_rollup"; } 2>/dev/null
+    fi
+
+    echo "$pid $start $ticks $name $rss $pss"
+  done
+}
+
+# Groups the processes by name and keeps the busiest ones: the five that used the most CPU and
+# the five that held the most memory since the previous run. Output: name count cpu% pss_kb,
+# where cpu% is the share of the whole machine, like the CPU usage of the report.
+proc_top() {
+  awk -v top="$PROC_TOP" '
+    FNR == 1 { file++ }
+    file == 1 {
+      if ($1 == "T") { base_total = $2 } else { before[$1 " " $2] = $3 }
+      next
+    }
+    $1 == "T" { total = $2; next }
+    {
+      key = $1 " " $2
+      delta = (key in before) ? $3 - before[key] : $3
+      if (delta < 0) delta = 0
+      name = $4
+      sub(/\/.*$/, "", name)
+      cpu[name] += delta
+      count[name]++
+      mem[name] += $6
+    }
+    END {
+      elapsed = total - base_total
+      if (elapsed <= 0) exit
+      for (round = 0; round < 2; round++) {
+        for (n = 0; n < top; n++) {
+          best = ""
+          for (name in count) {
+            if (name in picked) continue
+            value = round == 0 ? cpu[name] : mem[name]
+            if (best == "" || value > (round == 0 ? cpu[best] : mem[best])) best = name
+          }
+          if (best == "" || (round == 0 && cpu[best] == 0)) break
+          picked[best] = 1
+          order[++total_picked] = best
+        }
+      }
+      for (i = 1; i <= total_picked; i++) {
+        name = order[i]
+        pct = cpu[name] * 100 / elapsed
+        if (pct > 100) pct = 100
+        printf "%s %d %.2f %d\n", name, count[name], pct, mem[name]
+      }
+    }
+  ' "$1" "$2"
+}
+
 CPU_PREV_FILE="$STATE_DIR/cpu-prev"
 CPU_NOW="$(head -n1 "$PROC_DIR/stat")"
 CPU_FIRST=""
@@ -97,6 +192,20 @@ if [ -z "$DRY_RUN" ]; then
   printf '%s\n' "$CPU_NOW" > "$CPU_PREV_FILE.tmp" 2>/dev/null && mv "$CPU_PREV_FILE.tmp" "$CPU_PREV_FILE" 2>/dev/null
 fi
 
+# CPU use per process needs the counters of the previous run, like the CPU usage above.
+PROC_PREV_FILE="$STATE_DIR/proc-prev"
+PROC_BASE="$PROC_PREV_FILE"
+if ! { [ -s "$PROC_PREV_FILE" ] && [ -n "$(find "$PROC_PREV_FILE" -mmin -5 2>/dev/null)" ]; }; then
+  PROC_BASE="$TMP.proc-base"
+  proc_scan ticks > "$PROC_BASE"
+  sleep 1
+fi
+proc_scan full > "$TMP.proc"
+
+if [ -z "$DRY_RUN" ]; then
+  awk '{ print $1, $2, $3 }' "$TMP.proc" > "$PROC_PREV_FILE.tmp" 2>/dev/null && mv "$PROC_PREV_FILE.tmp" "$PROC_PREV_FILE" 2>/dev/null
+fi
+
 {
   echo '###CPU1'; echo "$CPU_FIRST"
   echo '###CPU2'; echo "$CPU_NOW"
@@ -105,6 +214,8 @@ fi
   echo '###MEM'; grep -E '^(MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapTotal|SwapFree):' "$PROC_DIR/meminfo"
   echo '###UPTIME'; cut -d' ' -f1 "$PROC_DIR/uptime"
   echo '###DISK'; df -PT -B1 -x tmpfs -x devtmpfs -x squashfs -x overlay -x efivarfs -x iso9660 2>/dev/null | tail -n +2
+
+  echo '###PROCESSES'; proc_top "$PROC_BASE" "$TMP.proc"
 
   if command -v journalctl >/dev/null 2>&1; then
     journal_section JOURNAL_CRITICAL 'emerg..crit' critical

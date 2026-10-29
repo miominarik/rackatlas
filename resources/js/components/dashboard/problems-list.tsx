@@ -54,10 +54,14 @@ export default function ProblemsList({ problems }: { problems: Problem[] }) {
                                         ? 'text-red-500'
                                         : 'text-amber-500',
                                 )}
-                                aria-label={critical ? t('Critical') : t('Warning')}
+                                aria-label={
+                                    critical ? t('Critical') : t('Warning')
+                                }
                             />
                             <span className="min-w-0 flex-1 truncate">
-                                <span className="font-medium">{problem.serverName}</span>
+                                <span className="font-medium">
+                                    {problem.serverName}
+                                </span>
                                 <span className="text-muted-foreground">
                                     {' '}
                                     · {problem.message}

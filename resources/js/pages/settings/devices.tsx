@@ -1,5 +1,13 @@
 import { Head, router } from '@inertiajs/react';
-import { Check, LogOut, Pencil, Smartphone, Tablet, Laptop, X } from 'lucide-react';
+import {
+    Check,
+    LogOut,
+    Pencil,
+    Smartphone,
+    Tablet,
+    Laptop,
+    X,
+} from 'lucide-react';
 import { useState } from 'react';
 import DeviceController from '@/actions/App/Http/Controllers/Settings/DeviceController';
 import { SettingsSection } from '@/components/settings/section';
@@ -25,12 +33,20 @@ type Device = {
 
 const icons = { mobile: Smartphone, tablet: Tablet, desktop: Laptop } as const;
 
-function DeviceRow({ device, generatedAt }: { device: Device; generatedAt: string }) {
+function DeviceRow({
+    device,
+    generatedAt,
+}: {
+    device: Device;
+    generatedAt: string;
+}) {
     const { t, locale } = useTranslation();
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(device.name ?? '');
     const Icon = icons[device.type];
-    const detail = [device.browser, device.platform].filter(Boolean).join(' · ');
+    const detail = [device.browser, device.platform]
+        .filter(Boolean)
+        .join(' · ');
 
     const save = () => {
         router.patch(
@@ -62,10 +78,20 @@ function DeviceRow({ device, generatedAt }: { device: Device; generatedAt: strin
                             maxLength={100}
                             aria-label={t('Name of the device')}
                         />
-                        <Button type="submit" size="icon" aria-label={t('Save')}>
+                        <Button
+                            type="submit"
+                            size="icon"
+                            aria-label={t('Save')}
+                        >
                             <Check className="size-4" />
                         </Button>
-                        <Button type="button" size="icon" variant="ghost" onClick={() => setEditing(false)} aria-label={t('Cancel')}>
+                        <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setEditing(false)}
+                            aria-label={t('Cancel')}
+                        >
                             <X className="size-4" />
                         </Button>
                     </form>
@@ -73,20 +99,34 @@ function DeviceRow({ device, generatedAt }: { device: Device; generatedAt: strin
                     <>
                         <p className="flex flex-wrap items-center gap-2 font-medium">
                             <span className="truncate">{device.label}</span>
-                            {device.is_current && <Badge variant="secondary">{t('This device')}</Badge>}
+                            {device.is_current && (
+                                <Badge variant="secondary">
+                                    {t('This device')}
+                                </Badge>
+                            )}
                         </p>
                         <p className="truncate text-sm text-muted-foreground">
                             {device.name ? `${detail} · ` : ''}
                             {device.is_current
                                 ? t('Active now')
                                 : device.last_active_at
-                                  ? t('Active :time', { time: timeAgo(device.last_active_at, generatedAt, locale) })
+                                  ? t('Active :time', {
+                                        time: timeAgo(
+                                            device.last_active_at,
+                                            generatedAt,
+                                            locale,
+                                        ),
+                                    })
                                   : t('Never active')}
                             {device.ip_address ? ` · ${device.ip_address}` : ''}
                         </p>
                         {device.created_at && (
                             <p className="text-xs text-muted-foreground/80">
-                                {t('Signed in :date', { date: new Date(device.created_at).toLocaleDateString(locale) })}
+                                {t('Signed in :date', {
+                                    date: new Date(
+                                        device.created_at,
+                                    ).toLocaleDateString(locale),
+                                })}
                             </p>
                         )}
                     </>
@@ -95,7 +135,13 @@ function DeviceRow({ device, generatedAt }: { device: Device; generatedAt: strin
 
             {!editing && (
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="size-10 md:size-9" onClick={() => setEditing(true)} aria-label={t('Rename')}>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-10 md:size-9"
+                        onClick={() => setEditing(true)}
+                        aria-label={t('Rename')}
+                    >
                         <Pencil className="size-4" />
                     </Button>
                     {!device.is_current && (
@@ -103,8 +149,17 @@ function DeviceRow({ device, generatedAt }: { device: Device; generatedAt: strin
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                                if (window.confirm(t('Sign out :device?', { device: device.label }))) {
-                                    router.delete(DeviceController.destroy.url(device.id), { preserveScroll: true });
+                                if (
+                                    window.confirm(
+                                        t('Sign out :device?', {
+                                            device: device.label,
+                                        }),
+                                    )
+                                ) {
+                                    router.delete(
+                                        DeviceController.destroy.url(device.id),
+                                        { preserveScroll: true },
+                                    );
                                 }
                             }}
                         >
@@ -118,7 +173,13 @@ function DeviceRow({ device, generatedAt }: { device: Device; generatedAt: strin
     );
 }
 
-export default function Devices({ devices, generated_at }: { devices: Device[]; generated_at: string }) {
+export default function Devices({
+    devices,
+    generated_at,
+}: {
+    devices: Device[];
+    generated_at: string;
+}) {
     const { t } = useTranslation();
     const others = devices.filter((device) => !device.is_current).length;
 
@@ -129,15 +190,25 @@ export default function Devices({ devices, generated_at }: { devices: Device[]; 
             <SettingsSection
                 flush
                 title={t('Your devices')}
-                description={t('A device is added here when you sign in on it. Each device has its own dashboard layout.')}
+                description={t(
+                    'A device is added here when you sign in on it. Each device has its own dashboard layout.',
+                )}
                 action={
                     others > 0 && (
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                                if (window.confirm(t('Sign out all other devices?'))) {
-                                    router.post(DeviceController.destroyOthers.url(), {}, { preserveScroll: true });
+                                if (
+                                    window.confirm(
+                                        t('Sign out all other devices?'),
+                                    )
+                                ) {
+                                    router.post(
+                                        DeviceController.destroyOthers.url(),
+                                        {},
+                                        { preserveScroll: true },
+                                    );
                                 }
                             }}
                         >
@@ -148,11 +219,17 @@ export default function Devices({ devices, generated_at }: { devices: Device[]; 
                 }
             >
                 {devices.length === 0 ? (
-                    <p className="p-6 text-center text-sm text-muted-foreground">{t('No devices yet.')}</p>
+                    <p className="p-6 text-center text-sm text-muted-foreground">
+                        {t('No devices yet.')}
+                    </p>
                 ) : (
                     <ul className="divide-y">
                         {devices.map((device) => (
-                            <DeviceRow key={device.id} device={device} generatedAt={generated_at} />
+                            <DeviceRow
+                                key={device.id}
+                                device={device}
+                                generatedAt={generated_at}
+                            />
                         ))}
                     </ul>
                 )}

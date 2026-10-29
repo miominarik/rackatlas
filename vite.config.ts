@@ -14,9 +14,13 @@ import { defineConfig, lazyPlugins } from 'vite-plus';
  * plugin is simply skipped there. Set WAYFINDER_PHP to force a binary.
  */
 function phpBinary(): string | null {
-    const candidates = [process.env.WAYFINDER_PHP, 'php', 'php8.5', 'php8.4', 'php8.3'].filter(
-        (bin): bin is string => Boolean(bin),
-    );
+    const candidates = [
+        process.env.WAYFINDER_PHP,
+        'php',
+        'php8.5',
+        'php8.4',
+        'php8.3',
+    ].filter((bin): bin is string => Boolean(bin));
 
     for (const bin of candidates) {
         try {

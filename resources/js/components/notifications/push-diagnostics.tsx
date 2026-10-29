@@ -1,8 +1,17 @@
-import { AlertTriangle, CheckCircle2, ChevronDown, XCircle } from 'lucide-react';
+import {
+    AlertTriangle,
+    CheckCircle2,
+    ChevronDown,
+    XCircle,
+} from 'lucide-react';
 import { useCallback, useState } from 'react';
 import NotificationDiagnosticsController from '@/actions/App/Http/Controllers/Settings/NotificationDiagnosticsController';
 import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import Heading from '@/components/heading';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
@@ -31,7 +40,10 @@ function xsrfToken(): string {
     return match ? decodeURIComponent(match[1]) : '';
 }
 
-async function call<T>(url: string, method: 'GET' | 'POST' = 'GET'): Promise<T> {
+async function call<T>(
+    url: string,
+    method: 'GET' | 'POST' = 'GET',
+): Promise<T> {
     const response = await fetch(url, {
         method,
         credentials: 'same-origin',
@@ -58,22 +70,35 @@ function toBase64Url(buffer: ArrayBuffer | null | undefined): string {
 }
 
 async function sha256(value: string): Promise<string> {
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+    const digest = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(value),
+    );
 
     return Array.from(new Uint8Array(digest))
         .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
 }
 
-async function clientChecks(vapidPublicKey: string | null, registeredHashes: string[]): Promise<Check[]> {
+async function clientChecks(
+    vapidPublicKey: string | null,
+    registeredHashes: string[],
+): Promise<Check[]> {
     const checks: Check[] = [];
-    const add = (id: string, status: Status, detail: string) => checks.push({ id, status, detail });
+    const add = (id: string, status: Status, detail: string) =>
+        checks.push({ id, status, detail });
 
-    add('secure', window.isSecureContext ? 'ok' : 'fail', window.isSecureContext ? location.origin : 'push needs HTTPS');
+    add(
+        'secure',
+        window.isSecureContext ? 'ok' : 'fail',
+        window.isSecureContext ? location.origin : 'push needs HTTPS',
+    );
     add(
         'standalone',
         'ok',
-        window.matchMedia('(display-mode: standalone)').matches ? 'installed app' : 'normal browser tab',
+        window.matchMedia('(display-mode: standalone)').matches
+            ? 'installed app'
+            : 'normal browser tab',
     );
 
     if (!('Notification' in window)) {
@@ -89,7 +114,11 @@ async function clientChecks(vapidPublicKey: string | null, registeredHashes: str
     );
 
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        add('worker', 'fail', 'service worker or PushManager is not supported here');
+        add(
+            'worker',
+            'fail',
+            'service worker or PushManager is not supported here',
+        );
 
         return checks;
     }
@@ -143,7 +172,9 @@ async function clientChecks(vapidPublicKey: string | null, registeredHashes: str
     add(
         'registered',
         registeredHashes.includes(hash) ? 'ok' : 'fail',
-        registeredHashes.includes(hash) ? 'found in the device list' : 'the server does not know this subscription; re-register this device',
+        registeredHashes.includes(hash)
+            ? 'found in the device list'
+            : 'the server does not know this subscription; re-register this device',
     );
 
     return checks;
@@ -155,7 +186,11 @@ const icon: Record<Status, React.ReactNode> = {
     fail: <XCircle className="size-4 shrink-0 text-destructive" />,
 };
 
-export function PushDiagnostics({ vapidPublicKey, registeredHashes, onReregister }: Props) {
+export function PushDiagnostics({
+    vapidPublicKey,
+    registeredHashes,
+    onReregister,
+}: Props) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [busy, setBusy] = useState<string | null>(null);
@@ -188,7 +223,9 @@ export function PushDiagnostics({ vapidPublicKey, registeredHashes, onReregister
 
         try {
             const [fromServer, fromBrowser] = await Promise.all([
-                call<{ checks: Check[] }>(NotificationDiagnosticsController.show.url()),
+                call<{ checks: Check[] }>(
+                    NotificationDiagnosticsController.show.url(),
+                ),
                 clientChecks(vapidPublicKey, registeredHashes),
             ]);
 
@@ -218,7 +255,9 @@ export function PushDiagnostics({ vapidPublicKey, registeredHashes, onReregister
             return `Notification permission is "${Notification.permission}".`;
         }
 
-        const registration = await navigator.serviceWorker.register('/sw.js').then(() => navigator.serviceWorker.ready);
+        const registration = await navigator.serviceWorker
+            .register('/sw.js')
+            .then(() => navigator.serviceWorker.ready);
 
         await registration.showNotification('RackAtlas', {
             body: t('Local test notification, no server involved.'),
@@ -226,30 +265,35 @@ export function PushDiagnostics({ vapidPublicKey, registeredHashes, onReregister
             tag: 'local-test',
         });
 
-        return t('The browser was asked to show a notification. If you do not see it, the problem is in the browser or system settings (do not disturb, notifications of the browser turned off).');
+        return t(
+            'The browser was asked to show a notification. If you do not see it, the problem is in the browser or system settings (do not disturb, notifications of the browser turned off).',
+        );
     });
 
     const connection = run('connection', async () => {
-        const { results } = await call<{ results: { host: string; ok: boolean; detail: string }[] }>(
-            NotificationDiagnosticsController.connectivity.url(),
-            'POST',
-        );
+        const { results } = await call<{
+            results: { host: string; ok: boolean; detail: string }[];
+        }>(NotificationDiagnosticsController.connectivity.url(), 'POST');
 
-        return results.map((r) => `${r.ok ? 'OK  ' : 'FAIL'} ${r.host}: ${r.detail}`).join('\n');
+        return results
+            .map((r) => `${r.ok ? 'OK  ' : 'FAIL'} ${r.host}: ${r.detail}`)
+            .join('\n');
     });
 
     const sendPush = run('push', async () => {
-        const data = await call<{ error: string | null; results: PushResult[] }>(
-            NotificationDiagnosticsController.push.url(),
-            'POST',
-        );
+        const data = await call<{
+            error: string | null;
+            results: PushResult[];
+        }>(NotificationDiagnosticsController.push.url(), 'POST');
 
         const lines = data.results.map(
             (r) =>
                 `${r.ok ? 'OK  ' : 'FAIL'} ${r.device ?? 'device'} @ ${r.host}: HTTP ${r.status ?? '-'} ${r.reason}${r.body ? `\n     ${r.body}` : ''}`,
         );
 
-        return [data.error, ...lines].filter(Boolean).join('\n') || 'No result.';
+        return (
+            [data.error, ...lines].filter(Boolean).join('\n') || 'No result.'
+        );
     });
 
     const reregister = run('reregister', async () => {
@@ -261,14 +305,24 @@ export function PushDiagnostics({ vapidPublicKey, registeredHashes, onReregister
     const renderChecks = (title: string, checks: Check[] | null) =>
         checks && (
             <div className="space-y-1">
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{title}</p>
+                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    {title}
+                </p>
                 <ul className="divide-y rounded-lg border">
                     {checks.map((check) => (
                         <li key={check.id} className="flex gap-3 px-3 py-2">
                             {icon[check.status]}
                             <div className="min-w-0 flex-1">
-                                <p className="text-sm font-medium">{labels[check.id] ?? check.id}</p>
-                                <p className={cn('font-mono text-xs break-words whitespace-pre-wrap text-muted-foreground', check.status === 'fail' && 'text-destructive/80')}>
+                                <p className="text-sm font-medium">
+                                    {labels[check.id] ?? check.id}
+                                </p>
+                                <p
+                                    className={cn(
+                                        'font-mono text-xs break-words whitespace-pre-wrap text-muted-foreground',
+                                        check.status === 'fail' &&
+                                            'text-destructive/80',
+                                    )}
+                                >
                                     {check.detail}
                                 </p>
                             </div>
@@ -279,40 +333,84 @@ export function PushDiagnostics({ vapidPublicKey, registeredHashes, onReregister
         );
 
     return (
-        <Collapsible open={open} onOpenChange={setOpen} className="space-y-4 rounded-xl border bg-card p-4 shadow-xs sm:p-6">
+        <Collapsible
+            open={open}
+            onOpenChange={setOpen}
+            className="space-y-4 rounded-xl border bg-card p-4 shadow-xs sm:p-6"
+        >
             <div className="flex items-start justify-between gap-3">
                 <Heading
                     variant="small"
                     title={t('Diagnostics')}
-                    description={t('Technical checks for when push notifications do not arrive.')}
+                    description={t(
+                        'Technical checks for when push notifications do not arrive.',
+                    )}
                 />
                 <CollapsibleTrigger asChild>
-                    <Button variant="outline" size="sm" className="shrink-0" aria-label={t('Diagnostics')}>
-                        <ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} />
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0"
+                        aria-label={t('Diagnostics')}
+                    >
+                        <ChevronDown
+                            className={cn(
+                                'size-4 transition-transform',
+                                open && 'rotate-180',
+                            )}
+                        />
                     </Button>
                 </CollapsibleTrigger>
             </div>
 
             <CollapsibleContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
-                    <Button size="sm" onClick={() => void runChecks()} disabled={busy !== null}>
+                    <Button
+                        size="sm"
+                        onClick={() => void runChecks()}
+                        disabled={busy !== null}
+                    >
                         {t('Run the checks')}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => void localNotification()} disabled={busy !== null}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void localNotification()}
+                        disabled={busy !== null}
+                    >
                         {t('Show a local notification')}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => void sendPush()} disabled={busy !== null}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void sendPush()}
+                        disabled={busy !== null}
+                    >
                         {t('Send a push and show the answer')}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => void connection()} disabled={busy !== null}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void connection()}
+                        disabled={busy !== null}
+                    >
                         {t('Check the connection of the server')}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => void reregister()} disabled={busy !== null}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void reregister()}
+                        disabled={busy !== null}
+                    >
                         {t('Re-register this device')}
                     </Button>
                 </div>
 
-                {busy && <p className="text-sm text-muted-foreground">{t('Working…')}</p>}
+                {busy && (
+                    <p className="text-sm text-muted-foreground">
+                        {t('Working…')}
+                    </p>
+                )}
 
                 {output && (
                     <pre className="max-h-64 overflow-auto rounded-lg border bg-muted/50 p-3 font-mono text-xs break-words whitespace-pre-wrap">

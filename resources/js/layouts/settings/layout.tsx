@@ -1,6 +1,12 @@
 import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
-import { Bell, MonitorSmartphone, ShieldCheck, User, Users } from 'lucide-react';
+import {
+    Bell,
+    MonitorSmartphone,
+    ShieldCheck,
+    User,
+    Users,
+} from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { useEffect, useRef } from 'react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
@@ -38,7 +44,8 @@ const groups: { title: string; items: SettingsItem[] }[] = [
                 title: 'Devices',
                 href: devicesIndex(),
                 icon: MonitorSmartphone,
-                description: 'Where you are signed in and the layout of each device',
+                description:
+                    'Where you are signed in and the layout of each device',
             },
         ],
     },
@@ -55,7 +62,8 @@ const groups: { title: string; items: SettingsItem[] }[] = [
                 title: 'Notifications',
                 href: editNotifications(),
                 icon: Bell,
-                description: 'Get a message when something is wrong on your servers.',
+                description:
+                    'Get a message when something is wrong on your servers.',
             },
         ],
     },
@@ -68,11 +76,14 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const { t } = useTranslation();
     const tabs = useRef<HTMLElement>(null);
 
-    const current = items.find((item) => isCurrentOrParentUrl(item.href)) ?? items[0];
+    const current =
+        items.find((item) => isCurrentOrParentUrl(item.href)) ?? items[0];
 
     // On a phone the tab bar scrolls sideways, keep the open page in view.
     useEffect(() => {
-        const active = tabs.current?.querySelector<HTMLElement>('[aria-current="page"]');
+        const active = tabs.current?.querySelector<HTMLElement>(
+            '[aria-current="page"]',
+        );
 
         active?.scrollIntoView({ inline: 'center', block: 'nearest' });
     }, [current.title]);
@@ -91,7 +102,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 <nav
                     ref={tabs}
                     aria-label={t('Settings')}
-                    className="sticky top-14 z-10 -mx-4 flex gap-1.5 overflow-x-auto border-b bg-background/95 px-4 py-2 backdrop-blur [scrollbar-width:none] md:-mx-6 md:px-6 lg:hidden [&::-webkit-scrollbar]:hidden"
+                    className="sticky top-14 z-10 -mx-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto border-b bg-background/95 px-4 py-2 backdrop-blur md:-mx-6 md:px-6 lg:hidden [&::-webkit-scrollbar]:hidden"
                 >
                     {items.map((item) => {
                         const active = item === current;
@@ -117,7 +128,10 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
 
                 {/* Computers: grouped list at the left. */}
                 <aside className="hidden lg:block">
-                    <nav aria-label={t('Settings')} className="sticky top-24 space-y-6">
+                    <nav
+                        aria-label={t('Settings')}
+                        className="sticky top-24 space-y-6"
+                    >
                         {groups.map((group) => (
                             <div key={group.title} className="space-y-1">
                                 <p className="px-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -130,7 +144,9 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                         <Link
                                             key={toUrl(item.href)}
                                             href={item.href}
-                                            aria-current={active ? 'page' : undefined}
+                                            aria-current={
+                                                active ? 'page' : undefined
+                                            }
                                             className={cn(
                                                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
                                                 active
@@ -139,7 +155,10 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                             )}
                                         >
                                             <item.icon
-                                                className={cn('size-4', active && 'text-primary')}
+                                                className={cn(
+                                                    'size-4',
+                                                    active && 'text-primary',
+                                                )}
                                             />
                                             {t(item.title)}
                                         </Link>
@@ -150,16 +169,22 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                     </nav>
                 </aside>
 
-                <div className="min-w-0 max-w-4xl space-y-4 lg:space-y-6">
-                    <p className="text-sm text-muted-foreground lg:hidden">{t(current.description)}</p>
+                <div className="max-w-4xl min-w-0 space-y-4 lg:space-y-6">
+                    <p className="text-sm text-muted-foreground lg:hidden">
+                        {t(current.description)}
+                    </p>
 
                     <div className="hidden items-center gap-3 lg:flex">
                         <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                             <current.icon className="size-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold tracking-tight">{t(current.title)}</h2>
-                            <p className="text-sm text-muted-foreground">{t(current.description)}</p>
+                            <h2 className="text-lg font-semibold tracking-tight">
+                                {t(current.title)}
+                            </h2>
+                            <p className="text-sm text-muted-foreground">
+                                {t(current.description)}
+                            </p>
                         </div>
                     </div>
 

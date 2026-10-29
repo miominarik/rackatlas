@@ -51,7 +51,6 @@ export default function ManagePasskeys(props: Props) {
             title={t('Passkeys')}
             description={t('Manage your passkeys for passwordless sign-in')}
         >
-
             <div className="overflow-hidden rounded-lg border border-border">
                 {passkeys.length > 0 ? (
                     passkeys.map((passkey) => (

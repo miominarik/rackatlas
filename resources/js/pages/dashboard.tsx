@@ -40,12 +40,19 @@ type Props = {
 const POLLED = ['servers', 'history', 'errors', 'logs', 'generated_at'];
 
 function Poller({ seconds }: { seconds: number }) {
-    usePoll(Math.max(seconds, 1) * 1000, { only: POLLED }, { autoStart: seconds > 0 });
+    usePoll(
+        Math.max(seconds, 1) * 1000,
+        { only: POLLED },
+        { autoStart: seconds > 0 },
+    );
 
     return null;
 }
 
-function sortItems(items: Evaluated[], sort: DashboardSettings['servers']['sort']) {
+function sortItems(
+    items: Evaluated[],
+    sort: DashboardSettings['servers']['sort'],
+) {
     const by = {
         name: (a: Evaluated, b: Evaluated) =>
             a.server.name.localeCompare(b.server.name),
@@ -97,7 +104,9 @@ function ServerGrid({
               .map((category) => ({
                   key: String(category.id),
                   category,
-                  items: sorted.filter((item) => item.server.category?.id === category.id),
+                  items: sorted.filter(
+                      (item) => item.server.category?.id === category.id,
+                  ),
               }))
         : [];
 
@@ -150,7 +159,9 @@ function ServerGrid({
                                     />
                                 )}
                                 {group.category?.name ?? t('No category')}
-                                <span className="text-xs">{group.items.length}</span>
+                                <span className="text-xs">
+                                    {group.items.length}
+                                </span>
                             </h3>
                             {cards(group.items)}
                         </div>
@@ -208,7 +219,10 @@ function DashboardContent({
     return (
         <>
             <Head title={t('Dashboard')} />
-            <Poller key={settings.refresh_seconds} seconds={settings.refresh_seconds} />
+            <Poller
+                key={settings.refresh_seconds}
+                seconds={settings.refresh_seconds}
+            />
 
             <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -217,7 +231,9 @@ function DashboardContent({
                             {t('Dashboard')}
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {t('Overview of the team :team', { team: team.name })}
+                            {t('Overview of the team :team', {
+                                team: team.name,
+                            })}
                         </p>
                     </div>
                     <Button
@@ -235,9 +251,13 @@ function DashboardContent({
                         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted">
                             <LayoutDashboard className="size-7 text-muted-foreground" />
                         </div>
-                        <p className="font-medium">{t('No servers to show yet')}</p>
+                        <p className="font-medium">
+                            {t('No servers to show yet')}
+                        </p>
                         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-                            {t('Add a server and its metrics appear here within a minute.')}
+                            {t(
+                                'Add a server and its metrics appear here within a minute.',
+                            )}
                         </p>
                         <Button asChild className="mt-4">
                             <Link href={createServer()}>
@@ -256,7 +276,9 @@ function DashboardContent({
 
                 {settings.widgets.every((widget) => !widget.visible) && (
                     <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
-                        {t('All sections are hidden. Use Customize to show them again.')}
+                        {t(
+                            'All sections are hidden. Use Customize to show them again.',
+                        )}
                     </p>
                 )}
             </div>
@@ -283,9 +305,13 @@ export default function Dashboard(props: Props) {
                     <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-muted">
                         <LayoutDashboard className="size-7 text-muted-foreground" />
                     </div>
-                    <h1 className="text-xl font-semibold">{t('Create a team first')}</h1>
+                    <h1 className="text-xl font-semibold">
+                        {t('Create a team first')}
+                    </h1>
                     <p className="text-sm text-muted-foreground">
-                        {t('Servers belong to a team, so you need one before you can add servers.')}
+                        {t(
+                            'Servers belong to a team, so you need one before you can add servers.',
+                        )}
                     </p>
                     <Button asChild>
                         <Link href={teamsIndex()}>{t('Create team')}</Link>

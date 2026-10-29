@@ -98,7 +98,10 @@ export function TeamSwitcher() {
                     <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-60 max-w-[calc(100vw-2rem)]">
+            <DropdownMenuContent
+                align="end"
+                className="w-60 max-w-[calc(100vw-2rem)]"
+            >
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
                     {t('Teams')}
                 </DropdownMenuLabel>

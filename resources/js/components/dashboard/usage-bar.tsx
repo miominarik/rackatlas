@@ -47,7 +47,10 @@ export default function UsageBar({
                 aria-label={label}
             >
                 <div
-                    className={cn('h-full rounded-full transition-all', fill[level])}
+                    className={cn(
+                        'h-full rounded-full transition-all',
+                        fill[level],
+                    )}
                     style={{ width: `${width}%` }}
                 />
             </div>

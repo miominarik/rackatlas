@@ -27,7 +27,13 @@ export function Breadcrumbs({
 
                             return (
                                 <Fragment key={index}>
-                                    <BreadcrumbItem className={isLast ? 'min-w-0' : 'hidden sm:inline-flex'}>
+                                    <BreadcrumbItem
+                                        className={
+                                            isLast
+                                                ? 'min-w-0'
+                                                : 'hidden sm:inline-flex'
+                                        }
+                                    >
                                         {isLast ? (
                                             <BreadcrumbPage className="block truncate">
                                                 {t(item.title)}

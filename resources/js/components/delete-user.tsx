@@ -31,7 +31,9 @@ export default function DeleteUser() {
                 <div className="space-y-0.5">
                     <p className="text-sm font-medium">{t('Warning')}</p>
                     <p className="text-sm text-muted-foreground">
-                        {t('Please proceed with caution, this cannot be undone.')}
+                        {t(
+                            'Please proceed with caution, this cannot be undone.',
+                        )}
                     </p>
                 </div>
 
