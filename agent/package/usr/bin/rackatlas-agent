@@ -8,7 +8,9 @@
 #
 # Usage: rackatlas-agent [--dry-run] [--version]
 #
-# The metrics part must stay in sync with App\Services\Ssh\MetricsParser::SCRIPT.
+# The report has the same sections as App\Services\Ssh\MetricsParser::SCRIPT. Only the CPU
+# part differs: the agent keeps the counters of the previous run, so the CPU usage is an
+# average over the whole minute and not a one second snapshot.
 
 set -u
 
@@ -69,10 +71,35 @@ journal_section() {
   printf '%s\n' "$out" | grep -v '^-- '
 }
 
-{
-  echo '###CPU1'; head -n1 "$PROC_DIR/stat"
+# CPU usage between two readings of the counters in /proc/stat. The first reading is the
+# one saved by the previous run (an average over the whole time between the runs). Without
+# a recent, valid one (first run, after a reboot, long pause) a one second sample is used.
+cpu_total() { awk '{ s = 0; for (i = 2; i <= 9; i++) s += $i; printf "%.0f\n", s }'; }
+
+CPU_PREV_FILE="$STATE_DIR/cpu-prev"
+CPU_NOW="$(head -n1 "$PROC_DIR/stat")"
+CPU_FIRST=""
+
+if [ -s "$CPU_PREV_FILE" ] && [ -n "$(find "$CPU_PREV_FILE" -mmin -5 2>/dev/null)" ]; then
+  CPU_PREVIOUS="$(head -n1 "$CPU_PREV_FILE")"
+  if [ "$(printf '%s\n' "$CPU_NOW" | cpu_total)" -gt "$(printf '%s\n' "$CPU_PREVIOUS" | cpu_total)" ] 2>/dev/null; then
+    CPU_FIRST="$CPU_PREVIOUS"
+  fi
+fi
+
+if [ -z "$CPU_FIRST" ]; then
+  CPU_FIRST="$CPU_NOW"
   sleep 1
-  echo '###CPU2'; head -n1 "$PROC_DIR/stat"
+  CPU_NOW="$(head -n1 "$PROC_DIR/stat")"
+fi
+
+if [ -z "$DRY_RUN" ]; then
+  printf '%s\n' "$CPU_NOW" > "$CPU_PREV_FILE.tmp" 2>/dev/null && mv "$CPU_PREV_FILE.tmp" "$CPU_PREV_FILE" 2>/dev/null
+fi
+
+{
+  echo '###CPU1'; echo "$CPU_FIRST"
+  echo '###CPU2'; echo "$CPU_NOW"
   echo '###LOAD'; cat "$PROC_DIR/loadavg"
   echo '###CORES'; nproc 2>/dev/null || grep -c '^processor' "$PROC_DIR/cpuinfo"
   echo '###MEM'; grep -E '^(MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapTotal|SwapFree):' "$PROC_DIR/meminfo"
