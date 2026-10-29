@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\Servers\LogController;
 use App\Http\Controllers\Servers\ServerAgentController;
 use App\Http\Controllers\Servers\ServerCategoryController;
@@ -31,6 +32,8 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::get('servers/{server}/edit', [ServerController::class, 'edit'])->name('servers.edit');
     Route::put('servers/{server}', [ServerController::class, 'update'])->name('servers.update');
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
+
+    Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
 
     Route::get('logs', [LogController::class, 'index'])->name('logs.index');
     Route::post('logs/resolve-all', [LogController::class, 'resolveAll'])->name('logs.resolve-all');

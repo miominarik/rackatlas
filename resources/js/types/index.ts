@@ -4,3 +4,4 @@ export type * from './ui';
 export type * from './teams';
 export type * from './servers';
 export type * from './dashboard';
+export type * from './metrics';

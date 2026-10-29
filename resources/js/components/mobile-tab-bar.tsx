@@ -1,10 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, ScrollText, Server, Settings } from 'lucide-react';
+import { Activity, LayoutGrid, ScrollText, Server, Settings } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as logsIndex } from '@/routes/logs';
+import { index as metricsIndex } from '@/routes/metrics';
 import { edit as editProfile } from '@/routes/profile';
 import { index as serversIndex } from '@/routes/servers';
 import type { NavItem } from '@/types';
@@ -12,6 +13,7 @@ import type { NavItem } from '@/types';
 const tabs: (NavItem & { exact?: boolean })[] = [
     { title: 'Dashboard', href: dashboard(), icon: LayoutGrid, exact: true },
     { title: 'Servers', href: serversIndex(), icon: Server },
+    { title: 'Metrics', href: metricsIndex(), icon: Activity },
     { title: 'Logs', href: logsIndex(), icon: ScrollText },
     { title: 'Settings', href: editProfile(), icon: Settings },
 ];
@@ -38,7 +40,7 @@ export function MobileTabBar() {
             aria-label={t('Platform')}
             className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden"
         >
-            <ul className="grid grid-cols-4">
+            <ul className="grid grid-cols-5">
                 {tabs.map((tab) => {
                     const active = isActive(tab);
 
