@@ -25,6 +25,10 @@ Schedule::call(fn () => Artisan::call('servers:evaluate-alerts'))
     ->everyMinute()
     ->withoutOverlapping(2);
 
+Schedule::call(fn () => Artisan::call('servers:thin-processes'))
+    ->name('servers:thin-processes')
+    ->dailyAt('03:30');
+
 Schedule::call(fn () => Artisan::call('model:prune'))
     ->name('model:prune')
     ->daily();

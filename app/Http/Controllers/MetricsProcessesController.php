@@ -60,7 +60,11 @@ class MetricsProcessesController extends Controller
             return null;
         }
 
+        // Rows are lists [name, count, cpu, memory]; the first version stored them with keys.
         $processes = collect($metric->top_processes)
+            ->map(fn (array $row) => array_is_list($row)
+                ? ['name' => $row[0], 'count' => $row[1], 'cpu' => $row[2], 'memory' => $row[3]]
+                : $row)
             ->sortByDesc($sortBy === 'cpu' ? 'cpu' : 'memory')
             ->values()
             ->all();

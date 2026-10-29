@@ -24,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property int $swap_total
  * @property int $swap_used
  * @property int $uptime_seconds
- * @property array<int, array{name: string, count: int, cpu: float, memory: int}>|null $top_processes
+ * @property array<int, array{0: string, 1: int, 2: float, 3: int}>|null $top_processes
  */
 #[Fillable([
     'server_id', 'collected_at', 'cpu_percent', 'cpu_cores', 'load_1', 'load_5', 'load_15',
@@ -35,6 +35,11 @@ class ServerMetric extends Model
     use Prunable;
 
     public const RETENTION_DAYS = 30;
+
+    /** Process lists are kept for every minute this long, then only for the busiest minutes. */
+    public const FULL_PROCESS_HOURS = 48;
+
+    public const THIN_BUCKET_SECONDS = 900;
 
     public $timestamps = false;
 
