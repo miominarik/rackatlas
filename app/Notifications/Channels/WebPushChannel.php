@@ -40,7 +40,7 @@ class WebPushChannel
      *
      * @param  User  $notifiable
      * @param  Notification&object{toWebPush: callable}  $notification
-     * @return array<int, array{device: string|null, ok: bool, reason: string}>
+     * @return array<int, array{device: string|null, host: string, ok: bool, status: int|null, reason: string, body: string}>
      */
     public function push(object $notifiable, Notification $notification): array
     {
@@ -82,16 +82,26 @@ class WebPushChannel
                 continue;
             }
 
-            if ($report->isSuccess()) {
-                $subscription->forceFill(['last_used_at' => now()])->save();
-            } elseif ($report->isSubscriptionExpired()) {
+            $status = $report->getResponse()?->getStatusCode();
+            $reason = mb_substr(trim($report->getReason()), 0, 200);
+
+            if ($report->isSubscriptionExpired()) {
                 $subscription->delete();
+            } else {
+                $subscription->forceFill([
+                    'last_attempted_at' => now(),
+                    'last_used_at' => $report->isSuccess() ? now() : $subscription->last_used_at,
+                    'last_error' => $report->isSuccess() ? null : mb_substr(trim(($status ? "{$status} " : '').$reason), 0, 300),
+                ])->save();
             }
 
             $results[] = [
                 'device' => $subscription->name,
+                'host' => (string) parse_url($subscription->endpoint, PHP_URL_HOST),
                 'ok' => $report->isSuccess(),
-                'reason' => mb_substr(trim($report->getReason()), 0, 200),
+                'status' => $status,
+                'reason' => $report->isSubscriptionExpired() ? 'Subscription expired and was removed ('.$reason.')' : $reason,
+                'body' => mb_substr(trim((string) $report->getResponseContent()), 0, 300),
             ];
         }
 

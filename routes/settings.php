@@ -3,6 +3,7 @@
 use App\Http\Controllers\Settings\AcceptTeamInvitationController;
 use App\Http\Controllers\Settings\LanguageController;
 use App\Http\Controllers\Settings\NotificationController;
+use App\Http\Controllers\Settings\NotificationDiagnosticsController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\PushSubscriptionController;
 use App\Http\Controllers\Settings\SecurityController;
@@ -40,6 +41,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('app/settings/notifications/test', [NotificationController::class, 'test'])
         ->middleware('throttle:6,1')
         ->name('notifications.test');
+    Route::get('app/settings/notifications/diagnostics', [NotificationDiagnosticsController::class, 'show'])->name('notification-diagnostics.show');
+    Route::post('app/settings/notifications/diagnostics/connectivity', [NotificationDiagnosticsController::class, 'connectivity'])
+        ->middleware('throttle:10,1')
+        ->name('notification-diagnostics.connectivity');
+    Route::post('app/settings/notifications/diagnostics/push', [NotificationDiagnosticsController::class, 'push'])
+        ->middleware('throttle:10,1')
+        ->name('notification-diagnostics.push');
     Route::post('app/settings/notifications/push', [PushSubscriptionController::class, 'store'])
         ->middleware('throttle:20,1')
         ->name('push-subscriptions.store');

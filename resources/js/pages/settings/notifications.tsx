@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import NotificationController from '@/actions/App/Http/Controllers/Settings/NotificationController';
 import PushSubscriptionController from '@/actions/App/Http/Controllers/Settings/PushSubscriptionController';
 import Heading from '@/components/heading';
+import { PushDiagnostics } from '@/components/notifications/push-diagnostics';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -292,6 +293,16 @@ export default function Notifications({
                         </ul>
                     )}
                 </section>
+
+                <PushDiagnostics
+                    vapidPublicKey={vapidPublicKey}
+                    registeredHashes={devices.map((device) => device.endpoint_hash)}
+                    onReregister={async () => {
+                        await push.unsubscribe();
+                        await push.subscribe();
+                        router.reload({ only: ['devices'] });
+                    }}
+                />
             </div>
         </>
     );

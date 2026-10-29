@@ -20,8 +20,10 @@ use Illuminate\Support\Carbon;
  * @property string $content_encoding
  * @property string|null $name
  * @property Carbon|null $last_used_at
+ * @property Carbon|null $last_attempted_at
+ * @property string|null $last_error
  */
-#[Fillable(['user_id', 'endpoint_hash', 'endpoint', 'public_key', 'auth_token', 'content_encoding', 'name', 'last_used_at'])]
+#[Fillable(['user_id', 'endpoint_hash', 'endpoint', 'public_key', 'auth_token', 'content_encoding', 'name', 'last_used_at', 'last_attempted_at', 'last_error'])]
 #[Hidden(['endpoint', 'public_key', 'auth_token'])]
 class PushSubscription extends Model
 {
@@ -32,6 +34,7 @@ class PushSubscription extends Model
             'public_key' => 'encrypted',
             'auth_token' => 'encrypted',
             'last_used_at' => 'datetime',
+            'last_attempted_at' => 'datetime',
         ];
     }
 
