@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import babel from '@rolldown/plugin-babel';
@@ -6,6 +7,28 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
+
+/**
+ * The PHP binary that generates the Wayfinder routes. Some hostings have no plain `php`
+ * on the PATH, only versioned binaries such as `php8.5`. Set WAYFINDER_PHP to force one.
+ */
+function phpBinary(): string {
+    const candidates = [process.env.WAYFINDER_PHP, 'php', 'php8.5', 'php8.4', 'php8.3'].filter(
+        (bin): bin is string => Boolean(bin),
+    );
+
+    for (const bin of candidates) {
+        try {
+            execSync(`${bin} -v`, { stdio: 'ignore' });
+
+            return bin;
+        } catch {
+            // Try the next candidate.
+        }
+    }
+
+    return 'php';
+}
 
 export default defineConfig({
     plugins: lazyPlugins(() => [
@@ -26,6 +49,7 @@ export default defineConfig({
         tailwindcss(),
         wayfinder({
             formVariants: true,
+            command: `${phpBinary()} artisan wayfinder:generate`,
         }),
     ]),
     server: {
