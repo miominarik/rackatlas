@@ -214,7 +214,7 @@ export default function ServerWizard({
 
             <div className="mx-auto w-full max-w-2xl space-y-8 p-4 md:py-8">
                 <div className="space-y-1">
-                    <h1 className="text-xl font-semibold tracking-tight">
+                    <h1 className="text-2xl font-semibold">
                         {editing ? t('Edit server') : t('Add a server')}
                     </h1>
                     <p className="text-sm text-muted-foreground">
@@ -280,7 +280,6 @@ export default function ServerWizard({
                                 <Label htmlFor="name">{t('Server name')}</Label>
                                 <Input
                                     id="name"
-                                    autoFocus
                                     value={form.data.name}
                                     onChange={(e) =>
                                         form.setData('name', e.target.value)
@@ -328,7 +327,6 @@ export default function ServerWizard({
                                 </Select>
                                 {categoryChoice === NEW_CATEGORY && (
                                     <Input
-                                        autoFocus
                                         value={form.data.new_category}
                                         onChange={(e) =>
                                             form.setData(
@@ -475,7 +473,6 @@ export default function ServerWizard({
                                     </Label>
                                     <PasswordInput
                                         id="password"
-                                        autoFocus
                                         value={form.data.password}
                                         onChange={(e) =>
                                             form.setData('password', e.target.value)

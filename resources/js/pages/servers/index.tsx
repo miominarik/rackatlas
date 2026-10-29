@@ -177,7 +177,7 @@ export default function Servers({
                     <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-muted">
                         <Server className="size-7 text-muted-foreground" />
                     </div>
-                    <h1 className="text-lg font-semibold">
+                    <h1 className="text-xl font-semibold">
                         {t('Create a team first')}
                     </h1>
                     <p className="text-sm text-muted-foreground">
@@ -214,7 +214,7 @@ export default function Servers({
             <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h1 className="text-xl font-semibold tracking-tight">
+                        <h1 className="text-2xl font-semibold">
                             {t('Servers')}
                         </h1>
                         <p className="text-sm text-muted-foreground">

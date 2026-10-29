@@ -13,6 +13,10 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
+    --font-display:
+        'Barlow Semi Condensed', 'Instrument Sans', ui-sans-serif, system-ui,
+        sans-serif;
+
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
@@ -62,73 +66,73 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
+    --background: oklch(0.972 0.004 235);
+    --foreground: oklch(0.17 0.01 240);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
     --primary: oklch(0.596 0.145 163.225);
     --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
+    --secondary: oklch(0.955 0.005 235);
     --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
+    --muted: oklch(0.955 0.005 235);
+    --muted-foreground: oklch(0.5 0.016 235);
+    --accent: oklch(0.955 0.005 235);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
+    --border: oklch(0.9 0.006 235);
+    --input: oklch(0.9 0.006 235);
     --ring: oklch(0.696 0.17 162.48);
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
+    --radius: 0.5rem;
+    --sidebar: oklch(0.99 0.002 235);
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.596 0.145 163.225);
     --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent: oklch(0.955 0.005 235);
     --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-border: oklch(0.9 0.006 235);
     --sidebar-ring: oklch(0.87 0 0);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
+    --background: oklch(0.15 0.008 240);
     --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
+    --card: oklch(0.19 0.009 240);
     --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
+    --popover: oklch(0.19 0.009 240);
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.696 0.17 162.48);
     --primary-foreground: oklch(0.145 0 0);
-    --secondary: oklch(0.269 0 0);
+    --secondary: oklch(0.26 0.009 240);
     --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
+    --muted: oklch(0.26 0.009 240);
+    --muted-foreground: oklch(0.7 0.014 235);
+    --accent: oklch(0.26 0.009 240);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.396 0.141 25.723);
     --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
+    --border: oklch(0.29 0.01 240);
+    --input: oklch(0.29 0.01 240);
     --ring: oklch(0.596 0.145 163.225);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
+    --sidebar: oklch(0.175 0.008 240);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.696 0.17 162.48);
     --sidebar-primary-foreground: oklch(0.145 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent: oklch(0.26 0.009 240);
     --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-border: oklch(0.29 0.01 240);
     --sidebar-ring: oklch(0.439 0 0);
 }
 
@@ -139,6 +143,20 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+
+    /* Equipment-label type for headings; body text stays in the UI face. */
+    h1,
+    h2,
+    h3 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: 0;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        line-height: 1.15;
     }
 }
 
@@ -161,6 +179,13 @@
             overscroll-behavior-y: none;
         }
     }
+}
+
+/* The public pages keep the UI face for headings; the equipment-label face is for the app. */
+.landing h1,
+.landing h2,
+.landing h3 {
+    font-family: var(--font-sans);
 }
 
 /* Colours of the public home page. They follow the light/dark choice of the app. */
@@ -200,5 +225,45 @@
 @media (prefers-reduced-motion: no-preference) {
     html.smooth-anchors {
         scroll-behavior: smooth;
+    }
+}
+
+/*
+ * The one moment of motion on the home page: the meters of the sample dashboard fill in, then the
+ * alert arrives. It plays once, when the sample scrolls into view (data-play is set by the page).
+ * Visitors who asked for less motion see the end state.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .landing .meter-fill {
+        transform-origin: left center;
+    }
+
+    .landing [data-play='idle'] .meter-fill {
+        transform: scaleX(0);
+    }
+
+    .landing [data-play='idle'] .alert-in {
+        opacity: 0;
+    }
+
+    .landing [data-play='play'] .meter-fill {
+        animation: meter-fill 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    }
+
+    .landing [data-play='play'] .alert-in {
+        animation: alert-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 1.9s backwards;
+    }
+
+    @keyframes meter-fill {
+        from {
+            transform: scaleX(0);
+        }
+    }
+
+    @keyframes alert-in {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
     }
 }

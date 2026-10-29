@@ -80,7 +80,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     return (
         <div className="mx-auto w-full max-w-[100rem] p-4 md:p-6">
             <div className="mb-4 space-y-1 lg:mb-8">
-                <h1 className="text-xl font-semibold tracking-tight">{t('Settings')}</h1>
+                <h1 className="text-2xl font-semibold">{t('Settings')}</h1>
                 <p className="text-sm text-muted-foreground">
                     {t('Manage your profile and account settings')}
                 </p>

@@ -53,14 +53,16 @@ export default function SummaryTiles({ items }: { items: Evaluated[] }) {
     return (
         <section
             aria-label={t('Summary')}
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6"
+            className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-3 xl:grid-cols-6"
         >
             {tiles.map((tile) => (
-                <div key={tile.label} className="rounded-xl border bg-card p-4">
-                    <p className="text-xs text-muted-foreground">{tile.label}</p>
+                <div key={tile.label} className="bg-card px-4 py-3.5">
+                    <p className="text-xs text-muted-foreground">
+                        {tile.label}
+                    </p>
                     <p
                         className={cn(
-                            'mt-1 text-2xl font-semibold tracking-tight',
+                            'mt-0.5 font-display text-4xl leading-none font-semibold tabular-nums',
                             tile.tone,
                         )}
                     >

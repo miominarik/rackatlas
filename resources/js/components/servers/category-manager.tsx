@@ -84,7 +84,6 @@ function CategoryRow({
                     <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        autoFocus
                         onKeyDown={(e) => e.key === 'Enter' && save()}
                     />
                     <Button size="icon" variant="ghost" onClick={save} aria-label={t('Save')}>

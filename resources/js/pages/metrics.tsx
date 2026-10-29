@@ -157,7 +157,7 @@ export default function Metrics({
             <>
                 <Head title={t('Metrics')} />
                 <div className="mx-auto max-w-md space-y-4 p-8 text-center">
-                    <h1 className="text-lg font-semibold">{t('Create a team first')}</h1>
+                    <h1 className="text-xl font-semibold">{t('Create a team first')}</h1>
                     <Button asChild>
                         <Link href={teamsIndex()}>{t('Create team')}</Link>
                     </Button>
@@ -174,7 +174,7 @@ export default function Metrics({
                     <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-muted">
                         <Activity className="size-7 text-muted-foreground" />
                     </div>
-                    <h1 className="text-lg font-semibold">{t('No servers yet')}</h1>
+                    <h1 className="text-xl font-semibold">{t('No servers yet')}</h1>
                     <p className="text-sm text-muted-foreground">
                         {t('Add a server and its metrics appear here within a minute.')}
                     </p>
@@ -280,7 +280,7 @@ export default function Metrics({
             <div className="mx-auto w-full max-w-[100rem] min-w-0 space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <h1 className="text-xl font-semibold tracking-tight">{t('Metrics')}</h1>
+                        <h1 className="text-2xl font-semibold">{t('Metrics')}</h1>
                         <p className="text-sm text-muted-foreground">
                             {t('Detailed history of one server of the team :team', { team: team.name })}
                         </p>

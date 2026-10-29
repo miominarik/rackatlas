@@ -54,7 +54,7 @@ export default function Logs({
             <>
                 <Head title={t('Logs')} />
                 <div className="mx-auto max-w-md space-y-4 p-8 text-center">
-                    <h1 className="text-lg font-semibold">{t('Create a team first')}</h1>
+                    <h1 className="text-xl font-semibold">{t('Create a team first')}</h1>
                     <Button asChild>
                         <Link href={teamsIndex()}>{t('Create team')}</Link>
                     </Button>
@@ -102,7 +102,7 @@ export default function Logs({
             <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <h1 className="text-xl font-semibold tracking-tight">
+                        <h1 className="text-2xl font-semibold">
                             {t('Logs')}
                         </h1>
                         <p className="text-sm text-muted-foreground">

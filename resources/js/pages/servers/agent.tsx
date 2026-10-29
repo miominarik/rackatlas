@@ -43,7 +43,7 @@ export default function AgentInstall({
 
             <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:py-8">
                 <div className="space-y-1">
-                    <h1 className="text-xl font-semibold tracking-tight">
+                    <h1 className="text-2xl font-semibold">
                         {t('Install the agent on :server', { server: server.name })}
                     </h1>
                     <p className="text-sm text-muted-foreground">

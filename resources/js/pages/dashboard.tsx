@@ -213,7 +213,7 @@ function DashboardContent({
             <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h1 className="text-xl font-semibold tracking-tight">
+                        <h1 className="text-2xl font-semibold">
                             {t('Dashboard')}
                         </h1>
                         <p className="text-sm text-muted-foreground">
@@ -283,7 +283,7 @@ export default function Dashboard(props: Props) {
                     <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-muted">
                         <LayoutDashboard className="size-7 text-muted-foreground" />
                     </div>
-                    <h1 className="text-lg font-semibold">{t('Create a team first')}</h1>
+                    <h1 className="text-xl font-semibold">{t('Create a team first')}</h1>
                     <p className="text-sm text-muted-foreground">
                         {t('Servers belong to a team, so you need one before you can add servers.')}
                     </p>

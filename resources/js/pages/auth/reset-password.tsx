@@ -54,7 +54,6 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 name="password"
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
-                                autoFocus
                                 placeholder={t('Password')}
                                 passwordrules={passwordRules}
                             />

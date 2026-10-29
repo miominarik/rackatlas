@@ -60,7 +60,6 @@ function DeviceRow({ device, generatedAt }: { device: Device; generatedAt: strin
                             onChange={(event) => setName(event.target.value)}
                             placeholder={detail || t('Name of the device')}
                             maxLength={100}
-                            autoFocus
                             aria-label={t('Name of the device')}
                         />
                         <Button type="submit" size="icon" aria-label={t('Save')}>

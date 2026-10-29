@@ -24,13 +24,14 @@ type Props = {
     generatedAt: string;
 };
 
+// The left edge of the card is the status light of a rack unit: it is readable from across the room.
 const border: Record<string, string> = {
-    ok: '',
-    warning: 'border-amber-500/50',
-    critical: 'border-red-500/60 bg-red-500/[0.04]',
-    offline: 'border-red-500/60 bg-red-500/[0.04]',
-    stale: 'border-dashed',
-    unknown: 'border-dashed',
+    ok: 'border-l-emerald-500',
+    warning: 'border-l-amber-500',
+    critical: 'border-l-red-500 bg-red-500/[0.04]',
+    offline: 'border-l-red-500 bg-red-500/[0.04]',
+    stale: 'border-l-muted-foreground/40 border-dashed',
+    unknown: 'border-l-muted-foreground/40 border-dashed',
 };
 
 export default function ServerCard({
@@ -59,7 +60,7 @@ export default function ServerCard({
     return (
         <article
             className={cn(
-                'flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground',
+                'flex flex-col gap-3 rounded-lg border border-l-4 bg-card p-4 text-card-foreground',
                 compact && 'gap-2 p-3',
                 border[level],
             )}
@@ -71,11 +72,12 @@ export default function ServerCard({
                     className={cn(
                         'mt-1.5 size-2.5 shrink-0 rounded-full',
                         levelDot[level],
-                        level === 'ok' && 'shadow-[0_0_0_3px] shadow-emerald-500/20',
+                        level === 'ok' &&
+                            'shadow-[0_0_0_3px] shadow-emerald-500/20',
                     )}
                 />
                 <div className="min-w-0 flex-1">
-                    <h3 className="truncate leading-tight font-medium">
+                    <h3 className="truncate text-xl leading-tight font-semibold">
                         {server.name}
                     </h3>
                     <p className="truncate font-mono text-xs text-muted-foreground">
@@ -101,7 +103,11 @@ export default function ServerCard({
                     <span>
                         {server.last_seen_at
                             ? t('Offline, last seen :time', {
-                                  time: timeAgo(server.last_seen_at, generatedAt, locale),
+                                  time: timeAgo(
+                                      server.last_seen_at,
+                                      generatedAt,
+                                      locale,
+                                  ),
                               })
                             : t('Offline, never reached')}
                     </span>
@@ -125,9 +131,7 @@ export default function ServerCard({
             {metrics && compact && (
                 <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs">
                     {show('cpu') && (
-                        <span>
-                            CPU {Math.round(metrics.cpu_percent)}%
-                        </span>
+                        <span>CPU {Math.round(metrics.cpu_percent)}%</span>
                     )}
                     {show('ram') && (
                         <span>RAM {Math.round(memoryPercent(metrics))}%</span>
@@ -152,8 +156,13 @@ export default function ServerCard({
                             <UsageBar
                                 label={t('CPU')}
                                 value={metrics.cpu_percent}
-                                level={usageLevel(metrics.cpu_percent, thresholds.cpu)}
-                                detail={t(':count cores', { count: metrics.cpu_cores })}
+                                level={usageLevel(
+                                    metrics.cpu_percent,
+                                    thresholds.cpu,
+                                )}
+                                detail={t(':count cores', {
+                                    count: metrics.cpu_cores,
+                                })}
                             />
                             {settings.servers.show_history && (
                                 <Sparkline
@@ -167,7 +176,10 @@ export default function ServerCard({
                         <UsageBar
                             label={t('Memory')}
                             value={memoryPercent(metrics)}
-                            level={usageLevel(memoryPercent(metrics), thresholds.ram)}
+                            level={usageLevel(
+                                memoryPercent(metrics),
+                                thresholds.ram,
+                            )}
                             detail={`${formatBytes(metrics.memory_used)} / ${formatBytes(metrics.memory_total)}`}
                         />
                     )}
@@ -180,7 +192,10 @@ export default function ServerCard({
                                     key={disk.mount}
                                     label={`${t('Disk')} ${disk.mount}`}
                                     value={diskPercent(disk)}
-                                    level={usageLevel(diskPercent(disk), thresholds.disk)}
+                                    level={usageLevel(
+                                        diskPercent(disk),
+                                        thresholds.disk,
+                                    )}
                                     detail={`${formatBytes(disk.used_bytes)} / ${formatBytes(disk.total_bytes)}`}
                                 />
                             ))}
@@ -202,7 +217,8 @@ export default function ServerCard({
                             title={t('Load average 1 / 5 / 15 min')}
                         >
                             <Cpu className="size-3" />
-                            {metrics.load_1.toFixed(2)} · {metrics.load_5.toFixed(2)} ·{' '}
+                            {metrics.load_1.toFixed(2)} ·{' '}
+                            {metrics.load_5.toFixed(2)} ·{' '}
                             {metrics.load_15.toFixed(2)}
                         </span>
                     )}
@@ -220,7 +236,11 @@ export default function ServerCard({
             {metrics && (
                 <p className="text-[11px] text-muted-foreground/70">
                     {t('Updated :time', {
-                        time: timeAgo(metrics.collected_at, generatedAt, locale),
+                        time: timeAgo(
+                            metrics.collected_at,
+                            generatedAt,
+                            locale,
+                        ),
                     })}
                 </p>
             )}

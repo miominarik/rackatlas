@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { openCookieSettings } from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
@@ -44,10 +44,12 @@ function Meter({
     label,
     value,
     tone = 'ok',
+    delay = 0,
 }: {
     label: string;
     value: number;
     tone?: 'ok' | 'warn';
+    delay?: number;
 }) {
     return (
         <div className="flex items-center gap-2 text-[11px] text-[var(--l-muted)]">
@@ -55,10 +57,10 @@ function Meter({
             <span className="h-[5px] flex-1 rounded-full bg-[var(--l-border)]">
                 <span
                     className={cn(
-                        'block h-[5px] rounded-full',
+                        'meter-fill block h-[5px] rounded-full',
                         tone === 'ok' ? 'bg-[var(--l-dot)]' : 'bg-amber-500',
                     )}
-                    style={{ width: `${value}%` }}
+                    style={{ width: `${value}%`, animationDelay: `${delay}s` }}
                 />
             </span>
             <span
@@ -77,10 +79,12 @@ function ServerCard({
     name,
     meters,
     state = 'ok',
+    delay = 0,
 }: {
     name: string;
     meters: { label: string; value: number; tone?: 'ok' | 'warn' }[];
     state?: 'ok' | 'warn';
+    delay?: number;
 }) {
     return (
         <div
@@ -101,11 +105,34 @@ function ServerCard({
                 {name}
             </p>
             <div className="space-y-1.5">
-                {meters.map((meter) => (
-                    <Meter key={meter.label} {...meter} />
+                {meters.map((meter, index) => (
+                    <Meter
+                        key={meter.label}
+                        {...meter}
+                        delay={delay + index * 0.12}
+                    />
                 ))}
             </div>
         </div>
+    );
+}
+
+function Eyebrow({
+    children,
+    className,
+}: {
+    children: ReactNode;
+    className?: string;
+}) {
+    return (
+        <p
+            className={cn(
+                'mb-2.5 font-mono text-xs tracking-wide text-[var(--l-accent)] uppercase',
+                className,
+            )}
+        >
+            {children}
+        </p>
     );
 }
 
@@ -133,27 +160,43 @@ function Tile({
     );
 }
 
-function Eyebrow({
-    children,
-    className,
-}: {
-    children: ReactNode;
-    className?: string;
-}) {
-    return (
-        <p
-            className={cn(
-                'mb-2.5 font-mono text-xs tracking-wide text-[var(--l-accent)] uppercase',
-                className,
-            )}
-        >
-            {children}
-        </p>
-    );
-}
-
 export default function Welcome({ canRegister, faq }: Props) {
     const { t, locale } = useTranslation();
+
+    const sample = useRef<HTMLDivElement>(null);
+
+    // The sample dashboard plays its fill-in once, when it first comes into view.
+    useEffect(() => {
+        const element = sample.current;
+
+        if (!element) {
+            return;
+        }
+
+        element.dataset.play = 'idle';
+
+        const check = () => {
+            const { top, height } = element.getBoundingClientRect();
+            const visible =
+                Math.min(top + height, window.innerHeight) - Math.max(top, 0);
+
+            if (visible >= Math.min(height, window.innerHeight) * 0.4) {
+                element.dataset.play = 'play';
+                cleanup();
+            }
+        };
+
+        const cleanup = () => {
+            window.removeEventListener('scroll', check);
+            window.removeEventListener('resize', check);
+        };
+
+        window.addEventListener('scroll', check, { passive: true });
+        window.addEventListener('resize', check);
+        check();
+
+        return cleanup;
+    }, []);
 
     useEffect(() => {
         document.documentElement.classList.add('smooth-anchors');
@@ -305,9 +348,27 @@ export default function Welcome({ canRegister, faq }: Props) {
 
                     {/* the product */}
                     <div
-                        className="min-w-0 flex-[1_1_540px]"
+                        ref={sample}
+                        className="relative min-w-0 flex-[1_1_540px]"
                         aria-hidden="true"
                     >
+                        <div className="alert-in absolute right-3 -bottom-7 z-10 w-[270px] rounded-xl border border-[var(--l-warn-border)] bg-[var(--l-card)] p-3 shadow-[0_20px_40px_-20px_rgba(15,25,20,0.45)] sm:right-6">
+                            <div className="flex items-start gap-2.5">
+                                <Mark className="mt-0.5 size-[22px] shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-[13px] font-semibold">
+                                        {t(':server: disk is almost full', {
+                                            server: 'backup-1',
+                                        })}
+                                    </p>
+                                    <p className="text-xs text-[var(--l-muted)]">
+                                        {t('Disk / is :value% full.', {
+                                            value: 91,
+                                        })}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         <div className="overflow-hidden rounded-2xl border border-[var(--l-border)] bg-[var(--l-card)] shadow-[0_40px_90px_-40px_rgba(15,25,20,0.4)]">
                             <div className="flex items-center gap-2 border-b border-[var(--l-border)] bg-[var(--l-soft)] px-4 py-3">
                                 <span className="size-2.5 rounded-full bg-[var(--l-border)]" />
@@ -383,6 +444,7 @@ export default function Welcome({ canRegister, faq }: Props) {
                                     <div className="grid gap-2.5 sm:grid-cols-2">
                                         <ServerCard
                                             name="web-1"
+                                            delay={0.35}
                                             meters={[
                                                 { label: 'CPU', value: 34 },
                                                 { label: 'RAM', value: 52 },
@@ -391,6 +453,7 @@ export default function Welcome({ canRegister, faq }: Props) {
                                         />
                                         <ServerCard
                                             name="db-1"
+                                            delay={0.5}
                                             meters={[
                                                 { label: 'CPU', value: 61 },
                                                 { label: 'RAM', value: 78 },
@@ -399,6 +462,7 @@ export default function Welcome({ canRegister, faq }: Props) {
                                         />
                                         <ServerCard
                                             name="backup-1"
+                                            delay={0.65}
                                             state="warn"
                                             meters={[
                                                 { label: 'CPU', value: 12 },
@@ -794,47 +858,137 @@ export default function Welcome({ canRegister, faq }: Props) {
                     </div>
                 </section>
 
-                <footer className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-8 gap-y-3 px-4 pb-9 text-sm text-[var(--l-muted)] sm:px-8">
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-                        <span>© {new Date().getFullYear()} RackAtlas</span>
-                        <Link
-                            href={privacyLocalized(locale)}
-                            className="underline-offset-4 hover:text-[var(--l-ink)] hover:underline"
-                        >
-                            {t('Privacy and cookies')}
-                        </Link>
-                        <button
-                            type="button"
-                            onClick={openCookieSettings}
-                            className="underline-offset-4 hover:text-[var(--l-ink)] hover:underline"
-                        >
-                            {t('Cookie settings')}
-                        </button>
-                    </div>
-                    <div
-                        className="flex items-center gap-1 font-mono"
-                        role="group"
-                        aria-label={t('Language')}
-                    >
-                        {Object.keys(locales).map((code) => (
-                            <Link
-                                key={code}
-                                href={homeLocalized(code)}
-                                hrefLang={code}
-                                aria-current={
-                                    code === locale ? 'true' : undefined
-                                }
-                                preserveScroll
-                                className={cn(
-                                    'rounded-md px-2 py-1 uppercase transition-colors',
-                                    code === locale
-                                        ? 'bg-[var(--l-soft)] font-medium text-[var(--l-ink)]'
-                                        : 'hover:text-[var(--l-ink)]',
-                                )}
+                <footer className="mx-auto max-w-[1240px] px-4 pb-9 text-sm text-[var(--l-muted)] sm:px-8">
+                    <div className="flex flex-wrap justify-between gap-x-12 gap-y-9 border-t border-[var(--l-border)] pt-10">
+                        <div className="max-w-[280px]">
+                            <a
+                                href="#top"
+                                className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[var(--l-ink)]"
                             >
-                                {code}
-                            </Link>
-                        ))}
+                                <Mark className="size-[22px]" />
+                                RackAtlas
+                            </a>
+                            <p className="mt-3 leading-normal">
+                                {t('Linux server monitoring')}{' '}
+                                {t('without open ports.')}
+                            </p>
+                        </div>
+                        <nav className="flex flex-wrap gap-x-16 gap-y-8">
+                            <div>
+                                <p className="mb-3 font-medium text-[var(--l-ink)]">
+                                    {t('Product')}
+                                </p>
+                                <ul className="space-y-2">
+                                    {[
+                                        [t('Features'), '#features'],
+                                        [t('How it works'), '#how'],
+                                        [
+                                            t('Frequently asked questions'),
+                                            '#faq',
+                                        ],
+                                    ].map(([label, href]) => (
+                                        <li key={href}>
+                                            <a
+                                                href={href}
+                                                className="hover:text-[var(--l-ink)]"
+                                            >
+                                                {label}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <p className="mb-3 font-medium text-[var(--l-ink)]">
+                                    {t('Account')}
+                                </p>
+                                <ul className="space-y-2">
+                                    {signedIn ? (
+                                        <li>
+                                            <Link
+                                                href={dashboard()}
+                                                className="hover:text-[var(--l-ink)]"
+                                            >
+                                                {t('Dashboard')}
+                                            </Link>
+                                        </li>
+                                    ) : (
+                                        <>
+                                            <li>
+                                                <Link
+                                                    href={login()}
+                                                    className="hover:text-[var(--l-ink)]"
+                                                >
+                                                    {t('Log in')}
+                                                </Link>
+                                            </li>
+                                            {canRegister && (
+                                                <li>
+                                                    <Link
+                                                        href={register()}
+                                                        className="hover:text-[var(--l-ink)]"
+                                                    >
+                                                        {t('Create account')}
+                                                    </Link>
+                                                </li>
+                                            )}
+                                        </>
+                                    )}
+                                </ul>
+                            </div>
+                            <div>
+                                <p className="mb-3 font-medium text-[var(--l-ink)]">
+                                    {t('Legal')}
+                                </p>
+                                <ul className="space-y-2">
+                                    <li>
+                                        <Link
+                                            href={privacyLocalized(locale)}
+                                            className="hover:text-[var(--l-ink)]"
+                                        >
+                                            {t('Privacy and cookies')}
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <button
+                                            type="button"
+                                            onClick={openCookieSettings}
+                                            className="hover:text-[var(--l-ink)]"
+                                        >
+                                            {t('Cookie settings')}
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                    <div className="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+                        <span>© {new Date().getFullYear()} RackAtlas</span>
+                        <div
+                            className="flex items-center gap-1 font-mono"
+                            role="group"
+                            aria-label={t('Language')}
+                        >
+                            {Object.keys(locales).map((code) => (
+                                <Link
+                                    key={code}
+                                    href={homeLocalized(code)}
+                                    hrefLang={code}
+                                    aria-current={
+                                        code === locale ? 'true' : undefined
+                                    }
+                                    preserveScroll
+                                    className={cn(
+                                        'rounded-md px-2 py-1 uppercase transition-colors',
+                                        code === locale
+                                            ? 'bg-[var(--l-soft)] font-medium text-[var(--l-ink)]'
+                                            : 'hover:text-[var(--l-ink)]',
+                                    )}
+                                >
+                                    {code}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 </footer>
             </div>

@@ -42,6 +42,9 @@ export default defineConfig({
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
                 }),
+                bunny('Barlow Semi Condensed', {
+                    weights: [500, 600, 700],
+                }),
             ],
         }),
         inertia(),

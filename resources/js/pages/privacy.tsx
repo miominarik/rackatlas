@@ -53,7 +53,7 @@ const content: Record<string, Copy> = {
                     'Účet: meno, e-mail, heslo (ukladá sa len ako hash), nastavenia dvojfázového overenia, passkeys a zvolený jazyk. Účel: vytvorenie a prevádzka účtu. Právny základ: plnenie zmluvy (čl. 6 ods. 1 písm. b GDPR).',
                     'Servery a monitoring: názov servera a údaje, ktoré pošle agent: využitie CPU, pamäte a diskov, stav služieb a kritické záznamy z logov. Účel: poskytovanie monitoringu a upozornení. Právny základ: plnenie zmluvy. Záznamy z logov môžu obsahovať osobné údaje; agent posiela len vážne chyby.',
                     'Zariadenia a bezpečnosť: IP adresa, typ prehliadača a zariadenia, čas poslednej aktivity a identifikátor zariadenia. Účel: zoznam prihlásených zariadení, ich odhlásenie a ochrana pred zneužitím účtu. Právny základ: oprávnený záujem na bezpečnosti (čl. 6 ods. 1 písm. f GDPR).',
-                    'Upozornenia: e-mailová adresa a, ak ich zapneš, registrácia zariadenia pre push notifikácie. Právny základ: plnenie zmluvy; push notifikácie navyše povoľuješ v prehliadači ty.',
+                    'Upozornenia: e-mailová adresa a, ak ich zapnete, registrácia zariadenia pre push notifikácie. Právny základ: plnenie zmluvy; push notifikácie navyše povoľujete v prehliadači vy.',
                     'Ochrana formulárov: pri prihlásení a registrácii overuje, že ide o človeka, služba Cloudflare Turnstile. Právny základ: oprávnený záujem na ochrane pred automatizovaným zneužitím.',
                 ],
             },
@@ -75,28 +75,28 @@ const content: Record<string, Copy> = {
                 id: 'cookies',
                 title: 'Cookies',
                 paragraphs: [
-                    'Nevyhnutné cookies potrebujeme na fungovanie stránky a súhlas na ne nepýtame. Preferenčné cookies (zapamätanie jazyka a vzhľadu) si trvalo uložíme len s tvojím súhlasom. Bez súhlasu platia len do zatvorenia prehliadača. Nepoužívame reklamné ani analytické cookies. Tvoju voľbu si pamätáme v úložisku prehliadača (localStorage), nie na serveri.',
+                    'Nevyhnutné cookies potrebujeme na fungovanie stránky a súhlas na ne nepýtame. Preferenčné cookies (zapamätanie jazyka a vzhľadu) si trvalo uložíme len s vaším súhlasom. Bez súhlasu platia len do zatvorenia prehliadača. Nepoužívame reklamné ani analytické cookies. Vašu voľbu si pamätáme v úložisku prehliadača (localStorage), nie na serveri.',
                 ],
             },
             {
                 id: 'rights',
-                title: 'Tvoje práva',
+                title: 'Vaše práva',
                 paragraphs: [
-                    'Máš právo na prístup k údajom, ich opravu, vymazanie, obmedzenie spracúvania, prenosnosť a právo namietať proti spracúvaniu na základe oprávneného záujmu. Súhlas môžeš kedykoľvek odvolať, odvolanie nemá vplyv na zákonnosť spracúvania pred ním. Uplatníš ich na kontakte vyššie, odpovieme do 30 dní. Máš tiež právo podať sťažnosť dozornému orgánu, na Slovensku je to Úrad na ochranu osobných údajov SR (dataprotection.gov.sk), alebo orgánu vo svojej krajine.',
+                    'Máte právo na prístup k údajom, ich opravu, vymazanie, obmedzenie spracúvania, prenosnosť a právo namietať proti spracúvaniu na základe oprávneného záujmu. Súhlas môžete kedykoľvek odvolať, odvolanie nemá vplyv na zákonnosť spracúvania pred ním. Uplatníte ich na kontakte vyššie, odpovieme do 30 dní. Máte tiež právo podať sťažnosť dozornému orgánu, na Slovensku je to Úrad na ochranu osobných údajov SR (dataprotection.gov.sk), alebo orgánu vo svojej krajine.',
                 ],
             },
             {
                 id: 'security',
                 title: 'Zabezpečenie',
                 paragraphs: [
-                    'Komunikácia prebieha cez HTTPS, heslá sa ukladajú ako hash, prihlásenie môžeš chrániť dvojfázovým overením alebo passkey a agenta inštaluješ z podpísaného repozitára. Údaje z agenta chránime tokenom, ktorý patrí len jednému serveru.',
+                    'Komunikácia prebieha cez HTTPS, heslá sa ukladajú ako hash, prihlásenie môžete chrániť dvojfázovým overením alebo passkey a agenta inštalujete z podpísaného repozitára. Údaje z agenta chránime tokenom, ktorý patrí len jednému serveru.',
                 ],
             },
             {
                 id: 'changes',
                 title: 'Zmeny',
                 paragraphs: [
-                    'Tento dokument môžeme upraviť. Dátum poslednej zmeny je uvedený hore. O podstatných zmenách ťa budeme informovať.',
+                    'Tento dokument môžeme upraviť. Dátum poslednej zmeny je uvedený hore. O podstatných zmenách vás budeme informovať.',
                 ],
             },
         ],
@@ -123,9 +123,9 @@ const content: Record<string, Copy> = {
                 ],
                 [
                     'remember_web_*',
-                    'Zostať prihlásený, ak to zvolíš',
+                    'Zostať prihlásený, ak to zvolíte',
                     '400 dní',
-                    'Nevyhnutné (len ak to zvolíš)',
+                    'Nevyhnutné (len ak to zvolíte)',
                 ],
                 [
                     'locale',
@@ -169,7 +169,7 @@ const content: Record<string, Copy> = {
                     'Účet: jméno, e-mail, heslo (ukládá se jen jako hash), nastavení dvoufázového ověření, passkeys a zvolený jazyk. Účel: vytvoření a provoz účtu. Právní základ: plnění smlouvy (čl. 6 odst. 1 písm. b GDPR).',
                     'Servery a monitoring: název serveru a údaje, které pošle agent: využití CPU, paměti a disků, stav služeb a kritické záznamy z logů. Účel: poskytování monitoringu a upozornění. Právní základ: plnění smlouvy. Záznamy z logů mohou obsahovat osobní údaje; agent posílá jen vážné chyby.',
                     'Zařízení a bezpečnost: IP adresa, typ prohlížeče a zařízení, čas poslední aktivity a identifikátor zařízení. Účel: seznam přihlášených zařízení, jejich odhlášení a ochrana před zneužitím účtu. Právní základ: oprávněný zájem na bezpečnosti (čl. 6 odst. 1 písm. f GDPR).',
-                    'Upozornění: e-mailová adresa a, pokud je zapneš, registrace zařízení pro push notifikace. Právní základ: plnění smlouvy; push notifikace navíc povolujete v prohlížeči vy.',
+                    'Upozornění: e-mailová adresa a, pokud je zapnete, registrace zařízení pro push notifikace. Právní základ: plnění smlouvy; push notifikace navíc povolujete v prohlížeči vy.',
                     'Ochrana formulářů: při přihlášení a registraci ověřuje, že jde o člověka, služba Cloudflare Turnstile. Právní základ: oprávněný zájem na ochraně před automatizovaným zneužitím.',
                 ],
             },
@@ -191,28 +191,28 @@ const content: Record<string, Copy> = {
                 id: 'cookies',
                 title: 'Cookies',
                 paragraphs: [
-                    'Nezbytné cookies potřebujeme k fungování stránky a souhlas k nim nežádáme. Preferenční cookies (zapamatování jazyka a vzhledu) uložíme trvale jen s tvým souhlasem. Bez souhlasu platí jen do zavření prohlížeče. Nepoužíváme reklamní ani analytické cookies. Tvou volbu si pamatujeme v úložišti prohlížeče (localStorage), ne na serveru.',
+                    'Nezbytné cookies potřebujeme k fungování stránky a souhlas k nim nežádáme. Preferenční cookies (zapamatování jazyka a vzhledu) uložíme trvale jen s vaším souhlasem. Bez souhlasu platí jen do zavření prohlížeče. Nepoužíváme reklamní ani analytické cookies. Vaši volbu si pamatujeme v úložišti prohlížeče (localStorage), ne na serveru.',
                 ],
             },
             {
                 id: 'rights',
-                title: 'Tvá práva',
+                title: 'Vaše práva',
                 paragraphs: [
-                    'Máš právo na přístup k údajům, jejich opravu, výmaz, omezení zpracování, přenositelnost a právo vznést námitku proti zpracování na základě oprávněného zájmu. Souhlas můžeš kdykoli odvolat, odvolání nemá vliv na zákonnost zpracování před ním. Uplatníš je na kontaktu výše, odpovíme do 30 dnů. Máš také právo podat stížnost u dozorového úřadu, v Česku je to Úřad pro ochranu osobních údajů (uoou.cz), případně u úřadu ve své zemi.',
+                    'Máte právo na přístup k údajům, jejich opravu, výmaz, omezení zpracování, přenositelnost a právo vznést námitku proti zpracování na základě oprávněného zájmu. Souhlas můžete kdykoli odvolat, odvolání nemá vliv na zákonnost zpracování před ním. Uplatníte je na kontaktu výše, odpovíme do 30 dnů. Máte také právo podat stížnost u dozorového úřadu, v Česku je to Úřad pro ochranu osobních údajů (uoou.cz), případně u úřadu ve své zemi.',
                 ],
             },
             {
                 id: 'security',
                 title: 'Zabezpečení',
                 paragraphs: [
-                    'Komunikace probíhá přes HTTPS, hesla se ukládají jako hash, přihlášení můžeš chránit dvoufázovým ověřením nebo passkey a agenta instaluješ z podepsaného repozitáře. Data z agenta chráníme tokenem, který patří jen jednomu serveru.',
+                    'Komunikace probíhá přes HTTPS, hesla se ukládají jako hash, přihlášení můžete chránit dvoufázovým ověřením nebo passkey a agenta instalujete z podepsaného repozitáře. Data z agenta chráníme tokenem, který patří jen jednomu serveru.',
                 ],
             },
             {
                 id: 'changes',
                 title: 'Změny',
                 paragraphs: [
-                    'Tento dokument můžeme upravit. Datum poslední změny je uvedeno nahoře. O podstatných změnách tě budeme informovat.',
+                    'Tento dokument můžeme upravit. Datum poslední změny je uvedeno nahoře. O podstatných změnách vás budeme informovat.',
                 ],
             },
         ],
@@ -239,9 +239,9 @@ const content: Record<string, Copy> = {
                 ],
                 [
                     'remember_web_*',
-                    'Zůstat přihlášen, pokud to zvolíš',
+                    'Zůstat přihlášen, pokud to zvolíte',
                     '400 dní',
-                    'Nezbytné (jen pokud to zvolíš)',
+                    'Nezbytné (jen pokud to zvolíte)',
                 ],
                 [
                     'locale',
