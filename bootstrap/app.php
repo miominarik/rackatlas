@@ -5,11 +5,13 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\NoIndexPrivatePages;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackDevice;
+use App\Http\Middleware\TrustCloudflareProxies;
 use App\Http\Middleware\VerifyTurnstile;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -20,9 +22,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // The site is behind Cloudflare: only its addresses are trusted proxies (list kept up to date nightly).
+        $middleware->replace(TrustProxies::class, TrustCloudflareProxies::class);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
+            'throttle:web',
             HandleAppearance::class,
             SetLocale::class,
             TrackDevice::class,

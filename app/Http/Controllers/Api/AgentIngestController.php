@@ -21,6 +21,12 @@ class AgentIngestController extends Controller
     {
         /** @var Server $server */
         $server = $request->attributes->get('agent_server');
+
+        // Judge by the header first, so an oversized body is never read into memory.
+        if ((int) $request->header('Content-Length') > self::MAX_BODY_BYTES) {
+            return response()->json(['message' => 'The report is too large.'], 413);
+        }
+
         $body = $request->getContent();
 
         if ($body === '' || strlen($body) > self::MAX_BODY_BYTES) {
