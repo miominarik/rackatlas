@@ -4,6 +4,7 @@ namespace App\Services\Ssh;
 
 use App\Enums\ServerErrorType;
 use App\Exceptions\MetricsCollectionException;
+use App\Models\ServerMetricDisk;
 
 class MetricsParser
 {
@@ -190,7 +191,8 @@ SH;
     }
 
     /**
-     * Every real file system once, even when the same device is mounted several times.
+     * Every data disk once, even when the same device is mounted several times. Boot partitions and
+     * other mounts of the system itself are skipped.
      *
      * @return array<int, array{device: string, mount: string, filesystem: string, total_bytes: int, used_bytes: int}>
      */
@@ -208,7 +210,7 @@ SH;
             [$device, $type, $total, $used] = $parts;
             $mount = $parts[6];
 
-            if ((int) $total === 0 || isset($disks[$device])) {
+            if ((int) $total === 0 || isset($disks[$device]) || ! ServerMetricDisk::isMonitored($device, $mount)) {
                 continue;
             }
 

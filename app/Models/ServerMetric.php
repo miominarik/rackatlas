@@ -58,7 +58,7 @@ class ServerMetric extends Model
 
     public function disks(): HasMany
     {
-        return $this->hasMany(ServerMetricDisk::class);
+        return ServerMetricDisk::onlyMonitored($this->hasMany(ServerMetricDisk::class), 'server_metric_disks.mount', 'server_metric_disks.device');
     }
 
     public function prunable(): Builder

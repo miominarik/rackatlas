@@ -5,6 +5,7 @@ namespace App\Services\Metrics;
 use App\Models\Server;
 use App\Models\ServerAlert;
 use App\Models\ServerMetric;
+use App\Models\ServerMetricDisk;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -125,7 +126,7 @@ class MetricsReport
     {
         $epoch = $this->epoch('m.collected_at');
 
-        return DB::table('server_metric_disks as d')
+        return ServerMetricDisk::onlyMonitored(DB::table('server_metric_disks as d'), 'd.mount', 'd.device')
             ->join('server_metrics as m', 'm.id', '=', 'd.server_metric_id')
             ->where('m.server_id', $this->server->id)
             ->where('m.collected_at', '>=', $since)

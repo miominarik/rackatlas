@@ -18,7 +18,45 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['server_metric_id', 'device', 'mount', 'filesystem', 'total_bytes', 'used_bytes'])]
 class ServerMetricDisk extends Model
 {
+    /** Mounts of the system itself (boot partitions, snap images, virtual file systems). Not data disks. */
+    public const SYSTEM_MOUNTS = ['/boot', '/efi', '/run', '/snap', '/sys', '/dev', '/proc'];
+
     public $timestamps = false;
+
+    public static function isMonitored(string $device, string $mount): bool
+    {
+        if (str_starts_with($device, '/dev/loop')) {
+            return false;
+        }
+
+        foreach (self::SYSTEM_MOUNTS as $system) {
+            if ($mount === $system || str_starts_with($mount, $system.'/')) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * The same rule for old rows in the database, which were stored before the system mounts were skipped.
+     * Works on Eloquent and query builders.
+     *
+     * @template TBuilder of object
+     *
+     * @param  TBuilder  $query
+     * @return TBuilder
+     */
+    public static function onlyMonitored(object $query, string $mountColumn = 'mount', string $deviceColumn = 'device'): object
+    {
+        $query->where($deviceColumn, 'not like', '/dev/loop%');
+
+        foreach (self::SYSTEM_MOUNTS as $system) {
+            $query->where($mountColumn, '!=', $system)->where($mountColumn, 'not like', $system.'/%');
+        }
+
+        return $query;
+    }
 
     public function metric(): BelongsTo
     {
