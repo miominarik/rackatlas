@@ -414,6 +414,7 @@ export default function ServerWizard({
                                     </p>
                                     <ul className="list-disc space-y-1.5 pl-5 text-muted-foreground">
                                         <li>{t('After saving you get one command to run on the server (Debian or Ubuntu).')}</li>
+                                        <li>{t('It installs the agent from the signed RackAtlas apt repository, so later updates are a normal apt upgrade.')}</li>
                                         <li>{t('The agent sends CPU, memory, disks and serious log entries every minute over HTTPS.')}</li>
                                         <li>{t('Nothing connects into your server, so no IP has to be allowed.')}</li>
                                     </ul>

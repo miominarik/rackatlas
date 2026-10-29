@@ -18,6 +18,8 @@ type Props = {
         agent_version: string | null;
     };
     install_command: string | null;
+    manual_command: string | null;
+    update_command: string;
     base_url: string;
     generated_at: string;
 };
@@ -25,6 +27,8 @@ type Props = {
 export default function AgentInstall({
     server,
     install_command,
+    manual_command,
+    update_command,
     generated_at,
 }: Props) {
     const { t, locale } = useTranslation();
@@ -126,6 +130,28 @@ export default function AgentInstall({
                         </Button>
                     </div>
                 )}
+
+                {manual_command && (
+                    <details className="rounded-xl border p-4 text-sm">
+                        <summary className="cursor-pointer font-medium">
+                            {t('Install step by step with apt')}
+                        </summary>
+                        <div className="mt-3 space-y-3">
+                            <p className="text-muted-foreground">
+                                {t('The same as the command above, for people who want to see every step. Paste all lines into the terminal of the server.')}
+                            </p>
+                            <CopyField value={manual_command} />
+                        </div>
+                    </details>
+                )}
+
+                <div className="space-y-2 rounded-xl border p-4 text-sm">
+                    <p className="font-medium">{t('Update the agent later')}</p>
+                    <p className="text-muted-foreground">
+                        {t('The agent comes from the signed RackAtlas apt repository, so it is updated together with the system. To update only the agent:')}
+                    </p>
+                    <CopyField value={update_command} />
+                </div>
 
                 <details className="rounded-xl border p-4 text-sm">
                     <summary className="cursor-pointer font-medium">
