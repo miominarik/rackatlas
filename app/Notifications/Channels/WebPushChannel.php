@@ -27,7 +27,7 @@ class WebPushChannel
     public function send(object $notifiable, Notification $notification): void
     {
         try {
-            $this->deliver($notifiable, $notification);
+            $this->push($notifiable, $notification);
         } catch (Throwable $e) {
             // A failing push service must not fail the whole notification, which would
             // make the queue send the email again.
@@ -35,16 +35,23 @@ class WebPushChannel
         }
     }
 
-    private function deliver(object $notifiable, Notification $notification): void
+    /**
+     * Push to every device of the user and say how it went for each one.
+     *
+     * @param  User  $notifiable
+     * @param  Notification&object{toWebPush: callable}  $notification
+     * @return array<int, array{device: string|null, ok: bool, reason: string}>
+     */
+    public function push(object $notifiable, Notification $notification): array
     {
         if (! self::configured()) {
-            return;
+            return [];
         }
 
         $subscriptions = $notifiable->pushSubscriptions()->get()->keyBy(fn (PushSubscription $s) => $s->endpoint);
 
         if ($subscriptions->isEmpty()) {
-            return;
+            return [];
         }
 
         $payload = json_encode($notification->toWebPush($notifiable), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
@@ -66,6 +73,8 @@ class WebPushChannel
             ]), $payload);
         }
 
+        $results = [];
+
         foreach ($webPush->flush() as $report) {
             $subscription = $subscriptions->get($report->getEndpoint());
 
@@ -78,6 +87,14 @@ class WebPushChannel
             } elseif ($report->isSubscriptionExpired()) {
                 $subscription->delete();
             }
+
+            $results[] = [
+                'device' => $subscription->name,
+                'ok' => $report->isSuccess(),
+                'reason' => mb_substr(trim($report->getReason()), 0, 200),
+            ];
         }
+
+        return $results;
     }
 }

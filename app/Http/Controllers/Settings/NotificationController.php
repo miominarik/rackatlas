@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class NotificationController extends Controller
 {
@@ -67,9 +68,26 @@ class NotificationController extends Controller
             return back();
         }
 
-        $user->notifyNow($notification);
+        $failure = null;
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Test notification sent.')]);
+        if (in_array('mail', $notification->via($user), true)) {
+            $user->notifyNow($notification, ['mail']);
+        }
+
+        // Push is sent here, not through the notification, so a failure can be shown to the user.
+        if (in_array(WebPushChannel::class, $notification->via($user), true)) {
+            try {
+                $failed = collect(app(WebPushChannel::class)->push($user, $notification))->firstWhere('ok', false);
+                $failure = $failed ? ($failed['reason'] ?: __('unknown error')) : null;
+            } catch (Throwable $e) {
+                report($e);
+                $failure = mb_substr($e->getMessage(), 0, 200);
+            }
+        }
+
+        Inertia::flash('toast', $failure === null
+            ? ['type' => 'success', 'message' => __('Test notification sent.')]
+            : ['type' => 'error', 'message' => __('Push could not be sent: :reason', ['reason' => $failure])]);
 
         return back();
     }
