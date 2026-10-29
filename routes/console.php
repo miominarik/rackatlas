@@ -29,12 +29,5 @@ Schedule::call(fn () => Artisan::call('model:prune'))
     ->name('model:prune')
     ->daily();
 
-// Processes the queued jobs (metrics collection) without a permanent worker.
-Schedule::call(fn () => Artisan::call('queue:work', [
-    '--stop-when-empty' => true,
-    '--max-time' => 45,
-    '--sleep' => 1,
-]))
-    ->name('queue:work')
-    ->everyMinute()
-    ->withoutOverlapping(2);
+// The queued jobs (metrics collection, notifications) are processed by the permanent
+// queue worker of the hosting, so the scheduler does not run `queue:work` itself.
