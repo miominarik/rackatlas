@@ -141,3 +141,24 @@
         @apply bg-background text-foreground;
     }
 }
+
+@layer base {
+    html {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    button,
+    a,
+    [role='button'] {
+        touch-action: manipulation;
+    }
+
+    /* Installed app: no rubber-band bounce that would reveal the page behind it. */
+    @media (display-mode: standalone) {
+        body {
+            overscroll-behavior-y: none;
+        }
+    }
+}

@@ -122,7 +122,7 @@ function ServerRow({
             </span>
             {canManage && (
                 <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" asChild>
+                    <Button variant="ghost" size="icon" className="size-10 md:size-9" asChild>
                         <Link
                             href={ServerController.edit(server.id)}
                             aria-label={t('Edit :name', { name: server.name })}
@@ -133,6 +133,7 @@ function ServerRow({
                     <Button
                         variant="ghost"
                         size="icon"
+                        className="size-10 md:size-9"
                         aria-label={t('Delete :name', { name: server.name })}
                         onClick={() => {
                             if (

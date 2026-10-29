@@ -90,7 +90,7 @@ export function TeamSwitcher() {
                 <Button
                     variant="outline"
                     size="sm"
-                    className="max-w-56 gap-2"
+                    className="max-w-32 gap-2 sm:max-w-56"
                     data-test="team-switcher"
                 >
                     <Users className="size-4 shrink-0" />
@@ -98,7 +98,7 @@ export function TeamSwitcher() {
                     <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-60">
+            <DropdownMenuContent align="end" className="w-60 max-w-[calc(100vw-2rem)]">
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
                     {t('Teams')}
                 </DropdownMenuLabel>

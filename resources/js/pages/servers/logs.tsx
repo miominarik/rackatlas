@@ -85,12 +85,12 @@ export default function Logs({
                             })}
                         </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
                         <Select
                             value={String(filters.server ?? ALL)}
                             onValueChange={(server) => filter({ server })}
                         >
-                            <SelectTrigger className="w-44" aria-label={t('Server')}>
+                            <SelectTrigger className="w-full sm:w-44" aria-label={t('Server')}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -106,7 +106,7 @@ export default function Logs({
                             value={filters.level ?? ALL}
                             onValueChange={(level) => filter({ level })}
                         >
-                            <SelectTrigger className="w-36" aria-label={t('Level')}>
+                            <SelectTrigger className="w-full sm:w-36" aria-label={t('Level')}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
