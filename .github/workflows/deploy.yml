@@ -1,83 +1,64 @@
-name: deploy
+name: Deploy App to FTP production
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      full_upload:
-        description: Upload every file again (ignore what the server already has)
-        type: boolean
-        default: false
-
-permissions:
-  contents: read
-
-# Never run two deploys at once.
-concurrency:
-  group: deploy
-  cancel-in-progress: false
 
 jobs:
-  deploy:
+  web-deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      # The locked dependencies need PHP 8.4.1 or newer, so the hosting has to run PHP 8.4+.
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          tools: composer:v2
-          coverage: none
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Install PHP dependencies (production only)
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
 
-      # The frontend build runs artisan (Wayfinder), which needs a bootable app.
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
       - name: Prepare a temporary environment for the build
         run: |
           cp .env.example .env
           php artisan key:generate --force
+
+      - name: Generate route cache
+        run: php artisan route:cache || echo "⚠️ Route cache failed"
 
       - name: Build the frontend
         run: |
           npm ci
           npm run build
 
-      # Everything that is left in the workspace after this step is uploaded.
-      # The real .env lives only on the server and is never uploaded or deleted.
       - name: Remove files the server does not need
         run: |
-          mv .github/scripts /tmp/deploy-scripts
           rm -rf .git .github .claude .agents node_modules tests
           rm -rf resources/js resources/css storage/logs database/*.sqlite
           rm -f .env .env.* .mcp.json AGENTS.md boost.json components.json
           rm -f package.json package-lock.json pnpm-workspace.yaml tsconfig.json vite.config.ts
           rm -f phpunit.xml phpstan.neon pint.json .editorconfig .gitattributes .npmrc
 
-      - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
-
-      # Only new or changed files are uploaded (compared by checksum with a manifest
-      # saved on the server), and only files removed from the project are deleted.
-      - name: Upload over SFTP
-        env:
-          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
-          SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_PORT: ${{ secrets.SFTP_PORT || '22' }}
-          SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
-          SFTP_DIR: ${{ secrets.SFTP_DIR || '.' }}
-          FULL_UPLOAD: ${{ inputs.full_upload || 'false' }}
-        run: bash /tmp/deploy-scripts/deploy-sftp.sh
+      - name: Upload to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          exclude: |
+            node_modules/**
+            .git/**
+            .github/**
+            tests/**
+            storage/logs/**
+            .env*
