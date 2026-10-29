@@ -9,10 +9,11 @@ import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
 /**
- * The PHP binary that generates the Wayfinder routes. Some hostings have no plain `php`
- * on the PATH, only versioned binaries such as `php8.5`. Set WAYFINDER_PHP to force one.
+ * The PHP binary that generates the Wayfinder routes, or null when there is none. Some build
+ * environments (a Node-only container) have no PHP; the generated files are committed, so the
+ * plugin is simply skipped there. Set WAYFINDER_PHP to force a binary.
  */
-function phpBinary(): string {
+function phpBinary(): string | null {
     const candidates = [process.env.WAYFINDER_PHP, 'php', 'php8.5', 'php8.4', 'php8.3'].filter(
         (bin): bin is string => Boolean(bin),
     );
@@ -27,8 +28,10 @@ function phpBinary(): string {
         }
     }
 
-    return 'php';
+    return null;
 }
+
+const php = phpBinary();
 
 export default defineConfig({
     plugins: lazyPlugins(() => [
@@ -47,10 +50,14 @@ export default defineConfig({
             presets: [reactCompilerPreset()],
         }),
         tailwindcss(),
-        wayfinder({
-            formVariants: true,
-            command: `${phpBinary()} artisan wayfinder:generate`,
-        }),
+        ...(php
+            ? [
+                  wayfinder({
+                      formVariants: true,
+                      command: `${php} artisan wayfinder:generate`,
+                  }),
+              ]
+            : []),
     ]),
     server: {
         watch: {
