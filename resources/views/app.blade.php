@@ -45,11 +45,24 @@
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        @php($seo = $page['props']['seo'] ?? null)
+        @includeWhen($seo !== null, 'partials.seo', ['seo' => $seo])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ $seo['title'] ?? config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />
+        @if ($seo !== null)
+            <noscript>
+                <h1>{{ $seo['heading'] }}</h1>
+                <p>{{ $seo['description'] }}</p>
+                <ul>
+                    @foreach ($seo['links'] as $link)
+                        <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
+                    @endforeach
+                </ul>
+            </noscript>
+        @endif
     </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
@@ -16,6 +17,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('privacy', PrivacyController::class)->name('privacy');
+
+// One URL per language so every language can be indexed and linked with hreflang.
+Route::get('{locale}', HomeController::class)->whereIn('locale', ['sk', 'cs', 'en'])->name('home.localized');
+Route::get('{locale}/privacy', PrivacyController::class)->whereIn('locale', ['sk', 'cs', 'en'])->name('privacy.localized');
+Route::get('robots.txt', [CrawlerController::class, 'robots'])->name('robots');
+Route::get('sitemap.xml', [CrawlerController::class, 'sitemap'])->name('sitemap');
 
 // Public on purpose: visitors without an account pick the language of the home page too.
 Route::put('language', [LanguageController::class, 'update'])->name('language.update');

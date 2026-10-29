@@ -1,18 +1,16 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import LanguageController from '@/actions/App/Http/Controllers/Settings/LanguageController';
-import {
-    openCookieSettings,
-    useCookieConsent,
-} from '@/hooks/use-privacy-choices';
+import { openCookieSettings } from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
-import { dashboard, login, privacy, register } from '@/routes';
+import { dashboard, login, register } from '@/routes';
+import { localized as homeLocalized } from '@/routes/home';
+import { localized as privacyLocalized } from '@/routes/privacy';
 
 type Props = {
     canRegister: boolean;
-    canonicalUrl: string;
+    faq: [string, string][];
 };
 
 function Mark({ className }: { className?: string }) {
@@ -154,9 +152,8 @@ function Eyebrow({
     );
 }
 
-export default function Welcome({ canRegister, canonicalUrl }: Props) {
+export default function Welcome({ canRegister, faq }: Props) {
     const { t, locale } = useTranslation();
-    const { consent } = useCookieConsent();
 
     useEffect(() => {
         document.documentElement.classList.add('smooth-anchors');
@@ -174,76 +171,9 @@ export default function Welcome({ canRegister, canonicalUrl }: Props) {
         'inline-flex items-center justify-center rounded-full px-6 py-3 text-[15px] font-medium transition-transform hover:-translate-y-px';
 
     const title = t('Linux server monitoring without open ports');
-    const description = t(
-        'RackAtlas monitors Debian and Ubuntu servers with a lightweight agent: CPU, memory, disks, services and critical logs. Alerts by email and push, no open ports.',
-    );
-    const faq: [string, string][] = [
-        [
-            t('What does the agent collect?'),
-            t(
-                'CPU, load, memory, swap, disk usage, failed systemd services and critical log entries. It does not read your files or application data.',
-            ),
-        ],
-        [
-            t('Do I need to open any ports?'),
-            t(
-                'No. The agent sends data to RackAtlas over HTTPS once a minute. Nothing connects into your server, so your firewall stays as it is.',
-            ),
-        ],
-        [
-            t('Which systems are supported?'),
-            t(
-                'Debian and Ubuntu on amd64, arm64, armhf and i386, installed from a signed apt repository.',
-            ),
-        ],
-        [
-            t('How do I remove the agent?'),
-            t(
-                'Run sudo apt purge rackatlas-agent on the server and delete the server in RackAtlas.',
-            ),
-        ],
-    ];
-
     return (
         <>
-            <Head title={title}>
-                <meta name="description" content={description} />
-                <link rel="canonical" href={canonicalUrl} />
-                <meta property="og:type" content="website" />
-                <meta property="og:site_name" content="RackAtlas" />
-                <meta property="og:title" content={`${title} - RackAtlas`} />
-                <meta property="og:description" content={description} />
-                <meta property="og:url" content={canonicalUrl} />
-                <meta name="twitter:card" content="summary" />
-                <meta name="twitter:title" content={`${title} - RackAtlas`} />
-                <meta name="twitter:description" content={description} />
-                <script type="application/ld+json">
-                    {JSON.stringify([
-                        {
-                            '@context': 'https://schema.org',
-                            '@type': 'SoftwareApplication',
-                            name: 'RackAtlas',
-                            url: canonicalUrl,
-                            description,
-                            applicationCategory: 'BusinessApplication',
-                            operatingSystem: 'Web, Debian, Ubuntu',
-                            inLanguage: locale,
-                        },
-                        {
-                            '@context': 'https://schema.org',
-                            '@type': 'FAQPage',
-                            mainEntity: faq.map(([question, answer]) => ({
-                                '@type': 'Question',
-                                name: question,
-                                acceptedAnswer: {
-                                    '@type': 'Answer',
-                                    text: answer,
-                                },
-                            })),
-                        },
-                    ])}
-                </script>
-            </Head>
+            <Head title={title} />
 
             <div className="landing min-h-dvh overflow-x-clip bg-[var(--l-bg)] text-[17px] leading-relaxed text-[var(--l-ink)]">
                 {/* navigation */}
@@ -868,7 +798,7 @@ export default function Welcome({ canRegister, canonicalUrl }: Props) {
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
                         <span>© {new Date().getFullYear()} RackAtlas</span>
                         <Link
-                            href={privacy()}
+                            href={privacyLocalized(locale)}
                             className="underline-offset-4 hover:text-[var(--l-ink)] hover:underline"
                         >
                             {t('Privacy and cookies')}
@@ -887,21 +817,14 @@ export default function Welcome({ canRegister, canonicalUrl }: Props) {
                         aria-label={t('Language')}
                     >
                         {Object.keys(locales).map((code) => (
-                            <button
+                            <Link
                                 key={code}
-                                type="button"
-                                aria-pressed={code === locale}
-                                onClick={() =>
-                                    router.put(
-                                        LanguageController.update.url(),
-                                        {
-                                            locale: code,
-                                            remember:
-                                                consent?.preferences === true,
-                                        },
-                                        { preserveScroll: true },
-                                    )
+                                href={homeLocalized(code)}
+                                hrefLang={code}
+                                aria-current={
+                                    code === locale ? 'true' : undefined
                                 }
+                                preserveScroll
                                 className={cn(
                                     'rounded-md px-2 py-1 uppercase transition-colors',
                                     code === locale
@@ -910,7 +833,7 @@ export default function Welcome({ canRegister, canonicalUrl }: Props) {
                                 )}
                             >
                                 {code}
-                            </button>
+                            </Link>
                         ))}
                     </div>
                 </footer>

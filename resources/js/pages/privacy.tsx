@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { openCookieSettings } from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
-import { home } from '@/routes';
+import { localized as homeLocalized } from '@/routes/home';
 
 type Props = {
     operator: Partial<
@@ -383,7 +383,7 @@ const content: Record<string, Copy> = {
 };
 
 export default function Privacy({ operator, updatedAt }: Props) {
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
     const copy = content[locale] ?? content.en;
     const operatorKeys = ['name', 'address', 'company_id', 'email'] as const;
 
@@ -396,11 +396,11 @@ export default function Privacy({ operator, updatedAt }: Props) {
 
     return (
         <>
-            <Head title={copy.title} />
+            <Head title={t('Privacy and cookies')} />
             <div className="landing min-h-dvh bg-[var(--l-bg)] text-[16px] leading-relaxed text-[var(--l-ink)]">
                 <main className="mx-auto max-w-[760px] px-4 py-10 sm:px-8 sm:py-16">
                     <Link
-                        href={home()}
+                        href={homeLocalized(locale)}
                         className="text-sm text-[var(--l-muted)] underline-offset-4 hover:text-[var(--l-ink)] hover:underline"
                     >
                         ← {copy.back}

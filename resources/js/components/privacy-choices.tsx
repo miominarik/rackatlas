@@ -8,7 +8,7 @@ import {
 } from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
-import { privacy } from '@/routes';
+import { localized as privacyLocalized } from '@/routes/privacy';
 
 const button =
     'inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[14.5px] font-medium whitespace-nowrap transition-colors';
@@ -133,7 +133,7 @@ export default function CookieConsent() {
                     'We use the cookies the site needs to work. With your consent we also remember your preferences, such as language. We use no advertising or tracking cookies.',
                 )}{' '}
                 <Link
-                    href={privacy()}
+                    href={privacyLocalized(locale)}
                     className="underline underline-offset-4 hover:text-[var(--l-ink)]"
                 >
                     {t('Privacy and cookies')}
