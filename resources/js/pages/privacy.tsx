@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { openCookieSettings } from '@/hooks/use-cookie-consent';
+import { openCookieSettings } from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { home } from '@/routes';
 

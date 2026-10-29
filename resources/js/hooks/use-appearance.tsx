@@ -1,4 +1,4 @@
-import { preferencesAllowed } from '@/hooks/use-cookie-consent';
+import { preferencesAllowed } from '@/hooks/use-privacy-choices';
 import { useSyncExternalStore } from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';

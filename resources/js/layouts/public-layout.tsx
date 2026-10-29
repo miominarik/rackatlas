@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import CookieConsent from '@/components/cookie-consent';
+import CookieConsent from '@/components/privacy-choices';
 import { useDocumentLocale } from '@/hooks/use-translation';
 
 /**

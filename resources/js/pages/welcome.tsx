@@ -5,7 +5,7 @@ import LanguageController from '@/actions/App/Http/Controllers/Settings/Language
 import {
     openCookieSettings,
     useCookieConsent,
-} from '@/hooks/use-cookie-consent';
+} from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { dashboard, login, privacy, register } from '@/routes';

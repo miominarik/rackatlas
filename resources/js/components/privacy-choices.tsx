@@ -5,7 +5,7 @@ import LanguageController from '@/actions/App/Http/Controllers/Settings/Language
 import {
     COOKIE_SETTINGS_EVENT,
     useCookieConsent,
-} from '@/hooks/use-cookie-consent';
+} from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { privacy } from '@/routes';
@@ -115,18 +115,18 @@ export default function CookieConsent() {
     return (
         <div
             role="dialog"
-            aria-labelledby="cookie-consent-title"
-            aria-describedby="cookie-consent-text"
+            aria-labelledby="privacy-choices-title"
+            aria-describedby="privacy-choices-text"
             className="landing fixed inset-x-3 bottom-3 z-50 mx-auto max-w-[640px] rounded-2xl border border-[var(--l-border)] bg-[var(--l-card)] p-5 text-[var(--l-ink)] shadow-[0_24px_60px_-20px_rgba(15,25,20,0.45)] sm:inset-x-auto sm:right-5 sm:bottom-5 sm:left-5 sm:mx-0 sm:ml-auto sm:p-6"
         >
             <h2
-                id="cookie-consent-title"
+                id="privacy-choices-title"
                 className="mb-1.5 text-[17px] font-semibold tracking-tight"
             >
                 {t('Cookies')}
             </h2>
             <p
-                id="cookie-consent-text"
+                id="privacy-choices-text"
                 className="text-[14.5px] leading-normal text-[var(--l-body)]"
             >
                 {t(
