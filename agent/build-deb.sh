@@ -9,17 +9,18 @@
 
 set -eu
 
-cd "$(dirname "$0")"
-
-VERSION="$(cat VERSION)"
-OUT="${1:-../public/agent}"
-mkdir -p "$OUT"
-OUT="$(cd "$OUT" && pwd)/rackatlas-agent.deb"
+# Everything is resolved before changing directory, so a relative output path
+# (like the one the deploy workflow passes) means "relative to where you run it".
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+OUT_DIR="${1:-$SCRIPT_DIR/../public/agent}"
+mkdir -p "$OUT_DIR"
+OUT="$(cd "$OUT_DIR" && pwd)/rackatlas-agent.deb"
+VERSION="$(cat "$SCRIPT_DIR/VERSION")"
 
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
-cp -R package/. "$STAGE/"
+cp -R "$SCRIPT_DIR/package/." "$STAGE/"
 
 for file in DEBIAN/control usr/bin/rackatlas-agent; do
   sed "s/@VERSION@/$VERSION/g" "$STAGE/$file" > "$STAGE/$file.tmp"
