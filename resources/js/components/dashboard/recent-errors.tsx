@@ -12,8 +12,8 @@ export default function RecentErrors({
     const { t, locale } = useTranslation();
 
     return (
-        <section aria-label={t('Recent errors')} className="space-y-2">
-            <h2 className="text-sm font-medium">{t('Recent errors')}</h2>
+        <section aria-label={t('Collection errors')} className="space-y-2">
+            <h2 className="text-sm font-medium">{t('Collection errors')}</h2>
             {errors.length === 0 ? (
                 <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
                     {t('No errors in the last 24 hours.')}

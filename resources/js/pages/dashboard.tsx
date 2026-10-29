@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import CustomizeSheet from '@/components/dashboard/customize-sheet';
 import ProblemsList from '@/components/dashboard/problems-list';
 import RecentErrors from '@/components/dashboard/recent-errors';
+import RecentLogs from '@/components/dashboard/recent-logs';
 import ServerCard from '@/components/dashboard/server-card';
 import SummaryTiles from '@/components/dashboard/summary-tiles';
 import TopLists from '@/components/dashboard/top-lists';
@@ -19,6 +20,7 @@ import { index as teamsIndex } from '@/routes/teams';
 import type {
     DashboardError,
     DashboardHistory,
+    DashboardLog,
     DashboardServer,
     DashboardSettings,
 } from '@/types';
@@ -30,9 +32,10 @@ type Props = {
     servers: DashboardServer[];
     history: DashboardHistory;
     errors: DashboardError[];
+    logs: DashboardLog[];
 };
 
-const POLLED = ['servers', 'history', 'errors', 'generated_at'];
+const POLLED = ['servers', 'history', 'errors', 'logs', 'generated_at'];
 
 function Poller({ seconds }: { seconds: number }) {
     usePoll(Math.max(seconds, 1) * 1000, { only: POLLED }, { autoStart: seconds > 0 });
@@ -165,6 +168,7 @@ function DashboardContent({
     servers,
     history,
     errors,
+    logs,
 }: Props & { team: NonNullable<Props['team']> }) {
     const { t, locale } = useTranslation();
     const [customizing, setCustomizing] = useState(false);
@@ -193,6 +197,7 @@ function DashboardContent({
             />
         ),
         top: <TopLists items={items} thresholds={settings.thresholds} />,
+        logs: <RecentLogs logs={logs} generatedAt={generated_at} />,
         errors: <RecentErrors errors={errors} generatedAt={generated_at} />,
     };
 

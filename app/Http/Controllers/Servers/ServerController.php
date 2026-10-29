@@ -47,6 +47,7 @@ class ServerController extends Controller
                         'username' => $server->username,
                         'auth_type' => $server->auth_type->value,
                         'ssh_key_name' => $server->sshKey?->name,
+                        'agent_version' => $server->agent_version,
                         'server_category_id' => $server->server_category_id,
                         'status' => $server->status->value,
                         'last_checked' => $server->last_checked_at?->diffForHumans(),
@@ -79,11 +80,11 @@ class ServerController extends Controller
     {
         $team = $request->team();
 
-        $team->servers()->create($this->attributes($request, $team));
+        $server = $team->servers()->create($this->attributes($request, $team));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Server added.')]);
 
-        return to_route('servers.index');
+        return $this->afterSave($server);
     }
 
     /**
@@ -123,7 +124,7 @@ class ServerController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Server updated.')]);
 
-        return to_route('servers.index');
+        return $this->afterSave($server);
     }
 
     /**
@@ -170,16 +171,17 @@ class ServerController extends Controller
         }
 
         $usesPassword = $data['auth_type'] === ServerAuthType::Password->value;
+        $usesKey = $data['auth_type'] === ServerAuthType::Key->value;
 
         return [
             'name' => $data['name'],
-            'host' => $data['host'],
-            'port' => $data['port'],
-            'username' => $data['username'],
+            'host' => $data['host'] ?? null,
+            'port' => $data['port'] ?? 22,
+            'username' => $data['username'] ?? null,
             'server_category_id' => $categoryId,
             'auth_type' => $data['auth_type'],
             'password' => $usesPassword ? ($data['password'] ?? null) : null,
-            'ssh_key_id' => $usesPassword ? null : $data['ssh_key_id'],
+            'ssh_key_id' => $usesKey ? $data['ssh_key_id'] : null,
         ];
     }
 
@@ -200,6 +202,24 @@ class ServerController extends Controller
             'disk_percent' => $metric->disks->max(fn (ServerMetricDisk $disk) => $disk->usedPercent()) ?? 0,
             'collected' => $metric->collected_at->diffForHumans(),
         ];
+    }
+
+    /**
+     * A server with the agent needs its token, which is shown once on the install page.
+     */
+    private function afterSave(Server $server): RedirectResponse
+    {
+        if ($server->auth_type !== ServerAuthType::Agent) {
+            $server->forceFill(['agent_token_hash' => null])->save();
+
+            return to_route('servers.index');
+        }
+
+        if ($server->agent_token_hash === null) {
+            session()->flash('agent_token', $server->issueAgentToken());
+        }
+
+        return to_route('servers.agent.show', $server);
     }
 
     private function needsTeam(): RedirectResponse

@@ -1,0 +1,10 @@
+Package: rackatlas-agent
+Version: @VERSION@
+Section: admin
+Priority: optional
+Architecture: all
+Depends: curl, systemd, coreutils, adduser
+Maintainer: RackAtlas <noreply@localhost>
+Description: RackAtlas monitoring agent
+ Sends CPU, memory and disk usage and serious log entries to RackAtlas once
+ a minute over HTTPS. Nothing connects into the server.

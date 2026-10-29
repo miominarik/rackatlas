@@ -57,13 +57,13 @@ SH;
     /**
      * @return array<string, string>
      */
-    private function sections(string $output): array
+    public function sections(string $output): array
     {
         $sections = [];
         $current = null;
 
         foreach (preg_split('/\r\n|\n|\r/', $output) as $line) {
-            if (preg_match('/^###([A-Z0-9]+)$/', trim($line), $match)) {
+            if (preg_match('/^###([A-Z0-9_]+)$/', trim($line), $match)) {
                 $current = $match[1];
                 $sections[$current] = '';
 

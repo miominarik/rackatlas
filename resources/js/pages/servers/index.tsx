@@ -1,10 +1,11 @@
 import { Head, Link, router, usePoll } from '@inertiajs/react';
-import { KeyRound, Lock, Pencil, Plus, Server, Tags, Trash2 } from 'lucide-react';
+import { KeyRound, Lock, Pencil, Plus, Radio, Server, Tags, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import ServerController from '@/actions/App/Http/Controllers/Servers/ServerController';
 import CategoryManager from '@/components/servers/category-manager';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
+import { serverAddress } from '@/lib/server-address';
 import { cn } from '@/lib/utils';
 import { dotClass } from '@/lib/server-colors';
 import { index as teamsIndex } from '@/routes/teams';
@@ -72,8 +73,7 @@ function ServerRow({
             <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{server.name}</p>
                 <p className="truncate font-mono text-xs text-muted-foreground">
-                    {server.username}@{server.host}
-                    {server.port !== 22 && `:${server.port}`}
+                    {serverAddress(server, t('Agent'))}
                 </p>
                 {server.metrics ? (
                     <p className="mt-1 flex flex-wrap gap-x-3 font-mono text-xs">
@@ -101,7 +101,14 @@ function ServerRow({
                 )}
             </div>
             <span className="hidden items-center gap-1.5 rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-border ring-inset sm:inline-flex">
-                {server.auth_type === 'key' ? (
+                {server.auth_type === 'agent' ? (
+                    <>
+                        <Radio className="size-3" />
+                        {server.agent_version
+                            ? t('Agent :version', { version: server.agent_version })
+                            : t('Agent')}
+                    </>
+                ) : server.auth_type === 'key' ? (
                     <>
                         <KeyRound className="size-3" />
                         {server.ssh_key_name}

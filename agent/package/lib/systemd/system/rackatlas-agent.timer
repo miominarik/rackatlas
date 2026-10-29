@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the RackAtlas agent every minute
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+AccuracySec=5s
+RandomizedDelaySec=5s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  configure)
+    if ! getent passwd rackatlas-agent >/dev/null; then
+      adduser --system --group --no-create-home --home /var/lib/rackatlas-agent \
+        --shell /usr/sbin/nologin rackatlas-agent >/dev/null
+    fi
+
+    mkdir -p /etc/rackatlas-agent
+    if [ ! -f /etc/rackatlas-agent/agent.conf ]; then
+      cat > /etc/rackatlas-agent/agent.conf <<'CONF'
+# RackAtlas agent. Both values are shown in RackAtlas when you add the server.
+# URL=https://rackatlas.example.com
+# TOKEN=ra_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CONF
+    fi
+    chown root:rackatlas-agent /etc/rackatlas-agent /etc/rackatlas-agent/agent.conf
+    chmod 750 /etc/rackatlas-agent
+    chmod 640 /etc/rackatlas-agent/agent.conf
+
+    if [ -d /run/systemd/system ]; then
+      systemctl daemon-reload || true
+      systemctl enable rackatlas-agent.timer >/dev/null 2>&1 || true
+      # Start reporting only when the agent has been configured.
+      if grep -q '^TOKEN=.' /etc/rackatlas-agent/agent.conf; then
+        systemctl restart rackatlas-agent.timer || true
+      fi
+    fi
+    ;;
+esac
+
+exit 0

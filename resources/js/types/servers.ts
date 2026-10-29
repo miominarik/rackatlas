@@ -1,4 +1,4 @@
-export type ServerAuthType = 'password' | 'key';
+export type ServerAuthType = 'password' | 'key' | 'agent';
 
 export type ServerCategory = {
     id: number;
@@ -28,11 +28,12 @@ export type ServerMetrics = {
 export type ServerSummary = {
     id: number;
     name: string;
-    host: string;
+    host: string | null;
     port: number;
-    username: string;
+    username: string | null;
     auth_type: ServerAuthType;
     ssh_key_name: string | null;
+    agent_version: string | null;
     server_category_id: number | null;
     status: ServerStatus;
     last_checked: string | null;
@@ -42,9 +43,9 @@ export type ServerSummary = {
 export type ServerFormData = {
     id: number;
     name: string;
-    host: string;
+    host: string | null;
     port: number;
-    username: string;
+    username: string | null;
     auth_type: ServerAuthType;
     ssh_key_id: number | null;
     server_category_id: number | null;

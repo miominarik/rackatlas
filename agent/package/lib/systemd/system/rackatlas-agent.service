@@ -1,0 +1,22 @@
+[Unit]
+Description=RackAtlas agent (sends metrics and serious log entries)
+Documentation=https://github.com/miominarik/rackatlas
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=rackatlas-agent
+Group=rackatlas-agent
+# Allows reading the journal without root.
+SupplementaryGroups=systemd-journal
+StateDirectory=rackatlas-agent
+ExecStart=/usr/bin/rackatlas-agent
+TimeoutStartSec=45
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes

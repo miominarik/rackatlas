@@ -12,6 +12,7 @@ import {
     usageLevel,
 } from '@/lib/dashboard';
 import type { Evaluated } from '@/lib/dashboard';
+import { serverAddress } from '@/lib/server-address';
 import { dotClass } from '@/lib/server-colors';
 import { cn } from '@/lib/utils';
 import type { DashboardSettings } from '@/types';
@@ -78,8 +79,7 @@ export default function ServerCard({
                         {server.name}
                     </h3>
                     <p className="truncate font-mono text-xs text-muted-foreground">
-                        {server.username}@{server.host}
-                        {server.port !== 22 && `:${server.port}`}
+                        {serverAddress(server, t('Agent'))}
                     </p>
                 </div>
                 {server.category && (
@@ -111,6 +111,14 @@ export default function ServerCard({
             {level === 'unknown' && (
                 <p className="text-sm text-muted-foreground">
                     {t('Waiting for the first check…')}
+                </p>
+            )}
+
+            {server.failed_units.length > 0 && (
+                <p className="truncate text-xs text-amber-600 dark:text-amber-400">
+                    {t('Failed services: :units', {
+                        units: server.failed_units.join(', '),
+                    })}
                 </p>
             )}
 

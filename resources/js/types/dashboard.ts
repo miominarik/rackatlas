@@ -3,6 +3,7 @@ export type DashboardWidgetId =
     | 'problems'
     | 'servers'
     | 'top'
+    | 'logs'
     | 'errors';
 
 export type DashboardMetricId = 'cpu' | 'ram' | 'disk' | 'load' | 'uptime';
@@ -52,10 +53,12 @@ export type DashboardMetrics = {
 export type DashboardServer = {
     id: number;
     name: string;
-    host: string;
+    host: string | null;
     port: number;
-    username: string;
+    username: string | null;
     status: 'unknown' | 'online' | 'offline';
+    auth_type: 'password' | 'key' | 'agent';
+    failed_units: string[];
     category: { id: number; name: string; color: string } | null;
     last_checked_at: string | null;
     last_seen_at: string | null;
@@ -75,3 +78,14 @@ export type DashboardHistory = Record<
     string,
     { cpu: number; ram: number }[]
 >;
+
+export type DashboardLog = {
+    id: number;
+    server_id: number;
+    server_name: string;
+    level: 'critical' | 'error';
+    source: string;
+    message: string;
+    count: number;
+    occurred_at: string;
+};

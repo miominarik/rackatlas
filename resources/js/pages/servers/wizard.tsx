@@ -5,6 +5,7 @@ import {
     KeyRound,
     Lock,
     Plus,
+    Radio,
     ServerCog,
     Wifi,
     XCircle,
@@ -51,8 +52,8 @@ const NEW_CATEGORY = '__new__';
 const NO_CATEGORY = '__none__';
 
 const stepFields: Record<number, string[]> = {
-    0: ['name', 'host', 'port', 'username', 'server_category_id', 'new_category'],
-    1: ['auth_type', 'password', 'ssh_key_id'],
+    0: ['name', 'server_category_id', 'new_category'],
+    1: ['auth_type', 'host', 'port', 'username', 'password', 'ssh_key_id'],
 };
 
 export default function ServerWizard({
@@ -83,7 +84,7 @@ export default function ServerWizard({
             ? String(server.server_category_id)
             : '',
         new_category: '',
-        auth_type: (server?.auth_type ?? 'key') as ServerAuthType,
+        auth_type: (server?.auth_type ?? 'agent') as ServerAuthType,
         password: '',
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
     });
@@ -91,10 +92,12 @@ export default function ServerWizard({
     const tester = useHttp<Record<string, string>, TestResult>({});
 
     const steps = [
-        { title: t('Connection'), description: t('Where is the server?') },
-        { title: t('Access'), description: t('How do we log in?') },
+        { title: t('Basics'), description: t('What is it called?') },
+        { title: t('Access'), description: t('How do we get the data?') },
         { title: t('Review'), description: t('Check and save') },
     ];
+
+    const isAgent = form.data.auth_type === 'agent';
 
     const selectedKey = keys.find((key) => String(key.id) === form.data.ssh_key_id);
     const selectedCategory = categories.find(
@@ -103,15 +106,17 @@ export default function ServerWizard({
 
     const fieldsToValidate = (): string[] => {
         if (step === 0) {
-            return ['name', 'host', 'port', 'username'];
+            return ['name'];
         }
 
-        if (step === 1) {
+        if (step === 1 && !isAgent) {
+            const address = ['host', 'port', 'username'];
+
             if (form.data.auth_type === 'key') {
-                return ['ssh_key_id'];
+                return [...address, 'ssh_key_id'];
             }
 
-            return editing ? [] : ['password'];
+            return editing ? address : [...address, 'password'];
         }
 
         return [];
@@ -285,49 +290,6 @@ export default function ServerWizard({
                                 <InputError message={form.errors.name} />
                             </div>
 
-                            <div className="grid gap-4 sm:grid-cols-[1fr_7rem]">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="host">
-                                        {t('Host or IP address')}
-                                    </Label>
-                                    <Input
-                                        id="host"
-                                        value={form.data.host}
-                                        onChange={(e) =>
-                                            form.setData('host', e.target.value)
-                                        }
-                                        placeholder="203.0.113.10"
-                                        autoComplete="off"
-                                    />
-                                    <InputError message={form.errors.host} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="port">{t('SSH port')}</Label>
-                                    <Input
-                                        id="port"
-                                        inputMode="numeric"
-                                        value={form.data.port}
-                                        onChange={(e) =>
-                                            form.setData('port', e.target.value)
-                                        }
-                                    />
-                                    <InputError message={form.errors.port} />
-                                </div>
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="username">{t('Username')}</Label>
-                                <Input
-                                    id="username"
-                                    value={form.data.username}
-                                    onChange={(e) =>
-                                        form.setData('username', e.target.value)
-                                    }
-                                    autoComplete="off"
-                                />
-                                <InputError message={form.errors.username} />
-                            </div>
-
                             <div className="grid gap-2">
                                 <Label htmlFor="category">
                                     {t('Category (optional)')}
@@ -391,21 +353,27 @@ export default function ServerWizard({
                         <>
                             <div
                                 role="radiogroup"
-                                aria-label={t('Login method')}
-                                className="grid gap-3 sm:grid-cols-2"
+                                aria-label={t('How do we get the data?')}
+                                className="grid gap-3 sm:grid-cols-3"
                             >
                                 {(
                                     [
                                         [
+                                            'agent',
+                                            t('Agent'),
+                                            t('Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords.'),
+                                            Radio,
+                                        ],
+                                        [
                                             'key',
                                             t('SSH key'),
-                                            t('Recommended. More secure, reusable across servers.'),
+                                            t('We log in over SSH. More secure than a password, reusable across servers.'),
                                             KeyRound,
                                         ],
                                         [
                                             'password',
                                             t('Password'),
-                                            t('Simple, but weaker than a key.'),
+                                            t('We log in over SSH with a password. Simple, but weaker than a key.'),
                                             Lock,
                                         ],
                                     ] as const
@@ -438,6 +406,66 @@ export default function ServerWizard({
                                     </button>
                                 ))}
                             </div>
+
+                            {isAgent && (
+                                <div className="space-y-3 rounded-lg border bg-muted/30 p-4 text-sm">
+                                    <p className="font-medium">
+                                        {t('How the agent works')}
+                                    </p>
+                                    <ul className="list-disc space-y-1.5 pl-5 text-muted-foreground">
+                                        <li>{t('After saving you get one command to run on the server (Debian or Ubuntu).')}</li>
+                                        <li>{t('The agent sends CPU, memory, disks and serious log entries every minute over HTTPS.')}</li>
+                                        <li>{t('Nothing connects into your server, so no IP has to be allowed.')}</li>
+                                    </ul>
+                                </div>
+                            )}
+
+                            {!isAgent && (
+                                <>
+                                <div className="grid gap-4 sm:grid-cols-[1fr_7rem]">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="host">
+                                            {t('Host or IP address')}
+                                        </Label>
+                                        <Input
+                                            id="host"
+                                            value={form.data.host}
+                                            onChange={(e) =>
+                                                form.setData('host', e.target.value)
+                                            }
+                                            placeholder="203.0.113.10"
+                                            autoComplete="off"
+                                        />
+                                        <InputError message={form.errors.host} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="port">{t('SSH port')}</Label>
+                                        <Input
+                                            id="port"
+                                            inputMode="numeric"
+                                            value={form.data.port}
+                                            onChange={(e) =>
+                                                form.setData('port', e.target.value)
+                                            }
+                                        />
+                                        <InputError message={form.errors.port} />
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="username">{t('Username')}</Label>
+                                    <Input
+                                        id="username"
+                                        value={form.data.username}
+                                        onChange={(e) =>
+                                            form.setData('username', e.target.value)
+                                        }
+                                        autoComplete="off"
+                                    />
+                                    <InputError message={form.errors.username} />
+                                </div>
+                                </>
+                            )}
 
                             {form.data.auth_type === 'password' && (
                                 <div className="grid gap-2">
@@ -546,10 +574,14 @@ export default function ServerWizard({
                             <dl className="divide-y rounded-lg border text-sm">
                                 {[
                                     [t('Name'), form.data.name],
-                                    [
-                                        t('Address'),
-                                        `${form.data.username}@${form.data.host}:${form.data.port}`,
-                                    ],
+                                    ...(isAgent
+                                        ? []
+                                        : [
+                                              [
+                                                  t('Address'),
+                                                  `${form.data.username}@${form.data.host}:${form.data.port}`,
+                                              ],
+                                          ]),
                                     [
                                         t('Category'),
                                         categoryChoice === NEW_CATEGORY
@@ -558,12 +590,14 @@ export default function ServerWizard({
                                               t('No category')),
                                     ],
                                     [
-                                        t('Login'),
-                                        form.data.auth_type === 'key'
-                                            ? t('SSH key: :name', {
-                                                  name: selectedKey?.name ?? '',
-                                              })
-                                            : t('Password'),
+                                        t('Access'),
+                                        isAgent
+                                            ? t('Agent')
+                                            : form.data.auth_type === 'key'
+                                              ? t('SSH key: :name', {
+                                                    name: selectedKey?.name ?? '',
+                                                })
+                                              : t('Password'),
                                     ],
                                 ].map(([label, value]) => (
                                     <div
@@ -580,45 +614,51 @@ export default function ServerWizard({
                                 ))}
                             </dl>
 
-                            <div className="space-y-3">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={runTest}
-                                    disabled={tester.processing}
-                                    data-test="test-connection-button"
-                                >
-                                    {tester.processing ? (
-                                        <Spinner />
-                                    ) : (
-                                        <Wifi className="size-4" />
-                                    )}
-                                    {t('Test connection')}
-                                </Button>
-
-                                {testResult && (
-                                    <div
-                                        role="status"
-                                        className={cn(
-                                            'flex items-start gap-2 rounded-lg border p-3 text-sm',
-                                            testResult.success
-                                                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                                                : 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300',
-                                        )}
+                            {isAgent ? (
+                                <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+                                    {t('After saving you get the install command for the server.')}
+                                </p>
+                            ) : (
+                                <div className="space-y-3">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={runTest}
+                                        disabled={tester.processing}
+                                        data-test="test-connection-button"
                                     >
-                                        {testResult.success ? (
-                                            <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+                                        {tester.processing ? (
+                                            <Spinner />
                                         ) : (
-                                            <XCircle className="mt-0.5 size-4 shrink-0" />
+                                            <Wifi className="size-4" />
                                         )}
-                                        <span>
-                                            {testResult.message}
-                                            {!testResult.success &&
-                                                ` ${t('You can still save the server and fix this later.')}`}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
+                                        {t('Test connection')}
+                                    </Button>
+
+                                    {testResult && (
+                                        <div
+                                            role="status"
+                                            className={cn(
+                                                'flex items-start gap-2 rounded-lg border p-3 text-sm',
+                                                testResult.success
+                                                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                                                    : 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300',
+                                            )}
+                                        >
+                                            {testResult.success ? (
+                                                <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+                                            ) : (
+                                                <XCircle className="mt-0.5 size-4 shrink-0" />
+                                            )}
+                                            <span>
+                                                {testResult.message}
+                                                {!testResult.success &&
+                                                    ` ${t('You can still save the server and fix this later.')}`}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
@@ -654,7 +694,7 @@ export default function ServerWizard({
                             ) : (
                                 <ServerCog className="size-4" />
                             )}
-                            {editing ? t('Save changes') : t('Add server')}
+                            {editing ? t('Save changes') : isAgent ? t('Add server and get the install command') : t('Add server')}
                         </Button>
                     )}
                 </div>

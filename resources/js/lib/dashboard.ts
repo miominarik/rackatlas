@@ -17,7 +17,7 @@ export type Problem = {
     severity: 'critical' | 'warning';
     serverId: number;
     serverName: string;
-    kind: 'offline' | 'stale' | 'cpu' | 'ram' | 'disk';
+    kind: 'offline' | 'stale' | 'cpu' | 'ram' | 'disk' | 'unit';
     message: string;
     value: number;
 };
@@ -180,6 +180,20 @@ export function evaluateServer(
     ];
 
     let worst: Level = evaluated.level;
+
+    for (const unit of server.failed_units) {
+        problems.push({
+            ...base,
+            severity: 'warning',
+            kind: 'unit',
+            message: t('Service :unit has failed', { unit }),
+            value: 0,
+        });
+
+        if (levelRank.warning > levelRank[worst]) {
+            worst = 'warning';
+        }
+    }
 
     for (const check of checks) {
         const level = usageLevel(check.value, check.limits);

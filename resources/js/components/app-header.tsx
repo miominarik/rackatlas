@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, KeyRound, LayoutGrid, Menu, Search, Server } from 'lucide-react';
+import { BookOpen, Folder, KeyRound, LayoutGrid, Menu, ScrollText, Search, Server } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -33,6 +33,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
+import { index as logsIndex } from '@/routes/logs';
 import { index as serversIndex } from '@/routes/servers';
 import { index as sshKeysIndex } from '@/routes/ssh-keys';
 import type { BreadcrumbItem, NavItem } from '@/types';
@@ -52,6 +53,11 @@ const mainNavItems: NavItem[] = [
         title: 'Servers',
         href: serversIndex(),
         icon: Server,
+    },
+    {
+        title: 'Logs',
+        href: logsIndex(),
+        icon: ScrollText,
     },
     {
         title: 'SSH keys',

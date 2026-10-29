@@ -1,0 +1,126 @@
+#!/bin/sh
+#
+# RackAtlas agent
+#
+# Collects CPU, memory and disk usage plus serious log entries (journal errors,
+# failed systemd units) and sends them to RackAtlas over HTTPS. Meant to run once a
+# minute from the systemd timer. Nothing connects into the server.
+#
+# Usage: rackatlas-agent [--dry-run] [--version]
+#
+# The metrics part must stay in sync with App\Services\Ssh\MetricsParser::SCRIPT.
+
+set -u
+
+VERSION="@VERSION@"
+CONF="${RACKATLAS_CONF:-/etc/rackatlas-agent/agent.conf}"
+STATE_DIR="${RACKATLAS_STATE:-/var/lib/rackatlas-agent}"
+PROC_DIR="${RACKATLAS_PROC:-/proc}"
+MAX_LOG_LINES=200
+
+case "${1:-}" in
+  --version) echo "rackatlas-agent $VERSION"; exit 0 ;;
+  --dry-run) DRY_RUN=1 ;;
+  "") DRY_RUN="" ;;
+  *) echo "usage: rackatlas-agent [--dry-run] [--version]" >&2; exit 2 ;;
+esac
+
+URL=""
+TOKEN=""
+if [ -r "$CONF" ]; then
+  # Only two known keys are read. The file is never executed.
+  while IFS='=' read -r key value; do
+    case "$key" in
+      URL) URL="$value" ;;
+      TOKEN) TOKEN="$value" ;;
+    esac
+  done < "$CONF"
+fi
+URL="${URL%/}"
+
+if [ -z "$DRY_RUN" ] && { [ -z "$URL" ] || [ -z "$TOKEN" ]; }; then
+  echo "rackatlas-agent: URL and TOKEN must be set in $CONF" >&2
+  exit 2
+fi
+
+mkdir -p "$STATE_DIR" 2>/dev/null || true
+TMP="$(mktemp)" || exit 1
+trap 'rm -f "$TMP" "$TMP.out" "$TMP".cursor-*' EXIT
+
+export LC_ALL=C
+
+# Serious journal entries since the last successful report, one section per level.
+# The cursor is saved only after RackAtlas accepted the report, so nothing is lost
+# when the network is down.
+journal_section() {
+  name="$1"; priority="$2"; kind="$3"
+  cursor_file="$STATE_DIR/cursor-$kind"
+
+  if [ -s "$cursor_file" ]; then
+    out="$(journalctl -p "$priority" --after-cursor "$(cat "$cursor_file")" -o short-iso --no-pager --show-cursor -n "$MAX_LOG_LINES" 2>/dev/null)"
+  else
+    out="$(journalctl -p "$priority" --since '-10 min' -o short-iso --no-pager --show-cursor -n "$MAX_LOG_LINES" 2>/dev/null)"
+  fi
+
+  cursor="$(printf '%s\n' "$out" | sed -n 's/^-- cursor: //p' | tail -n 1)"
+  [ -n "$cursor" ] && printf '%s\n' "$cursor" > "$TMP.cursor-$kind"
+
+  echo "###$name"
+  printf '%s\n' "$out" | grep -v '^-- '
+}
+
+{
+  echo '###CPU1'; head -n1 "$PROC_DIR/stat"
+  sleep 1
+  echo '###CPU2'; head -n1 "$PROC_DIR/stat"
+  echo '###LOAD'; cat "$PROC_DIR/loadavg"
+  echo '###CORES'; nproc 2>/dev/null || grep -c '^processor' "$PROC_DIR/cpuinfo"
+  echo '###MEM'; grep -E '^(MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapTotal|SwapFree):' "$PROC_DIR/meminfo"
+  echo '###UPTIME'; cut -d' ' -f1 "$PROC_DIR/uptime"
+  echo '###DISK'; df -PT -B1 -x tmpfs -x devtmpfs -x squashfs -x overlay -x efivarfs -x iso9660 2>/dev/null | tail -n +2
+
+  if command -v journalctl >/dev/null 2>&1; then
+    journal_section JOURNAL_CRITICAL 'emerg..crit' critical
+    journal_section JOURNAL_ERROR 'err..err' error
+  fi
+
+  if command -v systemctl >/dev/null 2>&1; then
+    echo '###FAILED_UNITS'
+    systemctl --failed --no-legend --plain --no-pager 2>/dev/null | head -n 30
+  fi
+} > "$TMP"
+
+if [ -n "$DRY_RUN" ]; then
+  cat "$TMP"
+  exit 0
+fi
+
+status="$(curl -sS -o "$TMP.out" -w '%{http_code}' --max-time 25 --retry 2 --retry-delay 2 \
+  -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Agent-Version: $VERSION" \
+  -H 'Content-Type: text/plain' \
+  --data-binary @"$TMP" \
+  "$URL/api/agent/ingest")" || {
+  echo "rackatlas-agent: could not reach $URL" >&2
+  exit 1
+}
+
+case "$status" in
+  2??)
+    # Accepted: remember how far we have read the journal.
+    for file in "$TMP".cursor-*; do
+      [ -e "$file" ] || continue
+      kind="${file##*.cursor-}"
+      mv "$file" "$STATE_DIR/cursor-$kind"
+    done
+    ;;
+  401)
+    echo "rackatlas-agent: the token was rejected. Install the agent again with a new token." >&2
+    exit 1
+    ;;
+  *)
+    echo "rackatlas-agent: RackAtlas answered $status: $(head -c 300 "$TMP.out")" >&2
+    exit 1
+    ;;
+esac

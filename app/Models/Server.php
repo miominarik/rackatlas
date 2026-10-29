@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -22,12 +23,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property ServerAuthType $auth_type
  * @property string|null $password
  * @property int|null $ssh_key_id
+ * @property string|null $agent_token_hash
+ * @property string|null $agent_version
+ * @property array<int, string>|null $failed_units
  * @property ServerStatus $status
  * @property \Illuminate\Support\Carbon|null $last_checked_at
  * @property \Illuminate\Support\Carbon|null $last_seen_at
  */
 #[Fillable(['team_id', 'server_category_id', 'name', 'host', 'port', 'username', 'auth_type', 'password', 'ssh_key_id'])]
-#[Hidden(['password'])]
+#[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
     protected function casts(): array
@@ -38,6 +42,7 @@ class Server extends Model
             'status' => ServerStatus::class,
             'last_checked_at' => 'datetime',
             'last_seen_at' => 'datetime',
+            'failed_units' => 'array',
         ];
     }
 
@@ -64,6 +69,30 @@ class Server extends Model
     public function latestMetric(): HasOne
     {
         return $this->hasOne(ServerMetric::class)->latestOfMany('collected_at');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(ServerLog::class);
+    }
+
+    /**
+     * Create a new agent token. The plain value is returned once, only its hash is stored.
+     */
+    public function issueAgentToken(): string
+    {
+        $token = 'ra_'.Str::random(40);
+
+        $this->forceFill(['agent_token_hash' => hash('sha256', $token)])->save();
+
+        return $token;
+    }
+
+    public static function findByAgentToken(string $token): ?self
+    {
+        return static::where('agent_token_hash', hash('sha256', $token))
+            ->where('auth_type', ServerAuthType::Agent)
+            ->first();
     }
 
     public function errors(): HasMany

@@ -53,6 +53,10 @@ jobs:
           npm ci
           npm run build
 
+      # Debian/Ubuntu package of the agent, served from public/agent/ (see agent/).
+      - name: Build agent package
+        run: bash agent/build-deb.sh public/agent
+
       - name: Remove temporary .env
         run: rm -f .env
 
@@ -69,7 +73,7 @@ jobs:
           rsync -rlz --checksum --delete --omit-dir-times \
             -e "sshpass -e ssh -p ${{ secrets.SSH_PORT }}" \
             --exclude='.git' --exclude='.github' --exclude='.claude' --exclude='.agents' \
-            --exclude='node_modules' --exclude='tests' \
+            --exclude='node_modules' --exclude='tests' --exclude='/agent/' \
             --exclude='resources/js' --exclude='resources/css' \
             --exclude='.env' --exclude='.env.*' \
             --exclude='storage/' --exclude='public/storage' \

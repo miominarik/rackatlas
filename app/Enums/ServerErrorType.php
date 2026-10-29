@@ -9,5 +9,6 @@ enum ServerErrorType: string
     case Key = 'key';
     case Command = 'command';
     case Parse = 'parse';
+    case Silent = 'silent';
     case Unknown = 'unknown';
 }

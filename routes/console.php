@@ -15,6 +15,11 @@ Schedule::call(fn () => Artisan::call('servers:collect-metrics'))
     ->everyMinute()
     ->withoutOverlapping(5);
 
+Schedule::call(fn () => Artisan::call('servers:check-agents'))
+    ->name('servers:check-agents')
+    ->everyMinute()
+    ->withoutOverlapping(2);
+
 Schedule::call(fn () => Artisan::call('model:prune'))
     ->name('model:prune')
     ->daily();

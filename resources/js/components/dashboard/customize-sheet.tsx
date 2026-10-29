@@ -55,7 +55,8 @@ function Form({
         problems: t('Problems'),
         servers: t('Server cards'),
         top: t('Top usage'),
-        errors: t('Recent errors'),
+        logs: t('Server logs'),
+        errors: t('Collection errors'),
     };
 
     const metricLabel: Record<DashboardMetricId, string> = {

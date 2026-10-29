@@ -6,4 +6,5 @@ enum ServerAuthType: string
 {
     case Password = 'password';
     case Key = 'key';
+    case Agent = 'agent';
 }

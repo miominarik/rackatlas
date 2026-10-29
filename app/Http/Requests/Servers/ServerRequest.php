@@ -30,13 +30,15 @@ class ServerRequest extends FormRequest
         $team = $this->team();
         $isPassword = $this->input('auth_type') === ServerAuthType::Password->value;
         $isKey = $this->input('auth_type') === ServerAuthType::Key->value;
+        // A server with the agent reports by itself, so it needs no address or login.
+        $needsAddress = $this->input('auth_type') !== ServerAuthType::Agent->value;
         $existing = $this->route('server') instanceof Server;
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'host' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9._:\-\[\]]+$/'],
-            'port' => ['required', 'integer', 'between:1,65535'],
-            'username' => ['required', 'string', 'max:64', 'regex:/^\S+$/'],
+            'host' => [$needsAddress ? 'required' : 'nullable', 'string', 'max:255', 'regex:/^[A-Za-z0-9._:\-\[\]]+$/'],
+            'port' => [$needsAddress ? 'required' : 'nullable', 'integer', 'between:1,65535'],
+            'username' => [$needsAddress ? 'required' : 'nullable', 'string', 'max:64', 'regex:/^\S+$/'],
             'server_category_id' => ['nullable', Rule::exists('server_categories', 'id')->where('team_id', $team->id)],
             'new_category' => ['nullable', 'string', 'max:100'],
             'auth_type' => ['required', Rule::enum(ServerAuthType::class)],

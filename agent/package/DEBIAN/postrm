@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  remove)
+    [ -d /run/systemd/system ] && systemctl daemon-reload || true
+    ;;
+  purge)
+    rm -rf /etc/rackatlas-agent /var/lib/rackatlas-agent
+    if getent passwd rackatlas-agent >/dev/null; then
+      deluser --system rackatlas-agent >/dev/null 2>&1 || true
+    fi
+    [ -d /run/systemd/system ] && systemctl daemon-reload || true
+    ;;
+esac
+
+exit 0

@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, KeyRound, LayoutGrid, Server } from 'lucide-react';
+import { BookOpen, FolderGit2, KeyRound, LayoutGrid, ScrollText, Server } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,6 +14,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as logsIndex } from '@/routes/logs';
 import { index as serversIndex } from '@/routes/servers';
 import { index as sshKeysIndex } from '@/routes/ssh-keys';
 import type { NavItem } from '@/types';
@@ -28,6 +29,11 @@ const mainNavItems: NavItem[] = [
         title: 'Servers',
         href: serversIndex(),
         icon: Server,
+    },
+    {
+        title: 'Logs',
+        href: logsIndex(),
+        icon: ScrollText,
     },
     {
         title: 'SSH keys',

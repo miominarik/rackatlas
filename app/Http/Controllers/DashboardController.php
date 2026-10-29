@@ -6,6 +6,7 @@ use App\Http\Requests\UpdateDashboardRequest;
 use App\Models\DashboardPreference;
 use App\Models\Server;
 use App\Models\ServerError;
+use App\Models\ServerLog;
 use App\Models\ServerMetric;
 use App\Models\ServerMetricDisk;
 use App\Support\DashboardSettings;
@@ -47,6 +48,7 @@ class DashboardController extends Controller
             'servers' => $servers->map(fn (Server $server) => $this->presentServer($server))->values(),
             'history' => $this->history($servers),
             'errors' => $this->recentErrors($servers),
+            'logs' => $this->recentLogs($servers),
         ]);
     }
 
@@ -95,6 +97,8 @@ class DashboardController extends Controller
             'port' => $server->port,
             'username' => $server->username,
             'status' => $server->status->value,
+            'auth_type' => $server->auth_type->value,
+            'failed_units' => $server->failed_units ?? [],
             'category' => $server->category?->only('id', 'name', 'color'),
             'last_checked_at' => $server->last_checked_at?->toIso8601String(),
             'last_seen_at' => $server->last_seen_at?->toIso8601String(),
@@ -139,6 +143,34 @@ class DashboardController extends Controller
                 'ram' => $row->memory_total > 0 ? round($row->memory_used / $row->memory_total * 100, 1) : 0,
             ])->values())
             ->all();
+    }
+
+    /**
+     * The newest serious entries from the logs of the servers (agent only).
+     *
+     * @param  \Illuminate\Support\Collection<int, Server>  $servers
+     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     */
+    private function recentLogs($servers)
+    {
+        $names = $servers->pluck('name', 'id');
+
+        return ServerLog::query()
+            ->whereIn('server_id', $servers->pluck('id'))
+            ->where('occurred_at', '>=', now()->subHours(self::ERROR_HOURS))
+            ->orderByDesc('occurred_at')
+            ->limit(10)
+            ->get()
+            ->map(fn (ServerLog $log) => [
+                'id' => $log->id,
+                'server_id' => $log->server_id,
+                'server_name' => $names[$log->server_id] ?? '',
+                'level' => $log->level,
+                'source' => $log->source,
+                'message' => $log->message,
+                'count' => $log->count,
+                'occurred_at' => $log->occurred_at->toIso8601String(),
+            ]);
     }
 
     /**

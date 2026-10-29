@@ -129,7 +129,7 @@ class ServerMetricsCollector
     /**
      * @param  array<string, mixed>  $data
      */
-    private function store(Server $server, array $data): ServerMetric
+    public function store(Server $server, array $data): ServerMetric
     {
         $disks = $data['disks'];
         unset($data['disks']);

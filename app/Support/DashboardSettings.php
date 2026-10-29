@@ -8,7 +8,7 @@ namespace App\Support;
  */
 class DashboardSettings
 {
-    public const WIDGETS = ['summary', 'problems', 'servers', 'top', 'errors'];
+    public const WIDGETS = ['summary', 'problems', 'servers', 'top', 'logs', 'errors'];
 
     public const SORTS = ['name', 'status', 'cpu', 'ram', 'disk'];
 

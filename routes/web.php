@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Servers\LogController;
+use App\Http\Controllers\Servers\ServerAgentController;
 use App\Http\Controllers\Servers\ServerCategoryController;
 use App\Http\Controllers\Servers\ServerController;
 use App\Http\Controllers\Servers\SshKeyController;
@@ -22,9 +24,15 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::post('servers/test-connection', TestConnectionController::class)
         ->middleware('throttle:20,1')
         ->name('servers.test-connection');
+    Route::get('servers/{server}/agent', [ServerAgentController::class, 'show'])->name('servers.agent.show');
+    Route::post('servers/{server}/agent/token', [ServerAgentController::class, 'rotate'])
+        ->middleware('throttle:10,1')
+        ->name('servers.agent.rotate');
     Route::get('servers/{server}/edit', [ServerController::class, 'edit'])->name('servers.edit');
     Route::put('servers/{server}', [ServerController::class, 'update'])->name('servers.update');
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
+
+    Route::get('logs', [LogController::class, 'index'])->name('logs.index');
 
     Route::get('ssh-keys', [SshKeyController::class, 'index'])->name('ssh-keys.index');
     Route::post('ssh-keys', [SshKeyController::class, 'store'])->name('ssh-keys.store');
