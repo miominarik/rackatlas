@@ -95,5 +95,4 @@ jobs:
              php8.5 artisan migrate --force && \
              php8.5 artisan config:cache && \
              php8.5 artisan view:cache && \
-             php8.5 artisan event:cache && \
-             php8.5 artisan queue:restart"
+             php8.5 artisan event:cache"
