@@ -67,10 +67,10 @@ are monitored over SSH by `MetricsParser::SCRIPT`, so metrics sections must stay
 2. Raise `agent/VERSION` (semver: patch for fixes, minor for new data/features, major for breaking changes).
    Every change to the package needs a new version, otherwise apt clients never see it.
 3. Update the server side if the report format changed (see above).
-4. **Stop here and hand over to the owner.** Publishing needs the owner's GPG private key, which must never be
+4. **Stop here and hand over to the owner.** Publishing needs the owner's GPG private key (its public fingerprint is in `agent/SIGNING_KEY`, the script uses it by default), which must never be
    created, read, exported or used by an AI session, and the owner commits and pushes themselves. Tell them to run:
    ```bash
-   agent/publish-apt.sh KEYID
+   agent/publish-apt.sh
    git add public/apt agent public/agent
    ```
    Then commit, push and deploy. Servers get the update with `sudo apt update && sudo apt upgrade`.
