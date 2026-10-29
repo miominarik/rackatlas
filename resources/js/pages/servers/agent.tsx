@@ -132,7 +132,8 @@ export default function AgentInstall({
                         {t('What does the installer do?')}
                     </summary>
                     <ul className="mt-3 list-disc space-y-1.5 pl-5 text-muted-foreground">
-                        <li>{t('Installs the package rackatlas-agent with apt or dpkg.')}</li>
+                        <li>{t('Adds the signed RackAtlas apt repository and installs the package rackatlas-agent from it.')}</li>
+                        <li>{t('To update later: sudo apt update && sudo apt install --only-upgrade rackatlas-agent')}</li>
                         <li>{t('Creates the system user rackatlas-agent without a login and without root rights.')}</li>
                         <li>{t('Stores the address and the token in /etc/rackatlas-agent/agent.conf.')}</li>
                         <li>{t('Starts a systemd timer that reports once a minute.')}</li>
