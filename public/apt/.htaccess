@@ -1,0 +1,8 @@
+# The apt metadata must never come from a cache: Release, InRelease and the Packages files
+# belong together, and a client that gets an old one next to a new one refuses the repository
+# ("File has unexpected size"). The packages in pool/ never change and can be cached.
+<IfModule mod_headers.c>
+    <FilesMatch "^(InRelease|Release|Release\.gpg|Packages|Packages\.gz)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </FilesMatch>
+</IfModule>

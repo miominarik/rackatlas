@@ -78,6 +78,10 @@ are monitored over SSH by `MetricsParser::SCRIPT`, so metrics sections must stay
    that is not newer than the published one. Do not work around this with `--replace` / `--allow-older`
    unless the owner asks for it explicitly.
 
+A CDN or cache in front of the site (Cloudflare "Cache Everything") must not cache `/apt/dists/`. A client that gets
+an old `InRelease` next to a new `Packages` fails with "File has unexpected size". After each publish, purge the cache
+of `/apt/dists/*` if the site is cached. `public/apt/.htaccess` sends `Cache-Control: no-cache` for these files.
+
 Never leave a test or unsigned repository in `public/apt`. Test into a temporary directory (below).
 
 ## Package rules (`DEBIAN/`)
