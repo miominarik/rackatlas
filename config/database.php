@@ -184,11 +184,11 @@ return [
             'database' => env('REDIS_DB', '0'),
         ],
 
-        // Shared Redis servers often allow only database 0, so the cache uses it too.
-        // The keys are kept apart by the prefix.
+        // The cache has its own database, so `cache:clear` (which flushes it) never
+        // touches the sessions and the queue in the default database.
         'cache' => [
             ...$redisConnection,
-            'database' => env('REDIS_CACHE_DB', '0'),
+            'database' => env('REDIS_CACHE_DB', '1'),
         ],
 
     ],
