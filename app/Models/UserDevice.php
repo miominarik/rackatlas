@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Session;
 
 /**
  * A browser or phone the user signed in from. It is recognised by a long lived cookie, so the
@@ -41,6 +42,16 @@ class UserDevice extends Model
             'last_active_at' => 'datetime',
             'revoked_at' => 'datetime',
         ];
+    }
+
+    /** Sign the device out: end its session and mark it as revoked. */
+    public function revoke(): void
+    {
+        if ($this->session_id) {
+            Session::getHandler()->destroy($this->session_id);
+        }
+
+        $this->forceFill(['revoked_at' => now(), 'session_id' => null])->save();
     }
 
     public static function hashToken(string $token): string

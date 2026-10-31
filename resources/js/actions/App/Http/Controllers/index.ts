@@ -8,6 +8,7 @@ import CurrentTeamController from './CurrentTeamController'
 import Servers from './Servers'
 import MetricsController from './MetricsController'
 import MetricsProcessesController from './MetricsProcessesController'
+import Admin from './Admin'
 
 const Controllers = {
     Api: Object.assign(Api, Api),
@@ -20,6 +21,7 @@ const Controllers = {
     Servers: Object.assign(Servers, Servers),
     MetricsController: Object.assign(MetricsController, MetricsController),
     MetricsProcessesController: Object.assign(MetricsProcessesController, MetricsProcessesController),
+    Admin: Object.assign(Admin, Admin),
 }
 
 export default Controllers

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\TeamController as AdminTeamController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
@@ -67,6 +69,29 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::post('server-categories', [ServerCategoryController::class, 'store'])->name('server-categories.store');
     Route::patch('server-categories/{serverCategory}', [ServerCategoryController::class, 'update'])->name('server-categories.update');
     Route::delete('server-categories/{serverCategory}', [ServerCategoryController::class, 'destroy'])->name('server-categories.destroy');
+});
+
+Route::prefix('app/admin')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function () {
+    Route::redirect('/', '/app/admin/users')->name('index');
+
+    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('users/create', [AdminUserController::class, 'create'])->name('users.create');
+    Route::post('users', [AdminUserController::class, 'store'])->name('users.store');
+    Route::get('users/{user}', [AdminUserController::class, 'edit'])->name('users.edit');
+    Route::put('users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+    Route::post('users/{user}/sign-out', [AdminUserController::class, 'signOut'])->name('users.sign-out');
+    Route::delete('users/{user}/two-factor', [AdminUserController::class, 'resetTwoFactor'])->name('users.two-factor.destroy');
+    Route::delete('users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('teams', [AdminTeamController::class, 'index'])->name('teams.index');
+    Route::post('teams', [AdminTeamController::class, 'store'])->name('teams.store');
+    Route::get('teams/{team}', [AdminTeamController::class, 'show'])->name('teams.show');
+    Route::put('teams/{team}', [AdminTeamController::class, 'update'])->name('teams.update');
+    Route::put('teams/{team}/owner', [AdminTeamController::class, 'transferOwnership'])->name('teams.owner.update');
+    Route::post('teams/{team}/members', [AdminTeamController::class, 'addMember'])->name('teams.members.store');
+    Route::put('teams/{team}/members/{member}', [AdminTeamController::class, 'updateMember'])->name('teams.members.update');
+    Route::delete('teams/{team}/members/{member}', [AdminTeamController::class, 'removeMember'])->name('teams.members.destroy');
+    Route::delete('teams/{team}', [AdminTeamController::class, 'destroy'])->name('teams.destroy');
 });
 
 require __DIR__.'/settings.php';

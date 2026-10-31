@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { Download, LogOut, Settings } from 'lucide-react';
+import { Download, LogOut, Settings, Shield } from 'lucide-react';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -10,6 +10,7 @@ import { UserInfo } from '@/components/user-info';
 import { useInstallPrompt } from '@/hooks/use-install-prompt';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { logout } from '@/routes';
+import { index as adminUsers } from '@/routes/admin/users';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
 import { useTranslation } from '@/hooks/use-translation';
@@ -48,6 +49,19 @@ export function UserMenuContent({ user }: Props) {
                         {t('Settings')}
                     </Link>
                 </DropdownMenuItem>
+                {user.is_admin && (
+                    <DropdownMenuItem asChild>
+                        <Link
+                            className="block w-full cursor-pointer"
+                            href={adminUsers()}
+                            onClick={cleanup}
+                            data-test="admin-link"
+                        >
+                            <Shield className="mr-2" />
+                            {t('Administration')}
+                        </Link>
+                    </DropdownMenuItem>
+                )}
                 {canInstall && (
                     <DropdownMenuItem
                         className="cursor-pointer"

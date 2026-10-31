@@ -7,7 +7,6 @@ use App\Http\Middleware\TrackDevice;
 use App\Models\UserDevice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -67,7 +66,7 @@ class DeviceController extends Controller
             return back();
         }
 
-        $this->revoke($device);
+        $device->revoke();
         $request->user()->forceFill(['remember_token' => Str::random(60)])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('The device was signed out.')]);
@@ -83,21 +82,12 @@ class DeviceController extends Controller
             ->when($current, fn ($query) => $query->whereKeyNot($current->id))
             ->get();
 
-        $others->each(fn (UserDevice $device) => $this->revoke($device));
+        $others->each(fn (UserDevice $device) => $device->revoke());
         $request->user()->forceFill(['remember_token' => Str::random(60)])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __(':count devices were signed out.', ['count' => $others->count()])]);
 
         return back();
-    }
-
-    private function revoke(UserDevice $device): void
-    {
-        if ($device->session_id) {
-            Session::getHandler()->destroy($device->session_id);
-        }
-
-        $device->forceFill(['revoked_at' => now(), 'session_id' => null])->save();
     }
 
     private function authorizeDevice(Request $request, UserDevice $device): void
