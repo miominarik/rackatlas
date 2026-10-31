@@ -8,6 +8,12 @@ export type MetricsPoint = {
     ram_avg: number | null;
     ram_max: number | null;
     swap: number | null;
+    net_rx_avg: number | null;
+    net_rx_max: number | null;
+    net_tx_avg: number | null;
+    net_tx_max: number | null;
+    net_rx_sum: number | null;
+    net_tx_sum: number | null;
     load_1: number | null;
     load_5: number | null;
     load_15: number | null;
@@ -38,6 +44,7 @@ export type MetricsReport = {
     points: MetricsPoint[];
     disks: Record<string, MetricsDiskPoint[]>;
     forecast: Record<string, { per_day: number; days: number | null }>;
+    traffic: { rx: number; tx: number } | null;
     restarts: number[];
     availability: number | null;
     incidents: MetricsIncident[];

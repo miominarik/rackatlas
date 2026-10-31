@@ -101,6 +101,7 @@ function Form({
         cpu: t('CPU'),
         ram: t('Memory'),
         disk: t('Disks'),
+        network: t('Network traffic'),
         load: t('Load average'),
         uptime: t('Uptime'),
     };

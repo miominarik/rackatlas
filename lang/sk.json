@@ -934,5 +934,14 @@
     "Restart required": "Vyžaduje reštart",
     "Network": "Sieť",
     "Yes": "Áno",
-    "No": "Nie"
+    "No": "Nie",
+    "Network traffic": "Sieťový prenos",
+    "no data yet, it needs the agent 1.3.0 or newer": "zatiaľ bez dát, vyžaduje agenta 1.3.0 alebo novší",
+    "only available with the agent": "dostupné len s agentom",
+    "Received": "Prijaté",
+    "Sent": "Odoslané",
+    "Received in this period": "Prijaté za obdobie",
+    "Sent in this period": "Odoslané za obdobie",
+    "Total incoming traffic": "Celkový prichádzajúci prenos",
+    "Total outgoing traffic": "Celkový odchádzajúci prenos"
 }

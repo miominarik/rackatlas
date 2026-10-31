@@ -262,14 +262,17 @@ export default function ServerShow({
                                         detail={`${formatBytes(disk.used_bytes)} / ${formatBytes(disk.total_bytes)}`}
                                     />
                                 ))}
-                            {metrics.net_rx_bps !== null &&
-                                metrics.net_tx_bps !== null && (
-                                    <p className="text-xs text-muted-foreground">
-                                        {t('Network')}: ↓{' '}
-                                        {formatBytes(metrics.net_rx_bps)}/s · ↑{' '}
-                                        {formatBytes(metrics.net_tx_bps)}/s
-                                    </p>
-                                )}
+                            <p className="text-xs text-muted-foreground">
+                                {t('Network')}:{' '}
+                                {metrics.net_rx_bps !== null &&
+                                metrics.net_tx_bps !== null
+                                    ? `↓ ${formatBytes(metrics.net_rx_bps)}/s · ↑ ${formatBytes(metrics.net_tx_bps)}/s`
+                                    : server.auth_type === 'agent'
+                                      ? t(
+                                            'no data yet, it needs the agent 1.3.0 or newer',
+                                        )
+                                      : t('only available with the agent')}
+                            </p>
                             <p className="border-t pt-3 font-mono text-xs text-muted-foreground">
                                 {t('Load average 1 / 5 / 15 min')}:{' '}
                                 {metrics.load_1.toFixed(2)} ·{' '}

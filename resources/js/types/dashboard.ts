@@ -6,7 +6,13 @@ export type DashboardWidgetId =
     | 'logs'
     | 'errors';
 
-export type DashboardMetricId = 'cpu' | 'ram' | 'disk' | 'load' | 'uptime';
+export type DashboardMetricId =
+    | 'cpu'
+    | 'ram'
+    | 'disk'
+    | 'network'
+    | 'load'
+    | 'uptime';
 
 export type DashboardSort = 'name' | 'status' | 'cpu' | 'ram' | 'disk';
 
@@ -56,6 +62,8 @@ export type DashboardMetrics = {
     swap_total: number;
     swap_used: number;
     uptime_seconds: number;
+    net_rx_bps: number | null;
+    net_tx_bps: number | null;
     disks: DashboardDisk[];
 };
 

@@ -566,6 +566,21 @@ export default function Metrics({
                     />
                 </div>
 
+                {report.traffic && (
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                        <Tile
+                            title={t('Received in this period')}
+                            value={`↓ ${formatBytes(report.traffic.rx)}`}
+                            detail={t('Total incoming traffic')}
+                        />
+                        <Tile
+                            title={t('Sent in this period')}
+                            value={`↑ ${formatBytes(report.traffic.tx)}`}
+                            detail={t('Total outgoing traffic')}
+                        />
+                    </div>
+                )}
+
                 {noData ? (
                     <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
                         {t('No data for this period yet.')}
@@ -695,6 +710,52 @@ export default function Metrics({
                                 ]}
                             />
                         </ChartCard>
+
+                        {points.some(
+                            (p) =>
+                                p.net_rx_avg !== null || p.net_tx_avg !== null,
+                        ) && (
+                            <ChartCard
+                                title={t('Network traffic')}
+                                summary={t('Average :avg · peak :peak', {
+                                    avg: `↓ ${formatBytes(average(points.map((p) => p.net_rx_avg)) ?? 0)}/s · ↑ ${formatBytes(average(points.map((p) => p.net_tx_avg)) ?? 0)}/s`,
+                                    peak: `↓ ${formatBytes(peak(points.map((p) => p.net_rx_max)) ?? 0)}/s · ↑ ${formatBytes(peak(points.map((p) => p.net_tx_max)) ?? 0)}/s`,
+                                })}
+                                legend={[
+                                    { label: t('Received'), color: COLOR.blue },
+                                    { label: t('Sent'), color: COLOR.amber },
+                                ]}
+                            >
+                                <LineChart
+                                    {...chartBase}
+                                    label={t('Network traffic')}
+                                    min={0}
+                                    formatValue={(value) =>
+                                        `${formatBytes(value)}/s`
+                                    }
+                                    markers={restartMarkers}
+                                    series={[
+                                        {
+                                            key: 'net_rx',
+                                            label: t('Received'),
+                                            color: COLOR.blue,
+                                            area: true,
+                                            values: points.map(
+                                                (p) => p.net_rx_avg,
+                                            ),
+                                        },
+                                        {
+                                            key: 'net_tx',
+                                            label: t('Sent'),
+                                            color: COLOR.amber,
+                                            values: points.map(
+                                                (p) => p.net_tx_avg,
+                                            ),
+                                        },
+                                    ]}
+                                />
+                            </ChartCard>
+                        )}
 
                         <ChartCard
                             title={t('Disk usage')}

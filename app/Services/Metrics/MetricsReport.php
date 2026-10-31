@@ -50,6 +50,7 @@ class MetricsReport
             'points' => $points,
             'disks' => $disks,
             'forecast' => $this->forecast($disks),
+            'traffic' => $this->traffic($points),
             'restarts' => $this->restarts($points),
             'availability' => $this->availability($since, $points),
             'incidents' => $this->incidents($since),
@@ -94,6 +95,8 @@ class MetricsReport
             ->selectRaw('AVG(cpu_percent) AS cpu_avg, MAX(cpu_percent) AS cpu_max')
             ->selectRaw("AVG({$ram}) AS ram_avg, MAX({$ram}) AS ram_max")
             ->selectRaw('AVG(CASE WHEN swap_total > 0 THEN swap_used * 100.0 / swap_total END) AS swap')
+            ->selectRaw('AVG(net_rx_bps) AS net_rx_avg, MAX(net_rx_bps) AS net_rx_max, AVG(net_tx_bps) AS net_tx_avg, MAX(net_tx_bps) AS net_tx_max')
+            ->selectRaw('SUM(net_rx_bps) AS net_rx_sum, SUM(net_tx_bps) AS net_tx_sum')
             ->selectRaw('AVG(load_1) AS load_1, AVG(load_5) AS load_5, AVG(load_15) AS load_15, MAX(cpu_cores) AS cores')
             ->selectRaw("MIN({$epoch} - uptime_seconds) AS boot_min, MAX({$epoch} - uptime_seconds) AS boot_max")
             ->groupByRaw('bucket')
@@ -107,6 +110,12 @@ class MetricsReport
                 'ram_avg' => $this->round($row->ram_avg),
                 'ram_max' => $this->round($row->ram_max),
                 'swap' => $this->round($row->swap),
+                'net_rx_avg' => $this->round($row->net_rx_avg, 0),
+                'net_rx_max' => $this->round($row->net_rx_max, 0),
+                'net_tx_avg' => $this->round($row->net_tx_avg, 0),
+                'net_tx_max' => $this->round($row->net_tx_max, 0),
+                'net_rx_sum' => $row->net_rx_sum === null ? null : (int) $row->net_rx_sum,
+                'net_tx_sum' => $row->net_tx_sum === null ? null : (int) $row->net_tx_sum,
                 'load_1' => $this->round($row->load_1, 2),
                 'load_5' => $this->round($row->load_5, 2),
                 'load_15' => $this->round($row->load_15, 2),
@@ -184,6 +193,25 @@ class MetricsReport
         }
 
         return $result;
+    }
+
+    /**
+     * Bytes received and sent in the range. Every sample is the average speed of one minute, so the
+     * speeds are summed and multiplied by 60. Null when the agent has not sent network data.
+     *
+     * @param  array<int, array<string, int|float|null>>  $points
+     * @return array{rx: int, tx: int}|null
+     */
+    private function traffic(array $points): ?array
+    {
+        $rx = array_column($points, 'net_rx_sum');
+        $tx = array_column($points, 'net_tx_sum');
+
+        if (array_filter($rx, fn ($value) => $value !== null) === [] && array_filter($tx, fn ($value) => $value !== null) === []) {
+            return null;
+        }
+
+        return ['rx' => (int) array_sum($rx) * 60, 'tx' => (int) array_sum($tx) * 60];
     }
 
     /**
@@ -283,6 +311,8 @@ class MetricsReport
             'swap_total' => $metric->swap_total,
             'swap_used' => $metric->swap_used,
             'uptime_seconds' => $metric->uptime_seconds,
+            'net_rx_bps' => $metric->net_rx_bps,
+            'net_tx_bps' => $metric->net_tx_bps,
             'disks' => $metric->disks->map(fn ($disk) => [
                 'mount' => $disk->mount,
                 'device' => $disk->device,

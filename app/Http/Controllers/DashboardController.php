@@ -181,6 +181,8 @@ class DashboardController extends Controller
                 'swap_total' => $metric->swap_total,
                 'swap_used' => $metric->swap_used,
                 'uptime_seconds' => $metric->uptime_seconds,
+                'net_rx_bps' => $metric->net_rx_bps,
+                'net_tx_bps' => $metric->net_tx_bps,
                 'disks' => $metric->disks->map(fn (ServerMetricDisk $disk) => [
                     'mount' => $disk->mount,
                     'filesystem' => $disk->filesystem,

@@ -221,6 +221,20 @@ export default function ServerCard({
                 </div>
             )}
 
+            {metrics &&
+                !compact &&
+                show('network') &&
+                metrics.net_rx_bps !== null &&
+                metrics.net_tx_bps !== null && (
+                    <p
+                        className="font-mono text-xs text-muted-foreground"
+                        title={t('Network traffic')}
+                    >
+                        ↓ {formatBytes(metrics.net_rx_bps)}/s · ↑{' '}
+                        {formatBytes(metrics.net_tx_bps)}/s
+                    </p>
+                )}
+
             {metrics && !compact && (show('load') || show('uptime')) && (
                 <footer className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t pt-2.5 text-xs text-muted-foreground">
                     {show('load') && (

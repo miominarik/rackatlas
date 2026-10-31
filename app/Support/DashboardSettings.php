@@ -14,7 +14,7 @@ class DashboardSettings
 
     public const DENSITIES = ['comfortable', 'compact'];
 
-    public const METRICS = ['cpu', 'ram', 'disk', 'load', 'uptime'];
+    public const METRICS = ['cpu', 'ram', 'disk', 'network', 'load', 'uptime'];
 
     public const REFRESH_SECONDS = [0, 15, 30, 60];
 
