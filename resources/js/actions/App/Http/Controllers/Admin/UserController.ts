@@ -494,7 +494,7 @@ signOut.form = signOutForm
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:142
+* @see app/Http/Controllers/Admin/UserController.php:143
 * @route '/app/admin/users/{user}/two-factor'
 */
 export const resetTwoFactor = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -509,7 +509,7 @@ resetTwoFactor.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:142
+* @see app/Http/Controllers/Admin/UserController.php:143
 * @route '/app/admin/users/{user}/two-factor'
 */
 resetTwoFactor.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -542,7 +542,7 @@ resetTwoFactor.url = (args: { user: number | { id: number } } | [user: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:142
+* @see app/Http/Controllers/Admin/UserController.php:143
 * @route '/app/admin/users/{user}/two-factor'
 */
 resetTwoFactor.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -552,7 +552,7 @@ resetTwoFactor.delete = (args: { user: number | { id: number } } | [user: number
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:142
+* @see app/Http/Controllers/Admin/UserController.php:143
 * @route '/app/admin/users/{user}/two-factor'
 */
 const resetTwoFactorForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -567,7 +567,7 @@ const resetTwoFactorForm = (args: { user: number | { id: number } } | [user: num
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:142
+* @see app/Http/Controllers/Admin/UserController.php:143
 * @route '/app/admin/users/{user}/two-factor'
 */
 resetTwoFactorForm.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -584,7 +584,7 @@ resetTwoFactor.form = resetTwoFactorForm
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:155
+* @see app/Http/Controllers/Admin/UserController.php:157
 * @route '/app/admin/users/{user}'
 */
 export const destroy = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -599,7 +599,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:155
+* @see app/Http/Controllers/Admin/UserController.php:157
 * @route '/app/admin/users/{user}'
 */
 destroy.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -632,7 +632,7 @@ destroy.url = (args: { user: number | { id: number } } | [user: number | { id: n
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:155
+* @see app/Http/Controllers/Admin/UserController.php:157
 * @route '/app/admin/users/{user}'
 */
 destroy.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -642,7 +642,7 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:155
+* @see app/Http/Controllers/Admin/UserController.php:157
 * @route '/app/admin/users/{user}'
 */
 const destroyForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -657,7 +657,7 @@ const destroyForm = (args: { user: number | { id: number } } | [user: number | {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:155
+* @see app/Http/Controllers/Admin/UserController.php:157
 * @route '/app/admin/users/{user}'
 */
 destroyForm.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

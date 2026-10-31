@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
@@ -22,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Hidden(['private_key', 'passphrase'])]
 class SshKey extends Model
 {
+    use LogsActivity;
+
     protected function casts(): array
     {
         return [
@@ -38,5 +42,14 @@ class SshKey extends Model
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('ssh-key')
+            ->logOnly(['name', 'algorithm', 'fingerprint', 'team_id'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
     }
 }

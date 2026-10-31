@@ -134,6 +134,7 @@ class UserController extends Controller
         $user->devices()->active()->get()->each(fn (UserDevice $device) => $device->revoke());
         $user->forceFill(['remember_token' => Str::random(60)])->save();
 
+        $this->audit('signed-out', $user);
         $this->flash(__('The user was signed out on all devices.'));
 
         return back();
@@ -147,6 +148,7 @@ class UserController extends Controller
             'two_factor_confirmed_at' => null,
         ])->save();
 
+        $this->audit('two-factor-reset', $user);
         $this->flash(__('Two-factor authentication was turned off for the user.'));
 
         return back();
@@ -163,6 +165,11 @@ class UserController extends Controller
         $this->flash(__('User deleted.'));
 
         return to_route('admin.users.index');
+    }
+
+    private function audit(string $event, User $subject): void
+    {
+        activity('admin')->event($event)->causedBy(request()->user())->performedOn($subject)->log($event);
     }
 
     private function flash(string $message): void

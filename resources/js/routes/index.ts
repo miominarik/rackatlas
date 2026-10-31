@@ -218,6 +218,80 @@ registerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 register.form = registerForm
 
 /**
+* @see vendor/laravel/pulse/src/PulseServiceProvider.php:116
+* @route '/app/admin/pulse'
+*/
+export const pulse = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: pulse.url(options),
+    method: 'get',
+})
+
+pulse.definition = {
+    methods: ["get","head"],
+    url: '/app/admin/pulse',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see vendor/laravel/pulse/src/PulseServiceProvider.php:116
+* @route '/app/admin/pulse'
+*/
+pulse.url = (options?: RouteQueryOptions) => {
+    return pulse.definition.url + queryParams(options)
+}
+
+/**
+* @see vendor/laravel/pulse/src/PulseServiceProvider.php:116
+* @route '/app/admin/pulse'
+*/
+pulse.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: pulse.url(options),
+    method: 'get',
+})
+
+/**
+* @see vendor/laravel/pulse/src/PulseServiceProvider.php:116
+* @route '/app/admin/pulse'
+*/
+pulse.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: pulse.url(options),
+    method: 'head',
+})
+
+/**
+* @see vendor/laravel/pulse/src/PulseServiceProvider.php:116
+* @route '/app/admin/pulse'
+*/
+const pulseForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: pulse.url(options),
+    method: 'get',
+})
+
+/**
+* @see vendor/laravel/pulse/src/PulseServiceProvider.php:116
+* @route '/app/admin/pulse'
+*/
+pulseForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: pulse.url(options),
+    method: 'get',
+})
+
+/**
+* @see vendor/laravel/pulse/src/PulseServiceProvider.php:116
+* @route '/app/admin/pulse'
+*/
+pulseForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: pulse.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+pulse.form = pulseForm
+
+/**
 * @see \App\Http\Controllers\HomeController::__invoke
 * @see app/Http/Controllers/HomeController.php:16
 * @route '/'

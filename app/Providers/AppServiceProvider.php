@@ -2,12 +2,18 @@
 
 namespace App\Providers;
 
+use App\Listeners\LogAuthActivity;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -32,7 +38,13 @@ class AppServiceProvider extends ServiceProvider
         $this->configureAgentRateLimiting();
         $this->configureWebRateLimiting();
 
+        Event::listen(Login::class, [LogAuthActivity::class, 'login']);
+        Event::listen(Logout::class, [LogAuthActivity::class, 'logout']);
+        Event::listen(Failed::class, [LogAuthActivity::class, 'failed']);
+        Event::listen(PasswordReset::class, [LogAuthActivity::class, 'passwordReset']);
+
         Gate::define('access-admin', fn (User $user) => $user->is_admin);
+        Gate::define('viewPulse', fn (User $user) => $user->is_admin);
     }
 
     /**

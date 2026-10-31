@@ -1,15 +1,17 @@
 import { Link } from '@inertiajs/react';
-import { Shield, Users, UsersRound } from 'lucide-react';
+import { Gauge, History, Shield, Users, UsersRound } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
+import { index as activityIndex } from '@/routes/admin/activity';
 import { index as teamsIndex } from '@/routes/admin/teams';
 import { index as usersIndex } from '@/routes/admin/users';
 
 const tabs = [
     { title: 'Users', href: usersIndex(), icon: Users },
     { title: 'Teams', href: teamsIndex(), icon: UsersRound },
+    { title: 'Activity log', href: activityIndex(), icon: History },
 ];
 
 export default function AdminLayout({ children }: PropsWithChildren) {
@@ -56,6 +58,14 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                         </Link>
                     );
                 })}
+                {/* Pulse is a separate Livewire page, so it is a plain link, not an Inertia visit. */}
+                <a
+                    href="/app/admin/pulse"
+                    className="flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                    <Gauge className="size-4" />
+                    {t('Application monitoring')}
+                </a>
             </nav>
 
             {children}

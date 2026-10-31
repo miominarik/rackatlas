@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
@@ -36,6 +38,8 @@ use Illuminate\Support\Str;
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
+    use LogsActivity;
+
     protected function casts(): array
     {
         return [
@@ -105,5 +109,14 @@ class Server extends Model
     public function errors(): HasMany
     {
         return $this->hasMany(ServerError::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('server')
+            ->logOnly(['name', 'host', 'port', 'username', 'auth_type', 'server_category_id', 'ssh_key_id', 'team_id'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
     }
 }

@@ -18,6 +18,8 @@ use Illuminate\Support\Carbon;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
@@ -40,6 +42,8 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    use LogsActivity;
 
     /**
      * Get the attributes that should be cast.
@@ -98,5 +102,14 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
         return ($teamId ? $this->teams()->whereKey($teamId)->first() : null)
             ?? $this->teams()->orderBy('name')->first();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('user')
+            ->logOnly(['name', 'email', 'is_admin', 'email_verified_at'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
     }
 }

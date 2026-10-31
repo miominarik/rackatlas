@@ -112,6 +112,7 @@ class TeamController extends Controller
             $team->update(['owner_id' => $data['user_id']]);
         }
 
+        $this->audit('ownership-transferred', $team);
         $this->flash(__('The owner of the team was changed.'));
 
         return back();
@@ -132,6 +133,7 @@ class TeamController extends Controller
 
         $team->members()->attach($user->id, ['role' => $data['role']]);
 
+        $this->audit('member-added', $team, ['member' => $user->email, 'role' => $data['role']]);
         $this->flash(__('Member added.'));
 
         return back();
@@ -147,6 +149,7 @@ class TeamController extends Controller
 
         $team->members()->updateExistingPivot($member->id, ['role' => $data['role']]);
 
+        $this->audit('member-role-changed', $team, ['member' => $member->email, 'role' => $data['role']]);
         $this->flash(__('Role updated.'));
 
         return back();
@@ -158,6 +161,7 @@ class TeamController extends Controller
 
         $team->members()->detach($member->id);
 
+        $this->audit('member-removed', $team, ['member' => $member->email]);
         $this->flash(__('Member removed.'));
 
         return back();
@@ -170,6 +174,14 @@ class TeamController extends Controller
         $this->flash(__('Team deleted.'));
 
         return to_route('admin.teams.index');
+    }
+
+    /**
+     * @param  array<string, mixed>  $properties
+     */
+    private function audit(string $event, Team $subject, array $properties = []): void
+    {
+        activity('admin')->event($event)->causedBy(request()->user())->performedOn($subject)->withProperties($properties)->log($event);
     }
 
     private function flash(string $message): void

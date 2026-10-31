@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
 use App\Http\Controllers\Admin\TeamController as AdminTeamController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CrawlerController;
@@ -73,6 +74,8 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
 
 Route::prefix('app/admin')->name('admin.')->middleware(['auth', 'verified', 'can:access-admin'])->group(function () {
     Route::redirect('/', '/app/admin/users')->name('index');
+
+    Route::get('activity', [AdminActivityController::class, 'index'])->name('activity.index');
 
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('users/create', [AdminUserController::class, 'create'])->name('users.create');

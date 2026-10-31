@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
@@ -19,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Team extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     public function owner(): BelongsTo
     {
@@ -57,5 +60,14 @@ class Team extends Model
         $role = $this->members()->whereKey($user->getKey())->first()?->pivot->role;
 
         return $role ? TeamRole::from($role) : null;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('team')
+            ->logOnly(['name', 'owner_id'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
     }
 }

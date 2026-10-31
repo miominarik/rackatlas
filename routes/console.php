@@ -37,5 +37,9 @@ Schedule::call(fn () => Artisan::call('model:prune'))
     ->name('model:prune')
     ->daily();
 
+Schedule::call(fn () => Artisan::call('activitylog:clean'))
+    ->name('activitylog:clean')
+    ->daily();
+
 // The queued jobs (metrics collection, notifications) are processed by the permanent
 // queue worker of the hosting, so the scheduler does not run `queue:work` itself.

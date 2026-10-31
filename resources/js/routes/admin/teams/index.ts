@@ -335,7 +335,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Admin\TeamController::destroy
-* @see app/Http/Controllers/Admin/TeamController.php:166
+* @see app/Http/Controllers/Admin/TeamController.php:170
 * @route '/app/admin/teams/{team}'
 */
 export const destroy = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -350,7 +350,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\TeamController::destroy
-* @see app/Http/Controllers/Admin/TeamController.php:166
+* @see app/Http/Controllers/Admin/TeamController.php:170
 * @route '/app/admin/teams/{team}'
 */
 destroy.url = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -383,7 +383,7 @@ destroy.url = (args: { team: number | { id: number } } | [team: number | { id: n
 
 /**
 * @see \App\Http\Controllers\Admin\TeamController::destroy
-* @see app/Http/Controllers/Admin/TeamController.php:166
+* @see app/Http/Controllers/Admin/TeamController.php:170
 * @route '/app/admin/teams/{team}'
 */
 destroy.delete = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -393,7 +393,7 @@ destroy.delete = (args: { team: number | { id: number } } | [team: number | { id
 
 /**
 * @see \App\Http\Controllers\Admin\TeamController::destroy
-* @see app/Http/Controllers/Admin/TeamController.php:166
+* @see app/Http/Controllers/Admin/TeamController.php:170
 * @route '/app/admin/teams/{team}'
 */
 const destroyForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -408,7 +408,7 @@ const destroyForm = (args: { team: number | { id: number } } | [team: number | {
 
 /**
 * @see \App\Http\Controllers\Admin\TeamController::destroy
-* @see app/Http/Controllers/Admin/TeamController.php:166
+* @see app/Http/Controllers/Admin/TeamController.php:170
 * @route '/app/admin/teams/{team}'
 */
 destroyForm.delete = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
