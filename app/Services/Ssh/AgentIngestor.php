@@ -51,7 +51,7 @@ class AgentIngestor
         DB::transaction(function () use ($server, $data, $entries, $failedNow, $agentVersion, &$fresh) {
             $this->collector->store($server, $data);
 
-            $fresh = $this->withoutKnown($server, $entries);
+            $fresh = $this->withoutKnown($server, $this->mergeIntoOpen($server, $entries));
 
             if ($fresh !== []) {
                 $server->logs()->createMany($fresh);
@@ -92,6 +92,49 @@ class AgentIngestor
         if ($recovered->isNotEmpty()) {
             $server->logs()->whereIn('id', $recovered)->update(['resolved_at' => now(), 'resolved_by' => null]);
         }
+    }
+
+    /**
+     * A problem that is still open is not stored again: the entry of the open log only gets the new
+     * occurrences added to its count. Entries of problems without an open log are returned to be created.
+     * Occurrences that are not newer than the open log are the same report sent again and are ignored.
+     *
+     * @param  array<int, array<string, mixed>>  $entries
+     * @return array<int, array<string, mixed>>
+     */
+    private function mergeIntoOpen(Server $server, array $entries): array
+    {
+        if ($entries === []) {
+            return [];
+        }
+
+        $open = $server->logs()
+            ->open()
+            ->whereIn('source', array_values(array_unique(array_column($entries, 'source'))))
+            ->orderByDesc('id')
+            ->get(['id', 'level', 'source', 'message', 'count', 'occurred_at'])
+            ->keyBy(fn ($log) => LogParser::signature($log->level, $log->source, $log->message));
+
+        $new = [];
+
+        foreach ($entries as $entry) {
+            $log = $open->get(LogParser::signature($entry['level'], $entry['source'], $entry['message']));
+
+            if ($log === null) {
+                $new[] = $entry;
+
+                continue;
+            }
+
+            if ($entry['occurred_at']->greaterThan($log->occurred_at)) {
+                $server->logs()->whereKey($log->id)->update([
+                    'count' => $log->count + $entry['count'],
+                    'occurred_at' => $entry['occurred_at'],
+                ]);
+            }
+        }
+
+        return $new;
     }
 
     /**

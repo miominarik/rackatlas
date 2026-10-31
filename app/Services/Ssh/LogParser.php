@@ -17,6 +17,15 @@ class LogParser
     private const MESSAGE_LIMIT = 500;
 
     /**
+     * What makes two entries the same problem: level, source and the message without numbers
+     * (process ids, counters, addresses in hex).
+     */
+    public static function signature(string $level, string $source, string $message): string
+    {
+        return $level.'|'.$source.'|'.preg_replace('/0x[0-9a-f]+|\d+/i', '#', $message);
+    }
+
+    /**
      * Identical messages (ignoring numbers such as process ids) are merged into one entry with a count.
      *
      * @return array<int, array{level: string, source: string, message: string, count: int, occurred_at: Carbon}>
@@ -43,7 +52,7 @@ class LogParser
                 continue;
             }
 
-            $key = $level.'|'.$source.'|'.preg_replace('/0x[0-9a-f]+|\d+/i', '#', $message);
+            $key = self::signature($level, $source, $message);
 
             if (! isset($groups[$key])) {
                 $groups[$key] = [
