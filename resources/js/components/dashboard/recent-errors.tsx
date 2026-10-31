@@ -1,22 +1,29 @@
 import { useTranslation } from '@/hooks/use-translation';
-import { timeAgo } from '@/lib/dashboard';
+import { periodLabel, timeAgo } from '@/lib/dashboard';
 import type { DashboardError } from '@/types';
 
 export default function RecentErrors({
     errors,
     generatedAt,
+    hours,
 }: {
     errors: DashboardError[];
     generatedAt: string;
+    hours: number;
 }) {
     const { t, locale } = useTranslation();
 
     return (
         <section aria-label={t('Collection errors')} className="space-y-2">
-            <h2 className="text-sm font-medium">{t('Collection errors')}</h2>
+            <h2 className="text-sm font-medium">
+                {t('Collection errors')}{' '}
+                <span className="text-xs font-normal text-muted-foreground">
+                    {periodLabel(hours, t)}
+                </span>
+            </h2>
             {errors.length === 0 ? (
                 <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                    {t('No errors in the last 24 hours.')}
+                    {t('No errors in this period.')}
                 </p>
             ) : (
                 <ul className="divide-y overflow-hidden rounded-xl border bg-card">

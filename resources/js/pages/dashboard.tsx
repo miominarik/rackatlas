@@ -1,11 +1,17 @@
-import { Head, Link, usePoll } from '@inertiajs/react';
-import { LayoutDashboard, Plus, SlidersHorizontal } from 'lucide-react';
+import { Head, Link, router, usePoll } from '@inertiajs/react';
+import {
+    LayoutDashboard,
+    Plus,
+    RefreshCw,
+    SlidersHorizontal,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import CustomizeSheet from '@/components/dashboard/customize-sheet';
 import ProblemsList from '@/components/dashboard/problems-list';
 import RecentErrors from '@/components/dashboard/recent-errors';
 import RecentLogs from '@/components/dashboard/recent-logs';
 import ServerCard from '@/components/dashboard/server-card';
+import ServerRow from '@/components/dashboard/server-row';
 import SummaryTiles from '@/components/dashboard/summary-tiles';
 import TopLists from '@/components/dashboard/top-lists';
 import { Button } from '@/components/ui/button';
@@ -118,26 +124,48 @@ function ServerGrid({
         }
     }
 
+    const fixedColumns = (
+        {
+            1: 'grid-cols-1',
+            2: 'grid-cols-1 sm:grid-cols-2',
+            3: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3',
+            4: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4',
+        } as Record<number, string>
+    )[settings.servers.columns];
+
     const grid = cn(
         'grid gap-4',
-        compact
-            ? 'grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3'
-            : 'grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]',
+        fixedColumns ??
+            (compact
+                ? 'grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3'
+                : 'grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]'),
+        fixedColumns && compact && 'gap-3',
     );
 
-    const cards = (list: Evaluated[]) => (
-        <div className={grid}>
-            {list.map((evaluated) => (
-                <ServerCard
-                    key={evaluated.server.id}
-                    evaluated={evaluated}
-                    settings={settings}
-                    history={history[evaluated.server.id] ?? []}
-                    generatedAt={generatedAt}
-                />
-            ))}
-        </div>
-    );
+    const cards = (list: Evaluated[]) =>
+        settings.servers.layout === 'list' ? (
+            <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+                {list.map((evaluated) => (
+                    <ServerRow
+                        key={evaluated.server.id}
+                        evaluated={evaluated}
+                        settings={settings}
+                    />
+                ))}
+            </ul>
+        ) : (
+            <div className={grid}>
+                {list.map((evaluated) => (
+                    <ServerCard
+                        key={evaluated.server.id}
+                        evaluated={evaluated}
+                        settings={settings}
+                        history={history[evaluated.server.id] ?? []}
+                        generatedAt={generatedAt}
+                    />
+                ))}
+            </div>
+        );
 
     return (
         <section aria-label={t('Server cards')} className="space-y-3">
@@ -187,6 +215,14 @@ function DashboardContent({
 }: Props & { team: NonNullable<Props['team']> }) {
     const { t, locale } = useTranslation();
     const [customizing, setCustomizing] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const refresh = () =>
+        router.reload({
+            only: POLLED,
+            onStart: () => setRefreshing(true),
+            onFinish: () => setRefreshing(false),
+        });
 
     const items = useMemo(
         () =>
@@ -212,8 +248,20 @@ function DashboardContent({
             />
         ),
         top: <TopLists items={items} thresholds={settings.thresholds} />,
-        logs: <RecentLogs logs={logs} generatedAt={generated_at} />,
-        errors: <RecentErrors errors={errors} generatedAt={generated_at} />,
+        logs: (
+            <RecentLogs
+                logs={logs}
+                generatedAt={generated_at}
+                hours={settings.logs.hours}
+            />
+        ),
+        errors: (
+            <RecentErrors
+                errors={errors}
+                generatedAt={generated_at}
+                hours={settings.errors.hours}
+            />
+        ),
     };
 
     return (
@@ -236,14 +284,32 @@ function DashboardContent({
                             })}
                         </p>
                     </div>
-                    <Button
-                        variant="outline"
-                        onClick={() => setCustomizing(true)}
-                        data-test="customize-dashboard-button"
-                    >
-                        <SlidersHorizontal className="size-4" />
-                        {t('Customize')}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={refresh}
+                            disabled={refreshing}
+                            aria-label={t('Refresh data')}
+                            title={t('Refresh data')}
+                            data-test="refresh-dashboard-button"
+                        >
+                            <RefreshCw
+                                className={cn(
+                                    'size-4',
+                                    refreshing && 'animate-spin',
+                                )}
+                            />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => setCustomizing(true)}
+                            data-test="customize-dashboard-button"
+                        >
+                            <SlidersHorizontal className="size-4" />
+                            {t('Customize')}
+                        </Button>
+                    </div>
                 </div>
 
                 {servers.length === 0 ? (

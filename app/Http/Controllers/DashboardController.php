@@ -8,7 +8,6 @@ use App\Models\DashboardPreference;
 use App\Models\Server;
 use App\Models\ServerError;
 use App\Models\ServerLog;
-use App\Models\ServerMetric;
 use App\Models\ServerMetricDisk;
 use App\Models\Team;
 use App\Models\User;
@@ -17,15 +16,12 @@ use App\Support\DashboardSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    private const HISTORY_MINUTES = 60;
-
-    private const ERROR_HOURS = 24;
-
     /**
      * One screen with the state of all servers of the current team.
      */
@@ -45,18 +41,19 @@ class DashboardController extends Controller
 
         $device = TrackDevice::current($request);
         $preference = $this->preference($user, $team, $device);
+        $settings = DashboardSettings::resolve($preference?->settings);
 
         return Inertia::render('dashboard', [
             'team' => $team->only('id', 'name'),
             'device' => $device ? ['id' => $device->id, 'label' => $device->label()] : null,
             'other_devices' => $this->otherDevices($user, $team, $device),
-            'settings' => DashboardSettings::resolve($preference?->settings),
+            'settings' => $settings,
             'defaults' => DashboardSettings::defaults(),
             'generated_at' => now()->toIso8601String(),
             'servers' => $servers->map(fn (Server $server) => $this->presentServer($server))->values(),
-            'history' => $this->history($servers),
-            'errors' => $this->recentErrors($servers),
-            'logs' => $this->recentLogs($servers),
+            'history' => $this->history($servers, $settings['servers']['history_minutes']),
+            'errors' => $this->recentErrors($servers, $settings['errors']),
+            'logs' => $this->recentLogs($servers, $settings['logs']),
         ]);
     }
 
@@ -194,22 +191,37 @@ class DashboardController extends Controller
     }
 
     /**
-     * CPU and memory of the last hour per server, for the small charts.
+     * CPU and memory per server for the small charts. A longer range is averaged into larger
+     * steps, so the charts have about the same number of points whatever the range is.
      *
      * @param  Collection<int, Server>  $servers
      * @return array<int, array<int, array{cpu: float, ram: float}>>
      */
-    private function history($servers): array
+    private function history($servers, int $minutes): array
     {
-        return ServerMetric::query()
+        $bucket = match (true) {
+            $minutes <= 60 => 60,
+            $minutes <= 360 => 300,
+            default => 900,
+        };
+
+        $epoch = DB::connection()->getDriverName() === 'sqlite'
+            ? "CAST(strftime('%s', collected_at) AS INTEGER)"
+            : "TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', collected_at)";
+
+        return DB::table('server_metrics')
             ->whereIn('server_id', $servers->pluck('id'))
-            ->where('collected_at', '>=', now()->subMinutes(self::HISTORY_MINUTES))
-            ->orderBy('collected_at')
-            ->get(['server_id', 'cpu_percent', 'memory_total', 'memory_used'])
+            ->where('collected_at', '>=', now()->subMinutes($minutes))
+            ->selectRaw("server_id, ({$epoch}) - (({$epoch}) % {$bucket}) AS bucket")
+            ->selectRaw('AVG(cpu_percent) AS cpu, AVG(memory_used * 100.0 / NULLIF(memory_total, 0)) AS ram')
             ->groupBy('server_id')
-            ->map(fn ($rows) => $rows->map(fn (ServerMetric $row) => [
-                'cpu' => (float) $row->cpu_percent,
-                'ram' => $row->memory_total > 0 ? round($row->memory_used / $row->memory_total * 100, 1) : 0,
+            ->groupByRaw('bucket')
+            ->orderBy('bucket')
+            ->get()
+            ->groupBy('server_id')
+            ->map(fn ($rows) => $rows->map(fn ($row) => [
+                'cpu' => round((float) $row->cpu, 1),
+                'ram' => round((float) $row->ram, 1),
             ])->values())
             ->all();
     }
@@ -218,18 +230,20 @@ class DashboardController extends Controller
      * The newest serious entries from the logs of the servers (agent only).
      *
      * @param  Collection<int, Server>  $servers
+     * @param  array{limit: int, hours: int, level: string}  $options
      * @return Collection<int, array<string, mixed>>
      */
-    private function recentLogs($servers)
+    private function recentLogs($servers, array $options)
     {
         $names = $servers->pluck('name', 'id');
 
         return ServerLog::query()
             ->open()
             ->whereIn('server_id', $servers->pluck('id'))
-            ->where('occurred_at', '>=', now()->subHours(self::ERROR_HOURS))
+            ->where('occurred_at', '>=', now()->subHours($options['hours']))
+            ->when($options['level'] === 'critical', fn ($query) => $query->where('level', 'critical'))
             ->orderByDesc('occurred_at')
-            ->limit(10)
+            ->limit($options['limit'])
             ->get()
             ->map(fn (ServerLog $log) => [
                 'id' => $log->id,
@@ -245,17 +259,18 @@ class DashboardController extends Controller
 
     /**
      * @param  Collection<int, Server>  $servers
+     * @param  array{limit: int, hours: int}  $options
      * @return Collection<int, array<string, mixed>>
      */
-    private function recentErrors($servers)
+    private function recentErrors($servers, array $options)
     {
         $names = $servers->pluck('name', 'id');
 
         return ServerError::query()
             ->whereIn('server_id', $servers->pluck('id'))
-            ->where('occurred_at', '>=', now()->subHours(self::ERROR_HOURS))
+            ->where('occurred_at', '>=', now()->subHours($options['hours']))
             ->latest('occurred_at')
-            ->limit(10)
+            ->limit($options['limit'])
             ->get()
             ->map(fn (ServerError $error) => [
                 'id' => $error->id,

@@ -23,7 +23,16 @@ export type DashboardSettings = {
         group_by_category: boolean;
         metrics: DashboardMetricId[];
         show_history: boolean;
+        layout: 'grid' | 'list';
+        columns: 0 | 1 | 2 | 3 | 4;
+        history_minutes: 60 | 360 | 1440;
     };
+    logs: {
+        limit: 5 | 10 | 20;
+        hours: 6 | 24 | 168;
+        level: 'error' | 'critical';
+    };
+    errors: { limit: 5 | 10 | 20; hours: 6 | 24 | 168 };
     thresholds: DashboardThresholds;
     refresh_seconds: number;
 };

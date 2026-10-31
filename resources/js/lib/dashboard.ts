@@ -283,3 +283,23 @@ export function timeAgo(iso: string, now: string, locale: string): string {
 
     return formatter.format(Math.round(seconds / 86400), 'day');
 }
+
+/** The name of a period of the dashboard lists, from their length in hours. */
+export function periodLabel(hours: number, t: Translate): string {
+    if (hours <= 6) {
+        return t('Last 6 hours');
+    }
+
+    return hours >= 168 ? t('Last 7 days') : t('Last 24 hours');
+}
+
+/** The name of the range of the small charts, from its length in minutes. */
+export function historyLabel(minutes: number, t: Translate): string {
+    if (minutes >= 1440) {
+        return t('CPU in the last 24 hours');
+    }
+
+    return minutes >= 360
+        ? t('CPU in the last 6 hours')
+        : t('CPU in the last hour');
+}

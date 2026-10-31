@@ -41,6 +41,41 @@ type Props = {
 
 const THRESHOLD_KEYS = ['cpu', 'ram', 'disk'] as const;
 
+function Choice({
+    id,
+    label,
+    value,
+    options,
+    onChange,
+}: {
+    id: string;
+    label: string;
+    value: string | number;
+    options: [string | number, string][];
+    onChange: (value: string) => void;
+}) {
+    return (
+        <div className="grid gap-2">
+            <Label htmlFor={id}>{label}</Label>
+            <Select value={String(value)} onValueChange={onChange}>
+                <SelectTrigger id={id} className="w-full">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent avoidCollisions>
+                    {options.map(([optionValue, optionLabel]) => (
+                        <SelectItem
+                            key={optionValue}
+                            value={String(optionValue)}
+                        >
+                            {optionLabel}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+    );
+}
+
 function Form({
     settings,
     onClose,
@@ -83,6 +118,26 @@ function Form({
             ...current,
             servers: { ...current.servers, ...patch },
         }));
+
+    const setList = (
+        key: 'logs' | 'errors',
+        patch: Partial<DashboardSettings['logs'] & DashboardSettings['errors']>,
+    ) =>
+        setDraft((current) => ({
+            ...current,
+            [key]: { ...current[key], ...patch },
+        }));
+
+    const limitOptions: [number, string][] = [5, 10, 20].map((count) => [
+        count,
+        t(':count entries', { count }),
+    ]);
+
+    const hoursOptions: [number, string][] = [
+        [6, t('Last 6 hours')],
+        [24, t('Last 24 hours')],
+        [168, t('Last 7 days')],
+    ];
 
     const moveWidget = (index: number, delta: number) =>
         setDraft((current) => {
@@ -231,7 +286,7 @@ function Form({
                             <SelectTrigger id="sort" className="w-full">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent avoidCollisions>
                                 {Object.entries(sortLabel).map(
                                     ([value, label]) => (
                                         <SelectItem key={value} value={value}>
@@ -257,7 +312,7 @@ function Form({
                             <SelectTrigger id="density" className="w-full">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent avoidCollisions>
                                 <SelectItem value="comfortable">
                                     {t('Detailed')}
                                 </SelectItem>
@@ -267,6 +322,43 @@ function Form({
                             </SelectContent>
                         </Select>
                     </div>
+
+                    <Choice
+                        id="layout"
+                        label={t('Layout')}
+                        value={draft.servers.layout}
+                        options={[
+                            ['grid', t('Cards')],
+                            ['list', t('List')],
+                        ]}
+                        onChange={(value) =>
+                            setServers({
+                                layout: value as DashboardSettings['servers']['layout'],
+                            })
+                        }
+                    />
+
+                    {draft.servers.layout === 'grid' && (
+                        <Choice
+                            id="columns"
+                            label={t('Columns')}
+                            value={draft.servers.columns}
+                            options={[
+                                [0, t('Automatic')],
+                                [1, t(':count column', { count: 1 })],
+                                [2, t(':count columns', { count: 2 })],
+                                [3, t(':count columns', { count: 3 })],
+                                [4, t(':count columns', { count: 4 })],
+                            ]}
+                            onChange={(value) =>
+                                setServers({
+                                    columns: Number(
+                                        value,
+                                    ) as DashboardSettings['servers']['columns'],
+                                })
+                            }
+                        />
+                    )}
 
                     <div className="flex items-center gap-3">
                         <Checkbox
@@ -292,9 +384,29 @@ function Form({
                             }
                         />
                         <Label htmlFor="history" className="font-normal">
-                            {t('Show the CPU chart of the last hour')}
+                            {t('Show the CPU chart')}
                         </Label>
                     </div>
+
+                    {draft.servers.show_history && (
+                        <Choice
+                            id="history-range"
+                            label={t('Chart range')}
+                            value={draft.servers.history_minutes}
+                            options={[
+                                [60, t('Last hour')],
+                                [360, t('Last 6 hours')],
+                                [1440, t('Last 24 hours')],
+                            ]}
+                            onChange={(value) =>
+                                setServers({
+                                    history_minutes: Number(
+                                        value,
+                                    ) as DashboardSettings['servers']['history_minutes'],
+                                })
+                            }
+                        />
+                    )}
 
                     <div className="space-y-2">
                         <p className="text-sm">{t('Shown on each card')}</p>
@@ -382,6 +494,82 @@ function Form({
                 </section>
 
                 <section className="space-y-3">
+                    <h3 className="text-sm font-medium">{t('Server logs')}</h3>
+                    <Choice
+                        id="logs-level"
+                        label={t('Show')}
+                        value={draft.logs.level}
+                        options={[
+                            ['error', t('Errors and critical')],
+                            ['critical', t('Only critical')],
+                        ]}
+                        onChange={(value) =>
+                            setList('logs', {
+                                level: value as DashboardSettings['logs']['level'],
+                            })
+                        }
+                    />
+                    <Choice
+                        id="logs-limit"
+                        label={t('Number of entries')}
+                        value={draft.logs.limit}
+                        options={limitOptions}
+                        onChange={(value) =>
+                            setList('logs', {
+                                limit: Number(
+                                    value,
+                                ) as DashboardSettings['logs']['limit'],
+                            })
+                        }
+                    />
+                    <Choice
+                        id="logs-hours"
+                        label={t('Period')}
+                        value={draft.logs.hours}
+                        options={hoursOptions}
+                        onChange={(value) =>
+                            setList('logs', {
+                                hours: Number(
+                                    value,
+                                ) as DashboardSettings['logs']['hours'],
+                            })
+                        }
+                    />
+                </section>
+
+                <section className="space-y-3">
+                    <h3 className="text-sm font-medium">
+                        {t('Collection errors')}
+                    </h3>
+                    <Choice
+                        id="errors-limit"
+                        label={t('Number of entries')}
+                        value={draft.errors.limit}
+                        options={limitOptions}
+                        onChange={(value) =>
+                            setList('errors', {
+                                limit: Number(
+                                    value,
+                                ) as DashboardSettings['errors']['limit'],
+                            })
+                        }
+                    />
+                    <Choice
+                        id="errors-hours"
+                        label={t('Period')}
+                        value={draft.errors.hours}
+                        options={hoursOptions}
+                        onChange={(value) =>
+                            setList('errors', {
+                                hours: Number(
+                                    value,
+                                ) as DashboardSettings['errors']['hours'],
+                            })
+                        }
+                    />
+                </section>
+
+                <section className="space-y-3">
                     <h3 className="text-sm font-medium">{t('Refresh')}</h3>
                     <Select
                         value={String(draft.refresh_seconds)}
@@ -398,7 +586,7 @@ function Form({
                         >
                             <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent avoidCollisions>
                             <SelectItem value="15">
                                 {t('Every 15 seconds')}
                             </SelectItem>
@@ -493,7 +681,7 @@ export default function CustomizeSheet({
                                             )}
                                         />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent avoidCollisions>
                                         {otherDevices.map((other) => (
                                             <SelectItem
                                                 key={other.id}

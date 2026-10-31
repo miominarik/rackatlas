@@ -18,6 +18,20 @@ class DashboardSettings
 
     public const REFRESH_SECONDS = [0, 15, 30, 60];
 
+    public const LAYOUTS = ['grid', 'list'];
+
+    /** Number of card columns, 0 lets the screen width decide. */
+    public const COLUMNS = [0, 1, 2, 3, 4];
+
+    public const HISTORY_MINUTES = [60, 360, 1440];
+
+    public const LIST_LIMITS = [5, 10, 20];
+
+    public const LIST_HOURS = [6, 24, 168];
+
+    /** The lowest level shown in the log list: "error" shows errors and critical, "critical" only critical. */
+    public const LOG_LEVELS = ['error', 'critical'];
+
     /**
      * @return array<string, mixed>
      */
@@ -31,7 +45,12 @@ class DashboardSettings
                 'group_by_category' => false,
                 'metrics' => self::METRICS,
                 'show_history' => true,
+                'layout' => 'grid',
+                'columns' => 0,
+                'history_minutes' => 60,
             ],
+            'logs' => ['limit' => 10, 'hours' => 24, 'level' => 'error'],
+            'errors' => ['limit' => 10, 'hours' => 24],
             'thresholds' => [
                 'cpu' => ['warn' => 80, 'critical' => 95],
                 'ram' => ['warn' => 85, 'critical' => 95],
@@ -66,6 +85,18 @@ class DashboardSettings
 
         $servers = array_replace($defaults['servers'], array_intersect_key($saved['servers'] ?? [], $defaults['servers']));
         $servers['metrics'] = array_values(array_intersect(self::METRICS, (array) $servers['metrics']));
+        $servers['layout'] = self::pick($servers['layout'], self::LAYOUTS, $defaults['servers']['layout']);
+        $servers['columns'] = self::pick($servers['columns'], self::COLUMNS, $defaults['servers']['columns']);
+        $servers['history_minutes'] = self::pick($servers['history_minutes'], self::HISTORY_MINUTES, $defaults['servers']['history_minutes']);
+
+        $logs = array_replace($defaults['logs'], array_intersect_key($saved['logs'] ?? [], $defaults['logs']));
+        $logs['limit'] = self::pick($logs['limit'], self::LIST_LIMITS, $defaults['logs']['limit']);
+        $logs['hours'] = self::pick($logs['hours'], self::LIST_HOURS, $defaults['logs']['hours']);
+        $logs['level'] = self::pick($logs['level'], self::LOG_LEVELS, $defaults['logs']['level']);
+
+        $errors = array_replace($defaults['errors'], array_intersect_key($saved['errors'] ?? [], $defaults['errors']));
+        $errors['limit'] = self::pick($errors['limit'], self::LIST_LIMITS, $defaults['errors']['limit']);
+        $errors['hours'] = self::pick($errors['hours'], self::LIST_HOURS, $defaults['errors']['hours']);
 
         $thresholds = $defaults['thresholds'];
         foreach ($thresholds as $key => $pair) {
@@ -81,10 +112,20 @@ class DashboardSettings
         return [
             'widgets' => array_values($widgets),
             'servers' => $servers,
+            'logs' => $logs,
+            'errors' => $errors,
             'thresholds' => $thresholds,
             'refresh_seconds' => in_array($saved['refresh_seconds'] ?? null, self::REFRESH_SECONDS, true)
                 ? $saved['refresh_seconds']
                 : $defaults['refresh_seconds'],
         ];
+    }
+
+    /**
+     * @param  array<int, int|string>  $allowed
+     */
+    private static function pick(mixed $value, array $allowed, int|string $default): int|string
+    {
+        return in_array($value, $allowed, true) ? $value : $default;
     }
 }

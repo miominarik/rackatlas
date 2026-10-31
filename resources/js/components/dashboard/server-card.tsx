@@ -6,6 +6,7 @@ import {
     diskPercent,
     formatBytes,
     formatUptime,
+    historyLabel,
     levelDot,
     memoryPercent,
     timeAgo,
@@ -167,7 +168,10 @@ export default function ServerCard({
                             {settings.servers.show_history && (
                                 <Sparkline
                                     values={history.map((point) => point.cpu)}
-                                    label={t('CPU in the last hour')}
+                                    label={historyLabel(
+                                        settings.servers.history_minutes,
+                                        t,
+                                    )}
                                 />
                             )}
                         </div>

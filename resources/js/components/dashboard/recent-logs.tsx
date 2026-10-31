@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@/hooks/use-translation';
-import { timeAgo } from '@/lib/dashboard';
+import { periodLabel, timeAgo } from '@/lib/dashboard';
 import { cn } from '@/lib/utils';
 import { index } from '@/routes/logs';
 import type { DashboardLog } from '@/types';
@@ -13,16 +13,23 @@ export const levelStyle = {
 export default function RecentLogs({
     logs,
     generatedAt,
+    hours,
 }: {
     logs: DashboardLog[];
     generatedAt: string;
+    hours: number;
 }) {
     const { t, locale } = useTranslation();
 
     return (
         <section aria-label={t('Server logs')} className="space-y-2">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium">{t('Server logs')}</h2>
+                <h2 className="text-sm font-medium">
+                    {t('Server logs')}{' '}
+                    <span className="text-xs font-normal text-muted-foreground">
+                        {periodLabel(hours, t)}
+                    </span>
+                </h2>
                 <Link
                     href={index()}
                     className="text-xs text-muted-foreground underline-offset-4 hover:underline"
@@ -32,7 +39,7 @@ export default function RecentLogs({
             </div>
             {logs.length === 0 ? (
                 <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                    {t('No serious log entries in the last 24 hours.')}
+                    {t('No serious log entries in this period.')}
                 </p>
             ) : (
                 <ul className="divide-y overflow-hidden rounded-xl border bg-card">
