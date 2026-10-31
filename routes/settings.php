@@ -78,7 +78,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('invitations/{invitation}', [TeamInvitationController::class, 'destroy'])->name('teams.invitations.destroy');
     });
 
-    Route::get('app/invitations/{token}', AcceptTeamInvitationController::class)->name('team-invitations.accept');
+    Route::get('app/invitations/{token}', [AcceptTeamInvitationController::class, 'show'])->name('team-invitations.show');
+    Route::post('app/invitations/{token}', [AcceptTeamInvitationController::class, 'accept'])->name('team-invitations.accept');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

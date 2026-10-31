@@ -105,8 +105,23 @@ class ServerController extends Controller
                 'auth_type' => $server->auth_type->value,
                 'ssh_key_id' => $server->ssh_key_id,
                 'server_category_id' => $server->server_category_id,
+                'ssh_host_fingerprint' => $server->ssh_host_fingerprint,
             ],
         ]);
+    }
+
+    /**
+     * Forget the pinned host key, after the server was reinstalled. The next connection pins the new one.
+     */
+    public function forgetHostKey(Server $server): RedirectResponse
+    {
+        $this->authorize('manage', $server->team);
+
+        $server->forceFill(['ssh_host_fingerprint' => null])->save();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('The stored host key was reset.')]);
+
+        return back();
     }
 
     /**
@@ -118,6 +133,10 @@ class ServerController extends Controller
 
         if ($attributes['auth_type'] === ServerAuthType::Password->value && empty($attributes['password'])) {
             unset($attributes['password']);
+        }
+
+        if ($server->host !== $attributes['host'] || (int) $server->port !== (int) $attributes['port']) {
+            $server->ssh_host_fingerprint = null;
         }
 
         $server->update($attributes);

@@ -8,6 +8,11 @@ use Illuminate\Validation\Rule;
 
 class StoreTeamInvitationRequest extends FormRequest
 {
+    public function authorize(): bool
+    {
+        return $this->user()->can('manage', $this->route('team'));
+    }
+
     /**
      * @return array<string, array<int, mixed>>
      */

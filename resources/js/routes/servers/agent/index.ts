@@ -106,7 +106,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:46
+* @see app/Http/Controllers/Servers/ServerAgentController.php:44
 * @route '/app/servers/{server}/agent/token'
 */
 export const rotate = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -121,7 +121,7 @@ rotate.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:46
+* @see app/Http/Controllers/Servers/ServerAgentController.php:44
 * @route '/app/servers/{server}/agent/token'
 */
 rotate.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -154,7 +154,7 @@ rotate.url = (args: { server: number | { id: number } } | [server: number | { id
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:46
+* @see app/Http/Controllers/Servers/ServerAgentController.php:44
 * @route '/app/servers/{server}/agent/token'
 */
 rotate.post = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -164,7 +164,7 @@ rotate.post = (args: { server: number | { id: number } } | [server: number | { i
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:46
+* @see app/Http/Controllers/Servers/ServerAgentController.php:44
 * @route '/app/servers/{server}/agent/token'
 */
 const rotateForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -174,7 +174,7 @@ const rotateForm = (args: { server: number | { id: number } } | [server: number 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:46
+* @see app/Http/Controllers/Servers/ServerAgentController.php:44
 * @route '/app/servers/{server}/agent/token'
 */
 rotateForm.post = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

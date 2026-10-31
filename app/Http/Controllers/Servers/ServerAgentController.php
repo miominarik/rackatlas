@@ -30,9 +30,7 @@ class ServerAgentController extends Controller
                 'last_seen_at' => $server->last_seen_at?->toIso8601String(),
                 'agent_version' => $server->agent_version,
             ],
-            'install_command' => $token
-                ? "curl -fsSL {$base}/agent/install.sh | sudo bash -s -- --url {$base} --token {$token}"
-                : null,
+            'install_command' => $token ? $this->installCommand($base, $token) : null,
             'manual_command' => $token ? $this->manualCommand($base, $token) : null,
             'update_command' => 'sudo apt update && sudo apt install --only-upgrade rackatlas-agent',
             'base_url' => $base,
@@ -52,6 +50,16 @@ class ServerAgentController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('A new token was created. The old one no longer works.')]);
 
         return to_route('servers.agent.show', $server);
+    }
+
+    /** Pass the token through standard input instead of exposing it in process arguments. */
+    private function installCommand(string $base, string $token): string
+    {
+        return sprintf(<<<'SH'
+        sudo bash -c 'set -euo pipefail; read -r RACKATLAS_TOKEN; export RACKATLAS_TOKEN; curl -fsSL "$1/agent/install.sh" | bash -s -- --url "$1"' -- %s <<'RACKATLAS_TOKEN'
+        %s
+        RACKATLAS_TOKEN
+        SH, escapeshellarg($base), $token);
     }
 
     /**

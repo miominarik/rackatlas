@@ -21,15 +21,17 @@ class TeamInvitationController extends Controller
     {
         $this->authorize('manage', $team);
 
+        $token = TeamInvitation::newToken();
+
         $invitation = $team->invitations()->create([
             ...$request->validated(),
             'email' => Str::lower($request->validated('email')),
-            'token' => Str::random(64),
+            'token' => TeamInvitation::hashToken($token),
             'invited_by' => $request->user()->id,
             'expires_at' => now()->addDays(TeamInvitation::VALID_DAYS),
         ]);
 
-        Mail::to($invitation->email)->send(new TeamInvitationMail($invitation));
+        Mail::to($invitation->email)->send(new TeamInvitationMail($invitation, $token));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Invitation sent.')]);
 
@@ -43,12 +45,14 @@ class TeamInvitationController extends Controller
     {
         $this->authorize('manage', $team);
 
+        $token = TeamInvitation::newToken();
+
         $invitation->update([
-            'token' => Str::random(64),
+            'token' => TeamInvitation::hashToken($token),
             'expires_at' => now()->addDays(TeamInvitation::VALID_DAYS),
         ]);
 
-        Mail::to($invitation->email)->send(new TeamInvitationMail($invitation));
+        Mail::to($invitation->email)->send(new TeamInvitationMail($invitation, $token));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Invitation sent again.')]);
 

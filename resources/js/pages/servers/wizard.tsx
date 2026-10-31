@@ -1,4 +1,4 @@
-import { Head, Link, useForm, useHttp } from '@inertiajs/react';
+import { Head, Link, router, useForm, useHttp } from '@inertiajs/react';
 import {
     Check,
     CheckCircle2,
@@ -744,6 +744,37 @@ export default function ServerWizard({
                                                 {!testResult.success &&
                                                     ` ${t('You can still save the server and fix this later.')}`}
                                             </span>
+                                        </div>
+                                    )}
+
+                                    {server?.ssh_host_fingerprint && (
+                                        <div className="space-y-2 rounded-lg border p-3 text-sm">
+                                            <p className="text-muted-foreground">
+                                                {t(
+                                                    'The host key of this server is pinned. If the server was reinstalled, reset it and the next connection pins the new one.',
+                                                )}
+                                            </p>
+                                            <code className="block text-xs break-all">
+                                                {server.ssh_host_fingerprint}
+                                            </code>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    router.delete(
+                                                        ServerController.forgetHostKey.url(
+                                                            server.id,
+                                                        ),
+                                                        {
+                                                            preserveScroll: true,
+                                                        },
+                                                    )
+                                                }
+                                                data-test="forget-host-key-button"
+                                            >
+                                                {t('Reset host key')}
+                                            </Button>
                                         </div>
                                     )}
                                 </div>

@@ -23,6 +23,8 @@ class TrackDevice
 
     public const ATTRIBUTE = 'device';
 
+    private const SESSION_KEY = 'ra_device_id';
+
     private const TOUCH_AFTER_MINUTES = 5;
 
     private const LIFETIME_MINUTES = 60 * 24 * 365 * 5;
@@ -36,7 +38,9 @@ class TrackDevice
         }
 
         $token = $request->cookie(self::COOKIE);
-        $device = is_string($token) && $token !== ''
+        $deviceId = $request->session()->get(self::SESSION_KEY);
+        $device = is_int($deviceId) ? $user->devices()->find($deviceId) : null;
+        $device ??= is_string($token) && $token !== ''
             ? $user->devices()->where('token_hash', UserDevice::hashToken($token))->first()
             : null;
 
@@ -51,6 +55,7 @@ class TrackDevice
         }
 
         $request->attributes->set(self::ATTRIBUTE, $device);
+        $request->session()->put(self::SESSION_KEY, $device->id);
 
         return $next($request);
     }
@@ -113,7 +118,7 @@ class TrackDevice
 
     private function signOut(Request $request): Response
     {
-        Auth::guard('web')->logout();
+        Auth::guard('web')->logoutCurrentDevice();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

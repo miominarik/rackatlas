@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\PushSubscription;
+use App\Notifications\Channels\WebPushChannel;
+use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +21,11 @@ class PushSubscriptionController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'endpoint' => ['required', 'url:https', 'max:2000'],
+            'endpoint' => ['bail', 'required', 'url:https', 'max:2000', function (string $attribute, mixed $value, Closure $fail): void {
+                if (! WebPushChannel::allowsEndpoint($value)) {
+                    $fail(__('The push notification provider is not supported.'));
+                }
+            }],
             'keys.p256dh' => ['required', 'string', 'max:255'],
             'keys.auth' => ['required', 'string', 'max:255'],
             'contentEncoding' => ['nullable', 'in:aes128gcm,aesgcm'],

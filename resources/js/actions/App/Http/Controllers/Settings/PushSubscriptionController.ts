@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::store
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:19
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:21
 * @route '/app/settings/notifications/push'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::store
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:19
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:21
 * @route '/app/settings/notifications/push'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::store
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:19
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:21
 * @route '/app/settings/notifications/push'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::store
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:19
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:21
 * @route '/app/settings/notifications/push'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::store
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:19
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:21
 * @route '/app/settings/notifications/push'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:50
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:56
 * @route '/app/settings/notifications/push/{subscription}'
 */
 export const destroy = (args: { subscription: number | { id: number } } | [subscription: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -72,7 +72,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:50
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:56
 * @route '/app/settings/notifications/push/{subscription}'
 */
 destroy.url = (args: { subscription: number | { id: number } } | [subscription: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ destroy.url = (args: { subscription: number | { id: number } } | [subscription: 
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:50
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:56
 * @route '/app/settings/notifications/push/{subscription}'
 */
 destroy.delete = (args: { subscription: number | { id: number } } | [subscription: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -115,7 +115,7 @@ destroy.delete = (args: { subscription: number | { id: number } } | [subscriptio
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:50
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:56
 * @route '/app/settings/notifications/push/{subscription}'
 */
 const destroyForm = (args: { subscription: number | { id: number } } | [subscription: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -130,7 +130,7 @@ const destroyForm = (args: { subscription: number | { id: number } } | [subscrip
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
-* @see app/Http/Controllers/Settings/PushSubscriptionController.php:50
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:56
 * @route '/app/settings/notifications/push/{subscription}'
 */
 destroyForm.delete = (args: { subscription: number | { id: number } } | [subscription: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

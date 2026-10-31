@@ -65,6 +65,7 @@ class PushDiagnostics
     public function connectivity(User $user): array
     {
         $hosts = $user->pushSubscriptions()->get()
+            ->filter(fn ($d) => WebPushChannel::allowsEndpoint($d->endpoint))
             ->map(fn ($d) => (string) parse_url($d->endpoint, PHP_URL_HOST))
             ->filter()->unique()->values()->all() ?: ['fcm.googleapis.com'];
 
@@ -72,7 +73,7 @@ class PushDiagnostics
             $started = microtime(true);
 
             try {
-                $response = Http::timeout(6)->withoutVerifying(false)->get("https://{$host}/");
+                $response = Http::connectTimeout(3)->timeout(6)->withoutRedirecting()->get("https://{$host}/");
 
                 return ['host' => $host, 'ok' => true, 'detail' => 'HTTP '.$response->status().' in '.round((microtime(true) - $started) * 1000).' ms'];
             } catch (Throwable $e) {

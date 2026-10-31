@@ -47,6 +47,7 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
         ->name('servers.agent.rotate');
     Route::get('servers/{server}/edit', [ServerController::class, 'edit'])->name('servers.edit');
     Route::put('servers/{server}', [ServerController::class, 'update'])->name('servers.update');
+    Route::delete('servers/{server}/host-key', [ServerController::class, 'forgetHostKey'])->name('servers.host-key.destroy');
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
 
     Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');

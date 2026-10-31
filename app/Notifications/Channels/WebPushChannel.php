@@ -15,6 +15,29 @@ use Throwable;
  */
 class WebPushChannel
 {
+    /** Only browser push providers may receive notification credentials and payloads. */
+    public static function allowsEndpoint(string $endpoint): bool
+    {
+        if (filter_var($endpoint, FILTER_VALIDATE_URL) === false) {
+            return false;
+        }
+
+        $url = parse_url($endpoint);
+
+        if (($url['scheme'] ?? '') !== 'https'
+            || isset($url['user']) || isset($url['pass'])
+            || isset($url['fragment']) || ($url['port'] ?? 443) !== 443) {
+            return false;
+        }
+
+        $host = strtolower($url['host'] ?? '');
+
+        return $host === 'fcm.googleapis.com'
+            || $host === 'updates.push.services.mozilla.com'
+            || str_ends_with($host, '.push.apple.com')
+            || str_ends_with($host, '.notify.windows.com');
+    }
+
     public static function configured(): bool
     {
         return filled(config('services.webpush.public_key')) && filled(config('services.webpush.private_key'));
@@ -48,7 +71,9 @@ class WebPushChannel
             return [];
         }
 
-        $subscriptions = $notifiable->pushSubscriptions()->get()->keyBy(fn (PushSubscription $s) => $s->endpoint);
+        $subscriptions = $notifiable->pushSubscriptions()->get()
+            ->filter(fn (PushSubscription $s) => self::allowsEndpoint($s->endpoint))
+            ->keyBy(fn (PushSubscription $s) => $s->endpoint);
 
         if ($subscriptions->isEmpty()) {
             return [];
@@ -62,7 +87,11 @@ class WebPushChannel
                 'publicKey' => config('services.webpush.public_key'),
                 'privateKey' => config('services.webpush.private_key'),
             ],
-        ], ['TTL' => 3600, 'urgency' => 'high'], new Client(['timeout' => 10, 'connect_timeout' => 5]));
+        ], ['TTL' => 3600, 'urgency' => 'high'], new Client([
+            'timeout' => 10,
+            'connect_timeout' => 5,
+            'allow_redirects' => false,
+        ]));
 
         foreach ($subscriptions as $subscription) {
             $webPush->queueNotification(Subscription::create([

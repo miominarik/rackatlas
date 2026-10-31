@@ -46,6 +46,17 @@ if [ -z "$DRY_RUN" ] && { [ -z "$URL" ] || [ -z "$TOKEN" ]; }; then
   exit 2
 fi
 
+if [ -z "$DRY_RUN" ]; then
+  case "$URL" in
+    https://*) ;;
+    *) echo 'rackatlas-agent: URL must use HTTPS' >&2; exit 2 ;;
+  esac
+  printf '%s\n' "$TOKEN" | grep -Eq '^ra_[A-Za-z0-9]{40}$' || {
+    echo 'rackatlas-agent: invalid token format' >&2
+    exit 2
+  }
+fi
+
 mkdir -p "$STATE_DIR" 2>/dev/null || true
 TMP="$(mktemp)" || exit 1
 trap 'rm -f "$TMP" "$TMP.out" "$TMP.proc" "$TMP.proc-base" "$TMP".cursor-*' EXIT
@@ -234,9 +245,9 @@ if [ -n "$DRY_RUN" ]; then
   exit 0
 fi
 
-status="$(curl -sS -o "$TMP.out" -w '%{http_code}' --max-time 25 --retry 2 --retry-delay 2 \
+status="$(printf 'Authorization: Bearer %s\n' "$TOKEN" | curl -sS -o "$TMP.out" -w '%{http_code}' --max-time 25 --retry 2 --retry-delay 2 \
   -X POST \
-  -H "Authorization: Bearer $TOKEN" \
+  -H @- \
   -H "X-Agent-Version: $VERSION" \
   -H 'Content-Type: text/plain' \
   --data-binary @"$TMP" \

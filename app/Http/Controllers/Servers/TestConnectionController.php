@@ -23,10 +23,13 @@ class TestConnectionController extends Controller
         $usesPassword = $data['auth_type'] === ServerAuthType::Password->value;
         $password = $data['password'] ?? null;
         $key = null;
+        $stored = ! empty($data['server_id'])
+            ? Server::where('team_id', $team->id)->find($data['server_id'])
+            : null;
 
         if ($usesPassword) {
             if (blank($password) && ! empty($data['server_id'])) {
-                $password = Server::where('team_id', $team->id)->find($data['server_id'])?->password;
+                $password = $stored?->password;
             }
 
             if (blank($password)) {
@@ -40,6 +43,10 @@ class TestConnectionController extends Controller
             }
         }
 
-        return response()->json($tester->test($data['host'], (int) $data['port'], $data['username'], $password, $key));
+        $pinned = $stored !== null && $stored->host === $data['host'] && (int) $stored->port === (int) $data['port']
+            ? $stored->ssh_host_fingerprint
+            : null;
+
+        return response()->json($tester->test($data['host'], (int) $data['port'], $data['username'], $password, $key, $pinned));
     }
 }

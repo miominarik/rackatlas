@@ -38,7 +38,6 @@ URL="${URL%/}"
 
 case "$URL" in
   https://*) ;;
-  http://localhost*|http://127.0.0.1*) ;;
   http://*) fail "The address has to start with https:// so the token is not sent in plain text." ;;
   *) fail "The address has to start with https://" ;;
 esac

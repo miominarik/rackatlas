@@ -5,6 +5,7 @@ namespace App\Services\Ssh;
 use App\Enums\ServerAuthType;
 use App\Enums\ServerErrorType;
 use App\Enums\ServerStatus;
+use App\Exceptions\HostKeyMismatchException;
 use App\Exceptions\MetricsCollectionException;
 use App\Models\Server;
 use App\Models\ServerMetric;
@@ -73,10 +74,15 @@ class ServerMetricsCollector
         $credential = $this->credential($server);
 
         try {
-            $ssh = new SSH2($server->host, $server->port, self::CONNECT_TIMEOUT);
+            $ssh = new SSH2(PublicHost::resolve($server->host), $server->port, self::CONNECT_TIMEOUT);
             $ssh->setTimeout(self::COMMAND_TIMEOUT);
 
+            $fingerprint = HostKeyVerifier::fingerprint($ssh);
+            HostKeyVerifier::assertTrusted($server->ssh_host_fingerprint, $fingerprint);
+
             $loggedIn = $ssh->login($server->username, $credential);
+        } catch (HostKeyMismatchException $e) {
+            throw new MetricsCollectionException(ServerErrorType::Connection, $e->getMessage());
         } catch (Throwable $e) {
             throw new MetricsCollectionException(
                 ServerErrorType::Connection,
@@ -91,6 +97,10 @@ class ServerMetricsCollector
                     ? __('The server rejected the SSH key.', [], 'en')
                     : __('Authentication failed. Check the username and password.', [], 'en'),
             );
+        }
+
+        if ($server->ssh_host_fingerprint === null) {
+            $server->forceFill(['ssh_host_fingerprint' => $fingerprint])->save();
         }
 
         try {

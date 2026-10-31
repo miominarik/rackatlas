@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
  * @property string $name
  * @property string $host
  * @property int $port
+ * @property string|null $ssh_host_fingerprint
  * @property string $username
  * @property ServerAuthType $auth_type
  * @property string|null $password

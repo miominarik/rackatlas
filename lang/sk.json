@@ -645,6 +645,7 @@
     "The SSH key could not be used.": "SSH kľúč sa nepodarilo použiť.",
     "The connection test could not be run.": "Test pripojenia sa nepodarilo spustiť.",
     "The password is stored encrypted.": "Heslo sa ukladá zašifrované.",
+    "The push notification provider is not supported.": "Tento poskytovateľ push notifikácií nie je podporovaný.",
     "The server rejected the SSH key. Add the public key to ~/.ssh/authorized_keys of this user.": "Server odmietol SSH kľúč. Pridajte verejný kľúč do ~/.ssh/authorized_keys tohto používateľa.",
     "The username cannot contain spaces.": "Používateľské meno nesmie obsahovať medzery.",
     "This field is required.": "Toto pole je povinné.",
@@ -800,5 +801,10 @@
     "What does the installer do?": "Čo robí inštalátor?",
     "What is it called?": "Ako sa volá?",
     "When a server with the agent logs an error, it shows up here.": "Keď server s agentom zapíše chybu, zobrazí sa tu.",
-    "Your teams, their members and invitations": "Vaše tímy, ich členovia a pozvánky"
+    "Your teams, their members and invitations": "Vaše tímy, ich členovia a pozvánky",
+    "Team invitation": "Pozvánka do tímu",
+    "The host key of the server has changed. If the server was reinstalled, reset the stored host key; otherwise someone may be impersonating it.": "Hostiteľský kľúč servera sa zmenil. Ak sa server preinštaloval, resetujte uložený kľúč, inak sa za server môže vydávať niekto iný.",
+    "The stored host key was reset.": "Uložený hostiteľský kľúč bol resetovaný.",
+    "The host key of this server is pinned. If the server was reinstalled, reset it and the next connection pins the new one.": "Hostiteľský kľúč tohto servera je pripnutý. Ak sa server preinštaloval, resetujte ho a ďalšie pripojenie pripne nový.",
+    "Reset host key": "Resetovať hostiteľský kľúč"
 }

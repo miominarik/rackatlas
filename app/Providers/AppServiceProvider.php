@@ -74,8 +74,19 @@ class AppServiceProvider extends ServiceProvider
             $key = $user ? 'user|'.$user->getAuthIdentifier() : 'ip|'.$request->ip();
             $write = ! $request->isMethodSafe();
 
-            return Limit::perMinute($user ? ($write ? 120 : 300) : ($write ? 30 : 120))
-                ->by('web-'.($write ? 'write' : 'read').'|'.$key);
+            $limits = [
+                Limit::perMinute($user ? ($write ? 120 : 300) : ($write ? 30 : 120))
+                    ->by('web-'.($write ? 'write' : 'read').'|'.$key),
+            ];
+
+            if ($write && $request->routeIs(
+                'password.confirm.store', 'profile.destroy', 'two-factor.confirm',
+                'teams.invitations.store', 'ssh-keys.store', 'teams.store', 'servers.store',
+            )) {
+                $limits[] = Limit::perMinute(6)->by('sensitive|'.$request->route()->getName().'|'.$key);
+            }
+
+            return $limits;
         });
     }
 }

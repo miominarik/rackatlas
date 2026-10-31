@@ -1,25 +1,25 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
-* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::__invoke
-* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:16
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::show
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:18
 * @route '/app/invitations/{token}'
 */
-const AcceptTeamInvitationController = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: AcceptTeamInvitationController.url(args, options),
+export const show = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
     method: 'get',
 })
 
-AcceptTeamInvitationController.definition = {
+show.definition = {
     methods: ["get","head"],
     url: '/app/invitations/{token}',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::__invoke
-* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:16
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::show
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:18
 * @route '/app/invitations/{token}'
 */
-AcceptTeamInvitationController.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
+show.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { token: args }
     }
@@ -36,58 +36,58 @@ AcceptTeamInvitationController.url = (args: { token: string | number } | [token:
         token: args.token,
     }
 
-    return AcceptTeamInvitationController.definition.url
+    return show.definition.url
             .replace('{token}', parsedArgs.token.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::__invoke
-* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:16
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::show
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:18
 * @route '/app/invitations/{token}'
 */
-AcceptTeamInvitationController.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: AcceptTeamInvitationController.url(args, options),
+show.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::__invoke
-* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:16
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::show
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:18
 * @route '/app/invitations/{token}'
 */
-AcceptTeamInvitationController.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: AcceptTeamInvitationController.url(args, options),
+show.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: show.url(args, options),
     method: 'head',
 })
 
 /**
-* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::__invoke
-* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:16
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::show
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:18
 * @route '/app/invitations/{token}'
 */
-const AcceptTeamInvitationControllerForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: AcceptTeamInvitationController.url(args, options),
+const showForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::__invoke
-* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:16
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::show
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:18
 * @route '/app/invitations/{token}'
 */
-AcceptTeamInvitationControllerForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: AcceptTeamInvitationController.url(args, options),
+showForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::__invoke
-* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:16
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::show
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:18
 * @route '/app/invitations/{token}'
 */
-AcceptTeamInvitationControllerForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: AcceptTeamInvitationController.url(args, {
+showForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -96,6 +96,82 @@ AcceptTeamInvitationControllerForm.head = (args: { token: string | number } | [t
     method: 'get',
 })
 
-AcceptTeamInvitationController.form = AcceptTeamInvitationControllerForm
+show.form = showForm
+
+/**
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::accept
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:35
+* @route '/app/invitations/{token}'
+*/
+export const accept = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: accept.url(args, options),
+    method: 'post',
+})
+
+accept.definition = {
+    methods: ["post"],
+    url: '/app/invitations/{token}',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::accept
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:35
+* @route '/app/invitations/{token}'
+*/
+accept.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { token: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            token: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        token: args.token,
+    }
+
+    return accept.definition.url
+            .replace('{token}', parsedArgs.token.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::accept
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:35
+* @route '/app/invitations/{token}'
+*/
+accept.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: accept.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::accept
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:35
+* @route '/app/invitations/{token}'
+*/
+const acceptForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: accept.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\AcceptTeamInvitationController::accept
+* @see app/Http/Controllers/Settings/AcceptTeamInvitationController.php:35
+* @route '/app/invitations/{token}'
+*/
+acceptForm.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: accept.url(args, options),
+    method: 'post',
+})
+
+accept.form = acceptForm
+
+const AcceptTeamInvitationController = { show, accept }
 
 export default AcceptTeamInvitationController

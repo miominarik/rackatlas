@@ -49,4 +49,5 @@ export type ServerFormData = {
     auth_type: ServerAuthType;
     ssh_key_id: number | null;
     server_category_id: number | null;
+    ssh_host_fingerprint?: string | null;
 };

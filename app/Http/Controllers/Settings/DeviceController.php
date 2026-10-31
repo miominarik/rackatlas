@@ -8,6 +8,7 @@ use App\Models\UserDevice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -67,6 +68,7 @@ class DeviceController extends Controller
         }
 
         $this->revoke($device);
+        $request->user()->forceFill(['remember_token' => Str::random(60)])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('The device was signed out.')]);
 
@@ -82,6 +84,7 @@ class DeviceController extends Controller
             ->get();
 
         $others->each(fn (UserDevice $device) => $this->revoke($device));
+        $request->user()->forceFill(['remember_token' => Str::random(60)])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __(':count devices were signed out.', ['count' => $others->count()])]);
 

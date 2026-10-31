@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             'throttle:web',
+            'auth.session',
             HandleAppearance::class,
             SetLocale::class,
             TrackDevice::class,
