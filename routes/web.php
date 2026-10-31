@@ -48,6 +48,7 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::post('servers/{server}/agent/token', [ServerAgentController::class, 'rotate'])
         ->middleware('throttle:10,1')
         ->name('servers.agent.rotate');
+    Route::get('servers/{server}', [ServerController::class, 'show'])->name('servers.show')->whereNumber('server');
     Route::get('servers/{server}/edit', [ServerController::class, 'edit'])->name('servers.edit');
     Route::put('servers/{server}', [ServerController::class, 'update'])->name('servers.update');
     Route::delete('servers/{server}/host-key', [ServerController::class, 'forgetHostKey'])->name('servers.host-key.destroy');

@@ -2,7 +2,7 @@
 #
 # RackAtlas agent
 #
-# Collects CPU, memory and disk usage, the busiest processes, plus serious log entries (journal errors,
+# Collects CPU, memory and disk usage, network traffic, system facts (OS, kernel, pending updates), the busiest processes, plus serious log entries (journal errors,
 # failed systemd units) and sends them to RackAtlas over HTTPS. Meant to run once a
 # minute from the systemd timer. Nothing connects into the server.
 #
@@ -182,6 +182,54 @@ proc_top() {
   ' "$1" "$2"
 }
 
+# Static facts about the machine, as key=value lines. Every value is optional.
+system_section() {
+  host="$(cat "$PROC_DIR/sys/kernel/hostname" 2>/dev/null)"
+  [ -n "$host" ] && echo "hostname=$host"
+  os="$(sed -n 's/^PRETTY_NAME=//p' /etc/os-release 2>/dev/null | head -n 1 | tr -d '"')"
+  [ -n "$os" ] && echo "os=$os"
+  kernel="$(cat "$PROC_DIR/sys/kernel/osrelease" 2>/dev/null)"
+  [ -n "$kernel" ] && echo "kernel=$kernel"
+  arch="$(uname -m 2>/dev/null)"
+  [ -n "$arch" ] && echo "arch=$arch"
+  model="$(awk -F: '/^(model name|Model|Hardware)[ \t]*:/ { sub(/^[ \t]+/, "", $2); print $2; exit }' "$PROC_DIR/cpuinfo" 2>/dev/null)"
+  [ -n "$model" ] && echo "cpu_model=$model"
+  if command -v systemd-detect-virt >/dev/null 2>&1; then
+    virt="$(systemd-detect-virt 2>/dev/null)"
+    [ -n "$virt" ] && echo "virtualization=$virt"
+  fi
+  if [ -r /var/lib/update-notifier/updates-available ]; then
+    awk '/can be applied/ { print "updates=" $1 } /security update/ { print "security_updates=" $1 }' /var/lib/update-notifier/updates-available
+  fi
+  if [ -e /run/reboot-required ]; then echo "reboot_required=1"; else echo "reboot_required=0"; fi
+}
+
+# Network traffic of the physical interfaces as bytes per second, averaged since the previous run.
+# The counters are kept in the state directory like the CPU ones. Prints nothing on the first run.
+network_section() {
+  now="$(cut -d' ' -f1 "$PROC_DIR/uptime")"
+  counters="$(awk '
+    NR > 2 {
+      gsub(/:/, " ")
+      if ($1 ~ /^(lo|docker|veth|br-|virbr|cni|flannel|cali|kube|tap)/) next
+      rx += $2; tx += $10
+    }
+    END { printf "%.0f %.0f\n", rx, tx }' "$PROC_DIR/net/dev" 2>/dev/null)"
+  [ -n "$counters" ] || return 0
+
+  prev_file="$STATE_DIR/net-prev"
+  if [ -s "$prev_file" ] && [ -n "$(find "$prev_file" -mmin -5 2>/dev/null)" ]; then
+    awk -v now="$now" -v cur="$counters" '
+      BEGIN { split(cur, c, " ") }
+      { dt = now - $1; if (dt > 0 && c[1] >= $2 && c[2] >= $3) printf "%.0f %.0f\n", (c[1] - $2) / dt, (c[2] - $3) / dt }
+    ' "$prev_file"
+  fi
+
+  if [ -z "$DRY_RUN" ]; then
+    echo "$now $counters" > "$prev_file.tmp" 2>/dev/null && mv "$prev_file.tmp" "$prev_file" 2>/dev/null
+  fi
+}
+
 CPU_PREV_FILE="$STATE_DIR/cpu-prev"
 CPU_NOW="$(head -n1 "$PROC_DIR/stat")"
 CPU_FIRST=""
@@ -223,6 +271,8 @@ proc_scan full > "$TMP.proc"
   echo '###DISK'; df -PT -B1 -x tmpfs -x devtmpfs -x squashfs -x overlay -x efivarfs -x iso9660 2>/dev/null | tail -n +2
 
   echo '###PROCESSES'; proc_top "$PROC_BASE" "$TMP.proc"
+  echo '###SYSTEM'; system_section
+  echo '###NETWORK'; network_section
 
   if command -v journalctl >/dev/null 2>&1; then
     journal_section JOURNAL_CRITICAL 'emerg..crit' critical

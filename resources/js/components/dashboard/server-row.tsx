@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     diskPercent,
@@ -10,6 +11,7 @@ import type { Evaluated } from '@/lib/dashboard';
 import { serverAddress } from '@/lib/server-address';
 import { dotClass } from '@/lib/server-colors';
 import { cn } from '@/lib/utils';
+import { show as showServer } from '@/routes/servers';
 import type { DashboardSettings } from '@/types';
 
 const text: Record<string, string> = {
@@ -63,9 +65,13 @@ export default function ServerRow({
                 )}
             />
             <span className="min-w-0 flex-1 basis-40">
-                <span className="block truncate font-medium">
+                <Link
+                    href={showServer(server.id)}
+                    className="block truncate font-medium hover:underline"
+                    data-test="server-link"
+                >
                     {server.name}
-                </span>
+                </Link>
                 <span className="block truncate font-mono text-xs text-muted-foreground">
                     {serverAddress(server, t('Agent'))}
                 </span>

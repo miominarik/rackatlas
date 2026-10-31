@@ -26,7 +26,7 @@ SH;
     /**
      * Turn the script output into metric values.
      *
-     * @return array{cpu_percent: float, cpu_cores: int, load_1: float, load_5: float, load_15: float, memory_total: int, memory_used: int, swap_total: int, swap_used: int, uptime_seconds: int, top_processes: array<int, array{0: string, 1: int, 2: float, 3: int}>|null, disks: array<int, array{device: string, mount: string, filesystem: string, total_bytes: int, used_bytes: int}>}
+     * @return array{cpu_percent: float, cpu_cores: int, load_1: float, load_5: float, load_15: float, memory_total: int, memory_used: int, swap_total: int, swap_used: int, uptime_seconds: int, net_rx_bps: int|null, net_tx_bps: int|null, top_processes: array<int, array{0: string, 1: int, 2: float, 3: int}>|null, disks: array<int, array{device: string, mount: string, filesystem: string, total_bytes: int, used_bytes: int}>}
      *
      * @throws MetricsCollectionException
      */
@@ -51,6 +51,7 @@ SH;
             'load_15' => $load15,
             ...$memory,
             'uptime_seconds' => (int) floor((float) trim($sections['UPTIME'])),
+            ...$this->network($sections['NETWORK'] ?? ''),
             'top_processes' => $this->processes($sections['PROCESSES'] ?? null),
             'disks' => $this->disks($sections['DISK'] ?? ''),
         ];
@@ -153,6 +154,55 @@ SH;
             'swap_total' => $swapTotal,
             'swap_used' => max(0, $swapTotal - ($values['SwapFree'] ?? 0)),
         ];
+    }
+
+    /**
+     * Facts about the machine from the SYSTEM section of the agent, or null for an old agent or a
+     * server monitored over SSH. Only known keys are kept and the values are cut short.
+     *
+     * @return array<string, string|int|bool>|null
+     */
+    public function systemInfo(?string $section): ?array
+    {
+        if ($section === null || trim($section) === '') {
+            return null;
+        }
+
+        $info = [];
+
+        foreach (explode("\n", $section) as $line) {
+            if (! preg_match('/^([a-z_]+)=(.*)$/', trim($line), $match)) {
+                continue;
+            }
+
+            [, $key, $value] = $match;
+            $value = mb_substr(preg_replace('/\p{C}/u', '', $value) ?? '', 0, 120);
+
+            if (in_array($key, ['updates', 'security_updates'], true) && ctype_digit($value)) {
+                $info[$key] = (int) $value;
+            } elseif ($key === 'reboot_required') {
+                $info[$key] = $value === '1';
+            } elseif (in_array($key, ['hostname', 'os', 'kernel', 'arch', 'cpu_model', 'virtualization'], true) && $value !== '') {
+                $info[$key] = $value;
+            }
+        }
+
+        return $info ?: null;
+    }
+
+    /**
+     * Network traffic in bytes per second ("rx tx"). Null when the agent did not send it, which is
+     * the case for old agents, for the first run and for servers monitored over SSH.
+     *
+     * @return array{net_rx_bps: int|null, net_tx_bps: int|null}
+     */
+    private function network(string $section): array
+    {
+        if (preg_match('/^(\d+) (\d+)$/m', $section, $match) !== 1) {
+            return ['net_rx_bps' => null, 'net_tx_bps' => null];
+        }
+
+        return ['net_rx_bps' => (int) $match[1], 'net_tx_bps' => (int) $match[2]];
     }
 
     /**

@@ -32,6 +32,7 @@ class AgentIngestor
             ...$this->logs->parseJournal($sections['JOURNAL_ERROR'] ?? '', 'error'),
         ];
 
+        $systemInfo = $this->metrics->systemInfo($sections['SYSTEM'] ?? null);
         $failedNow = $this->logs->parseFailedUnits($sections['FAILED_UNITS'] ?? '');
         $failedBefore = $server->failed_units ?? [];
 
@@ -48,7 +49,7 @@ class AgentIngestor
 
         $fresh = [];
 
-        DB::transaction(function () use ($server, $data, $entries, $failedNow, $agentVersion, &$fresh) {
+        DB::transaction(function () use ($server, $data, $entries, $failedNow, $systemInfo, $agentVersion, &$fresh) {
             $this->collector->store($server, $data);
 
             $fresh = $this->withoutKnown($server, $this->mergeIntoOpen($server, $entries));
@@ -63,6 +64,7 @@ class AgentIngestor
                 'last_seen_at' => now(),
                 'agent_version' => $agentVersion ? mb_substr($agentVersion, 0, 32) : $server->agent_version,
                 'failed_units' => $failedNow,
+                'system_info' => $systemInfo ?? $server->system_info,
             ])->save();
         });
 

@@ -6,10 +6,14 @@ use App\Enums\ServerAuthType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Servers\ServerRequest;
 use App\Models\Server;
+use App\Models\ServerAlert;
 use App\Models\ServerCategory;
+use App\Models\ServerError;
+use App\Models\ServerLog;
 use App\Models\ServerMetric;
 use App\Models\ServerMetricDisk;
 use App\Models\Team;
+use App\Support\DashboardSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -54,6 +58,92 @@ class ServerController extends Controller
                         'metrics' => $this->presentMetric($server->latestMetric),
                     ])
                 : [],
+        ]);
+    }
+
+    /**
+     * Everything the app knows about one server: its settings, current state, open problems and latest log entries.
+     */
+    public function show(Server $server): Response
+    {
+        $this->authorize('view', $server->team);
+
+        $server->load(['category', 'sshKey', 'latestMetric.disks']);
+        $metric = $server->latestMetric;
+
+        return Inertia::render('servers/show', [
+            'server' => [
+                'id' => $server->id,
+                'name' => $server->name,
+                'host' => $server->host,
+                'port' => $server->port,
+                'username' => $server->username,
+                'auth_type' => $server->auth_type->value,
+                'ssh_key_name' => $server->sshKey?->name,
+                'ssh_host_fingerprint' => $server->ssh_host_fingerprint,
+                'agent_version' => $server->agent_version,
+                'status' => $server->status->value,
+                'category' => $server->category?->only('id', 'name', 'color'),
+                'failed_units' => $server->failed_units ?? [],
+                'ignored_alerts' => $server->ignored_alerts ?? [],
+                'system_info' => $server->system_info,
+                'created_at' => $server->created_at?->toIso8601String(),
+                'last_checked_at' => $server->last_checked_at?->toIso8601String(),
+                'last_seen_at' => $server->last_seen_at?->toIso8601String(),
+                'metrics' => $metric ? [
+                    'collected_at' => $metric->collected_at->toIso8601String(),
+                    'cpu_percent' => (float) $metric->cpu_percent,
+                    'cpu_cores' => $metric->cpu_cores,
+                    'load_1' => (float) $metric->load_1,
+                    'load_5' => (float) $metric->load_5,
+                    'load_15' => (float) $metric->load_15,
+                    'memory_total' => $metric->memory_total,
+                    'memory_used' => $metric->memory_used,
+                    'swap_total' => $metric->swap_total,
+                    'swap_used' => $metric->swap_used,
+                    'uptime_seconds' => $metric->uptime_seconds,
+                    'net_rx_bps' => $metric->net_rx_bps,
+                    'net_tx_bps' => $metric->net_tx_bps,
+                    'disks' => $metric->disks->map(fn (ServerMetricDisk $disk) => [
+                        'mount' => $disk->mount,
+                        'filesystem' => $disk->filesystem,
+                        'total_bytes' => $disk->total_bytes,
+                        'used_bytes' => $disk->used_bytes,
+                    ])->values(),
+                ] : null,
+            ],
+            'canManage' => request()->user()->can('manage', $server->team),
+            'thresholds' => DashboardSettings::defaults()['thresholds'],
+            'alerts' => $server->alerts()->latest('opened_at')->limit(10)->get()
+                ->map(fn (ServerAlert $alert) => [
+                    'id' => $alert->id,
+                    'type' => $alert->type->value,
+                    'key' => $alert->key,
+                    'context' => $alert->context,
+                    'opened_at' => $alert->opened_at->toIso8601String(),
+                    'resolved_at' => $alert->resolved_at?->toIso8601String(),
+                ]),
+            'logs' => $server->logs()->open()->where('occurred_at', '>=', now()->subDays(7))->orderByDesc('occurred_at')->limit(10)->get()
+                ->map(fn (ServerLog $log) => [
+                    'id' => $log->id,
+                    'server_id' => $log->server_id,
+                    'server_name' => $server->name,
+                    'level' => $log->level,
+                    'source' => $log->source,
+                    'message' => $log->message,
+                    'count' => $log->count,
+                    'occurred_at' => $log->occurred_at->toIso8601String(),
+                ]),
+            'errors' => $server->errors()->where('occurred_at', '>=', now()->subDays(7))->latest('occurred_at')->limit(10)->get()
+                ->map(fn (ServerError $error) => [
+                    'id' => $error->id,
+                    'server_id' => $error->server_id,
+                    'server_name' => $server->name,
+                    'type' => $error->type->value,
+                    'message' => $error->message,
+                    'occurred_at' => $error->occurred_at->toIso8601String(),
+                ]),
+            'generated_at' => now()->toIso8601String(),
         ]);
     }
 

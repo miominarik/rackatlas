@@ -31,6 +31,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string|null $agent_version
  * @property array<int, string>|null $failed_units
  * @property array<int, string>|null $ignored_alerts
+ * @property array<string, string|int|bool>|null $system_info Facts the agent reports: OS, kernel, CPU model, pending updates
  * @property ServerStatus $status
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
@@ -54,6 +55,7 @@ class Server extends Model
             'last_seen_at' => 'datetime',
             'failed_units' => 'array',
             'ignored_alerts' => 'array',
+            'system_info' => 'array',
         ];
     }
 

@@ -24,11 +24,13 @@ use Illuminate\Support\Carbon;
  * @property int $swap_total
  * @property int $swap_used
  * @property int $uptime_seconds
+ * @property int|null $net_rx_bps
+ * @property int|null $net_tx_bps
  * @property array<int, array{0: string, 1: int, 2: float, 3: int}>|null $top_processes
  */
 #[Fillable([
     'server_id', 'collected_at', 'cpu_percent', 'cpu_cores', 'load_1', 'load_5', 'load_15',
-    'memory_total', 'memory_used', 'swap_total', 'swap_used', 'uptime_seconds', 'top_processes',
+    'memory_total', 'memory_used', 'swap_total', 'swap_used', 'uptime_seconds', 'net_rx_bps', 'net_tx_bps', 'top_processes',
 ])]
 class ServerMetric extends Model
 {

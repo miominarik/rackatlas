@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { Clock, Cpu, ServerOff } from 'lucide-react';
 import Sparkline from '@/components/dashboard/sparkline';
 import UsageBar from '@/components/dashboard/usage-bar';
@@ -16,6 +17,7 @@ import type { Evaluated } from '@/lib/dashboard';
 import { serverAddress } from '@/lib/server-address';
 import { dotClass } from '@/lib/server-colors';
 import { cn } from '@/lib/utils';
+import { show as showServer } from '@/routes/servers';
 import type { DashboardSettings } from '@/types';
 
 type Props = {
@@ -79,7 +81,13 @@ export default function ServerCard({
                 />
                 <div className="min-w-0 flex-1">
                     <h3 className="truncate text-xl leading-tight font-semibold">
-                        {server.name}
+                        <Link
+                            href={showServer(server.id)}
+                            className="hover:underline"
+                            data-test="server-link"
+                        >
+                            {server.name}
+                        </Link>
                     </h3>
                     <p className="truncate font-mono text-xs text-muted-foreground">
                         {serverAddress(server, t('Agent'))}
