@@ -906,5 +906,10 @@
     "Member role changed": "Rola člena zmenená",
     "Member removed": "Člen odstránený",
     "Sign-ins": "Prihlásenia",
-    "Application monitoring": "Monitoring aplikácie"
+    "Application monitoring": "Monitoring aplikácie",
+    "Ignore warnings about": "Ignorovať varovania zo zdrojov",
+    "Memory (RAM)": "Pamäť (RAM)",
+    "Failed services": "Zlyhané služby",
+    "Critical log entries": "Kritické záznamy v logu",
+    "Ticked sources raise no warnings and send no notifications for this server.": "Zaškrtnuté zdroje na tomto serveri nevyvolajú varovanie ani upozornenie."
 }

@@ -165,6 +165,7 @@ class DashboardController extends Controller
             'status' => $server->status->value,
             'auth_type' => $server->auth_type->value,
             'failed_units' => $server->failed_units ?? [],
+            'ignored_alerts' => $server->ignored_alerts ?? [],
             'category' => $server->category?->only('id', 'name', 'color'),
             'last_checked_at' => $server->last_checked_at?->toIso8601String(),
             'last_seen_at' => $server->last_seen_at?->toIso8601String(),

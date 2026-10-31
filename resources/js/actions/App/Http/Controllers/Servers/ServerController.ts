@@ -324,7 +324,7 @@ edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:130
+* @see app/Http/Controllers/Servers/ServerController.php:131
 * @route '/app/servers/{server}'
 */
 export const update = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -339,7 +339,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:130
+* @see app/Http/Controllers/Servers/ServerController.php:131
 * @route '/app/servers/{server}'
 */
 update.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -372,7 +372,7 @@ update.url = (args: { server: number | { id: number } } | [server: number | { id
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:130
+* @see app/Http/Controllers/Servers/ServerController.php:131
 * @route '/app/servers/{server}'
 */
 update.put = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -382,7 +382,7 @@ update.put = (args: { server: number | { id: number } } | [server: number | { id
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:130
+* @see app/Http/Controllers/Servers/ServerController.php:131
 * @route '/app/servers/{server}'
 */
 const updateForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -397,7 +397,7 @@ const updateForm = (args: { server: number | { id: number } } | [server: number 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:130
+* @see app/Http/Controllers/Servers/ServerController.php:131
 * @route '/app/servers/{server}'
 */
 updateForm.put = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -414,7 +414,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::forgetHostKey
-* @see app/Http/Controllers/Servers/ServerController.php:116
+* @see app/Http/Controllers/Servers/ServerController.php:117
 * @route '/app/servers/{server}/host-key'
 */
 export const forgetHostKey = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -429,7 +429,7 @@ forgetHostKey.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::forgetHostKey
-* @see app/Http/Controllers/Servers/ServerController.php:116
+* @see app/Http/Controllers/Servers/ServerController.php:117
 * @route '/app/servers/{server}/host-key'
 */
 forgetHostKey.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -462,7 +462,7 @@ forgetHostKey.url = (args: { server: number | { id: number } } | [server: number
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::forgetHostKey
-* @see app/Http/Controllers/Servers/ServerController.php:116
+* @see app/Http/Controllers/Servers/ServerController.php:117
 * @route '/app/servers/{server}/host-key'
 */
 forgetHostKey.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -472,7 +472,7 @@ forgetHostKey.delete = (args: { server: number | { id: number } } | [server: num
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::forgetHostKey
-* @see app/Http/Controllers/Servers/ServerController.php:116
+* @see app/Http/Controllers/Servers/ServerController.php:117
 * @route '/app/servers/{server}/host-key'
 */
 const forgetHostKeyForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -487,7 +487,7 @@ const forgetHostKeyForm = (args: { server: number | { id: number } } | [server: 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::forgetHostKey
-* @see app/Http/Controllers/Servers/ServerController.php:116
+* @see app/Http/Controllers/Servers/ServerController.php:117
 * @route '/app/servers/{server}/host-key'
 */
 forgetHostKeyForm.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -504,7 +504,7 @@ forgetHostKey.form = forgetHostKeyForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:152
+* @see app/Http/Controllers/Servers/ServerController.php:153
 * @route '/app/servers/{server}'
 */
 export const destroy = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -519,7 +519,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:152
+* @see app/Http/Controllers/Servers/ServerController.php:153
 * @route '/app/servers/{server}'
 */
 destroy.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -552,7 +552,7 @@ destroy.url = (args: { server: number | { id: number } } | [server: number | { i
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:152
+* @see app/Http/Controllers/Servers/ServerController.php:153
 * @route '/app/servers/{server}'
 */
 destroy.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -562,7 +562,7 @@ destroy.delete = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:152
+* @see app/Http/Controllers/Servers/ServerController.php:153
 * @route '/app/servers/{server}'
 */
 const destroyForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -577,7 +577,7 @@ const destroyForm = (args: { server: number | { id: number } } | [server: number
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:152
+* @see app/Http/Controllers/Servers/ServerController.php:153
 * @route '/app/servers/{server}'
 */
 destroyForm.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

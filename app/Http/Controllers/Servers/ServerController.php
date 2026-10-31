@@ -106,6 +106,7 @@ class ServerController extends Controller
                 'ssh_key_id' => $server->ssh_key_id,
                 'server_category_id' => $server->server_category_id,
                 'ssh_host_fingerprint' => $server->ssh_host_fingerprint,
+                'ignored_alerts' => $server->ignored_alerts ?? [],
             ],
         ]);
     }
@@ -201,6 +202,7 @@ class ServerController extends Controller
             'auth_type' => $data['auth_type'],
             'password' => $usesPassword ? ($data['password'] ?? null) : null,
             'ssh_key_id' => $usesKey ? $data['ssh_key_id'] : null,
+            'ignored_alerts' => array_values(array_unique($data['ignored_alerts'] ?? [])) ?: null,
         ];
     }
 

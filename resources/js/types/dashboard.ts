@@ -68,6 +68,7 @@ export type DashboardServer = {
     status: 'unknown' | 'online' | 'offline';
     auth_type: 'password' | 'key' | 'agent';
     failed_units: string[];
+    ignored_alerts: string[];
     category: { id: number; name: string; color: string } | null;
     last_checked_at: string | null;
     last_seen_at: string | null;

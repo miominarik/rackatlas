@@ -56,7 +56,7 @@ class AlertEvaluator
             fn (array $entry) => $entry['level'] === 'critical' && $entry['source'] !== 'systemd',
         ));
 
-        if ($critical === [] || ! Cache::add('alerts:log:'.$server->id, true, now()->addMinutes(self::LOG_THROTTLE_MINUTES))) {
+        if ($server->ignoresAlert('logs') || $critical === [] || ! Cache::add('alerts:log:'.$server->id, true, now()->addMinutes(self::LOG_THROTTLE_MINUTES))) {
             return;
         }
 
@@ -100,7 +100,10 @@ class AlertEvaluator
 
             $alert->update(['resolved_at' => now()]);
 
-            $this->notify($server, $alert->type, $key, $alert->context ?? [], true);
+            // A source that was switched off meanwhile is closed without a message.
+            if (! $server->ignoresAlert($this->source($key))) {
+                $this->notify($server, $alert->type, $key, $alert->context ?? [], true);
+            }
         }
     }
 
@@ -137,6 +140,10 @@ class AlertEvaluator
             ];
 
             foreach ($series as $key => $values) {
+                if ($server->ignoresAlert($key)) {
+                    continue;
+                }
+
                 $limit = $limits[$key]['critical'];
                 $now = $values->first();
                 $isOpen = in_array($key, $openKeys, true);
@@ -152,7 +159,7 @@ class AlertEvaluator
 
             $diskLimit = $limits['disk']['critical'];
 
-            foreach ($latest->disks as $disk) {
+            foreach ($server->ignoresAlert('disk') ? [] : $latest->disks as $disk) {
                 $key = 'disk:'.$disk->mount;
                 $percent = $disk->usedPercent();
                 $over = in_array($key, $openKeys, true) ? $percent >= $diskLimit - self::HYSTERESIS : $percent >= $diskLimit;
@@ -163,11 +170,23 @@ class AlertEvaluator
             }
         }
 
-        foreach ($server->failed_units ?? [] as $unit) {
+        foreach ($server->ignoresAlert('services') ? [] : $server->failed_units ?? [] as $unit) {
             $found['unit:'.$unit] = [AlertType::Service, ['unit' => $unit]];
         }
 
         return $found;
+    }
+
+    /**
+     * The source of warnings an alert key belongs to, the same names as in the settings of the server.
+     */
+    private function source(string $key): string
+    {
+        return match (true) {
+            str_starts_with($key, 'disk:') => 'disk',
+            str_starts_with($key, 'unit:') => 'services',
+            default => $key,
+        };
     }
 
     /**

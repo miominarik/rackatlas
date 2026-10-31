@@ -181,7 +181,11 @@ export function evaluateServer(
 
     let worst: Level = evaluated.level;
 
-    for (const unit of server.failed_units) {
+    const ignored = server.ignored_alerts ?? [];
+
+    for (const unit of ignored.includes('services')
+        ? []
+        : server.failed_units) {
         problems.push({
             ...base,
             severity: 'warning',
@@ -196,6 +200,10 @@ export function evaluateServer(
     }
 
     for (const check of checks) {
+        if (ignored.includes(check.kind)) {
+            continue;
+        }
+
         const level = usageLevel(check.value, check.limits);
 
         if (level === 'ok') {

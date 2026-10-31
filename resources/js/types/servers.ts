@@ -50,4 +50,5 @@ export type ServerFormData = {
     ssh_key_id: number | null;
     server_category_id: number | null;
     ssh_host_fingerprint?: string | null;
+    ignored_alerts: string[];
 };

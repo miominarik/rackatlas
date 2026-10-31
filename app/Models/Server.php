@@ -30,15 +30,19 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string|null $agent_token_hash
  * @property string|null $agent_version
  * @property array<int, string>|null $failed_units
+ * @property array<int, string>|null $ignored_alerts
  * @property ServerStatus $status
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
  */
-#[Fillable(['team_id', 'server_category_id', 'name', 'host', 'port', 'username', 'auth_type', 'password', 'ssh_key_id'])]
+#[Fillable(['team_id', 'server_category_id', 'name', 'host', 'port', 'username', 'auth_type', 'password', 'ssh_key_id', 'ignored_alerts'])]
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
     use LogsActivity;
+
+    /** The sources of warnings a server can be told to stay quiet about. */
+    public const IGNORABLE_ALERTS = ['cpu', 'ram', 'disk', 'services', 'logs'];
 
     protected function casts(): array
     {
@@ -49,7 +53,16 @@ class Server extends Model
             'last_checked_at' => 'datetime',
             'last_seen_at' => 'datetime',
             'failed_units' => 'array',
+            'ignored_alerts' => 'array',
         ];
+    }
+
+    /**
+     * Whether the warnings from one source (cpu, ram, disk, services, logs) are switched off for this server.
+     */
+    public function ignoresAlert(string $source): bool
+    {
+        return in_array($source, $this->ignored_alerts ?? [], true);
     }
 
     public function team(): BelongsTo
@@ -115,7 +128,7 @@ class Server extends Model
     {
         return LogOptions::defaults()
             ->useLogName('server')
-            ->logOnly(['name', 'host', 'port', 'username', 'auth_type', 'server_category_id', 'ssh_key_id', 'team_id'])
+            ->logOnly(['name', 'host', 'port', 'username', 'auth_type', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

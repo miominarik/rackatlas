@@ -18,6 +18,7 @@ import PasswordInput from '@/components/password-input';
 import CopyField from '@/components/servers/copy-field';
 import SshKeyCreator from '@/components/servers/ssh-key-creator';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -51,8 +52,16 @@ type TestResult = { success: boolean; message: string };
 const NEW_CATEGORY = '__new__';
 const NO_CATEGORY = '__none__';
 
+const ignorableAlerts: [string, string][] = [
+    ['cpu', 'CPU'],
+    ['ram', 'Memory (RAM)'],
+    ['disk', 'Disks'],
+    ['services', 'Failed services'],
+    ['logs', 'Critical log entries'],
+];
+
 const stepFields: Record<number, string[]> = {
-    0: ['name', 'server_category_id', 'new_category'],
+    0: ['name', 'server_category_id', 'new_category', 'ignored_alerts'],
     1: ['auth_type', 'host', 'port', 'username', 'password', 'ssh_key_id'],
 };
 
@@ -87,6 +96,7 @@ export default function ServerWizard({
         auth_type: (server?.auth_type ?? 'agent') as ServerAuthType,
         password: '',
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
+        ignored_alerts: server?.ignored_alerts ?? ([] as string[]),
     });
 
     const tester = useHttp<Record<string, string>, TestResult>({});
@@ -359,6 +369,49 @@ export default function ServerWizard({
                                     }
                                 />
                             </div>
+
+                            <fieldset className="grid gap-3">
+                                <legend className="text-sm font-medium">
+                                    {t('Ignore warnings about')}
+                                </legend>
+                                <p className="text-sm text-muted-foreground">
+                                    {t(
+                                        'Ticked sources raise no warnings and send no notifications for this server.',
+                                    )}
+                                </p>
+                                <div className="grid gap-2 sm:grid-cols-2">
+                                    {ignorableAlerts.map(([key, label]) => (
+                                        <label
+                                            key={key}
+                                            className="flex cursor-pointer items-center gap-2 text-sm"
+                                        >
+                                            <Checkbox
+                                                checked={form.data.ignored_alerts.includes(
+                                                    key,
+                                                )}
+                                                onCheckedChange={(checked) =>
+                                                    form.setData(
+                                                        'ignored_alerts',
+                                                        checked
+                                                            ? [
+                                                                  ...form.data
+                                                                      .ignored_alerts,
+                                                                  key,
+                                                              ]
+                                                            : form.data.ignored_alerts.filter(
+                                                                  (item) =>
+                                                                      item !==
+                                                                      key,
+                                                              ),
+                                                    )
+                                                }
+                                                data-test={`ignore-${key}`}
+                                            />
+                                            {t(label)}
+                                        </label>
+                                    ))}
+                                </div>
+                            </fieldset>
                         </>
                     )}
 
