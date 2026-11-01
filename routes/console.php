@@ -25,11 +25,6 @@ Schedule::call(fn () => Artisan::call('servers:evaluate-alerts'))
     ->everyMinute()
     ->withoutOverlapping(2);
 
-Schedule::call(fn () => Artisan::call('storage:check'))
-    ->name('storage:check')
-    ->everyMinute()
-    ->withoutOverlapping(2);
-
 Schedule::call(fn () => Artisan::call('cloudflare:refresh-ips'))
     ->name('cloudflare:refresh-ips')
     ->dailyAt('03:10');

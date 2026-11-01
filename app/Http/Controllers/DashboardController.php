@@ -9,7 +9,6 @@ use App\Models\Server;
 use App\Models\ServerError;
 use App\Models\ServerLog;
 use App\Models\ServerMetricDisk;
-use App\Models\StorageMonitor;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\UserDevice;
@@ -55,19 +54,6 @@ class DashboardController extends Controller
             'history' => $this->history($servers, $settings['servers']['history_minutes']),
             'errors' => $this->recentErrors($servers, $settings['errors']),
             'logs' => $this->recentLogs($servers, $settings['logs']),
-            'storage' => $team->storageMonitors()->orderBy('name')->get()->map(fn (StorageMonitor $monitor) => [
-                'id' => $monitor->id,
-                'name' => $monitor->name,
-                'account' => $monitor->account,
-                'container' => $monitor->container,
-                'status' => $monitor->status,
-                'last_checked_at' => $monitor->last_checked_at?->toIso8601String(),
-                'last_error' => $monitor->last_error,
-                'blob_count' => $monitor->blob_count,
-                'total_bytes' => $monitor->total_bytes,
-                'is_partial' => $monitor->is_partial,
-                'response_ms' => $monitor->response_ms,
-            ])->values(),
         ]);
     }
 

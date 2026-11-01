@@ -45,12 +45,6 @@ class Team extends Model
         return $this->hasMany(Server::class);
     }
 
-    /** @return HasMany<StorageMonitor, $this> */
-    public function storageMonitors(): HasMany
-    {
-        return $this->hasMany(StorageMonitor::class);
-    }
-
     public function serverCategories(): HasMany
     {
         return $this->hasMany(ServerCategory::class);

@@ -4,8 +4,7 @@ export type DashboardWidgetId =
     | 'servers'
     | 'top'
     | 'logs'
-    | 'errors'
-    | 'storage';
+    | 'errors';
 
 export type DashboardMetricId =
     | 'cpu'
