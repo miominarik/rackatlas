@@ -65,6 +65,12 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         return $this->hasOne(NotificationPreference::class);
     }
 
+    /** @return HasMany<SocialAccount, $this> */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
     /** @return HasMany<UserDevice, $this> */
     public function devices(): HasMany
     {

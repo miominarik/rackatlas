@@ -943,5 +943,20 @@
     "Received in this period": "Přijato za období",
     "Sent in this period": "Odesláno za období",
     "Total incoming traffic": "Celkový příchozí provoz",
-    "Total outgoing traffic": "Celkový odchozí provoz"
+    "Total outgoing traffic": "Celkový odchozí provoz",
+    "or": "nebo",
+    "Log in with :provider": "Přihlásit se přes :provider",
+    "Sign up with :provider": "Zaregistrovat se přes :provider",
+    "Connected accounts": "Připojené účty",
+    "Sign in faster with an account from another service.": "Přihlašujte se rychleji účtem z jiné služby.",
+    "Connected": "Připojeno",
+    "Not connected": "Nepřipojeno",
+    "Disconnect": "Odpojit",
+    "Connect": "Připojit",
+    "Sign in with :provider was cancelled or failed. Please try again.": "Přihlášení přes :provider bylo zrušeno nebo selhalo. Zkuste to prosím znovu.",
+    "This :provider account is already connected to another user.": "Tento účet :provider je již připojen k jinému uživateli.",
+    ":provider account connected.": "Účet :provider byl připojen.",
+    ":provider account disconnected.": "Účet :provider byl odpojen.",
+    "The :provider account did not share an email address, so we cannot create an account from it.": "Účet :provider nesdílí e-mailovou adresu, proto z něj nemůžeme vytvořit účet.",
+    "An account with the email :email already exists. Sign in with your password and connect :provider in the settings.": "Účet s e-mailem :email již existuje. Přihlaste se heslem a :provider připojte v nastavení."
 }

@@ -943,5 +943,20 @@
     "Received in this period": "Prijaté za obdobie",
     "Sent in this period": "Odoslané za obdobie",
     "Total incoming traffic": "Celkový prichádzajúci prenos",
-    "Total outgoing traffic": "Celkový odchádzajúci prenos"
+    "Total outgoing traffic": "Celkový odchádzajúci prenos",
+    "or": "alebo",
+    "Log in with :provider": "Prihlásiť sa cez :provider",
+    "Sign up with :provider": "Zaregistrovať sa cez :provider",
+    "Connected accounts": "Pripojené účty",
+    "Sign in faster with an account from another service.": "Prihlasujte sa rýchlejšie účtom z inej služby.",
+    "Connected": "Pripojené",
+    "Not connected": "Nepripojené",
+    "Disconnect": "Odpojiť",
+    "Connect": "Pripojiť",
+    "Sign in with :provider was cancelled or failed. Please try again.": "Prihlásenie cez :provider sa zrušilo alebo zlyhalo. Skúste to prosím znova.",
+    "This :provider account is already connected to another user.": "Tento účet :provider je už pripojený k inému používateľovi.",
+    ":provider account connected.": "Účet :provider bol pripojený.",
+    ":provider account disconnected.": "Účet :provider bol odpojený.",
+    "The :provider account did not share an email address, so we cannot create an account from it.": "Účet :provider nezdieľa e-mailovú adresu, preto z neho nemôžeme vytvoriť účet.",
+    "An account with the email :email already exists. Sign in with your password and connect :provider in the settings.": "Účet s e-mailom :email už existuje. Prihláste sa heslom a :provider pripojte v nastaveniach."
 }

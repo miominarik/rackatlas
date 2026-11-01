@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\AcceptTeamInvitationController;
+use App\Http\Controllers\Settings\ConnectedAccountController;
 use App\Http\Controllers\Settings\DeviceController;
 use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\NotificationDiagnosticsController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Settings\TeamController;
 use App\Http\Controllers\Settings\TeamInvitationController;
 use App\Http\Controllers\Settings\TeamMemberController;
+use App\Support\SocialProviders;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +20,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('app/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('app/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::delete('app/settings/connected-accounts/{provider}', [ConnectedAccountController::class, 'destroy'])
+        ->whereIn('provider', array_keys(SocialProviders::NAMES))
+        ->name('connected-accounts.destroy');
 
     Route::redirect('app/settings/language', '/app/settings/profile')->name('language.edit');
 });

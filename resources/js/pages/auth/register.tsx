@@ -9,13 +9,16 @@ import { Spinner } from '@/components/ui/spinner';
 import { login, privacy } from '@/routes';
 import { store } from '@/routes/register';
 import { TurnstileField, useTurnstile } from '@/hooks/use-turnstile';
+import SocialLoginButtons from '@/components/social-login-buttons';
+import type { SocialProvider } from '@/types/social';
 import { useTranslation } from '@/hooks/use-translation';
 
 type Props = {
     passwordRules: string;
+    socialProviders: SocialProvider[];
 };
 
-export default function Register({ passwordRules }: Props) {
+export default function Register({ passwordRules, socialProviders }: Props) {
     const { t } = useTranslation();
     const turnstile = useTurnstile('register');
     return (
@@ -132,6 +135,11 @@ export default function Register({ passwordRules }: Props) {
                     </>
                 )}
             </Form>
+
+            <SocialLoginButtons
+                providers={socialProviders}
+                label="register"
+            />
         </>
     );
 }

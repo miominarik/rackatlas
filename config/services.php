@@ -29,6 +29,15 @@ return [
         'subject' => env('VAPID_SUBJECT', 'mailto:'.env('MAIL_FROM_ADDRESS', 'hello@example.com')),
     ],
 
+    'microsoft' => [
+        'client_id' => env('MICROSOFT_CLIENT_ID'),
+        'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
+        // The callback URL is set by the app itself (route social.callback).
+        'redirect' => null,
+        // "common" lets work and personal accounts in, or use the ID of one tenant.
+        'tenant' => env('MICROSOFT_TENANT_ID', 'common'),
+    ],
+
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],

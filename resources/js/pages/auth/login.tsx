@@ -12,14 +12,17 @@ import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import PasskeyVerify from '@/components/passkey-verify';
 import { TurnstileField, useTurnstile } from '@/hooks/use-turnstile';
+import SocialLoginButtons from '@/components/social-login-buttons';
+import type { SocialProvider } from '@/types/social';
 import { useTranslation } from '@/hooks/use-translation';
 
 type Props = {
     status?: string;
     canResetPassword: boolean;
+    socialProviders: SocialProvider[];
 };
 
-export default function Login({ status, canResetPassword }: Props) {
+export default function Login({ status, canResetPassword, socialProviders }: Props) {
     const { t } = useTranslation();
     const turnstile = useTurnstile('login');
     return (
@@ -116,6 +119,8 @@ export default function Login({ status, canResetPassword }: Props) {
                     </>
                 )}
             </Form>
+
+            <SocialLoginButtons providers={socialProviders} label="login" />
 
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
