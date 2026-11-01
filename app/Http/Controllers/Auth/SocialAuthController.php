@@ -51,7 +51,9 @@ class SocialAuthController extends Controller
 
         try {
             $social = $this->driver($provider)->user();
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            report($exception);
+
             return $this->fail($linking, __('Sign in with :provider was cancelled or failed. Please try again.', ['provider' => SocialProviders::NAMES[$provider]]));
         }
 
