@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
     KeyRound,
+    Cloud,
     LayoutGrid,
     ScrollText,
     Server,
@@ -24,6 +25,7 @@ import { index as adminIndex } from '@/routes/admin';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
 import { index as serversIndex } from '@/routes/servers';
+import { index as storageIndex } from '@/routes/storage';
 import { index as sshKeysIndex } from '@/routes/ssh-keys';
 import type { Auth, NavItem } from '@/types';
 
@@ -37,6 +39,11 @@ const mainNavItems: NavItem[] = [
         title: 'Servers',
         href: serversIndex(),
         icon: Server,
+    },
+    {
+        title: 'Storage',
+        href: storageIndex(),
+        icon: Cloud,
     },
     {
         title: 'Metrics',

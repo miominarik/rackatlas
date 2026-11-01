@@ -10,6 +10,7 @@ import CustomizeSheet from '@/components/dashboard/customize-sheet';
 import ProblemsList from '@/components/dashboard/problems-list';
 import RecentErrors from '@/components/dashboard/recent-errors';
 import RecentLogs from '@/components/dashboard/recent-logs';
+import StorageList from '@/components/dashboard/storage-list';
 import ServerCard from '@/components/dashboard/server-card';
 import ServerRow from '@/components/dashboard/server-row';
 import SummaryTiles from '@/components/dashboard/summary-tiles';
@@ -30,6 +31,7 @@ import type {
     DashboardServer,
     DashboardSettings,
 } from '@/types';
+import type { StorageMonitor } from '@/types/storage';
 
 type Props = {
     team: { id: number; name: string } | null;
@@ -41,9 +43,17 @@ type Props = {
     history: DashboardHistory;
     errors: DashboardError[];
     logs: DashboardLog[];
+    storage: StorageMonitor[];
 };
 
-const POLLED = ['servers', 'history', 'errors', 'logs', 'generated_at'];
+const POLLED = [
+    'servers',
+    'history',
+    'errors',
+    'logs',
+    'storage',
+    'generated_at',
+];
 
 function Poller({ seconds }: { seconds: number }) {
     usePoll(
@@ -212,6 +222,7 @@ function DashboardContent({
     history,
     errors,
     logs,
+    storage,
 }: Props & { team: NonNullable<Props['team']> }) {
     const { t, locale } = useTranslation();
     const [customizing, setCustomizing] = useState(false);
@@ -262,6 +273,11 @@ function DashboardContent({
                 hours={settings.errors.hours}
             />
         ),
+        // Teams without any storage do not need an empty box on the dashboard.
+        storage:
+            storage.length > 0 ? (
+                <StorageList monitors={storage} generatedAt={generated_at} />
+            ) : null,
     };
 
     return (
@@ -334,7 +350,9 @@ function DashboardContent({
                     </div>
                 ) : (
                     settings.widgets
-                        .filter((widget) => widget.visible)
+                        .filter(
+                            (widget) => widget.visible && widgets[widget.id],
+                        )
                         .map((widget) => (
                             <div key={widget.id}>{widgets[widget.id]}</div>
                         ))

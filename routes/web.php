@@ -18,6 +18,7 @@ use App\Http\Controllers\Servers\ServerController;
 use App\Http\Controllers\Servers\SshKeyController;
 use App\Http\Controllers\Servers\TestConnectionController;
 use App\Http\Controllers\Settings\LanguageController;
+use App\Http\Controllers\Storage\StorageMonitorController;
 use App\Support\SocialProviders;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,18 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::put('servers/{server}', [ServerController::class, 'update'])->name('servers.update');
     Route::delete('servers/{server}/host-key', [ServerController::class, 'forgetHostKey'])->name('servers.host-key.destroy');
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
+
+    Route::get('storage', [StorageMonitorController::class, 'index'])->name('storage.index');
+    Route::get('storage/create', [StorageMonitorController::class, 'create'])->name('storage.create');
+    Route::post('storage', [StorageMonitorController::class, 'store'])->name('storage.store');
+    Route::get('storage/{monitor}', [StorageMonitorController::class, 'show'])->name('storage.show')->whereNumber('monitor');
+    Route::get('storage/{monitor}/edit', [StorageMonitorController::class, 'edit'])->name('storage.edit')->whereNumber('monitor');
+    Route::put('storage/{monitor}', [StorageMonitorController::class, 'update'])->name('storage.update')->whereNumber('monitor');
+    Route::post('storage/{monitor}/check', [StorageMonitorController::class, 'check'])
+        ->middleware('throttle:12,1')
+        ->name('storage.check')
+        ->whereNumber('monitor');
+    Route::delete('storage/{monitor}', [StorageMonitorController::class, 'destroy'])->name('storage.destroy')->whereNumber('monitor');
 
     Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
     Route::get('metrics/processes', MetricsProcessesController::class)

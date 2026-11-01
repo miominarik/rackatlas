@@ -95,6 +95,7 @@ function Form({
         top: t('Top usage'),
         logs: t('Server logs'),
         errors: t('Collection errors'),
+        storage: t('Storage'),
     };
 
     const metricLabel: Record<DashboardMetricId, string> = {
