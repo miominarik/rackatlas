@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 return [
@@ -132,10 +131,6 @@ return [
     |
     */
 
-    // Pulse caches the results of its cards as collections of plain rows.
-    'serializable_classes' => [
-        Collection::class,
-        stdClass::class,
-    ],
+    'serializable_classes' => false,
 
 ];

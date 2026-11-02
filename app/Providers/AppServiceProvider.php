@@ -48,7 +48,6 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(SocialiteWasCalled::class, [MicrosoftExtendSocialite::class, 'handle']);
 
         Gate::define('access-admin', fn (User $user) => $user->is_admin);
-        Gate::define('viewPulse', fn (User $user) => $user->is_admin);
     }
 
     /**
