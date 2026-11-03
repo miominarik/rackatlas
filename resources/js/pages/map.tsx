@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import {
     ArrowLeft,
     Building2,
@@ -107,6 +107,215 @@ function viewFor(country: MapCountry): View {
     });
 }
 
+const STATUS_STROKE: Record<Status, string> = {
+    online: 'stroke-emerald-500',
+    offline: 'stroke-red-500',
+    unknown: 'stroke-slate-400',
+};
+
+const STATUS_ORDER: Status[] = ['online', 'unknown', 'offline'];
+
+/**
+ * A country with servers: the count in a ring that shows how many are online, offline or unknown.
+ */
+function CountryBadge({
+    anchor,
+    servers,
+    unit,
+    label,
+    onHover,
+    onSelect,
+}: {
+    anchor: { x: number; y: number };
+    servers: MapServer[];
+    unit: number;
+    label: string;
+    onHover: (on: boolean) => void;
+    onSelect: () => void;
+}) {
+    const radius = 14 * unit;
+    const ringRadius = 11 * unit;
+    const ringWidth = 4.5 * unit;
+    const circumference = 2 * Math.PI * ringRadius;
+    const status = worstStatus(servers);
+    let offset = 0;
+
+    return (
+        <g
+            transform={`translate(${anchor.x} ${anchor.y})`}
+            className="cursor-pointer"
+            role="button"
+            tabIndex={0}
+            aria-label={label}
+            onMouseEnter={() => onHover(true)}
+            onMouseLeave={() => onHover(false)}
+            onClick={(event) => {
+                event.stopPropagation();
+                onSelect();
+            }}
+            onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onSelect();
+                }
+            }}
+        >
+            {status === 'online' && (
+                <circle
+                    r={radius}
+                    className="animate-ping fill-emerald-500/25 motion-reduce:hidden"
+                />
+            )}
+            <circle
+                r={radius}
+                strokeWidth={1 * unit}
+                className="fill-background stroke-border drop-shadow-md"
+            />
+            {STATUS_ORDER.map((key) => {
+                const count = servers.filter(
+                    (server) => server.status === key,
+                ).length;
+
+                if (count === 0) {
+                    return null;
+                }
+
+                const length = (count / servers.length) * circumference;
+                const gap = servers.length > 1 ? Math.min(2 * unit, length / 3) : 0;
+                const segment = (
+                    <circle
+                        key={key}
+                        r={ringRadius}
+                        fill="none"
+                        strokeWidth={ringWidth}
+                        strokeDasharray={`${Math.max(length - gap, 0.01)} ${circumference - length + gap}`}
+                        strokeDashoffset={-offset}
+                        transform="rotate(-90)"
+                        className={STATUS_STROKE[key]}
+                    />
+                );
+
+                offset += length;
+
+                return segment;
+            })}
+            <text
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize={11 * unit}
+                className="pointer-events-none fill-foreground font-semibold"
+            >
+                {servers.length}
+            </text>
+        </g>
+    );
+}
+
+/**
+ * The servers of the selected country spread around its centre, each with its name.
+ */
+function ServerPins({
+    anchor,
+    servers,
+    unit,
+    activeId,
+    onHover,
+    onOpen,
+    canClick,
+}: {
+    anchor: { x: number; y: number };
+    servers: MapServer[];
+    unit: number;
+    activeId: number | null;
+    onHover: (id: number | null) => void;
+    onOpen: (id: number) => void;
+    canClick: () => boolean;
+}) {
+    const perRing = 8;
+
+    return (
+        <g transform={`translate(${anchor.x} ${anchor.y})`}>
+            {servers.length > 1 && (
+                <circle
+                    r={(30 + Math.floor((servers.length - 1) / perRing) * 26) * unit}
+                    fill="none"
+                    strokeDasharray={`${3 * unit} ${4 * unit}`}
+                    strokeWidth={1 * unit}
+                    className="stroke-muted-foreground/40"
+                />
+            )}
+            {servers.map((server, index) => {
+                const ring = Math.floor(index / perRing);
+                const inRing = Math.min(perRing, servers.length - ring * perRing);
+                const single = servers.length === 1;
+                const angle =
+                    ((index % perRing) / inRing) * Math.PI * 2 -
+                    Math.PI / 2 +
+                    ring * 0.4;
+                const distance = single ? 0 : (30 + ring * 26) * unit;
+                const x = Math.cos(angle) * distance;
+                const y = Math.sin(angle) * distance;
+                const active = activeId === server.id;
+                const toLeft = Math.cos(angle) < -0.2;
+                const labelX = x + (toLeft ? -1 : 1) * 14 * unit;
+
+                return (
+                    <g
+                        key={server.id}
+                        className="cursor-pointer"
+                        role="link"
+                        tabIndex={0}
+                        aria-label={server.name}
+                        onMouseEnter={() => onHover(server.id)}
+                        onMouseLeave={() => onHover(null)}
+                        onFocus={() => onHover(server.id)}
+                        onBlur={() => onHover(null)}
+                        onClick={(event) => {
+                            event.stopPropagation();
+
+                            if (canClick()) {
+                                onOpen(server.id);
+                            }
+                        }}
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                                onOpen(server.id);
+                            }
+                        }}
+                    >
+                        <circle
+                            cx={x}
+                            cy={y}
+                            r={(active ? 11 : 9) * unit}
+                            strokeWidth={2.5 * unit}
+                            className={cn(
+                                'stroke-background drop-shadow-md transition-[r]',
+                                STATUS_MARKER[server.status],
+                            )}
+                        />
+                        <text
+                            x={labelX}
+                            y={y}
+                            textAnchor={toLeft ? 'end' : 'start'}
+                            dominantBaseline="central"
+                            fontSize={12 * unit}
+                            strokeWidth={3 * unit}
+                            paintOrder="stroke"
+                            strokeLinejoin="round"
+                            className={cn(
+                                'pointer-events-none stroke-background fill-foreground',
+                                active ? 'font-semibold' : 'font-medium',
+                            )}
+                        >
+                            {server.name}
+                        </text>
+                    </g>
+                );
+            })}
+        </g>
+    );
+}
+
 function StatusDot({ status }: { status: Status }) {
     return (
         <span
@@ -120,6 +329,7 @@ export default function ServerMap({ team, servers }: Props) {
     const [view, setView] = useState<View>(FULL_VIEW);
     const [selected, setSelected] = useState<string | null>(null);
     const [hovered, setHovered] = useState<string | null>(null);
+    const [hoveredServer, setHoveredServer] = useState<number | null>(null);
     const [provider, setProvider] = useState(ALL_PROVIDERS);
     const svgRef = useRef<SVGSVGElement>(null);
     const dragged = useRef(false);
@@ -457,63 +667,40 @@ export default function ServerMap({ team, servers }: Props) {
 
                             {countryList.map(([code, list]) => {
                                 const anchor = anchors.get(code)!;
-                                const status = worstStatus(list);
-                                const radius = 13 * unit;
+
+                                if (selected === code) {
+                                    return (
+                                        <ServerPins
+                                            key={code}
+                                            anchor={anchor}
+                                            servers={list}
+                                            unit={unit}
+                                            activeId={hoveredServer}
+                                            onHover={setHoveredServer}
+                                            onOpen={(id) =>
+                                                router.visit(show(id).url)
+                                            }
+                                            canClick={() => !dragged.current}
+                                        />
+                                    );
+                                }
 
                                 return (
-                                    <g
+                                    <CountryBadge
                                         key={code}
-                                        transform={`translate(${anchor.x} ${anchor.y})`}
-                                        className="cursor-pointer"
-                                        role="button"
-                                        tabIndex={0}
-                                        aria-label={`${countryName(code, locale)}: ${list.length}`}
-                                        onMouseEnter={() => setHovered(code)}
-                                        onMouseLeave={() => setHovered(null)}
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-
+                                        anchor={anchor}
+                                        servers={list}
+                                        unit={unit}
+                                        label={`${countryName(code, locale)}: ${list.length}`}
+                                        onHover={(on) =>
+                                            setHovered(on ? code : null)
+                                        }
+                                        onSelect={() => {
                                             if (!dragged.current) {
-                                                select(
-                                                    selected === code
-                                                        ? null
-                                                        : code,
-                                                );
-                                            }
-                                        }}
-                                        onKeyDown={(event) => {
-                                            if (
-                                                event.key === 'Enter' ||
-                                                event.key === ' '
-                                            ) {
-                                                event.preventDefault();
                                                 select(code);
                                             }
                                         }}
-                                    >
-                                        {status === 'online' && (
-                                            <circle
-                                                r={radius}
-                                                className="animate-ping fill-emerald-500/30 motion-reduce:hidden"
-                                            />
-                                        )}
-                                        <circle
-                                            r={radius}
-                                            strokeWidth={2.5 * unit}
-                                            className={cn(
-                                                'stroke-background drop-shadow-sm',
-                                                STATUS_MARKER[status],
-                                            )}
-                                        />
-                                        <text
-                                            textAnchor="middle"
-                                            dominantBaseline="central"
-                                            fontSize={12 * unit}
-                                            className="pointer-events-none fill-white font-semibold"
-                                        >
-                                            {list.length}
-                                        </text>
-                                    </g>
+                                    />
                                 );
                             })}
                         </svg>
@@ -613,6 +800,12 @@ export default function ServerMap({ team, servers }: Props) {
                                         <li key={server.id}>
                                             <Link
                                                 href={show(server.id)}
+                                                onMouseEnter={() =>
+                                                    setHoveredServer(server.id)
+                                                }
+                                                onMouseLeave={() =>
+                                                    setHoveredServer(null)
+                                                }
                                                 className="flex items-center gap-3 px-3 py-3 hover:bg-muted/50"
                                             >
                                                 <StatusDot
