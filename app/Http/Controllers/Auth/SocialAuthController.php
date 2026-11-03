@@ -128,12 +128,7 @@ class SocialAuthController extends Controller
 
     private function signIn(Request $request, User $user): RedirectResponse
     {
-        if ($user->hasEnabledTwoFactorAuthentication()) {
-            $request->session()->put(['login.id' => $user->getKey(), 'login.remember' => false]);
-
-            return to_route('two-factor.login');
-        }
-
+        // The provider already authenticated the person (including its own MFA), so no second factor is asked.
         Auth::login($user);
         $request->session()->regenerate();
 

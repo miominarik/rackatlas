@@ -83,15 +83,15 @@ class SocialAuthTest extends TestCase
         $this->assertSame(0, SocialAccount::count());
     }
 
-    public function test_two_factor_user_is_sent_to_the_challenge(): void
+    public function test_two_factor_user_skips_the_challenge_when_signing_in_with_a_provider(): void
     {
         $user = User::factory()->withTwoFactor()->create();
         $user->socialAccounts()->create(['provider' => 'microsoft', 'provider_id' => 'ms-1']);
         $this->fakeMicrosoft();
 
-        $this->get(route('social.callback', 'microsoft'))->assertRedirect(route('two-factor.login'));
+        $this->get(route('social.callback', 'microsoft'))->assertRedirect(route('dashboard'));
 
-        $this->assertGuest();
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_signed_in_user_can_connect_an_account(): void
