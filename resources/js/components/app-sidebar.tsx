@@ -8,6 +8,7 @@ import {
     ScrollText,
     Server,
     Shield,
+    SquareTerminal,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -21,7 +22,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, map as mapRoute } from '@/routes';
+import { dashboard, map as mapRoute, terminal } from '@/routes';
 import { index as adminIndex } from '@/routes/admin';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
@@ -44,6 +45,11 @@ const mainNavItems: NavItem[] = [
         title: 'Map',
         href: mapRoute(),
         icon: MapIcon,
+    },
+    {
+        title: 'Terminal',
+        href: terminal(),
+        icon: SquareTerminal,
     },
     {
         title: 'Metrics',

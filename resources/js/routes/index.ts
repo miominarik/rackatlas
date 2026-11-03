@@ -702,3 +702,84 @@ mapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 map.form = mapForm
+
+/**
+* @see \App\Http\Controllers\Terminal\TerminalController::__invoke
+* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @route '/app/terminal'
+*/
+export const terminal = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: terminal.url(options),
+    method: 'get',
+})
+
+terminal.definition = {
+    methods: ["get","head"],
+    url: '/app/terminal',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Terminal\TerminalController::__invoke
+* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @route '/app/terminal'
+*/
+terminal.url = (options?: RouteQueryOptions) => {
+    return terminal.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Terminal\TerminalController::__invoke
+* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @route '/app/terminal'
+*/
+terminal.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: terminal.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Terminal\TerminalController::__invoke
+* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @route '/app/terminal'
+*/
+terminal.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: terminal.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Terminal\TerminalController::__invoke
+* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @route '/app/terminal'
+*/
+const terminalForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: terminal.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Terminal\TerminalController::__invoke
+* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @route '/app/terminal'
+*/
+terminalForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: terminal.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Terminal\TerminalController::__invoke
+* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @route '/app/terminal'
+*/
+terminalForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: terminal.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+terminal.form = terminalForm

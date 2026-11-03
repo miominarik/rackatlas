@@ -19,6 +19,8 @@ use App\Http\Controllers\Servers\ServerController;
 use App\Http\Controllers\Servers\SshKeyController;
 use App\Http\Controllers\Servers\TestConnectionController;
 use App\Http\Controllers\Settings\LanguageController;
+use App\Http\Controllers\Terminal\TerminalController;
+use App\Http\Controllers\Terminal\TerminalSessionController;
 use App\Support\SocialProviders;
 use Illuminate\Support\Facades\Route;
 
@@ -63,6 +65,18 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
 
     Route::get('map', MapController::class)->name('map');
+    Route::get('terminal', TerminalController::class)->name('terminal');
+    Route::post('terminal/sessions', [TerminalSessionController::class, 'store'])
+        ->middleware('throttle:30,1')
+        ->name('terminal.sessions.store');
+    Route::post('terminal/sessions/{session}/attach', [TerminalSessionController::class, 'attach'])->name('terminal.sessions.attach');
+    Route::post('terminal/sessions/{session}/input', [TerminalSessionController::class, 'input'])
+        ->middleware('throttle:600,1')
+        ->name('terminal.sessions.input');
+    Route::post('terminal/sessions/{session}/resize', [TerminalSessionController::class, 'resize'])
+        ->middleware('throttle:120,1')
+        ->name('terminal.sessions.resize');
+    Route::delete('terminal/sessions/{session}', [TerminalSessionController::class, 'destroy'])->name('terminal.sessions.destroy');
     Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
     Route::get('metrics/processes', MetricsProcessesController::class)
         ->middleware('throttle:60,1')

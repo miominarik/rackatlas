@@ -8,6 +8,7 @@ import DashboardController from './DashboardController'
 import CurrentTeamController from './CurrentTeamController'
 import Servers from './Servers'
 import MapController from './MapController'
+import Terminal from './Terminal'
 import MetricsController from './MetricsController'
 import MetricsProcessesController from './MetricsProcessesController'
 import Admin from './Admin'
@@ -23,6 +24,7 @@ const Controllers = {
     CurrentTeamController: Object.assign(CurrentTeamController, CurrentTeamController),
     Servers: Object.assign(Servers, Servers),
     MapController: Object.assign(MapController, MapController),
+    Terminal: Object.assign(Terminal, Terminal),
     MetricsController: Object.assign(MetricsController, MetricsController),
     MetricsProcessesController: Object.assign(MetricsProcessesController, MetricsProcessesController),
     Admin: Object.assign(Admin, Admin),

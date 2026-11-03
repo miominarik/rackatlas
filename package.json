@@ -8,7 +8,8 @@
         "dev": "vp dev",
         "check": "vp check",
         "check:fix": "vp check --fix",
-        "types:check": "tsc --noEmit"
+        "types:check": "tsc --noEmit",
+        "terminal": "node --env-file=.env resources/terminal/server.mjs"
     },
     "dependencies": {
         "@inertiajs/react": "^3.0.0",
@@ -31,12 +32,17 @@
         "@types/react": "^19.2.0",
         "@types/react-dom": "^19.2.0",
         "@vitejs/plugin-react": "^6.1.1",
+        "@xterm/addon-fit": "^0.11.0",
+        "@xterm/addon-web-links": "^0.12.0",
+        "@xterm/xterm": "^6.0.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "concurrently": "^10.0.3",
         "input-otp": "^1.4.2",
+        "laravel-echo": "^2.6.3",
         "laravel-vite-plugin": "^3.0.0",
         "lucide-react": "^0.475.0",
+        "pusher-js": "^8.6.0",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
         "sonner": "^2.0.0",
