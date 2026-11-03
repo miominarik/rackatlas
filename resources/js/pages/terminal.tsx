@@ -258,14 +258,11 @@ export default function TerminalPage({
                 <Notice icon={SquareTerminal} title={t('Terminal is not set up yet')}>
                     <p>
                         {t(
-                            'Set BROADCAST_CONNECTION=reverb and the REVERB_* keys in the .env file, then start Reverb and the terminal worker:',
+                            'Set TERMINAL_SECRET and TERMINAL_URL in the .env file, then start the terminal server:',
                         )}
                     </p>
-                    <code className="mt-3 block rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-foreground">
-                        php artisan reverb:start
-                    </code>
-                    <code className="mt-2 block rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-foreground">
-                        php artisan queue:work --queue=terminal,default --timeout=0
+                    <code className="mt-3 inline-block rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-foreground">
+                        npm run terminal
                     </code>
                 </Notice>
             </>

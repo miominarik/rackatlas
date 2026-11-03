@@ -69,14 +69,6 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::post('terminal/sessions', [TerminalSessionController::class, 'store'])
         ->middleware('throttle:30,1')
         ->name('terminal.sessions.store');
-    Route::post('terminal/sessions/{session}/attach', [TerminalSessionController::class, 'attach'])->name('terminal.sessions.attach');
-    Route::post('terminal/sessions/{session}/input', [TerminalSessionController::class, 'input'])
-        ->middleware('throttle:600,1')
-        ->name('terminal.sessions.input');
-    Route::post('terminal/sessions/{session}/resize', [TerminalSessionController::class, 'resize'])
-        ->middleware('throttle:120,1')
-        ->name('terminal.sessions.resize');
-    Route::delete('terminal/sessions/{session}', [TerminalSessionController::class, 'destroy'])->name('terminal.sessions.destroy');
     Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
     Route::get('metrics/processes', MetricsProcessesController::class)
         ->middleware('throttle:60,1')

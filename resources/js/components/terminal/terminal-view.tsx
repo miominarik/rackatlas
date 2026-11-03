@@ -5,7 +5,6 @@ import '@xterm/xterm/css/xterm.css';
 import { useEffect, useImperativeHandle, useRef } from 'react';
 import type { Ref } from 'react';
 import TerminalSessionController from '@/actions/App/Http/Controllers/Terminal/TerminalSessionController';
-import { echo } from '@/lib/echo';
 
 export type TerminalState = 'connecting' | 'ready' | 'closed' | 'error';
 
@@ -54,8 +53,8 @@ function csrfToken(): string {
 }
 
 /**
- * One terminal: asks the app to start an SSH shell, listens to its output on a private Reverb channel
- * and sends keystrokes back over HTTP.
+ * One terminal: asks the app for a one-time ticket, opens a WebSocket to the terminal server with it and
+ * wires the keyboard and the screen to the SSH shell on the other side.
  */
 export default function TerminalView({
     serverId,
@@ -111,12 +110,9 @@ export default function TerminalView({
         term.current = terminal;
         fit.current = fitAddon;
 
-        let sessionId: string | null = null;
-        let leave = () => {};
+        let socket: WebSocket | null = null;
         let disposed = false;
         let finished = false;
-        let sending = false;
-        let pending = '';
 
         const finish = (state: TerminalState, message?: string) => {
             if (finished) {
@@ -127,50 +123,15 @@ export default function TerminalView({
             onStateRef.current(state, message);
         };
 
-        const post = (path: string, body: object) =>
-            fetch(path, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': csrfToken(),
-                },
-                body: JSON.stringify(body),
-            });
-
-        /** Keystrokes go out one request at a time, so the shell receives them in order. */
-        const flush = async () => {
-            if (sending || sessionId === null) {
-                return;
-            }
-
-            sending = true;
-
-            while (pending !== '' && !disposed) {
-                const data = pending;
-
-                pending = '';
-
-                try {
-                    await post(
-                        TerminalSessionController.input.url(sessionId),
-                        { data },
-                    );
-                } catch {
-                    finish('error', 'The terminal server is not reachable.');
-                    break;
-                }
-            }
-
-            sending = false;
-        };
-
         const sendSize = () => {
-            if (sessionId !== null) {
-                void post(TerminalSessionController.resize.url(sessionId), {
-                    cols: terminal.cols,
-                    rows: terminal.rows,
-                }).catch(() => undefined);
+            if (socket?.readyState === WebSocket.OPEN) {
+                socket.send(
+                    JSON.stringify({
+                        t: 'r',
+                        c: terminal.cols,
+                        r: terminal.rows,
+                    }),
+                );
             }
         };
 
@@ -190,8 +151,9 @@ export default function TerminalView({
         observer.observe(element);
 
         terminal.onData((data) => {
-            pending += data;
-            void flush();
+            if (socket?.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ t: 'i', d: data }));
+            }
         });
         terminal.onResize(sendSize);
 
@@ -199,9 +161,17 @@ export default function TerminalView({
             onStateRef.current('connecting');
 
             try {
-                const response = await post(
+                const response = await fetch(
                     TerminalSessionController.store.url(),
-                    { server_id: serverId },
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                            'X-XSRF-TOKEN': csrfToken(),
+                        },
+                        body: JSON.stringify({ server_id: serverId }),
+                    },
                 );
                 const data = await response.json().catch(() => ({}));
 
@@ -218,57 +188,40 @@ export default function TerminalView({
                     return;
                 }
 
-                sessionId = data.id as string;
+                socket = new WebSocket(
+                    `${data.url}?token=${encodeURIComponent(data.token)}`,
+                );
+                socket.binaryType = 'arraybuffer';
 
-                // The size is known before the shell opens, so it starts with the right window.
-                sendSize();
+                socket.onopen = sendSize;
+                socket.onmessage = (event) => {
+                    if (typeof event.data !== 'string') {
+                        terminal.write(new Uint8Array(event.data));
 
-                const channel = echo()
-                    .private(data.channel as string)
-                    .subscribed(() => {
-                        void post(
-                            TerminalSessionController.attach.url(
-                                sessionId as string,
-                            ),
-                            {},
+                        return;
+                    }
+
+                    const message = JSON.parse(event.data);
+
+                    if (message.t === 'status' && message.state === 'ready') {
+                        onStateRef.current('ready');
+                        terminal.focus();
+                    } else if (message.t === 'error') {
+                        terminal.write(
+                            `\r\n\x1b[31m${message.message}\x1b[0m\r\n`,
                         );
-                    })
-                    .error(() =>
-                        finish('error', 'The terminal server is not reachable.'),
-                    )
-                    .listen('.output', (event: { d: string }) => {
-                        const binary = atob(event.d);
-                        const bytes = new Uint8Array(binary.length);
-
-                        for (let i = 0; i < binary.length; i++) {
-                            bytes[i] = binary.charCodeAt(i);
-                        }
-
-                        terminal.write(bytes);
-                    })
-                    .listen(
-                        '.status',
-                        (event: { state: string; message: string | null }) => {
-                            if (event.state === 'ready') {
-                                onStateRef.current('ready');
-                                terminal.focus();
-                            } else if (event.state === 'error') {
-                                terminal.write(
-                                    `\r\n\x1b[31m${event.message ?? ''}\x1b[0m\r\n`,
-                                );
-                                finish('error', event.message ?? undefined);
-                            } else {
-                                terminal.write(
-                                    '\r\n\x1b[90m[connection closed]\x1b[0m\r\n',
-                                );
-                                finish('closed');
-                            }
-                        },
-                    );
-
-                leave = () => {
-                    channel.stopListening('.output').stopListening('.status');
-                    echo().leave(data.channel as string);
+                        finish('error', message.message);
+                    }
+                };
+                socket.onerror = () =>
+                    finish('error', 'The terminal server is not reachable.');
+                socket.onclose = () => {
+                    if (!disposed) {
+                        terminal.write(
+                            '\r\n\x1b[90m[connection closed]\x1b[0m\r\n',
+                        );
+                        finish('closed');
+                    }
                 };
             } catch {
                 finish('error', 'The terminal server is not reachable.');
@@ -278,19 +231,7 @@ export default function TerminalView({
         return () => {
             disposed = true;
             observer.disconnect();
-            leave();
-
-            if (sessionId !== null) {
-                void fetch(TerminalSessionController.destroy.url(sessionId), {
-                    method: 'DELETE',
-                    keepalive: true,
-                    headers: {
-                        Accept: 'application/json',
-                        'X-XSRF-TOKEN': csrfToken(),
-                    },
-                }).catch(() => undefined);
-            }
-
+            socket?.close();
             terminal.dispose();
             term.current = null;
             fit.current = null;

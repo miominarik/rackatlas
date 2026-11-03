@@ -3,13 +3,10 @@
 namespace Tests\Feature\Http\Controllers\Terminal;
 
 use App\Enums\ServerAuthType;
-use App\Jobs\RunTerminalSession;
 use App\Models\Server;
 use App\Models\Team;
 use App\Models\User;
-use App\Services\Terminal\TerminalSessions;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class TerminalTest extends TestCase
@@ -20,13 +17,7 @@ class TerminalTest extends TestCase
     {
         parent::setUp();
 
-        config([
-            'broadcasting.default' => 'reverb',
-            'broadcasting.connections.reverb.key' => 'key',
-            'broadcasting.connections.reverb.secret' => 'secret',
-            'broadcasting.connections.reverb.app_id' => 'id',
-        ]);
-        Queue::fake();
+        config(['terminal.secret' => 'bridge-secret', 'terminal.url' => 'wss://terminal.test']);
     }
 
     private function sshServer(Team $team, array $overrides = []): Server
@@ -38,12 +29,13 @@ class TerminalTest extends TestCase
         ]);
     }
 
-    private function openSession(User $user, Server $server): string
+    private function ticketFor(User $user, Server $server): string
     {
         return $this->actingAs($user)
             ->postJson(route('terminal.sessions.store'), ['server_id' => $server->id])
             ->assertOk()
-            ->json('id');
+            ->assertJsonPath('url', 'wss://terminal.test')
+            ->json('token');
     }
 
     public function test_page_lists_servers_and_marks_agent_ones_as_not_connectable(): void
@@ -62,76 +54,49 @@ class TerminalTest extends TestCase
                 ->where('servers.1.can_connect', true));
     }
 
-    public function test_starting_a_session_dispatches_the_worker_on_the_terminal_queue(): void
+    public function test_ticket_is_exchanged_once_for_the_login_details(): void
     {
         $team = Team::factory()->create();
-        $id = $this->openSession($team->owner, $this->sshServer($team));
+        $server = $this->sshServer($team);
+        $token = $this->ticketFor($team->owner, $server);
 
-        Queue::assertPushedOn('terminal', RunTerminalSession::class, fn ($job) => $job->sessionId === $id);
+        $this->withToken('bridge-secret')->postJson(route('terminal.exchange'), ['token' => $token, 'ip' => '203.0.113.7'])
+            ->assertOk()
+            ->assertJsonPath('host', '8.8.8.8')
+            ->assertJsonPath('username', 'root')
+            ->assertJsonPath('password', 'secret');
+
+        $this->withToken('bridge-secret')->postJson(route('terminal.exchange'), ['token' => $token])->assertNotFound();
+        $this->assertDatabaseHas('activity_log', ['event' => 'terminal-opened', 'causer_id' => $team->owner->id]);
     }
 
-    public function test_input_and_resize_reach_the_session_in_order(): void
+    public function test_exchange_needs_the_bridge_secret(): void
     {
         $team = Team::factory()->create();
-        $id = $this->openSession($team->owner, $this->sshServer($team));
+        $token = $this->ticketFor($team->owner, $this->sshServer($team));
 
-        $this->postJson(route('terminal.sessions.input', $id), ['data' => 'ls'])->assertOk();
-        $this->postJson(route('terminal.sessions.input', $id), ['data' => " -la\r"])->assertOk();
-        $this->postJson(route('terminal.sessions.resize', $id), ['cols' => 120, 'rows' => 40])->assertOk();
-
-        $sessions = app(TerminalSessions::class);
-        $this->assertSame("ls -la\r", $sessions->pullInput($id));
-        $this->assertSame('', $sessions->pullInput($id));
-        $this->assertSame([120, 40], $sessions->pullSize($id));
+        $this->postJson(route('terminal.exchange'), ['token' => $token])->assertUnauthorized();
+        $this->withToken('wrong')->postJson(route('terminal.exchange'), ['token' => $token])->assertUnauthorized();
     }
 
-    public function test_attach_and_close_flip_the_session_flags(): void
+    public function test_exchange_refuses_private_addresses(): void
     {
         $team = Team::factory()->create();
-        $id = $this->openSession($team->owner, $this->sshServer($team));
-        $sessions = app(TerminalSessions::class);
+        $token = $this->ticketFor($team->owner, $this->sshServer($team, ['host' => '10.0.0.5']));
 
-        $this->assertFalse($sessions->isAttached($id));
-        $this->postJson(route('terminal.sessions.attach', $id))->assertOk();
-        $this->assertTrue($sessions->isAttached($id));
-
-        $this->deleteJson(route('terminal.sessions.destroy', $id))->assertOk();
-        $this->assertTrue($sessions->isClosed($id));
+        $this->withToken('bridge-secret')->postJson(route('terminal.exchange'), ['token' => $token])->assertUnprocessable();
     }
 
-    public function test_someone_else_cannot_touch_the_session(): void
-    {
-        $team = Team::factory()->create();
-        $id = $this->openSession($team->owner, $this->sshServer($team));
-        $stranger = User::factory()->create();
-
-        $this->actingAs($stranger)->postJson(route('terminal.sessions.input', $id), ['data' => 'x'])->assertNotFound();
-        $this->actingAs($stranger)->postJson(route('terminal.sessions.attach', $id))->assertNotFound();
-        $this->actingAs($stranger)->deleteJson(route('terminal.sessions.destroy', $id))->assertNotFound();
-    }
-
-    public function test_only_the_owner_of_the_session_passes_the_channel_authorization(): void
-    {
-        $team = Team::factory()->create();
-        $id = $this->openSession($team->owner, $this->sshServer($team));
-        $sessions = app(TerminalSessions::class);
-
-        $this->assertTrue($sessions->ownedBy($id, $team->owner->id));
-        $this->assertFalse($sessions->ownedBy($id, User::factory()->create()->id));
-        $this->assertFalse($sessions->ownedBy('missing', $team->owner->id));
-    }
-
-    public function test_agent_server_cannot_start_a_session(): void
+    public function test_agent_server_cannot_get_a_ticket(): void
     {
         $team = Team::factory()->create();
         $server = $this->sshServer($team, ['auth_type' => ServerAuthType::Agent, 'password' => null]);
 
         $this->actingAs($team->owner)->postJson(route('terminal.sessions.store'), ['server_id' => $server->id])
             ->assertUnprocessable();
-        Queue::assertNothingPushed();
     }
 
-    public function test_server_of_another_team_cannot_start_a_session(): void
+    public function test_server_of_another_team_cannot_get_a_ticket(): void
     {
         $server = $this->sshServer(Team::factory()->create());
 
@@ -140,9 +105,9 @@ class TerminalTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_terminal_is_off_without_reverb(): void
+    public function test_terminal_is_off_without_a_secret(): void
     {
-        config(['broadcasting.default' => 'log']);
+        config(['terminal.secret' => null]);
         $team = Team::factory()->create();
 
         $this->actingAs($team->owner)
@@ -150,5 +115,17 @@ class TerminalTest extends TestCase
             ->assertStatus(503);
         $this->actingAs($team->owner)->get(route('terminal'))
             ->assertInertia(fn ($page) => $page->where('enabled', false));
+    }
+
+    public function test_bridge_pins_the_first_host_key_only(): void
+    {
+        $server = $this->sshServer(Team::factory()->create());
+        $first = 'SHA256:'.str_repeat('A', 43);
+        $second = 'SHA256:'.str_repeat('B', 43);
+
+        $this->withToken('bridge-secret')->postJson(route('terminal.host-key'), ['server_id' => $server->id, 'fingerprint' => $first])->assertOk();
+        $this->withToken('bridge-secret')->postJson(route('terminal.host-key'), ['server_id' => $server->id, 'fingerprint' => $second])->assertOk();
+
+        $this->assertSame($first, $server->fresh()->ssh_host_fingerprint);
     }
 }

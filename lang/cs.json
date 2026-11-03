@@ -983,7 +983,7 @@
     "Terminal is for team admins": "Terminál je pro správce týmu",
     "Opening a shell on a server is limited to the owner and admins of the team.": "Otevřít shell na serveru může jen vlastník a správci týmu.",
     "Terminal is not set up yet": "Terminál ještě není nastaven",
-    "Set BROADCAST_CONNECTION=reverb and the REVERB_* keys in the .env file, then start Reverb and the terminal worker:": "Nastavte v souboru .env BROADCAST_CONNECTION=reverb a klíče REVERB_*, poté spusťte Reverb a terminálový worker:",
+    "Set TERMINAL_SECRET and TERMINAL_URL in the .env file, then start the terminal server:": "Nastavte v souboru .env TERMINAL_SECRET a TERMINAL_URL a poté spusťte terminálový server:",
     "Open a shell on any of your servers.": "Otevřete shell na kterémkoli ze svých serverů.",
     "Search servers…": "Hledat servery…",
     "No servers yet.": "Zatím žádné servery.",
@@ -1005,8 +1005,5 @@
     "Choose a server on the left to open a shell. You can keep several sessions open in tabs.": "Vyberte server vlevo a otevře se shell. Najednou můžete mít otevřeno více relací na kartách.",
     "Sessions close after :minutes minutes without typing.": "Relace se zavře po :minutes minutách bez psaní.",
     "The terminal is not set up on this installation.": "Terminál není na této instalaci nastaven.",
-    "This server reports through the agent and has no SSH access.": "Tento server se hlásí přes agenta a nemá SSH přístup.",
-    "The connection to the server was lost.": "Spojení se serverem se přerušilo.",
-    "Session ended after inactivity.": "Relace skončila pro nečinnost.",
-    "You are not allowed to open a terminal on this server.": "Na tomto serveru nemáte povoleno otevřít terminál."
+    "This server reports through the agent and has no SSH access.": "Tento server se hlásí přes agenta a nemá SSH přístup."
 }
