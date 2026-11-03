@@ -70,6 +70,8 @@ export type DashboardMetrics = {
 export type DashboardServer = {
     id: number;
     name: string;
+    provider?: string | null;
+    country?: string | null;
     host: string | null;
     port: number;
     username: string | null;

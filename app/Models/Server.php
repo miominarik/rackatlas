@@ -20,6 +20,8 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property int $team_id
  * @property int|null $server_category_id
  * @property string $name
+ * @property string|null $provider Hosting company the server runs at
+ * @property string|null $country ISO 3166-1 alpha-2 code of the country the server is in
  * @property string $host
  * @property int $port
  * @property string|null $ssh_host_fingerprint
@@ -36,7 +38,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
  */
-#[Fillable(['team_id', 'server_category_id', 'name', 'host', 'port', 'username', 'auth_type', 'password', 'ssh_key_id', 'ignored_alerts'])]
+#[Fillable(['team_id', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'password', 'ssh_key_id', 'ignored_alerts'])]
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
@@ -130,7 +132,7 @@ class Server extends Model
     {
         return LogOptions::defaults()
             ->useLogName('server')
-            ->logOnly(['name', 'host', 'port', 'username', 'auth_type', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
+            ->logOnly(['name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

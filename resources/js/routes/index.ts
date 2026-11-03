@@ -621,3 +621,84 @@ dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 })
 
 dashboard.form = dashboardForm
+
+/**
+* @see \App\Http\Controllers\MapController::__invoke
+* @see app/Http/Controllers/MapController.php:15
+* @route '/app/map'
+*/
+export const map = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: map.url(options),
+    method: 'get',
+})
+
+map.definition = {
+    methods: ["get","head"],
+    url: '/app/map',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\MapController::__invoke
+* @see app/Http/Controllers/MapController.php:15
+* @route '/app/map'
+*/
+map.url = (options?: RouteQueryOptions) => {
+    return map.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\MapController::__invoke
+* @see app/Http/Controllers/MapController.php:15
+* @route '/app/map'
+*/
+map.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: map.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MapController::__invoke
+* @see app/Http/Controllers/MapController.php:15
+* @route '/app/map'
+*/
+map.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: map.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\MapController::__invoke
+* @see app/Http/Controllers/MapController.php:15
+* @route '/app/map'
+*/
+const mapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: map.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MapController::__invoke
+* @see app/Http/Controllers/MapController.php:15
+* @route '/app/map'
+*/
+mapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: map.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MapController::__invoke
+* @see app/Http/Controllers/MapController.php:15
+* @route '/app/map'
+*/
+mapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: map.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+map.form = mapForm

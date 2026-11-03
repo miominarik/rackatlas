@@ -28,6 +28,8 @@ export type ServerMetrics = {
 export type ServerSummary = {
     id: number;
     name: string;
+    provider: string | null;
+    country: string | null;
     host: string | null;
     port: number;
     username: string | null;
@@ -43,6 +45,8 @@ export type ServerSummary = {
 export type ServerFormData = {
     id: number;
     name: string;
+    provider: string | null;
+    country: string | null;
     host: string | null;
     port: number;
     username: string | null;

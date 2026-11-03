@@ -16,6 +16,7 @@ import {
     usageLevel,
 } from '@/lib/dashboard';
 import { serverAddress } from '@/lib/server-address';
+import { countryName } from '@/lib/countries';
 import { dotClass } from '@/lib/server-colors';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
@@ -303,6 +304,18 @@ export default function ServerShow({
                         <Field label={t('Address')}>
                             {serverAddress(server, t('Agent'))}
                         </Field>
+                        {(server.provider || server.country) && (
+                            <Field label={t('Location')}>
+                                {[
+                                    server.provider,
+                                    server.country
+                                        ? countryName(server.country, locale)
+                                        : null,
+                                ]
+                                    .filter(Boolean)
+                                    .join(' · ')}
+                            </Field>
+                        )}
                         <Field label={t('Authentication')}>
                             {authLabel}
                             {server.ssh_key_name && ` · ${server.ssh_key_name}`}

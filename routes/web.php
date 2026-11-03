@@ -8,6 +8,7 @@ use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\MetricsProcessesController;
 use App\Http\Controllers\PrivacyController;
@@ -61,6 +62,7 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::delete('servers/{server}/host-key', [ServerController::class, 'forgetHostKey'])->name('servers.host-key.destroy');
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
 
+    Route::get('map', MapController::class)->name('map');
     Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
     Route::get('metrics/processes', MetricsProcessesController::class)
         ->middleware('throttle:60,1')

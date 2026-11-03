@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/hooks/use-translation';
+import { countryName, sortedCountries } from '@/lib/countries';
 import { cn } from '@/lib/utils';
 import { dotClass } from '@/lib/server-colors';
 import { index } from '@/routes/servers';
@@ -51,6 +52,7 @@ type TestResult = { success: boolean; message: string };
 
 const NEW_CATEGORY = '__new__';
 const NO_CATEGORY = '__none__';
+const NO_COUNTRY = '__none__';
 
 const ignorableAlerts: [string, string][] = [
     ['cpu', 'CPU'],
@@ -61,7 +63,7 @@ const ignorableAlerts: [string, string][] = [
 ];
 
 const stepFields: Record<number, string[]> = {
-    0: ['name', 'server_category_id', 'new_category', 'ignored_alerts'],
+    0: ['name', 'provider', 'country', 'server_category_id', 'new_category', 'ignored_alerts'],
     1: ['auth_type', 'host', 'port', 'username', 'password', 'ssh_key_id'],
 };
 
@@ -71,7 +73,8 @@ export default function ServerWizard({
     categories,
     sshKeys: initialKeys,
 }: Props) {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
+    const countries = sortedCountries(locale);
     const editing = server !== null;
 
     const [step, setStep] = useState(0);
@@ -86,6 +89,8 @@ export default function ServerWizard({
 
     const form = useForm({
         name: server?.name ?? '',
+        provider: server?.provider ?? '',
+        country: server?.country ?? '',
         host: server?.host ?? '',
         port: String(server?.port ?? 22),
         username: server?.username ?? 'root',
@@ -307,6 +312,63 @@ export default function ServerWizard({
                                     placeholder={t('e.g. Production web 1')}
                                 />
                                 <InputError message={form.errors.name} />
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="provider">
+                                        {t('Provider (optional)')}
+                                    </Label>
+                                    <Input
+                                        id="provider"
+                                        value={form.data.provider}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'provider',
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder={t('e.g. Hetzner')}
+                                    />
+                                    <InputError message={form.errors.provider} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="country">
+                                        {t('Country (optional)')}
+                                    </Label>
+                                    <Select
+                                        value={form.data.country || NO_COUNTRY}
+                                        onValueChange={(value) =>
+                                            form.setData(
+                                                'country',
+                                                value === NO_COUNTRY
+                                                    ? ''
+                                                    : value,
+                                            )
+                                        }
+                                    >
+                                        <SelectTrigger
+                                            id="country"
+                                            className="w-full"
+                                        >
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={NO_COUNTRY}>
+                                                {t('Not set')}
+                                            </SelectItem>
+                                            {countries.map((country) => (
+                                                <SelectItem
+                                                    key={country.code}
+                                                    value={country.code}
+                                                >
+                                                    {country.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError message={form.errors.country} />
+                                </div>
                             </div>
 
                             <div className="grid gap-2">
@@ -713,6 +775,26 @@ export default function ServerWizard({
                             <dl className="divide-y rounded-lg border text-sm">
                                 {[
                                     [t('Name'), form.data.name],
+                                    ...(form.data.provider.trim() ||
+                                    form.data.country
+                                        ? [
+                                              [
+                                                  t('Location'),
+                                                  [
+                                                      form.data.provider.trim(),
+                                                      form.data.country
+                                                          ? countryName(
+                                                                form.data
+                                                                    .country,
+                                                                locale,
+                                                            )
+                                                          : '',
+                                                  ]
+                                                      .filter(Boolean)
+                                                      .join(' · '),
+                                              ],
+                                          ]
+                                        : []),
                                     ...(isAgent
                                         ? []
                                         : [

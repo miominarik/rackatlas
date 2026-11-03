@@ -3,6 +3,8 @@ import {
     Activity,
     KeyRound,
     LayoutGrid,
+    Map as MapIcon,
+    Map,
     ScrollText,
     Server,
     Shield,
@@ -19,7 +21,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, map as mapRoute } from '@/routes';
 import { index as adminIndex } from '@/routes/admin';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
@@ -37,6 +39,11 @@ const mainNavItems: NavItem[] = [
         title: 'Servers',
         href: serversIndex(),
         icon: Server,
+    },
+    {
+        title: 'Map',
+        href: mapRoute(),
+        icon: MapIcon,
     },
     {
         title: 'Metrics',

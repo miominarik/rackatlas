@@ -46,6 +46,8 @@ class ServerController extends Controller
                     ->map(fn (Server $server) => [
                         'id' => $server->id,
                         'name' => $server->name,
+                        'provider' => $server->provider,
+                        'country' => $server->country,
                         'host' => $server->host,
                         'port' => $server->port,
                         'username' => $server->username,
@@ -75,6 +77,8 @@ class ServerController extends Controller
             'server' => [
                 'id' => $server->id,
                 'name' => $server->name,
+                'provider' => $server->provider,
+                'country' => $server->country,
                 'host' => $server->host,
                 'port' => $server->port,
                 'username' => $server->username,
@@ -189,6 +193,8 @@ class ServerController extends Controller
             'server' => [
                 'id' => $server->id,
                 'name' => $server->name,
+                'provider' => $server->provider,
+                'country' => $server->country,
                 'host' => $server->host,
                 'port' => $server->port,
                 'username' => $server->username,
@@ -285,6 +291,8 @@ class ServerController extends Controller
 
         return [
             'name' => $data['name'],
+            'provider' => filled($data['provider'] ?? null) ? trim($data['provider']) : null,
+            'country' => $data['country'] ?? null,
             'host' => $data['host'] ?? null,
             'port' => $data['port'] ?? 22,
             'username' => $data['username'] ?? null,

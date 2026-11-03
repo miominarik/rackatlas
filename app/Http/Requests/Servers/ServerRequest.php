@@ -5,6 +5,7 @@ namespace App\Http\Requests\Servers;
 use App\Enums\ServerAuthType;
 use App\Models\Server;
 use App\Models\Team;
+use App\Support\EuropeanCountries;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -36,6 +37,8 @@ class ServerRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
+            'provider' => ['nullable', 'string', 'max:100'],
+            'country' => ['nullable', 'string', Rule::in(EuropeanCountries::CODES)],
             'host' => [$needsAddress ? 'required' : 'nullable', 'string', 'max:255', 'regex:/^[A-Za-z0-9._:\-\[\]]+$/'],
             'port' => [$needsAddress ? 'required' : 'nullable', 'integer', 'between:1,65535'],
             'username' => [$needsAddress ? 'required' : 'nullable', 'string', 'max:64', 'regex:/^\S+$/'],
