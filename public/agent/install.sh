@@ -10,6 +10,9 @@
 #
 #   sudo apt update && sudo apt install --only-upgrade rackatlas-agent
 #
+# Add --terminal to also switch on the web terminal service (an outbound connection, no open port),
+# and --terminal-user NAME to choose who the shell runs as (default root).
+#
 # The token can also come from the environment variable RACKATLAS_TOKEN, which keeps
 # it out of the process list.
 
@@ -17,6 +20,8 @@ set -euo pipefail
 
 URL=""
 TOKEN="${RACKATLAS_TOKEN:-}"
+TERMINAL=""
+TERMINAL_USER=""
 
 fail() {
   echo "Error: $*" >&2
@@ -27,6 +32,8 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --url) URL="${2:-}"; shift 2 ;;
     --token) TOKEN="${2:-}"; shift 2 ;;
+    --terminal) TERMINAL=1; shift ;;
+    --terminal-user) TERMINAL_USER="${2:-}"; shift 2 ;;
     *) fail "Unknown option: $1" ;;
   esac
 done
@@ -35,6 +42,11 @@ URL="${URL%/}"
 
 [ -n "$URL" ] || fail "Missing --url"
 [ -n "$TOKEN" ] || fail "Missing --token"
+
+if [ -n "$TERMINAL_USER" ]; then
+  echo "$TERMINAL_USER" | grep -Eq '^[a-z_][a-z0-9_-]*$' || fail "The terminal user has to be a valid account name."
+  getent passwd "$TERMINAL_USER" >/dev/null || fail "The user $TERMINAL_USER does not exist on this server."
+fi
 
 case "$URL" in
   https://*) ;;
@@ -79,12 +91,25 @@ apt-get install -y -qq rackatlas-agent >/dev/null \
 
 echo "Writing the configuration..."
 umask 027
+# Keep the terminal user from an earlier installation unless a new one was given.
+if [ -z "$TERMINAL_USER" ] && [ -r /etc/rackatlas-agent/agent.conf ]; then
+  TERMINAL_USER="$(sed -n 's/^TERMINAL_USER=\([a-z_][a-z0-9_-]*\)$/\1/p' /etc/rackatlas-agent/agent.conf | head -n 1)"
+fi
 printf 'URL=%s\nTOKEN=%s\n' "$URL" "$TOKEN" > /etc/rackatlas-agent/agent.conf
+[ -z "$TERMINAL_USER" ] || printf 'TERMINAL_USER=%s\n' "$TERMINAL_USER" >> /etc/rackatlas-agent/agent.conf
 chown root:rackatlas-agent /etc/rackatlas-agent/agent.conf
 chmod 640 /etc/rackatlas-agent/agent.conf
 
 systemctl daemon-reload
 systemctl enable --now rackatlas-agent.timer >/dev/null 2>&1
+
+if [ -n "$TERMINAL" ]; then
+  echo "Starting the terminal service..."
+  systemctl enable --now rackatlas-terminal.service >/dev/null 2>&1 \
+    || echo "The terminal service could not be started. See: systemctl status rackatlas-terminal" >&2
+  # An older service may already run with the previous token.
+  systemctl restart rackatlas-terminal.service >/dev/null 2>&1 || true
+fi
 
 echo "Sending the first report..."
 if systemctl start rackatlas-agent.service; then

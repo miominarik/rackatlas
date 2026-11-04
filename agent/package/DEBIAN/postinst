@@ -27,6 +27,9 @@ CONF
       if grep -q '^TOKEN=.' /etc/rackatlas-agent/agent.conf; then
         systemctl restart rackatlas-agent.timer || true
       fi
+      # The terminal service is never enabled here. If the admin did enable it, an upgrade restarts it
+      # so it runs the new binary (try-restart does nothing for a service that is not running).
+      systemctl try-restart rackatlas-terminal.service >/dev/null 2>&1 || true
     fi
     ;;
 esac

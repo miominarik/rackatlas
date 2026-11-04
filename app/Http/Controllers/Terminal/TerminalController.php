@@ -34,7 +34,7 @@ class TerminalController extends Controller
                         'country' => $server->country,
                         'status' => $server->status->value,
                         'category' => $server->category?->only('id', 'name', 'color'),
-                        'can_connect' => $server->hasSshAccess(),
+                        'can_connect' => $server->canOpenTerminal(),
                     ])
                 : [],
         ]);

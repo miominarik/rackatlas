@@ -47,6 +47,7 @@ const eventLabels: Record<string, string> = {
     'member-role-changed': 'Member role changed',
     'member-removed': 'Member removed',
     'terminal-opened': 'Terminal opened',
+    'terminal-closed': 'Terminal closed',
 };
 
 const logLabels: Record<string, string> = {

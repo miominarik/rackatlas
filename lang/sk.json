@@ -1009,5 +1009,11 @@
     "Agent only": "Len agent",
     "Collect the data with the agent": "Zbierať údaje agentom",
     "The agent sends the metrics, so we do not poll the server over SSH. The SSH login is kept for the terminal. After saving you get the install command.": "Agent posiela metriky, takže server nekontrolujeme cez SSH. SSH prihlásenie zostáva pre terminál. Po uložení dostanete inštalačný príkaz.",
-    "data from the agent": "údaje z agenta"
+    "data from the agent": "údaje z agenta",
+    "Terminal closed": "Terminál zatvorený",
+    "Terminal through the agent": "Terminál cez agenta",
+    "terminal through the agent": "terminál cez agenta",
+    "Open the terminal through the agent": "Otvárať terminál cez agenta",
+    "A second service on the server connects out to RackAtlas and starts the shell, so the SSH port can stay closed. It runs as root, so only enable it where you want a remote shell.": "Druhá služba na serveri sa pripojí von do RackAtlasu a spustí shell, takže SSH port môže ostať zatvorený. Beží ako root, preto ju zapnite len tam, kde chcete vzdialený shell.",
+    "The install command above already switches the terminal on. On a server where the agent is installed already, run this instead. The terminal service connects out to RackAtlas, so no port has to be open. It runs as root and opens the shell of the user set as TERMINAL_USER in agent.conf (root by default).": "Inštalačný príkaz vyššie už terminál zapína. Na serveri, kde je agent nainštalovaný, spustite namiesto toho tento. Terminálová služba sa pripája von do RackAtlasu, takže netreba otvárať žiadny port. Beží ako root a otvára shell používateľa z TERMINAL_USER v agent.conf (predvolene root)."
 }

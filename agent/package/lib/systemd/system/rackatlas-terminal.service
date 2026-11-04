@@ -1,0 +1,17 @@
+[Unit]
+Description=RackAtlas web terminal (opens shells through an outbound connection)
+Documentation=https://github.com/miominarik/rackatlas
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/rackatlas-terminal
+Restart=always
+RestartSec=10
+# This service runs as root on purpose: it starts the shell of TERMINAL_USER (root by default) and
+# has to be able to switch to that user. A sandbox such as ProtectSystem or NoNewPrivileges would
+# also apply to the shell, so it is not set. It is not enabled by the package, only on request.
+
+[Install]
+WantedBy=multi-user.target

@@ -13,6 +13,9 @@ server. It is shipped as the `.deb` package `rackatlas-agent` from our own signe
 | `agent/package/usr/bin/rackatlas-agent`                            | The agent itself (POSIX `sh`).                                                                                     |
 | `agent/package/lib/systemd/system/rackatlas-agent.{service,timer}` | Runs the agent once a minute as the user `rackatlas-agent`.                                                        |
 | `agent/package/DEBIAN/{control,postinst,prerm,postrm}`             | Package metadata and maintainer scripts.                                                                           |
+| `agent/terminal/`                                                  | The optional terminal service (Go, `main.go`, `go.mod`, `go.sum`). Built into the package by `build-deb.sh`.       |
+| `agent/package/usr/bin/rackatlas-terminal`                         | `sh` wrapper that starts the binary for this CPU (`/usr/lib/rackatlas-agent/rackatlas-terminal-{amd64,arm64}`).     |
+| `agent/package/lib/systemd/system/rackatlas-terminal.service`      | Runs the terminal service as root. Never enabled by the package, only by `--terminal` or by hand.                 |
 | `agent/build-deb.sh [dir]`                                         | Builds the `.deb` (`dpkg-deb`, or `tar` + `ar` on macOS).                                                          |
 | `agent/apt-repo.py`                                                | Adds a `.deb` to the apt repository, writes the indexes, signs them with GPG, verifies the result.                 |
 | `agent/publish-apt.sh KEYID`                                       | Build + publish in one step, writes `public/apt`.                                                                  |
@@ -22,6 +25,27 @@ server. It is shipped as the `.deb` package `rackatlas-agent` from our own signe
 Server side (Laravel): `routes/api.php` (`POST /api/agent/ingest`), `app/Http/Middleware/AuthenticateAgent.php`,
 `app/Http/Controllers/Api/AgentIngestController.php`, `app/Services/Ssh/{AgentIngestor,MetricsParser,LogParser}.php`,
 `app/Http/Controllers/Servers/ServerAgentController.php` and `resources/js/pages/servers/agent.tsx` (install page).
+
+## The terminal service (the one exception to "runs unprivileged")
+
+The web terminal can run through the agent so the SSH port stays closed. `rackatlas-terminal` is a second,
+separate service in the same package. The metrics agent above is unchanged and keeps all its rules.
+
+- It reads `URL`, `TOKEN` and `TERMINAL_USER` (default `root`) from `agent.conf`, asks `GET /api/agent/terminal`
+  whether the terminal is on for this server and where the bridge is, then keeps one outbound WebSocket to the
+  bridge (`resources/terminal/server.mjs`, path `/agent`). The bridge checks the token again with the app.
+  Shells start only when the bridge sends `open`. Protocol: see the header of `server.mjs` and `main.go`.
+- It runs as root on purpose and has no sandbox, because the shell inherits it. It is **off by default**: the
+  package never enables it. Two switches must both be on: the service (`--terminal` of the installer or
+  `systemctl enable --now rackatlas-terminal`) and `servers.agent_terminal` in the app.
+- It shares the token and the rate limit of the agent (10 requests per minute). It polls once a minute while the
+  terminal is off and backs off from 15 s to 120 s on failure. Keep it that way.
+- The token is only sent as `Authorization: Bearer` over `https://` or `wss://` (`ws://` only to loopback).
+- The package stays `Architecture: all`: it carries a static binary per architecture (amd64, arm64) and the wrapper
+  picks one. `build-deb.sh` needs Go on the machine that builds it. `go.sum` must be committed
+  (`cd agent/terminal && go mod tidy` after changing a dependency), the build never fetches unchecked modules.
+- Go is built with `CGO_ENABLED=0`, so it runs on any Debian/Ubuntu. Dependencies: `gorilla/websocket`, `creack/pty`.
+  Do not add more without asking.
 
 ## Rules for the script
 
@@ -42,6 +66,7 @@ Server side (Laravel): `routes/api.php` (`POST /api/agent/ingest`), `app/Http/Mi
   (`cpu-prev` state), with a one second sample as the fallback.
 - **`LC_ALL=C`** is exported so the output of tools is parseable. Keep it.
 - No unit tests are written in this project (standing instruction of the owner). Verify with the steps below.
+  (The Laravel side of the terminal does have feature tests, they are in `tests/Feature/Http/Controllers/Terminal`.)
 
 ## The report format is a contract with the server
 
@@ -115,6 +140,13 @@ There is no Debian here (macOS), so test in pieces, never against the production
 - Real `apt install` / `apt upgrade` cannot be tested here. Say so in your report and ask the owner to try it on
   one server (`apt-cache policy rackatlas-agent` must show the candidate from `rackatlas.dev`).
 
+## Testing the terminal service
+
+`cd agent/terminal && go vet ./... && go build ./...` compiles it on macOS too (Linux-only calls such as `Credential` are
+in `syscall` and build everywhere Go supports). The bridge can be tried with a fake app and a fake agent in Node
+(see how `resources/terminal/server.mjs` is started in `package.json`). A real shell needs Linux, so ask the owner to try
+`systemctl enable --now rackatlas-terminal` on one server and open the terminal page.
+
 ## Installer (`public/agent/install.sh`)
 
 It must stay `bash`-compatible with `set -euo pipefail`, refuse non-https URLs, validate the token format
@@ -125,6 +157,7 @@ arguments, change both.
 
 ## Checklist before you finish
 
+- [ ] If the terminal service changed: `go vet`, `go build`, `resources/terminal/server.mjs` and the copy in `resources/terminal/Dockerfile` are in sync.
 - [ ] Script is POSIX `sh`, secrets are not printed, runtime stays well below 45 s.
 - [ ] Report format change is backward compatible and handled in `MetricsParser`/`LogParser`/`AgentIngestor`.
 - [ ] `agent/VERSION` is raised, `DEBIAN` scripts are idempotent.

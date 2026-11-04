@@ -22,6 +22,15 @@ trap 'rm -rf "$STAGE"' EXIT
 
 cp -R "$SCRIPT_DIR/package/." "$STAGE/"
 
+# The optional terminal service is a Go program, one static binary per architecture.
+command -v go >/dev/null 2>&1 || { echo "Go is needed to build the terminal service (https://go.dev/dl)." >&2; exit 1; }
+mkdir -p "$STAGE/usr/lib/rackatlas-agent"
+for arch in amd64 arm64; do
+  (cd "$SCRIPT_DIR/terminal" && CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
+    go build -trimpath -ldflags "-s -w -X main.version=$(cat "$SCRIPT_DIR/VERSION")" \
+    -o "$STAGE/usr/lib/rackatlas-agent/rackatlas-terminal-$arch" .)
+done
+
 for file in DEBIAN/control usr/bin/rackatlas-agent; do
   sed "s/@VERSION@/$VERSION/g" "$STAGE/$file" > "$STAGE/$file.tmp"
   mv "$STAGE/$file.tmp" "$STAGE/$file"
@@ -29,7 +38,7 @@ done
 
 find "$STAGE" -type d -exec chmod 755 {} +
 find "$STAGE" -type f -exec chmod 644 {} +
-chmod 755 "$STAGE/DEBIAN/postinst" "$STAGE/DEBIAN/prerm" "$STAGE/DEBIAN/postrm" "$STAGE/usr/bin/rackatlas-agent"
+chmod 755 "$STAGE/DEBIAN/postinst" "$STAGE/DEBIAN/prerm" "$STAGE/DEBIAN/postrm" "$STAGE/usr/bin/rackatlas-agent" "$STAGE/usr/bin/rackatlas-terminal" "$STAGE"/usr/lib/rackatlas-agent/rackatlas-terminal-*
 
 rm -f "$OUT"
 

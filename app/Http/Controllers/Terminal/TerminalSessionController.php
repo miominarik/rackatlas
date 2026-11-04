@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Terminal;
 
-use App\Enums\ServerAuthType;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class TerminalSessionController extends Controller
         abort_if($server === null, 404);
         $this->authorize('manage', $team);
 
-        if ($server->auth_type === ServerAuthType::Agent) {
+        if (! $server->canOpenTerminal()) {
             return response()->json(['message' => __('This server reports through the agent and has no SSH access.')], 422);
         }
 

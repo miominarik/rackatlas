@@ -29,8 +29,11 @@ class ServerAgentController extends Controller
                 'last_seen_at' => $server->last_seen_at?->toIso8601String(),
                 'agent_version' => $server->agent_version,
             ],
-            'install_command' => $token ? $this->installCommand($base, $token) : null,
-            'manual_command' => $token ? $this->manualCommand($base, $token) : null,
+            'install_command' => $token ? $this->installCommand($base, $token, $server->agent_terminal) : null,
+            'manual_command' => $token ? $this->manualCommand($base, $token, $server->agent_terminal) : null,
+            'terminal_command' => $server->agent_terminal
+                ? 'sudo apt update && sudo apt install --only-upgrade rackatlas-agent && sudo systemctl enable --now rackatlas-terminal'
+                : null,
             'update_command' => 'sudo apt update && sudo apt install --only-upgrade rackatlas-agent',
             'base_url' => $base,
             'generated_at' => now()->toIso8601String(),
@@ -52,21 +55,23 @@ class ServerAgentController extends Controller
     }
 
     /** Pass the token through standard input instead of exposing it in process arguments. */
-    private function installCommand(string $base, string $token): string
+    private function installCommand(string $base, string $token, bool $terminal): string
     {
         return sprintf(<<<'SH'
-        sudo bash -c 'set -euo pipefail; read -r RACKATLAS_TOKEN; export RACKATLAS_TOKEN; curl -fsSL "$1/agent/install.sh" | bash -s -- --url "$1"' -- %s <<'RACKATLAS_TOKEN'
+        sudo bash -c 'set -euo pipefail; read -r RACKATLAS_TOKEN; export RACKATLAS_TOKEN; curl -fsSL "$1/agent/install.sh" | bash -s -- --url "$1"%s' -- %s <<'RACKATLAS_TOKEN'
         %s
         RACKATLAS_TOKEN
-        SH, escapeshellarg($base), $token);
+        SH, $terminal ? ' --terminal' : '', escapeshellarg($base), $token);
     }
 
     /**
      * The same installation as the installer script, step by step with apt. The token goes
      * through standard input, so it does not show up in the list of processes.
      */
-    private function manualCommand(string $base, string $token): string
+    private function manualCommand(string $base, string $token, bool $terminal): string
     {
+        $enableTerminal = $terminal ? "\nsudo systemctl enable --now rackatlas-terminal.service" : '';
+
         return <<<SH
         sudo mkdir -p /etc/apt/keyrings
         sudo curl -fsSL {$base}/apt/rackatlas.gpg -o /etc/apt/keyrings/rackatlas.gpg
@@ -76,7 +81,7 @@ class ServerAgentController extends Controller
         URL={$base}
         TOKEN={$token}
         EOF
-        sudo systemctl enable --now rackatlas-agent.timer && sudo systemctl start rackatlas-agent.service
+        sudo systemctl enable --now rackatlas-agent.timer && sudo systemctl start rackatlas-agent.service{$enableTerminal}
         SH;
     }
 

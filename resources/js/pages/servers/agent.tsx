@@ -25,6 +25,7 @@ type Props = {
     install_command: string | null;
     manual_command: string | null;
     update_command: string;
+    terminal_command: string | null;
     base_url: string;
     generated_at: string;
 };
@@ -34,6 +35,7 @@ export default function AgentInstall({
     install_command,
     manual_command,
     update_command,
+    terminal_command,
     generated_at,
 }: Props) {
     const { t, locale } = useTranslation();
@@ -183,6 +185,20 @@ export default function AgentInstall({
                     </p>
                     <CopyField value={update_command} />
                 </div>
+
+                {terminal_command && (
+                    <div className="space-y-2 rounded-xl border p-4 text-sm">
+                        <p className="font-medium">
+                            {t('Terminal through the agent')}
+                        </p>
+                        <p className="text-muted-foreground">
+                            {t(
+                                'The install command above already switches the terminal on. On a server where the agent is installed already, run this instead. The terminal service connects out to RackAtlas, so no port has to be open. It runs as root and opens the shell of the user set as TERMINAL_USER in agent.conf (root by default).',
+                            )}
+                        </p>
+                        <CopyField value={terminal_command} />
+                    </div>
+                )}
 
                 <details className="rounded-xl border p-4 text-sm">
                     <summary className="cursor-pointer font-medium">

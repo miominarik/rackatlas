@@ -14,13 +14,25 @@ RUN npm install --omit=dev --no-audit --no-fund --no-package-lock ssh2@^1.17.0 w
 # The hosting builds with an empty context, so the app is embedded here (copy of server.mjs).
 COPY <<'EOF_SERVER' /app/server.mjs
 /**
- * Web terminal bridge: WebSocket on one side (the browser), an SSH shell on the other.
+ * Web terminal bridge: WebSocket on one side (the browser), a shell on the other.
  *
- * The browser sends a one-time ticket issued by the Laravel app. This process swaps it for the login
- * details of the server over the app's private API, so credentials never reach the browser.
+ * The browser sends a one-time ticket issued by the Laravel app. This process swaps it for the way
+ * to reach the server over the app's private API, so credentials never reach the browser. There are
+ * two ways to reach a server:
+ *
+ *  - ssh:   this process logs in over SSH (the app returns the login details).
+ *  - agent: the terminal service on the server keeps a WebSocket open to /agent, so no port has to
+ *           be open on the server. The shell runs there, this process only relays the bytes.
  *
  * Frames from the browser: {"t":"i","d":"<keystrokes>"} and {"t":"r","c":cols,"r":rows}.
  * Frames to the browser: binary shell output, and {"t":"status"|"error",...} control messages.
+ *
+ * Frames to the terminal service (many shells share one connection, a session id tells them apart):
+ *   text:   {"t":"open","id":1,"cols":80,"rows":24} {"t":"r","id":1,"c":..,"r":..} {"t":"close","id":1}
+ *   binary: 4 bytes session id (big endian) + keystrokes
+ * Frames from the terminal service:
+ *   text:   {"t":"ready"|"exit","id":1} {"t":"error","id":1,"message":"..."}
+ *   binary: 4 bytes session id + shell output
  *
  * Start with `npm run terminal` (Node 20.6+, reads .env).
  */
@@ -31,9 +43,10 @@ import { WebSocketServer } from 'ws';
 const appUrl = (process.env.TERMINAL_APP_URL || process.env.APP_URL || '').replace(/\/$/, '');
 const secret = process.env.TERMINAL_SECRET || '';
 const host = process.env.TERMINAL_HOST || '127.0.0.1';
-const port = Number(process.env.TERMINAL_PORT || 443);
+const port = Number(process.env.TERMINAL_PORT || 8787);
 const idleMs = Number(process.env.TERMINAL_IDLE_MINUTES || 30) * 60_000;
 const maxSessions = Number(process.env.TERMINAL_MAX_SESSIONS || 50);
+const maxPerAgent = Number(process.env.TERMINAL_MAX_PER_SERVER || 5);
 const allowedOrigin = process.env.TERMINAL_ALLOWED_ORIGIN || (appUrl ? new URL(appUrl).origin : '');
 
 if (!appUrl || !secret) {
@@ -42,6 +55,9 @@ if (!appUrl || !secret) {
 }
 
 let sessions = 0;
+
+/** Terminal services that are connected right now: server id -> { ws, shells: Map(id -> handlers), next }. */
+const agents = new Map();
 
 async function api(path, body) {
     const response = await fetch(`${appUrl}/api/terminal/${path}`, {
@@ -63,11 +79,136 @@ const http = createServer((request, response) => {
     response.end(request.url === '/up' ? 'ok' : 'not found');
 });
 
-const wss = new WebSocketServer({
-    server: http,
-    maxPayload: 256 * 1024,
-    verifyClient: ({ origin }) => allowedOrigin === '' || origin === allowedOrigin,
+const wss = new WebSocketServer({ noServer: true, maxPayload: 256 * 1024 });
+const agentWss = new WebSocketServer({ noServer: true, maxPayload: 1024 * 1024 });
+
+http.on('upgrade', (request, socket, head) => {
+    const path = new URL(request.url, 'http://localhost').pathname;
+
+    if (path === '/agent') {
+        // Not a browser, so there is no origin to check. The token is checked after the upgrade.
+        agentWss.handleUpgrade(request, socket, head, (ws) => agentWss.emit('connection', ws, request));
+
+        return;
+    }
+
+    if (allowedOrigin !== '' && request.headers.origin !== allowedOrigin) {
+        socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');
+        socket.destroy();
+
+        return;
+    }
+
+    wss.handleUpgrade(request, socket, head, (ws) => wss.emit('connection', ws, request));
 });
+
+const frame = (id, data) => {
+    const head = Buffer.alloc(4);
+    head.writeUInt32BE(id);
+
+    return Buffer.concat([head, Buffer.isBuffer(data) ? data : Buffer.from(data)]);
+};
+
+agentWss.on('connection', (ws, request) => {
+    const header = String(request.headers.authorization || '');
+    const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+    let entry = null;
+    let alive = true;
+    let gone = false;
+
+    ws.on('pong', () => {
+        alive = true;
+    });
+
+    const drop = () => {
+        gone = true;
+
+        if (entry === null) {
+            return;
+        }
+
+        if (agents.get(entry.serverId) === entry) {
+            agents.delete(entry.serverId);
+        }
+
+        for (const shell of entry.shells.values()) {
+            shell.onError('The terminal service on the server disconnected.');
+        }
+
+        entry.shells.clear();
+    };
+
+    ws.on('close', drop);
+    ws.on('error', drop);
+
+    ws.on('message', (raw, isBinary) => {
+        if (entry === null) {
+            return;
+        }
+
+        if (isBinary) {
+            if (raw.length > 4) {
+                entry.shells.get(raw.readUInt32BE(0))?.onData(raw.subarray(4));
+            }
+
+            return;
+        }
+
+        let message;
+
+        try {
+            message = JSON.parse(raw.toString());
+        } catch {
+            return;
+        }
+
+        const shell = entry.shells.get(message.id);
+
+        if (message.t === 'ready') {
+            shell?.onReady();
+        } else if (message.t === 'exit') {
+            shell?.onExit();
+        } else if (message.t === 'error') {
+            shell?.onError(String(message.message || 'The shell could not be opened.'));
+        }
+    });
+
+    (async () => {
+        const auth = await api('agent-auth', { token }).catch(() => null);
+
+        if (gone) {
+            return;
+        }
+
+        if (auth === null || !auth.ok) {
+            ws.close(1008, 'unauthorized');
+
+            return;
+        }
+
+        const serverId = auth.data.server_id;
+
+        // A service that reconnects replaces its previous, probably dead, connection.
+        agents.get(serverId)?.ws.close(1000, 'replaced');
+
+        entry = { serverId, ws, shells: new Map(), next: 1 };
+        agents.set(serverId, entry);
+        ws.send(JSON.stringify({ t: 'hello' }));
+    })();
+
+    ws.heartbeat = () => {
+        if (!alive) {
+            ws.terminate();
+
+            return;
+        }
+
+        alive = false;
+        ws.ping();
+    };
+});
+
+setInterval(() => agentWss.clients.forEach((ws) => ws.heartbeat?.()), 30_000).unref();
 
 wss.on('connection', (ws, request) => {
     const control = (message) => ws.readyState === ws.OPEN && ws.send(JSON.stringify(message));
@@ -84,13 +225,16 @@ wss.on('connection', (ws, request) => {
 
     const token = new URL(request.url, 'http://localhost').searchParams.get('token') || '';
     const ip = (request.headers['x-forwarded-for'] || request.socket.remoteAddress || '').split(',')[0].trim();
+
+    /** What the browser talks to: write(keystrokes), resize(cols, rows), end(). Set once a shell is open. */
+    let shell = null;
     let ssh = null;
-    let stream = null;
     let size = { cols: 80, rows: 24 };
     let sized = false;
     let sizeWaiter = null;
     let idle = null;
     let closed = false;
+    let granted = null;
 
     const touch = () => {
         clearTimeout(idle);
@@ -105,7 +249,17 @@ wss.on('connection', (ws, request) => {
         closed = true;
         sessions--;
         clearTimeout(idle);
+        shell?.end();
         ssh?.end();
+
+        if (granted !== null) {
+            api('session-ended', {
+                server_id: granted.server_id,
+                user_id: granted.user_id,
+                via: granted.mode,
+                seconds: Math.round((Date.now() - granted.since) / 1000),
+            }).catch(() => {});
+        }
     };
 
     ws.on('close', cleanup);
@@ -129,45 +283,65 @@ wss.on('connection', (ws, request) => {
             const rows = Math.min(Math.max(Number(message.r) || 24, 2), 200);
 
             size = { cols, rows };
-            stream?.setWindow(rows, cols, 0, 0);
+            shell?.resize(cols, rows);
 
             if (!sized) {
                 sized = true;
                 sizeWaiter?.();
             }
-        } else if (message.t === 'i' && stream && typeof message.d === 'string') {
+        } else if (message.t === 'i' && shell && typeof message.d === 'string') {
             touch();
-            stream.write(message.d);
+            shell.write(message.d);
         }
     });
 
-    (async () => {
-        // The first resize frame carries the real window size, so the shell starts with it.
-        const waitForSize = new Promise((resolve) => {
-            sizeWaiter = resolve;
-            setTimeout(resolve, 1500);
+    const output = (data) => ws.readyState === ws.OPEN && ws.send(data, { binary: true });
+
+    /** The shell runs on the server, behind the terminal service that is connected to /agent. */
+    const openViaAgent = (login) => {
+        const entry = agents.get(login.server_id);
+
+        if (!entry || entry.ws.readyState !== entry.ws.OPEN) {
+            return fail('The terminal service on this server is not connected. Check that rackatlas-terminal is running there.');
+        }
+
+        if (entry.shells.size >= maxPerAgent) {
+            return fail('Too many terminals are open on this server.');
+        }
+
+        const id = entry.next++;
+        const startTimeout = setTimeout(() => fail('The server did not open the shell in time.'), 15_000);
+
+        entry.shells.set(id, {
+            onData: output,
+            onReady: () => {
+                clearTimeout(startTimeout);
+                control({ t: 'status', state: 'ready' });
+            },
+            onExit: () => ws.close(),
+            onError: (message) => {
+                clearTimeout(startTimeout);
+                fail(message);
+            },
         });
 
-        const exchanged = await api('exchange', { token, ip: ip || null }).catch(() => null);
+        shell = {
+            write: (data) => entry.ws.readyState === entry.ws.OPEN && entry.ws.send(frame(id, data), { binary: true }),
+            resize: (cols, rows) => entry.ws.readyState === entry.ws.OPEN && entry.ws.send(JSON.stringify({ t: 'r', id, c: cols, r: rows })),
+            end: () => {
+                clearTimeout(startTimeout);
 
-        if (exchanged === null) {
-            return fail('The application is not reachable.');
-        }
+                if (entry.shells.delete(id) && entry.ws.readyState === entry.ws.OPEN) {
+                    entry.ws.send(JSON.stringify({ t: 'close', id }));
+                }
+            },
+        };
 
-        if (!exchanged.ok) {
-            return fail(exchanged.data.message || 'The ticket is invalid or expired.');
-        }
+        entry.ws.send(JSON.stringify({ t: 'open', id, cols: size.cols, rows: size.rows }));
+    };
 
-        const login = exchanged.data;
-
-        await waitForSize;
-
-        if (closed) {
-            return;
-        }
-
+    const openViaSsh = (login) => {
         ssh = new Client();
-        touch();
 
         ssh.on('error', (error) => {
             const text = String(error.level === 'client-authentication'
@@ -179,17 +353,21 @@ wss.on('connection', (ws, request) => {
         ssh.on('close', () => ws.close());
 
         ssh.on('ready', () => {
-            ssh.shell({ term: 'xterm-256color', cols: size.cols, rows: size.rows }, (error, shell) => {
+            ssh.shell({ term: 'xterm-256color', cols: size.cols, rows: size.rows }, (error, stream) => {
                 if (error) {
                     return fail('The shell could not be opened.');
                 }
 
-                stream = shell;
+                shell = {
+                    write: (data) => stream.write(data),
+                    resize: (cols, rows) => stream.setWindow(rows, cols, 0, 0),
+                    end: () => {},
+                };
                 control({ t: 'status', state: 'ready' });
 
-                shell.on('data', (data) => ws.readyState === ws.OPEN && ws.send(data, { binary: true }));
-                shell.stderr.on('data', (data) => ws.readyState === ws.OPEN && ws.send(data, { binary: true }));
-                shell.on('close', () => ws.close());
+                stream.on('data', output);
+                stream.stderr.on('data', output);
+                stream.on('close', () => ws.close());
             });
         });
 
@@ -224,6 +402,41 @@ wss.on('connection', (ws, request) => {
             });
         } catch {
             fail('The SSH key could not be used.');
+        }
+    };
+
+    (async () => {
+        // The first resize frame carries the real window size, so the shell starts with it.
+        const waitForSize = new Promise((resolve) => {
+            sizeWaiter = resolve;
+            setTimeout(resolve, 1500);
+        });
+
+        const exchanged = await api('exchange', { token, ip: ip || null }).catch(() => null);
+
+        if (exchanged === null) {
+            return fail('The application is not reachable.');
+        }
+
+        if (!exchanged.ok) {
+            return fail(exchanged.data.message || 'The ticket is invalid or expired.');
+        }
+
+        const login = exchanged.data;
+
+        await waitForSize;
+
+        if (closed) {
+            return;
+        }
+
+        granted = { server_id: login.server_id, user_id: login.user_id, mode: login.mode === 'agent' ? 'agent' : 'ssh', since: Date.now() };
+        touch();
+
+        if (login.mode === 'agent') {
+            openViaAgent(login);
+        } else {
+            openViaSsh(login);
         }
     })();
 });

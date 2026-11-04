@@ -53,6 +53,7 @@ class ServerController extends Controller
                         'username' => $server->username,
                         'auth_type' => $server->auth_type->value,
                         'uses_agent' => $server->collectsViaAgent(),
+                        'agent_terminal' => $server->opensTerminalViaAgent(),
                         'ssh_key_name' => $server->sshKey?->name,
                         'agent_version' => $server->agent_version,
                         'server_category_id' => $server->server_category_id,
@@ -202,6 +203,7 @@ class ServerController extends Controller
                 'username' => $server->username,
                 'auth_type' => $server->auth_type->value,
                 'uses_agent' => $server->uses_agent,
+                'agent_terminal' => $server->agent_terminal,
                 'ssh_key_id' => $server->ssh_key_id,
                 'server_category_id' => $server->server_category_id,
                 'ssh_host_fingerprint' => $server->ssh_host_fingerprint,
@@ -289,6 +291,7 @@ class ServerController extends Controller
                 ->firstOrCreate(['name' => trim($data['new_category'])])->id;
         }
 
+        $usesAgent = $data['auth_type'] === ServerAuthType::Agent->value || ($data['uses_agent'] ?? false);
         $usesPassword = $data['auth_type'] === ServerAuthType::Password->value;
         $usesKey = $data['auth_type'] === ServerAuthType::Key->value;
 
@@ -302,6 +305,7 @@ class ServerController extends Controller
             'server_category_id' => $categoryId,
             'auth_type' => $data['auth_type'],
             'uses_agent' => $data['auth_type'] !== ServerAuthType::Agent->value && ($data['uses_agent'] ?? false),
+            'agent_terminal' => $usesAgent && ($data['agent_terminal'] ?? false),
             'password' => $usesPassword ? ($data['password'] ?? null) : null,
             'ssh_key_id' => $usesKey ? $data['ssh_key_id'] : null,
             'ignored_alerts' => array_values(array_unique($data['ignored_alerts'] ?? [])) ?: null,

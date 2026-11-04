@@ -128,4 +128,126 @@ class TerminalTest extends TestCase
 
         $this->assertSame($first, $server->fresh()->ssh_host_fingerprint);
     }
+
+    private function agentTerminalServer(Team $team, array $overrides = []): Server
+    {
+        return $this->sshServer($team, [
+            'auth_type' => ServerAuthType::Agent, 'password' => null, 'agent_terminal' => true,
+            ...$overrides,
+        ]);
+    }
+
+    public function test_agent_server_with_terminal_gets_a_ticket_and_the_agent_mode(): void
+    {
+        $team = Team::factory()->create();
+        $server = $this->agentTerminalServer($team);
+        $token = $this->ticketFor($team->owner, $server);
+
+        $this->withToken('bridge-secret')->postJson(route('terminal.exchange'), ['token' => $token, 'ip' => '203.0.113.7'])
+            ->assertOk()
+            ->assertJsonPath('mode', 'agent')
+            ->assertJsonPath('server_id', $server->id)
+            ->assertJsonPath('user_id', $team->owner->id)
+            ->assertJsonMissingPath('password');
+
+        $this->assertDatabaseHas('activity_log', ['event' => 'terminal-opened', 'causer_id' => $team->owner->id]);
+    }
+
+    public function test_agent_terminal_wins_over_ssh_for_a_server_with_both(): void
+    {
+        $team = Team::factory()->create();
+        $server = $this->sshServer($team, ['uses_agent' => true, 'agent_terminal' => true]);
+        $token = $this->ticketFor($team->owner, $server);
+
+        $this->withToken('bridge-secret')->postJson(route('terminal.exchange'), ['token' => $token])
+            ->assertOk()
+            ->assertJsonPath('mode', 'agent');
+    }
+
+    public function test_ssh_exchange_reports_the_ssh_mode(): void
+    {
+        $team = Team::factory()->create();
+        $token = $this->ticketFor($team->owner, $this->sshServer($team));
+
+        $this->withToken('bridge-secret')->postJson(route('terminal.exchange'), ['token' => $token])
+            ->assertOk()
+            ->assertJsonPath('mode', 'ssh');
+    }
+
+    public function test_terminal_flag_without_the_agent_does_not_open_a_terminal_through_it(): void
+    {
+        $team = Team::factory()->create();
+        $server = $this->sshServer($team, ['agent_terminal' => true]);
+
+        $this->assertFalse($server->opensTerminalViaAgent());
+        $this->assertTrue($server->canOpenTerminal());
+    }
+
+    public function test_page_marks_agent_servers_with_terminal_as_connectable(): void
+    {
+        $team = Team::factory()->create();
+        $this->agentTerminalServer($team);
+
+        $this->actingAs($team->owner)->get(route('terminal'))
+            ->assertInertia(fn ($page) => $page->where('servers.0.can_connect', true));
+    }
+
+    public function test_agent_asks_whether_the_terminal_is_on_and_where_the_bridge_is(): void
+    {
+        $team = Team::factory()->create();
+        $on = $this->agentTerminalServer($team);
+        $off = $this->agentTerminalServer($team, ['name' => 'quiet', 'agent_terminal' => false]);
+
+        $this->withToken($on->issueAgentToken())->getJson(route('agent.terminal'))
+            ->assertOk()
+            ->assertExactJson(['enabled' => true, 'url' => 'wss://terminal.test']);
+
+        $this->withToken($off->issueAgentToken())->getJson(route('agent.terminal'))
+            ->assertOk()
+            ->assertExactJson(['enabled' => false, 'url' => null]);
+
+        $this->withToken('ra_'.str_repeat('x', 40))->getJson(route('agent.terminal'))->assertUnauthorized();
+    }
+
+    public function test_bridge_accepts_only_the_token_of_a_server_with_the_agent_terminal(): void
+    {
+        $team = Team::factory()->create();
+        $on = $this->agentTerminalServer($team);
+        $off = $this->agentTerminalServer($team, ['name' => 'quiet', 'agent_terminal' => false]);
+
+        $this->withToken('bridge-secret')->postJson(route('terminal.agent-auth'), ['token' => $on->issueAgentToken()])
+            ->assertOk()->assertJsonPath('server_id', $on->id);
+        $this->withToken('bridge-secret')->postJson(route('terminal.agent-auth'), ['token' => $off->issueAgentToken()])
+            ->assertForbidden();
+        $this->withToken('bridge-secret')->postJson(route('terminal.agent-auth'), ['token' => 'nonsense'])
+            ->assertForbidden();
+        $this->withoutHeader('Authorization')->postJson(route('terminal.agent-auth'), ['token' => $on->issueAgentToken()])->assertUnauthorized();
+    }
+
+    public function test_bridge_reports_a_finished_session_to_the_activity_log(): void
+    {
+        $team = Team::factory()->create();
+        $server = $this->agentTerminalServer($team);
+
+        $this->withToken('bridge-secret')->postJson(route('terminal.session-ended'), [
+            'server_id' => $server->id, 'user_id' => $team->owner->id, 'seconds' => 42, 'via' => 'agent',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('activity_log', ['event' => 'terminal-closed', 'causer_id' => $team->owner->id]);
+    }
+
+    public function test_saving_a_server_keeps_the_terminal_flag_only_with_the_agent(): void
+    {
+        $team = Team::factory()->create();
+        $payload = ['name' => 'web', 'host' => '8.8.8.8', 'port' => 22, 'username' => 'root', 'auth_type' => 'password', 'password' => 'secret'];
+
+        $this->actingAs($team->owner)->post(route('servers.store'), [...$payload, 'agent_terminal' => true])->assertSessionHasNoErrors();
+        $this->assertFalse($team->servers()->firstOrFail()->agent_terminal);
+
+        $this->actingAs($team->owner)->post(route('servers.store'), [...$payload, 'name' => 'api', 'uses_agent' => true, 'agent_terminal' => true])->assertSessionHasNoErrors();
+        $this->assertTrue($team->servers()->where('name', 'api')->firstOrFail()->agent_terminal);
+
+        $this->actingAs($team->owner)->post(route('servers.store'), ['name' => 'bare', 'auth_type' => 'agent', 'agent_terminal' => true])->assertSessionHasNoErrors();
+        $this->assertTrue($team->servers()->where('name', 'bare')->firstOrFail()->agent_terminal);
+    }
 }
