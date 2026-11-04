@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use SocialiteProviders\Manager\SocialiteWasCalled;
-use SocialiteProviders\Microsoft\MicrosoftExtendSocialite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,8 +42,6 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Logout::class, [LogAuthActivity::class, 'logout']);
         Event::listen(Failed::class, [LogAuthActivity::class, 'failed']);
         Event::listen(PasswordReset::class, [LogAuthActivity::class, 'passwordReset']);
-
-        Event::listen(SocialiteWasCalled::class, [MicrosoftExtendSocialite::class, 'handle']);
 
         Gate::define('access-admin', fn (User $user) => $user->is_admin);
     }

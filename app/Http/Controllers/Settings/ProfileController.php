@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
-use App\Support\SocialProviders;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,11 +22,6 @@ class ProfileController extends Controller
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
-            'socialProviders' => array_map(fn (array $provider) => [
-                ...$provider,
-                'connected_email' => $request->user()->socialAccounts->firstWhere('provider', $provider['id'])?->email,
-                'connected' => $request->user()->socialAccounts->contains('provider', $provider['id']),
-            ], SocialProviders::enabled()),
         ]);
     }
 

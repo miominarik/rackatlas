@@ -12,9 +12,6 @@ import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
 import type { Auth } from '@/types';
 import { send } from '@/routes/verification';
-import { destroy as disconnectAccount } from '@/routes/connected-accounts';
-import { redirect as connectAccount } from '@/routes/social';
-import type { ConnectedSocialProvider } from '@/types/social';
 import { useTranslation } from '@/hooks/use-translation';
 
 type PageProps = {
@@ -24,11 +21,9 @@ type PageProps = {
 export default function Profile({
     mustVerifyEmail,
     status,
-    socialProviders,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
-    socialProviders: ConnectedSocialProvider[];
 }) {
     const { auth } = usePage<PageProps>().props;
     const { t } = useTranslation();
@@ -134,62 +129,6 @@ export default function Profile({
                     )}
                 </Form>
             </SettingsSection>
-
-            {socialProviders.length > 0 && (
-                <SettingsSection
-                    title={t('Connected accounts')}
-                    description={t(
-                        'Sign in faster with an account from another service.',
-                    )}
-                >
-                    <div className="space-y-4">
-                        {socialProviders.map((provider) => (
-                            <div
-                                key={provider.id}
-                                className="flex items-center justify-between gap-4"
-                            >
-                                <div>
-                                    <p className="text-sm font-medium">
-                                        {provider.name}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        {provider.connected
-                                            ? (provider.connected_email ??
-                                              t('Connected'))
-                                            : t('Not connected')}
-                                    </p>
-                                </div>
-                                {provider.connected ? (
-                                    <Button
-                                        variant="outline"
-                                        asChild
-                                        data-test={`social-disconnect-${provider.id}`}
-                                    >
-                                        <Link
-                                            href={disconnectAccount(provider.id)}
-                                            as="button"
-                                            preserveScroll
-                                        >
-                                            {t('Disconnect')}
-                                        </Link>
-                                    </Button>
-                                ) : (
-                                    <Button asChild>
-                                        <a
-                                            href={connectAccount.url(
-                                                provider.id,
-                                            )}
-                                            data-test={`social-connect-${provider.id}`}
-                                        >
-                                            {t('Connect')}
-                                        </a>
-                                    </Button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </SettingsSection>
-            )}
 
             <AppearanceSection />
 

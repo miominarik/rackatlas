@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
 use App\Http\Controllers\Admin\TeamController as AdminTeamController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
@@ -21,7 +20,6 @@ use App\Http\Controllers\Servers\TestConnectionController;
 use App\Http\Controllers\Settings\LanguageController;
 use App\Http\Controllers\Terminal\TerminalController;
 use App\Http\Controllers\Terminal\TerminalSessionController;
-use App\Support\SocialProviders;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -35,11 +33,6 @@ Route::get('sitemap.xml', [CrawlerController::class, 'sitemap'])->name('sitemap'
 
 // Public on purpose: visitors without an account pick the language of the home page too.
 Route::put('language', [LanguageController::class, 'update'])->name('language.update');
-
-Route::prefix('auth/{provider}')->whereIn('provider', array_keys(SocialProviders::NAMES))->group(function () {
-    Route::get('redirect', [SocialAuthController::class, 'redirect'])->middleware('throttle:20,1')->name('social.redirect');
-    Route::get('callback', [SocialAuthController::class, 'callback'])->middleware('throttle:20,1')->name('social.callback');
-});
 
 Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [DashboardController::class, 'show'])->name('dashboard');

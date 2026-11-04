@@ -1,6 +1,5 @@
 import LanguageController from './LanguageController'
 import ProfileController from './ProfileController'
-import ConnectedAccountController from './ConnectedAccountController'
 import SecurityController from './SecurityController'
 import DeviceController from './DeviceController'
 import NotificationController from './NotificationController'
@@ -14,7 +13,6 @@ import AcceptTeamInvitationController from './AcceptTeamInvitationController'
 const Settings = {
     LanguageController: Object.assign(LanguageController, LanguageController),
     ProfileController: Object.assign(ProfileController, ProfileController),
-    ConnectedAccountController: Object.assign(ConnectedAccountController, ConnectedAccountController),
     SecurityController: Object.assign(SecurityController, SecurityController),
     DeviceController: Object.assign(DeviceController, DeviceController),
     NotificationController: Object.assign(NotificationController, NotificationController),
