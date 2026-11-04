@@ -91,7 +91,7 @@ function BackupDialog({
 
     return (
         <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
-            <DialogContent>
+            <DialogContent className="max-h-[90dvh] overflow-y-auto">
                 <DialogTitle>
                     {backup ? t('Edit backup') : t('Add backup')}
                 </DialogTitle>
@@ -262,7 +262,7 @@ export default function Backups({ team, canManage, servers, backups }: Props) {
                         <p className="font-medium">{t('No backups yet')}</p>
                     </div>
                 ) : (
-                    <ul className="grid items-start gap-3 lg:grid-cols-2">
+                    <ul className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2 [&>li]:min-w-0">
                         {backups.map((backup) => (
                             <li
                                 key={backup.id}
@@ -271,39 +271,42 @@ export default function Backups({ team, canManage, servers, backups }: Props) {
                                     !backup.is_active && 'opacity-60',
                                 )}
                             >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-2">
                                     <DatabaseBackup className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate font-medium">
+                                        <p className="font-medium break-words">
                                             {backup.name}
                                         </p>
                                         {backup.server_name && (
-                                            <p className="truncate text-xs text-muted-foreground">
+                                            <p className="text-xs break-words text-muted-foreground">
                                                 {backup.server_name}
                                             </p>
                                         )}
+                                        <div className="mt-1.5">
+                                            {!backup.is_active ? (
+                                                <Badge variant="outline">
+                                                    {t('Paused')}
+                                                </Badge>
+                                            ) : backup.last_status ===
+                                              'failed' ? (
+                                                <Badge variant="destructive">
+                                                    {t('Failed')}
+                                                </Badge>
+                                            ) : backup.overdue ? (
+                                                <Badge variant="destructive">
+                                                    {t('Overdue')}
+                                                </Badge>
+                                            ) : backup.last_run_at ? (
+                                                <Badge variant="secondary">
+                                                    {t('OK')}
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="outline">
+                                                    {t('Waiting for first run')}
+                                                </Badge>
+                                            )}
+                                        </div>
                                     </div>
-                                    {!backup.is_active ? (
-                                        <Badge variant="outline">
-                                            {t('Paused')}
-                                        </Badge>
-                                    ) : backup.last_status === 'failed' ? (
-                                        <Badge variant="destructive">
-                                            {t('Failed')}
-                                        </Badge>
-                                    ) : backup.overdue ? (
-                                        <Badge variant="destructive">
-                                            {t('Overdue')}
-                                        </Badge>
-                                    ) : backup.last_run_at ? (
-                                        <Badge variant="secondary">
-                                            {t('OK')}
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="outline">
-                                            {t('Waiting for first run')}
-                                        </Badge>
-                                    )}
                                     {canManage && (
                                         <>
                                             <Button
