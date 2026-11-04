@@ -3,7 +3,7 @@ export type DashboardWidgetId =
     | 'problems'
     | 'servers'
     | 'top'
-    | 'logs'
+    | 'backups'
     | 'errors';
 
 export type DashboardMetricId =
@@ -32,11 +32,6 @@ export type DashboardSettings = {
         layout: 'grid' | 'list';
         columns: 0 | 1 | 2 | 3 | 4;
         history_minutes: 60 | 360 | 1440;
-    };
-    logs: {
-        limit: 5 | 10 | 20;
-        hours: 6 | 24 | 168;
-        level: 'error' | 'critical';
     };
     errors: { limit: 5 | 10 | 20; hours: 6 | 24 | 168 };
     thresholds: DashboardThresholds;
@@ -96,6 +91,17 @@ export type DashboardError = {
 };
 
 export type DashboardHistory = Record<string, { cpu: number; ram: number }[]>;
+
+export type DashboardBackup = {
+    id: number;
+    name: string;
+    server_name: string | null;
+    last_run_at: string | null;
+    last_status: 'success' | 'failed' | null;
+    last_message: string | null;
+    last_size_bytes: number | null;
+    overdue: boolean;
+};
 
 export type DashboardLog = {
     id: number;

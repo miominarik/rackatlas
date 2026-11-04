@@ -1,6 +1,7 @@
 import { useTranslation } from '@/hooks/use-translation';
 import type { Evaluated } from '@/lib/dashboard';
 import { cn } from '@/lib/utils';
+import type { DashboardBackup } from '@/types';
 
 function average(values: (number | null)[]): number | null {
     const present = values.filter((value): value is number => value !== null);
@@ -10,7 +11,13 @@ function average(values: (number | null)[]): number | null {
         : null;
 }
 
-export default function SummaryTiles({ items }: { items: Evaluated[] }) {
+export default function SummaryTiles({
+    items,
+    backups,
+}: {
+    items: Evaluated[];
+    backups: DashboardBackup[];
+}) {
     const { t } = useTranslation();
 
     const count = (...levels: Evaluated['level'][]) =>
@@ -20,6 +27,16 @@ export default function SummaryTiles({ items }: { items: Evaluated[] }) {
     const ram = average(items.map((item) => item.ram));
     const critical = count('critical', 'offline');
     const warnings = count('warning', 'stale');
+
+    const backupsOk = backups.filter(
+        (backup) =>
+            backup.last_status !== 'failed' &&
+            !backup.overdue &&
+            backup.last_run_at !== null,
+    ).length;
+    const backupsBad = backups.filter(
+        (backup) => backup.last_status === 'failed' || backup.overdue,
+    ).length;
 
     const tiles = [
         { label: t('Servers'), value: String(items.length), tone: '' },
@@ -48,12 +65,18 @@ export default function SummaryTiles({ items }: { items: Evaluated[] }) {
             value: ram === null ? '–' : `${Math.round(ram)}%`,
             tone: '',
         },
+        {
+            label: t('Backups'),
+            value:
+                backups.length === 0 ? '–' : `${backupsOk}/${backups.length}`,
+            tone: backupsBad > 0 ? 'text-red-600 dark:text-red-400' : '',
+        },
     ];
 
     return (
         <section
             aria-label={t('Summary')}
-            className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-3 xl:grid-cols-6"
+            className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-3 xl:grid-cols-7"
         >
             {tiles.map((tile) => (
                 <div key={tile.label} className="bg-card px-4 py-3.5">

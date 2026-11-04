@@ -20,6 +20,7 @@ class BackupFactory extends Factory
             'team_id' => Team::factory(),
             'name' => fake()->words(2, true),
             'notes' => null,
+            'is_active' => true,
             'expected_interval_hours' => 24,
         ];
     }

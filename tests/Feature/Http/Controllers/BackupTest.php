@@ -6,7 +6,9 @@ use App\Enums\TeamRole;
 use App\Models\Backup;
 use App\Models\Team;
 use App\Models\User;
+use App\Notifications\BackupOverdueNotification;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class BackupTest extends TestCase
@@ -115,11 +117,71 @@ class BackupTest extends TestCase
 
     public function test_overdue_is_computed_from_the_expected_interval(): void
     {
-        $backup = Backup::factory()->create(['expected_interval_hours' => 24]);
+        $backup = Backup::factory()->create(['expected_interval_hours' => 24, 'created_at' => now()->subDays(3)]);
         $backup->forceFill(['last_run_at' => now()->subHours(30)])->save();
         $this->assertTrue($backup->isOverdue());
 
         $backup->forceFill(['last_run_at' => now()->subHours(2)])->save();
         $this->assertFalse($backup->isOverdue());
+    }
+
+    public function test_paused_backup_is_never_overdue_and_hidden_from_the_dashboard(): void
+    {
+        $backup = Backup::factory()->create(['is_active' => false, 'expected_interval_hours' => 1, 'created_at' => now()->subDays(3)]);
+
+        $this->assertFalse($backup->isOverdue());
+
+        $this->actingAs($backup->team->owner)->get(route('dashboard'))
+            ->assertInertia(fn ($page) => $page->has('backups', 0));
+    }
+
+    public function test_resuming_restarts_the_interval_and_clears_the_alert(): void
+    {
+        $backup = Backup::factory()->create([
+            'is_active' => false, 'expected_interval_hours' => 24,
+            'created_at' => now()->subDays(5), 'alerted_at' => now()->subDay(),
+        ]);
+
+        $this->actingAs($backup->team->owner)
+            ->put(route('backups.update', $backup), ['name' => $backup->name, 'is_active' => true, 'expected_interval_hours' => 24])
+            ->assertSessionHasNoErrors();
+
+        $backup->refresh();
+        $this->assertTrue($backup->is_active);
+        $this->assertNull($backup->alerted_at);
+        $this->assertFalse($backup->isOverdue());
+    }
+
+    public function test_check_command_notifies_once_about_an_overdue_backup(): void
+    {
+        Notification::fake();
+        $backup = Backup::factory()->create(['expected_interval_hours' => 24, 'created_at' => now()->subDays(2)]);
+
+        $this->artisan('backups:check')->assertSuccessful();
+        $this->artisan('backups:check')->assertSuccessful();
+
+        Notification::assertSentToTimes($backup->team->owner, BackupOverdueNotification::class, 1);
+        $this->assertNotNull($backup->fresh()->alerted_at);
+    }
+
+    public function test_check_command_ignores_paused_and_on_time_backups(): void
+    {
+        Notification::fake();
+        $team = Team::factory()->create();
+        Backup::factory()->for($team)->create(['is_active' => false, 'expected_interval_hours' => 1, 'created_at' => now()->subDays(2)]);
+        Backup::factory()->for($team)->create(['expected_interval_hours' => 24, 'last_run_at' => now()->subHour()]);
+
+        $this->artisan('backups:check')->assertSuccessful();
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_a_reported_run_allows_the_next_alert(): void
+    {
+        $backup = Backup::factory()->create(['alerted_at' => now()]);
+
+        $this->postJson(route('webhooks.backups', $backup->token))->assertOk();
+
+        $this->assertNull($backup->fresh()->alerted_at);
     }
 }

@@ -65,6 +65,7 @@ export type Backup = {
     id: number;
     name: string;
     notes: string | null;
+    is_active: boolean;
     server_id: number | null;
     server_name: string | null;
     expected_interval_hours: number | null;

@@ -1094,5 +1094,11 @@
     "Size": "Veľkosť",
     "Webhook URL": "Webhook URL",
     "Generate a new URL? The old one stops working.": "Vygenerovať novú URL? Stará prestane fungovať.",
-    "Regenerate URL": "Vygenerovať URL znova"
+    "Regenerate URL": "Vygenerovať URL znova",
+    "Active": "Aktívna",
+    "Paused": "Pozastavená",
+    "A paused backup is not checked, sends no notifications and is hidden from the dashboard.": "Pozastavená záloha sa nekontroluje, neposiela notifikácie a nezobrazuje sa na nástenke.",
+    "Backup :name did not run": "Záloha :name sa nevykonala",
+    "No run was reported in the expected :hours hours.": "V očakávanom čase :hours hodín sa nenahlásil žiadny beh.",
+    "Open the backups": "Otvoriť zálohy"
 }

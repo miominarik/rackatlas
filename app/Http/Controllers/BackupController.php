@@ -37,7 +37,14 @@ class BackupController extends Controller
 
     public function update(BackupRequest $request, Backup $backup): RedirectResponse
     {
-        $backup->update($request->validated());
+        $backup->fill($request->validated());
+
+        if ($backup->isDirty('is_active')) {
+            $backup->alerted_at = null;
+            $backup->resumed_at = $backup->is_active ? now() : $backup->resumed_at;
+        }
+
+        $backup->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Backup updated.')]);
 
@@ -75,6 +82,7 @@ class BackupController extends Controller
             'id' => $backup->id,
             'name' => $backup->name,
             'notes' => $backup->notes,
+            'is_active' => $backup->is_active,
             'server_id' => $backup->server_id,
             'server_name' => $backup->server?->name,
             'expected_interval_hours' => $backup->expected_interval_hours,

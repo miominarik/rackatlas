@@ -8,7 +8,7 @@ namespace App\Support;
  */
 class DashboardSettings
 {
-    public const WIDGETS = ['summary', 'problems', 'servers', 'top', 'logs', 'errors'];
+    public const WIDGETS = ['summary', 'problems', 'servers', 'top', 'backups', 'errors'];
 
     public const SORTS = ['name', 'status', 'cpu', 'ram', 'disk'];
 
@@ -29,9 +29,6 @@ class DashboardSettings
 
     public const LIST_HOURS = [6, 24, 168];
 
-    /** The lowest level shown in the log list: "error" shows errors and critical, "critical" only critical. */
-    public const LOG_LEVELS = ['error', 'critical'];
-
     /**
      * @return array<string, mixed>
      */
@@ -49,7 +46,6 @@ class DashboardSettings
                 'columns' => 0,
                 'history_minutes' => 60,
             ],
-            'logs' => ['limit' => 10, 'hours' => 24, 'level' => 'error'],
             'errors' => ['limit' => 10, 'hours' => 24],
             'thresholds' => [
                 'cpu' => ['warn' => 80, 'critical' => 95],
@@ -79,8 +75,20 @@ class DashboardSettings
                 $widgets[$id] = ['id' => $id, 'visible' => (bool) ($widget['visible'] ?? true)];
             }
         }
-        foreach (self::WIDGETS as $id) {
-            $widgets[$id] ??= ['id' => $id, 'visible' => true];
+        foreach (self::WIDGETS as $index => $id) {
+            if (isset($widgets[$id])) {
+                continue;
+            }
+
+            // A widget the saved layout does not know yet goes right after the widget before it in the defaults.
+            $previous = $index > 0 ? self::WIDGETS[$index - 1] : null;
+            $position = $previous !== null && isset($widgets[$previous])
+                ? array_search($previous, array_keys($widgets), true) + 1
+                : count($widgets);
+
+            $widgets = array_slice($widgets, 0, $position, true)
+                + [$id => ['id' => $id, 'visible' => true]]
+                + array_slice($widgets, $position, null, true);
         }
 
         $servers = array_replace($defaults['servers'], array_intersect_key($saved['servers'] ?? [], $defaults['servers']));
@@ -88,11 +96,6 @@ class DashboardSettings
         $servers['layout'] = self::pick($servers['layout'], self::LAYOUTS, $defaults['servers']['layout']);
         $servers['columns'] = self::pick($servers['columns'], self::COLUMNS, $defaults['servers']['columns']);
         $servers['history_minutes'] = self::pick($servers['history_minutes'], self::HISTORY_MINUTES, $defaults['servers']['history_minutes']);
-
-        $logs = array_replace($defaults['logs'], array_intersect_key($saved['logs'] ?? [], $defaults['logs']));
-        $logs['limit'] = self::pick($logs['limit'], self::LIST_LIMITS, $defaults['logs']['limit']);
-        $logs['hours'] = self::pick($logs['hours'], self::LIST_HOURS, $defaults['logs']['hours']);
-        $logs['level'] = self::pick($logs['level'], self::LOG_LEVELS, $defaults['logs']['level']);
 
         $errors = array_replace($defaults['errors'], array_intersect_key($saved['errors'] ?? [], $defaults['errors']));
         $errors['limit'] = self::pick($errors['limit'], self::LIST_LIMITS, $defaults['errors']['limit']);
@@ -112,7 +115,6 @@ class DashboardSettings
         return [
             'widgets' => array_values($widgets),
             'servers' => $servers,
-            'logs' => $logs,
             'errors' => $errors,
             'thresholds' => $thresholds,
             'refresh_seconds' => in_array($saved['refresh_seconds'] ?? null, self::REFRESH_SECONDS, true)

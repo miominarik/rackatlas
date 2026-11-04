@@ -15,7 +15,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/hooks/use-translation';
+import { cn } from '@/lib/utils';
 import { index as teamsIndex } from '@/routes/teams';
 import type { Backup } from '@/types';
 
@@ -28,6 +30,7 @@ type Props = {
 
 type FormData = {
     name: string;
+    is_active: boolean;
     notes: string;
     server_id: string;
     expected_interval_hours: string;
@@ -63,6 +66,7 @@ function BackupDialog({
     const { t } = useTranslation();
     const form = useForm<FormData>({
         name: backup?.name ?? '',
+        is_active: backup?.is_active ?? true,
         notes: backup?.notes ?? '',
         server_id: backup?.server_id ? String(backup.server_id) : '',
         expected_interval_hours: backup?.expected_interval_hours
@@ -109,6 +113,24 @@ function BackupDialog({
                             autoFocus
                         />
                         <InputError message={form.errors.name} />
+                    </div>
+
+                    <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                            <Label htmlFor="backup-active">{t('Active')}</Label>
+                            <p className="text-xs text-muted-foreground">
+                                {t(
+                                    'A paused backup is not checked, sends no notifications and is hidden from the dashboard.',
+                                )}
+                            </p>
+                        </div>
+                        <Switch
+                            id="backup-active"
+                            checked={form.data.is_active}
+                            onCheckedChange={(value) =>
+                                form.setData('is_active', value)
+                            }
+                        />
                     </div>
 
                     <div className="space-y-1.5">
@@ -244,7 +266,10 @@ export default function Backups({ team, canManage, servers, backups }: Props) {
                         {backups.map((backup) => (
                             <li
                                 key={backup.id}
-                                className="space-y-3 rounded-xl border bg-card p-4"
+                                className={cn(
+                                    'space-y-3 rounded-xl border bg-card p-4',
+                                    !backup.is_active && 'opacity-60',
+                                )}
                             >
                                 <div className="flex items-start gap-3">
                                     <DatabaseBackup className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
@@ -258,7 +283,11 @@ export default function Backups({ team, canManage, servers, backups }: Props) {
                                             </p>
                                         )}
                                     </div>
-                                    {backup.last_status === 'failed' ? (
+                                    {!backup.is_active ? (
+                                        <Badge variant="outline">
+                                            {t('Paused')}
+                                        </Badge>
+                                    ) : backup.last_status === 'failed' ? (
                                         <Badge variant="destructive">
                                             {t('Failed')}
                                         </Badge>

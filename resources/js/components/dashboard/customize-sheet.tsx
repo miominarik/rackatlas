@@ -93,7 +93,7 @@ function Form({
         problems: t('Problems'),
         servers: t('Server cards'),
         top: t('Top usage'),
-        logs: t('Server logs'),
+        backups: t('Backups'),
         errors: t('Collection errors'),
     };
 
@@ -121,8 +121,8 @@ function Form({
         }));
 
     const setList = (
-        key: 'logs' | 'errors',
-        patch: Partial<DashboardSettings['logs'] & DashboardSettings['errors']>,
+        key: 'errors',
+        patch: Partial<DashboardSettings['errors']>,
     ) =>
         setDraft((current) => ({
             ...current,
@@ -492,50 +492,6 @@ function Form({
                         ))}
                     </div>
                     <InputError message={firstThresholdError} />
-                </section>
-
-                <section className="space-y-3">
-                    <h3 className="text-sm font-medium">{t('Server logs')}</h3>
-                    <Choice
-                        id="logs-level"
-                        label={t('Show')}
-                        value={draft.logs.level}
-                        options={[
-                            ['error', t('Errors and critical')],
-                            ['critical', t('Only critical')],
-                        ]}
-                        onChange={(value) =>
-                            setList('logs', {
-                                level: value as DashboardSettings['logs']['level'],
-                            })
-                        }
-                    />
-                    <Choice
-                        id="logs-limit"
-                        label={t('Number of entries')}
-                        value={draft.logs.limit}
-                        options={limitOptions}
-                        onChange={(value) =>
-                            setList('logs', {
-                                limit: Number(
-                                    value,
-                                ) as DashboardSettings['logs']['limit'],
-                            })
-                        }
-                    />
-                    <Choice
-                        id="logs-hours"
-                        label={t('Period')}
-                        value={draft.logs.hours}
-                        options={hoursOptions}
-                        onChange={(value) =>
-                            setList('logs', {
-                                hours: Number(
-                                    value,
-                                ) as DashboardSettings['logs']['hours'],
-                            })
-                        }
-                    />
                 </section>
 
                 <section className="space-y-3">

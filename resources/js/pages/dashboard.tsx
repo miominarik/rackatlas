@@ -7,9 +7,9 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import CustomizeSheet from '@/components/dashboard/customize-sheet';
+import BackupsOverview from '@/components/dashboard/backups-overview';
 import ProblemsList from '@/components/dashboard/problems-list';
 import RecentErrors from '@/components/dashboard/recent-errors';
-import RecentLogs from '@/components/dashboard/recent-logs';
 import ServerCard from '@/components/dashboard/server-card';
 import ServerRow from '@/components/dashboard/server-row';
 import SummaryTiles from '@/components/dashboard/summary-tiles';
@@ -26,7 +26,7 @@ import { index as teamsIndex } from '@/routes/teams';
 import type {
     DashboardError,
     DashboardHistory,
-    DashboardLog,
+    DashboardBackup,
     DashboardServer,
     DashboardSettings,
 } from '@/types';
@@ -40,10 +40,17 @@ type Props = {
     servers: DashboardServer[];
     history: DashboardHistory;
     errors: DashboardError[];
-    logs: DashboardLog[];
+    backups: DashboardBackup[];
 };
 
-const POLLED = ['servers', 'history', 'errors', 'logs', 'generated_at'];
+const POLLED = [
+    'servers',
+    'history',
+    'errors',
+    'backups',
+    'backupsGlance',
+    'generated_at',
+];
 
 function Poller({ seconds }: { seconds: number }) {
     usePoll(
@@ -211,7 +218,7 @@ function DashboardContent({
     servers,
     history,
     errors,
-    logs,
+    backups,
 }: Props & { team: NonNullable<Props['team']> }) {
     const { t, locale } = useTranslation();
     const [customizing, setCustomizing] = useState(false);
@@ -237,7 +244,7 @@ function DashboardContent({
     const problems = items.flatMap((item) => item.problems);
 
     const widgets: Record<string, React.ReactNode> = {
-        summary: <SummaryTiles items={items} />,
+        summary: <SummaryTiles items={items} backups={backups} />,
         problems: <ProblemsList problems={problems} />,
         servers: (
             <ServerGrid
@@ -248,12 +255,8 @@ function DashboardContent({
             />
         ),
         top: <TopLists items={items} thresholds={settings.thresholds} />,
-        logs: (
-            <RecentLogs
-                logs={logs}
-                generatedAt={generated_at}
-                hours={settings.logs.hours}
-            />
+        backups: (
+            <BackupsOverview backups={backups} generatedAt={generated_at} />
         ),
         errors: (
             <RecentErrors

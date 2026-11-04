@@ -28,6 +28,7 @@ class BackupWebhookController extends Controller
             'last_status' => $data['status'] ?? 'success',
             'last_message' => isset($data['message']) ? Str::limit($data['message'], 500, '') : null,
             'last_size_bytes' => $data['size'] ?? null,
+            'alerted_at' => null,
         ])->save();
 
         return response()->json(['ok' => true, 'last_run_at' => $backup->last_run_at->toIso8601String()]);

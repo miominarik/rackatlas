@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Middleware\TrackDevice;
 use App\Http\Requests\UpdateDashboardRequest;
+use App\Models\Backup;
 use App\Models\DashboardPreference;
 use App\Models\Server;
 use App\Models\ServerError;
-use App\Models\ServerLog;
 use App\Models\ServerMetricDisk;
 use App\Models\Team;
 use App\Models\User;
@@ -53,7 +53,7 @@ class DashboardController extends Controller
             'servers' => $servers->map(fn (Server $server) => $this->presentServer($server))->values(),
             'history' => $this->history($servers, $settings['servers']['history_minutes']),
             'errors' => $this->recentErrors($servers, $settings['errors']),
-            'logs' => $this->recentLogs($servers, $settings['logs']),
+            'backups' => $this->backups($team),
         ]);
     }
 
@@ -230,34 +230,28 @@ class DashboardController extends Controller
     }
 
     /**
-     * The newest serious entries from the logs of the servers (agent only).
+     * The backups of the team, the ones that need attention first.
      *
-     * @param  Collection<int, Server>  $servers
-     * @param  array{limit: int, hours: int, level: string}  $options
      * @return Collection<int, array<string, mixed>>
      */
-    private function recentLogs($servers, array $options)
+    private function backups(Team $team)
     {
-        $names = $servers->pluck('name', 'id');
-
-        return ServerLog::query()
-            ->open()
-            ->whereIn('server_id', $servers->pluck('id'))
-            ->where('occurred_at', '>=', now()->subHours($options['hours']))
-            ->when($options['level'] === 'critical', fn ($query) => $query->where('level', 'critical'))
-            ->orderByDesc('occurred_at')
-            ->limit($options['limit'])
-            ->get()
-            ->map(fn (ServerLog $log) => [
-                'id' => $log->id,
-                'server_id' => $log->server_id,
-                'server_name' => $names[$log->server_id] ?? '',
-                'level' => $log->level,
-                'source' => $log->source,
-                'message' => $log->message,
-                'count' => $log->count,
-                'occurred_at' => $log->occurred_at->toIso8601String(),
-            ]);
+        return $team->backups()->active()->with('server:id,name')->get()
+            ->map(fn (Backup $backup) => [
+                'id' => $backup->id,
+                'name' => $backup->name,
+                'server_name' => $backup->server?->name,
+                'last_run_at' => $backup->last_run_at?->toIso8601String(),
+                'last_status' => $backup->last_status,
+                'last_message' => $backup->last_message,
+                'last_size_bytes' => $backup->last_size_bytes,
+                'overdue' => $backup->isOverdue(),
+            ])
+            ->sortBy([
+                fn ($a, $b) => ($b['last_status'] === 'failed' || $b['overdue']) <=> ($a['last_status'] === 'failed' || $a['overdue']),
+                fn ($a, $b) => strcasecmp($a['name'], $b['name']),
+            ])
+            ->values();
     }
 
     /**

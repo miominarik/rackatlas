@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Enums\ServerAuthType;
+use App\Models\Backup;
 use App\Models\Team;
 use App\Support\DashboardSettings;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -20,23 +21,33 @@ class DashboardSettingsTest extends TestCase
         $this->assertSame('grid', $resolved['servers']['layout']);
         $this->assertSame(0, $resolved['servers']['columns']);
         $this->assertSame(60, $resolved['servers']['history_minutes']);
-        $this->assertSame(['limit' => 10, 'hours' => 24, 'level' => 'error'], $resolved['logs']);
         $this->assertSame(['limit' => 10, 'hours' => 24], $resolved['errors']);
+    }
+
+    public function test_a_new_widget_is_placed_after_the_widget_before_it_in_the_defaults(): void
+    {
+        $saved = ['widgets' => array_map(
+            fn (string $id) => ['id' => $id, 'visible' => true],
+            ['summary', 'problems', 'servers', 'top', 'errors'],
+        )];
+
+        $ids = array_column(DashboardSettings::resolve($saved)['widgets'], 'id');
+
+        $this->assertSame(['summary', 'problems', 'servers', 'top', 'backups', 'errors'], $ids);
     }
 
     public function test_invalid_saved_values_fall_back_to_the_defaults(): void
     {
         $resolved = DashboardSettings::resolve([
             'servers' => ['layout' => 'cube', 'columns' => 9, 'history_minutes' => 5],
-            'logs' => ['limit' => 1000, 'hours' => 1, 'level' => 'debug'],
+            'errors' => ['limit' => 1000, 'hours' => 1],
         ]);
 
         $this->assertSame('grid', $resolved['servers']['layout']);
         $this->assertSame(0, $resolved['servers']['columns']);
         $this->assertSame(60, $resolved['servers']['history_minutes']);
-        $this->assertSame(10, $resolved['logs']['limit']);
-        $this->assertSame(24, $resolved['logs']['hours']);
-        $this->assertSame('error', $resolved['logs']['level']);
+        $this->assertSame(10, $resolved['errors']['limit']);
+        $this->assertSame(24, $resolved['errors']['hours']);
     }
 
     public function test_new_options_are_saved_and_shown_on_the_dashboard(): void
@@ -46,7 +57,6 @@ class DashboardSettingsTest extends TestCase
         $settings['servers']['layout'] = 'list';
         $settings['servers']['columns'] = 3;
         $settings['servers']['history_minutes'] = 1440;
-        $settings['logs'] = ['limit' => 20, 'hours' => 168, 'level' => 'critical'];
         $settings['errors'] = ['limit' => 5, 'hours' => 6];
 
         $this->actingAs($team->owner)->put(route('dashboard.settings.update'), $settings)->assertSessionHasNoErrors();
@@ -55,7 +65,6 @@ class DashboardSettingsTest extends TestCase
             ->where('settings.servers.layout', 'list')
             ->where('settings.servers.columns', 3)
             ->where('settings.servers.history_minutes', 1440)
-            ->where('settings.logs.level', 'critical')
             ->where('settings.errors.hours', 6));
     }
 
@@ -64,10 +73,10 @@ class DashboardSettingsTest extends TestCase
         $team = Team::factory()->create();
         $settings = DashboardSettings::defaults();
         $settings['servers']['columns'] = 7;
-        $settings['logs']['limit'] = 999;
+        $settings['errors']['limit'] = 999;
 
         $this->actingAs($team->owner)->put(route('dashboard.settings.update'), $settings)
-            ->assertSessionHasErrors(['servers.columns', 'logs.limit']);
+            ->assertSessionHasErrors(['servers.columns', 'errors.limit']);
     }
 
     public function test_history_and_lists_follow_the_saved_options(): void
@@ -86,22 +95,26 @@ class DashboardSettingsTest extends TestCase
             ]);
         }
 
-        $server->logs()->create(['level' => 'error', 'source' => 'nginx', 'message' => 'bad', 'count' => 1, 'occurred_at' => now()->subHours(2)]);
-        $server->logs()->create(['level' => 'critical', 'source' => 'kernel', 'message' => 'oops', 'count' => 1, 'occurred_at' => now()->subHours(2)]);
-        $server->logs()->create(['level' => 'critical', 'source' => 'kernel', 'message' => 'old', 'count' => 1, 'occurred_at' => now()->subHours(30)]);
-
         $this->actingAs($team->owner)->get(route('dashboard'))->assertInertia(fn ($page) => $page
-            ->has("history.{$server->id}", 1)
-            ->has('logs', 2));
+            ->has("history.{$server->id}", 1));
 
         $settings = DashboardSettings::defaults();
         $settings['servers']['history_minutes'] = 360;
-        $settings['logs'] = ['limit' => 20, 'hours' => 168, 'level' => 'critical'];
         $this->actingAs($team->owner)->put(route('dashboard.settings.update'), $settings);
 
         $this->actingAs($team->owner)->get(route('dashboard'))->assertInertia(fn ($page) => $page
-            ->has("history.{$server->id}", 2)
-            ->has('logs', 2)
-            ->where('logs.0.level', 'critical'));
+            ->has("history.{$server->id}", 2));
+    }
+
+    public function test_dashboard_lists_backups_with_the_ones_needing_attention_first(): void
+    {
+        $team = Team::factory()->create();
+        Backup::factory()->for($team)->create(['name' => 'A fine one', 'last_run_at' => now(), 'last_status' => 'success']);
+        Backup::factory()->for($team)->create(['name' => 'Z failed', 'last_run_at' => now(), 'last_status' => 'failed']);
+
+        $this->actingAs($team->owner)->get(route('dashboard'))->assertInertia(fn ($page) => $page
+            ->has('backups', 2)
+            ->where('backups.0.name', 'Z failed')
+            ->missing('logs'));
     }
 }

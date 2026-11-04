@@ -24,6 +24,7 @@ class BackupRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'is_active' => ['sometimes', 'boolean'],
             'server_id' => ['nullable', 'integer', Rule::exists('servers', 'id')->where('team_id', $teamId)],
             'expected_interval_hours' => ['nullable', 'integer', 'min:1', 'max:8760'],
         ];
