@@ -93,7 +93,7 @@ class Backup extends Model
             return false;
         }
 
-        $since = collect([$this->last_run_at, $this->resumed_at, $this->created_at])->filter()->max();
+        $since = collect([$this->last_run_at ?? $this->created_at, $this->resumed_at])->filter()->max();
 
         return $since->copy()->addHours($this->expected_interval_hours + 1)->isPast();
     }

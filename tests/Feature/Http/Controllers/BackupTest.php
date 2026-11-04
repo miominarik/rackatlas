@@ -184,4 +184,12 @@ class BackupTest extends TestCase
 
         $this->assertNull($backup->fresh()->alerted_at);
     }
+
+    public function test_overdue_counts_from_the_last_run_even_when_the_backup_was_created_later(): void
+    {
+        $backup = Backup::factory()->create(['expected_interval_hours' => 23, 'created_at' => now()->subHours(5)]);
+        $backup->forceFill(['last_run_at' => now()->subDays(2)])->save();
+
+        $this->assertTrue($backup->isOverdue());
+    }
 }
