@@ -80,7 +80,9 @@ journal_section() {
   [ -n "$cursor" ] && printf '%s\n' "$cursor" > "$TMP.cursor-$kind"
 
   echo "###$name"
-  printf '%s\n' "$out" | grep -v '^-- '
+  # The agent's own failures ("Failed to start rackatlas-agent.service", "could not reach ...") are
+  # not news about the server, so they are not reported back.
+  printf '%s\n' "$out" | grep -v '^-- ' | grep -v 'rackatlas-agent'
 }
 
 # CPU usage between two readings of the counters in /proc/stat. The first reading is the
@@ -281,7 +283,7 @@ proc_scan full > "$TMP.proc"
 
   if command -v systemctl >/dev/null 2>&1; then
     echo '###FAILED_UNITS'
-    systemctl --failed --no-legend --plain --no-pager 2>/dev/null | head -n 30
+    systemctl --failed --no-legend --plain --no-pager 2>/dev/null | grep -v 'rackatlas-agent\.service' | head -n 30
   fi
 } > "$TMP"
 

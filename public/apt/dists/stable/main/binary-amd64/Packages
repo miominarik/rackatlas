@@ -1,4 +1,23 @@
 Package: rackatlas-agent
+Version: 1.4.1
+Section: admin
+Priority: optional
+Architecture: all
+Depends: curl, systemd, coreutils, adduser
+Maintainer: RackAtlas <noreply@localhost>
+Description: RackAtlas monitoring agent
+ Sends CPU, memory and disk usage, the busiest processes and serious log entries to RackAtlas once
+ a minute over HTTPS. Nothing connects into the server.
+ The package also carries the optional rackatlas-terminal service (off until enabled) that opens
+ a shell for the RackAtlas web terminal through an outbound connection.
+Installed-Size: 13202
+Filename: pool/main/r/rackatlas-agent/rackatlas-agent_1.4.1_all.deb
+Size: 5658712
+MD5sum: 7e7a0e103c199a437a3b3c1b4be3950e
+SHA1: 32da071a7ad696e4b8e35db7930d5ab4a5920da3
+SHA256: 461b819afb4c46b9eb4ead8e7cdbcccf88af2ed4c7c262e8fdcb96f2ed4fad98
+
+Package: rackatlas-agent
 Version: 1.4.0
 Section: admin
 Priority: optional
