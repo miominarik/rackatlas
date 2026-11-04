@@ -938,6 +938,21 @@ export default function Welcome({ canRegister, faq }: Props) {
                             </div>
                             <div>
                                 <p className="mb-3 font-medium text-[var(--l-ink)]">
+                                    {t('Contact')}
+                                </p>
+                                <ul className="space-y-2">
+                                    <li>
+                                        <a
+                                            href="mailto:info@rackatlas.dev"
+                                            className="hover:text-[var(--l-ink)]"
+                                        >
+                                            info@rackatlas.dev
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p className="mb-3 font-medium text-[var(--l-ink)]">
                                     {t('Legal')}
                                 </p>
                                 <ul className="space-y-2">
