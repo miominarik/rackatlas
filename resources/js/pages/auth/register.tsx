@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { Lock, Mail, User } from 'lucide-react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -26,22 +27,26 @@ export default function Register({ passwordRules }: Props) {
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 onFinish={turnstile.reset}
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-5"
             >
                 {({ processing, errors }) => (
                     <>
-                        <div className="grid gap-6">
+                        <div className="grid gap-5">
                             <div className="grid gap-2">
                                 <Label htmlFor="name">{t('Name')}</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    required
-                                    tabIndex={1}
-                                    autoComplete="name"
-                                    name="name"
-                                    placeholder={t('Full name')}
-                                />
+                                <div className="relative">
+                                    <User className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="name"
+                                        type="text"
+                                        required
+                                        tabIndex={1}
+                                        autoComplete="name"
+                                        name="name"
+                                        placeholder={t('Full name')}
+                                        className="h-11 rounded-xl pl-10"
+                                    />
+                                </div>
                                 <InputError
                                     message={errors.name}
                                     className="mt-2"
@@ -52,15 +57,19 @@ export default function Register({ passwordRules }: Props) {
                                 <Label htmlFor="email">
                                     {t('Email address')}
                                 </Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="email"
-                                    name="email"
-                                    placeholder="email@example.com"
-                                />
+                                <div className="relative">
+                                    <Mail className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        required
+                                        tabIndex={2}
+                                        autoComplete="email"
+                                        name="email"
+                                        placeholder="email@example.com"
+                                        className="h-11 rounded-xl pl-10"
+                                    />
+                                </div>
                                 <InputError message={errors.email} />
                             </div>
 
@@ -68,15 +77,19 @@ export default function Register({ passwordRules }: Props) {
                                 <Label htmlFor="password">
                                     {t('Password')}
                                 </Label>
-                                <PasswordInput
-                                    id="password"
-                                    required
-                                    tabIndex={3}
-                                    autoComplete="new-password"
-                                    name="password"
-                                    placeholder={t('Password')}
-                                    passwordrules={passwordRules}
-                                />
+                                <div className="relative">
+                                    <Lock className="pointer-events-none absolute top-1/2 left-3.5 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <PasswordInput
+                                        id="password"
+                                        required
+                                        tabIndex={3}
+                                        autoComplete="new-password"
+                                        name="password"
+                                        placeholder={t('Password')}
+                                        passwordrules={passwordRules}
+                                        className="h-11 rounded-xl pl-10"
+                                    />
+                                </div>
                                 <InputError message={errors.password} />
                             </div>
 
@@ -84,15 +97,19 @@ export default function Register({ passwordRules }: Props) {
                                 <Label htmlFor="password_confirmation">
                                     {t('Confirm password')}
                                 </Label>
-                                <PasswordInput
-                                    id="password_confirmation"
-                                    required
-                                    tabIndex={4}
-                                    autoComplete="new-password"
-                                    name="password_confirmation"
-                                    placeholder={t('Confirm password')}
-                                    passwordrules={passwordRules}
-                                />
+                                <div className="relative">
+                                    <Lock className="pointer-events-none absolute top-1/2 left-3.5 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <PasswordInput
+                                        id="password_confirmation"
+                                        required
+                                        tabIndex={4}
+                                        autoComplete="new-password"
+                                        name="password_confirmation"
+                                        placeholder={t('Confirm password')}
+                                        passwordrules={passwordRules}
+                                        className="h-11 rounded-xl pl-10"
+                                    />
+                                </div>
                                 <InputError
                                     message={errors.password_confirmation}
                                 />
@@ -105,7 +122,7 @@ export default function Register({ passwordRules }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-2 w-full"
+                                className="mt-2 h-11 w-full rounded-xl text-[15px] font-medium"
                                 tabIndex={5}
                                 disabled={!turnstile.ready}
                                 data-test="register-user-button"

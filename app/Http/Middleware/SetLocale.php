@@ -30,12 +30,43 @@ class SetLocale
             return $next($request);
         }
 
-        $locale = $request->cookie(self::COOKIE);
+        $locale = $this->userLocale($request)
+            ?? $this->supported($request->cookie(self::COOKIE))
+            ?? $this->browserLocale($request);
 
-        if (is_string($locale) && array_key_exists($locale, config('app.supported_locales'))) {
+        if ($locale !== null) {
             app()->setLocale($locale);
         }
 
         return $next($request);
+    }
+
+    /**
+     * The language saved in the account of a signed-in user.
+     */
+    private function userLocale(Request $request): ?string
+    {
+        return $this->supported($request->user()?->locale);
+    }
+
+    /**
+     * The first supported language of the Accept-Language header, for a visitor who has not chosen yet.
+     */
+    private function browserLocale(Request $request): ?string
+    {
+        foreach ($request->getLanguages() as $language) {
+            $locale = $this->supported(strtolower(substr($language, 0, 2)));
+
+            if ($locale !== null) {
+                return $locale;
+            }
+        }
+
+        return null;
+    }
+
+    private function supported(mixed $locale): ?string
+    {
+        return is_string($locale) && array_key_exists($locale, config('app.supported_locales')) ? $locale : null;
     }
 }

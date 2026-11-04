@@ -141,7 +141,7 @@ store.form = storeForm
 * @see app/Http/Controllers/BackupController.php:38
 * @route '/app/backups/{backup}'
 */
-export const update = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -156,7 +156,7 @@ update.definition = {
 * @see app/Http/Controllers/BackupController.php:38
 * @route '/app/backups/{backup}'
 */
-update.url = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+update.url = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { backup: args }
     }
@@ -189,7 +189,7 @@ update.url = (args: { backup: string | number | { id: string | number } } | [bac
 * @see app/Http/Controllers/BackupController.php:38
 * @route '/app/backups/{backup}'
 */
-update.put = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -199,7 +199,7 @@ update.put = (args: { backup: string | number | { id: string | number } } | [bac
 * @see app/Http/Controllers/BackupController.php:38
 * @route '/app/backups/{backup}'
 */
-const updateForm = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const updateForm = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PUT',
@@ -214,7 +214,7 @@ const updateForm = (args: { backup: string | number | { id: string | number } } 
 * @see app/Http/Controllers/BackupController.php:38
 * @route '/app/backups/{backup}'
 */
-updateForm.put = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+updateForm.put = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PUT',
@@ -228,10 +228,10 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\BackupController::regenerate
-* @see app/Http/Controllers/BackupController.php:47
+* @see app/Http/Controllers/BackupController.php:54
 * @route '/app/backups/{backup}/regenerate'
 */
-export const regenerate = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const regenerate = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: regenerate.url(args, options),
     method: 'post',
 })
@@ -243,10 +243,10 @@ regenerate.definition = {
 
 /**
 * @see \App\Http\Controllers\BackupController::regenerate
-* @see app/Http/Controllers/BackupController.php:47
+* @see app/Http/Controllers/BackupController.php:54
 * @route '/app/backups/{backup}/regenerate'
 */
-regenerate.url = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+regenerate.url = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { backup: args }
     }
@@ -276,30 +276,30 @@ regenerate.url = (args: { backup: string | number | { id: string | number } } | 
 
 /**
 * @see \App\Http\Controllers\BackupController::regenerate
-* @see app/Http/Controllers/BackupController.php:47
+* @see app/Http/Controllers/BackupController.php:54
 * @route '/app/backups/{backup}/regenerate'
 */
-regenerate.post = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+regenerate.post = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: regenerate.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\BackupController::regenerate
-* @see app/Http/Controllers/BackupController.php:47
+* @see app/Http/Controllers/BackupController.php:54
 * @route '/app/backups/{backup}/regenerate'
 */
-const regenerateForm = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const regenerateForm = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: regenerate.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\BackupController::regenerate
-* @see app/Http/Controllers/BackupController.php:47
+* @see app/Http/Controllers/BackupController.php:54
 * @route '/app/backups/{backup}/regenerate'
 */
-regenerateForm.post = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+regenerateForm.post = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: regenerate.url(args, options),
     method: 'post',
 })
@@ -308,10 +308,10 @@ regenerate.form = regenerateForm
 
 /**
 * @see \App\Http\Controllers\BackupController::destroy
-* @see app/Http/Controllers/BackupController.php:58
+* @see app/Http/Controllers/BackupController.php:65
 * @route '/app/backups/{backup}'
 */
-export const destroy = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -323,10 +323,10 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\BackupController::destroy
-* @see app/Http/Controllers/BackupController.php:58
+* @see app/Http/Controllers/BackupController.php:65
 * @route '/app/backups/{backup}'
 */
-destroy.url = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { backup: args }
     }
@@ -356,20 +356,20 @@ destroy.url = (args: { backup: string | number | { id: string | number } } | [ba
 
 /**
 * @see \App\Http\Controllers\BackupController::destroy
-* @see app/Http/Controllers/BackupController.php:58
+* @see app/Http/Controllers/BackupController.php:65
 * @route '/app/backups/{backup}'
 */
-destroy.delete = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
 
 /**
 * @see \App\Http\Controllers\BackupController::destroy
-* @see app/Http/Controllers/BackupController.php:58
+* @see app/Http/Controllers/BackupController.php:65
 * @route '/app/backups/{backup}'
 */
-const destroyForm = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const destroyForm = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
@@ -381,10 +381,10 @@ const destroyForm = (args: { backup: string | number | { id: string | number } }
 
 /**
 * @see \App\Http\Controllers\BackupController::destroy
-* @see app/Http/Controllers/BackupController.php:58
+* @see app/Http/Controllers/BackupController.php:65
 * @route '/app/backups/{backup}'
 */
-destroyForm.delete = (args: { backup: string | number | { id: string | number } } | [backup: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+destroyForm.delete = (args: { backup: number | { id: number } } | [backup: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',

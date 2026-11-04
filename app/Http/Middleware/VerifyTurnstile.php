@@ -22,6 +22,7 @@ class VerifyTurnstile
         'forgot-password',
         'reset-password',
         'two-factor-challenge',
+        'feedback',
     ];
 
     public function __construct(private readonly TurnstileVerifier $verifier) {}

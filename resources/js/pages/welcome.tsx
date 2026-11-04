@@ -1,10 +1,13 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Form, Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import InputError from '@/components/input-error';
+import { TurnstileField, useTurnstile } from '@/hooks/use-turnstile';
 import { openCookieSettings } from '@/hooks/use-privacy-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { dashboard, login, register } from '@/routes';
+import { store as feedbackStore } from '@/routes/feedback';
 import { localized as homeLocalized } from '@/routes/home';
 import { localized as privacyLocalized } from '@/routes/privacy';
 
@@ -160,6 +163,128 @@ function Tile({
     );
 }
 
+const field =
+    'w-full rounded-xl border border-[var(--l-border)] bg-[var(--l-card)] px-4 py-3 text-[15px] text-[var(--l-ink)] outline-none transition-[border-color,box-shadow] placeholder:text-[var(--l-muted)] focus:border-[var(--l-accent)] focus:ring-4 focus:ring-[var(--l-accent)]/15';
+
+function FeedbackForm() {
+    const { t } = useTranslation();
+    const turnstile = useTurnstile('feedback');
+
+    return (
+        <Form
+            {...feedbackStore.form()}
+            options={{ preserveScroll: true }}
+            resetOnSuccess
+            onFinish={turnstile.reset}
+            className="rounded-[24px] border border-[var(--l-border)] bg-[var(--l-card)] p-6 sm:p-8"
+        >
+            {({ processing, errors, wasSuccessful, recentlySuccessful }) =>
+                wasSuccessful && recentlySuccessful ? (
+                    <div
+                        className="flex min-h-[320px] flex-col items-center justify-center text-center"
+                        role="status"
+                    >
+                        <span className="mb-4 flex size-12 items-center justify-center rounded-full bg-[var(--l-accent)] text-2xl text-white">
+                            ✓
+                        </span>
+                        <p className="mb-1 text-xl font-semibold">
+                            {t('Thank you for your opinion!')}
+                        </p>
+                        <p className="text-[15px] text-[var(--l-body)]">
+                            {t('Every message is read by a real person.')}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid gap-4">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label
+                                    htmlFor="feedback-name"
+                                    className="mb-1.5 block text-[13px] font-medium"
+                                >
+                                    {t('Name')}{' '}
+                                    <span className="font-normal text-[var(--l-muted)]">
+                                        ({t('optional')})
+                                    </span>
+                                </label>
+                                <input
+                                    id="feedback-name"
+                                    name="name"
+                                    maxLength={80}
+                                    autoComplete="name"
+                                    className={field}
+                                />
+                                <InputError message={errors.name} />
+                            </div>
+                            <div>
+                                <label
+                                    htmlFor="feedback-email"
+                                    className="mb-1.5 block text-[13px] font-medium"
+                                >
+                                    {t('Email address')}{' '}
+                                    <span className="font-normal text-[var(--l-muted)]">
+                                        ({t('optional')})
+                                    </span>
+                                </label>
+                                <input
+                                    id="feedback-email"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    className={field}
+                                />
+                                <InputError message={errors.email} />
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="feedback-message"
+                                className="mb-1.5 block text-[13px] font-medium"
+                            >
+                                {t('Your opinion')}
+                            </label>
+                            <textarea
+                                id="feedback-message"
+                                name="message"
+                                rows={5}
+                                required
+                                minLength={10}
+                                maxLength={2000}
+                                placeholder={t(
+                                    'What do you like, what is missing or what annoys you?',
+                                )}
+                                className={cn(field, 'resize-y')}
+                            />
+                            <InputError message={errors.message} />
+                        </div>
+                        <div
+                            className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                            aria-hidden="true"
+                        >
+                            <input
+                                name="website"
+                                tabIndex={-1}
+                                autoComplete="off"
+                            />
+                        </div>
+                        <TurnstileField
+                            turnstile={turnstile}
+                            error={errors.turnstile_token}
+                        />
+                        <button
+                            type="submit"
+                            disabled={processing || !turnstile.ready}
+                            className="inline-flex items-center justify-center rounded-full bg-[var(--l-accent)] px-6 py-3 text-[15px] font-medium text-white transition-transform hover:-translate-y-px disabled:opacity-60"
+                        >
+                            {t('Send opinion')}
+                        </button>
+                    </div>
+                )
+            }
+        </Form>
+    );
+}
+
 export default function Welcome({ canRegister, faq }: Props) {
     const { t, locale } = useTranslation();
 
@@ -234,12 +359,18 @@ export default function Welcome({ canRegister, faq }: Props) {
                                 RackAtlas
                             </span>
                         </a>
-                        <nav className="hidden flex-1 justify-center gap-7 text-[15px] text-[var(--l-body)] md:flex">
+                        <nav className="hidden flex-1 justify-center gap-5 text-[15px] text-[var(--l-body)] md:flex lg:gap-7">
                             <a
                                 href="#features"
                                 className="hover:text-[var(--l-ink)]"
                             >
                                 {t('Features')}
+                            </a>
+                            <a
+                                href="#new"
+                                className="hover:text-[var(--l-ink)]"
+                            >
+                                {t("What's new")}
                             </a>
                             <a
                                 href="#how"
@@ -248,10 +379,10 @@ export default function Welcome({ canRegister, faq }: Props) {
                                 {t('How it works')}
                             </a>
                             <a
-                                href="#start"
+                                href="#faq"
                                 className="hover:text-[var(--l-ink)]"
                             >
-                                {t('Get started')}
+                                {t('FAQ')}
                             </a>
                         </nav>
                         <div className="ml-auto flex items-center gap-0.5 text-sm sm:gap-1 sm:text-[15px]">
@@ -712,6 +843,66 @@ export default function Welcome({ canRegister, faq }: Props) {
                     </div>
                 </section>
 
+                {/* what's new */}
+                <section
+                    id="new"
+                    className="mx-auto max-w-[1240px] scroll-mt-24 px-4 pt-10 pb-10 sm:px-8"
+                >
+                    <Eyebrow>{t("What's new")}</Eyebrow>
+                    <h2 className="mb-9 max-w-[620px] text-[clamp(1.9rem,3.6vw,2.9rem)] leading-[1.05] font-semibold tracking-[-0.04em]">
+                        {t('More than monitoring')}
+                    </h2>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {[
+                            [
+                                t('Backups'),
+                                t(
+                                    'See whether your backups ran on time. A script reports to a URL and you get a notification when one is missing.',
+                                ),
+                            ],
+                            [
+                                t('Terminal in the browser'),
+                                t(
+                                    'Open an end-to-end encrypted SSH terminal to your server without opening any port.',
+                                ),
+                            ],
+                            [
+                                t('Sign-in approved on your phone'),
+                                t(
+                                    'Confirm a new sign-in with one tap on a push notification. A code is only the fallback.',
+                                ),
+                            ],
+                            [
+                                t('Passkeys and two-factor'),
+                                t(
+                                    'Sign in with a passkey or an authenticator app and keep your account safe.',
+                                ),
+                            ],
+                            [
+                                t('Docker and services'),
+                                t(
+                                    'Containers and failed services next to the rest of the server data.',
+                                ),
+                            ],
+                            [
+                                t('Maps and teams'),
+                                t(
+                                    'Place servers on a map and share them with your team, each with their own notifications.',
+                                ),
+                            ],
+                        ].map(([title, text]) => (
+                            <Tile key={title}>
+                                <h3 className="mb-2 text-lg font-semibold tracking-[-0.02em]">
+                                    {title}
+                                </h3>
+                                <p className="text-[15px] text-[var(--l-body)]">
+                                    {text}
+                                </p>
+                            </Tile>
+                        ))}
+                    </div>
+                </section>
+
                 {/* steps */}
                 <section
                     id="how"
@@ -783,6 +974,27 @@ export default function Welcome({ canRegister, faq }: Props) {
                             </div>
                         ))}
                     </dl>
+                </section>
+
+                {/* feedback */}
+                <section
+                    id="feedback"
+                    className="mx-auto max-w-[1240px] scroll-mt-24 px-4 pt-20 pb-10 sm:px-8"
+                >
+                    <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
+                        <div>
+                            <Eyebrow>{t('Feedback')}</Eyebrow>
+                            <h2 className="mb-4 text-[clamp(1.9rem,3.6vw,2.9rem)] leading-[1.05] font-semibold tracking-[-0.04em]">
+                                {t('Tell us what you think')}
+                            </h2>
+                            <p className="max-w-[440px] text-[17px] text-[var(--l-body)]">
+                                {t(
+                                    'RackAtlas grows with your ideas. Share what works, what is missing or what you would change.',
+                                )}
+                            </p>
+                        </div>
+                        <FeedbackForm />
+                    </div>
                 </section>
 
                 {/* call to action */}
@@ -943,10 +1155,10 @@ export default function Welcome({ canRegister, faq }: Props) {
                                 <ul className="space-y-2">
                                     <li>
                                         <a
-                                            href="mailto:info@rackatlas.dev"
+                                            href="#feedback"
                                             className="hover:text-[var(--l-ink)]"
                                         >
-                                            info@rackatlas.dev
+                                            {t('Share your opinion')}
                                         </a>
                                     </li>
                                 </ul>

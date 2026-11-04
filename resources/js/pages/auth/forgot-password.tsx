@@ -1,6 +1,6 @@
 // Components
 import { Form, Head } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Mail } from 'lucide-react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -32,13 +32,17 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 <Label htmlFor="email">
                                     {t('Email address')}
                                 </Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    autoComplete="off"
-                                    placeholder="email@example.com"
-                                />
+                                <div className="relative">
+                                    <Mail className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        autoComplete="email"
+                                        placeholder="email@example.com"
+                                        className="h-11 rounded-xl pl-10"
+                                    />
+                                </div>
 
                                 <InputError message={errors.email} />
                             </div>
@@ -50,7 +54,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
                             <div className="my-6 flex items-center justify-start">
                                 <Button
-                                    className="w-full"
+                                    className="h-11 w-full rounded-xl text-[15px] font-medium"
                                     disabled={processing || !turnstile.ready}
                                     data-test="email-password-reset-link-button"
                                 >
