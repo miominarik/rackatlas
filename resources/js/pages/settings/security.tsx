@@ -1,10 +1,11 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { SettingsSection } from '@/components/settings/section';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/security';
 import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys';
@@ -16,6 +17,7 @@ import { useTranslation } from '@/hooks/use-translation';
 // oxfmt-ignore
 type Props = {
     passwordRules: string;
+    passwordLoginEnabled: boolean;
 } & ManagePasskeysProps &
     ManageTwoFactorProps;
 
@@ -125,6 +127,40 @@ export default function Security(props: Props) {
                         </>
                     )}
                 </Form>
+            </SettingsSection>
+
+            <SettingsSection
+                title={t('Sign in with password')}
+                description={t(
+                    'Turn this off to sign in only with a passkey. Removing your last passkey turns it back on.',
+                )}
+                action={
+                    <Switch
+                        checked={props.passwordLoginEnabled}
+                        disabled={
+                            props.passwordLoginEnabled &&
+                            (props.passkeys ?? []).length === 0
+                        }
+                        aria-label={t('Sign in with password')}
+                        data-test="password-login-switch"
+                        onCheckedChange={(enabled) =>
+                            router.put(
+                                SecurityController.updatePasswordLogin.url(),
+                                { enabled },
+                                { preserveScroll: true },
+                            )
+                        }
+                    />
+                }
+            >
+                {props.passwordLoginEnabled &&
+                (props.passkeys ?? []).length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                        {t(
+                            'Add a passkey first, otherwise you could not sign in.',
+                        )}
+                    </p>
+                ) : null}
             </SettingsSection>
 
             <ManageTwoFactor

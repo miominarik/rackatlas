@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::edit
-* @see app/Http/Controllers/Settings/SecurityController.php:19
+* @see app/Http/Controllers/Settings/SecurityController.php:21
 * @route '/app/settings/security'
 */
 export const edit = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::edit
-* @see app/Http/Controllers/Settings/SecurityController.php:19
+* @see app/Http/Controllers/Settings/SecurityController.php:21
 * @route '/app/settings/security'
 */
 edit.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ edit.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::edit
-* @see app/Http/Controllers/Settings/SecurityController.php:19
+* @see app/Http/Controllers/Settings/SecurityController.php:21
 * @route '/app/settings/security'
 */
 edit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ edit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::edit
-* @see app/Http/Controllers/Settings/SecurityController.php:19
+* @see app/Http/Controllers/Settings/SecurityController.php:21
 * @route '/app/settings/security'
 */
 edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::edit
-* @see app/Http/Controllers/Settings/SecurityController.php:19
+* @see app/Http/Controllers/Settings/SecurityController.php:21
 * @route '/app/settings/security'
 */
 const editForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const editForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::edit
-* @see app/Http/Controllers/Settings/SecurityController.php:19
+* @see app/Http/Controllers/Settings/SecurityController.php:21
 * @route '/app/settings/security'
 */
 editForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ editForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::edit
-* @see app/Http/Controllers/Settings/SecurityController.php:19
+* @see app/Http/Controllers/Settings/SecurityController.php:21
 * @route '/app/settings/security'
 */
 editForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:56
+* @see app/Http/Controllers/Settings/SecurityController.php:59
 * @route '/app/settings/password'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +97,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:56
+* @see app/Http/Controllers/Settings/SecurityController.php:59
 * @route '/app/settings/password'
 */
 update.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:56
+* @see app/Http/Controllers/Settings/SecurityController.php:59
 * @route '/app/settings/password'
 */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -116,7 +116,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:56
+* @see app/Http/Controllers/Settings/SecurityController.php:59
 * @route '/app/settings/password'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -131,7 +131,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:56
+* @see app/Http/Controllers/Settings/SecurityController.php:59
 * @route '/app/settings/password'
 */
 updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -146,6 +146,72 @@ updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 
 update.form = updateForm
 
-const SecurityController = { edit, update }
+/**
+* @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
+* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @route '/app/settings/password-login'
+*/
+export const updatePasswordLogin = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updatePasswordLogin.url(options),
+    method: 'put',
+})
+
+updatePasswordLogin.definition = {
+    methods: ["put"],
+    url: '/app/settings/password-login',
+} satisfies RouteDefinition<["put"]>
+
+/**
+* @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
+* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @route '/app/settings/password-login'
+*/
+updatePasswordLogin.url = (options?: RouteQueryOptions) => {
+    return updatePasswordLogin.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
+* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @route '/app/settings/password-login'
+*/
+updatePasswordLogin.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updatePasswordLogin.url(options),
+    method: 'put',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
+* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @route '/app/settings/password-login'
+*/
+const updatePasswordLoginForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updatePasswordLogin.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
+* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @route '/app/settings/password-login'
+*/
+updatePasswordLoginForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updatePasswordLogin.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+updatePasswordLogin.form = updatePasswordLoginForm
+
+const SecurityController = { edit, update, updatePasswordLogin }
 
 export default SecurityController

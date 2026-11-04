@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -41,6 +43,18 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // Same as Fortify's default check, except that a user who turned off password sign-in
+        // (they use a passkey) cannot get in with it, whoever knows the password.
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = User::where(Fortify::username(), $request->input(Fortify::username()))->first();
+
+            if ($user === null || ! Hash::check((string) $request->input('password'), $user->password)) {
+                return null;
+            }
+
+            return $user->password_login_enabled ? $user : null;
+        });
     }
 
     /**

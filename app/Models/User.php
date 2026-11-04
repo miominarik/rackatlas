@@ -29,6 +29,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property Carbon|null $email_verified_at
  * @property bool $is_admin
  * @property string $password
+ * @property bool $password_login_enabled
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
@@ -55,6 +56,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         return [
             'email_verified_at' => 'datetime',
             'is_admin' => 'boolean',
+            'password_login_enabled' => 'boolean',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];

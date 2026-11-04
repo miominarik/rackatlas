@@ -33,6 +33,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:6,1')
         ->name('user-password.update');
 
+    Route::put('app/settings/password-login', [SecurityController::class, 'updatePasswordLogin'])
+        ->middleware([RequirePassword::class, 'throttle:6,1'])
+        ->name('password-login.update');
+
     Route::redirect('app/settings/appearance', '/app/settings/profile')->name('appearance.edit');
 
     Route::get('app/settings/devices', [DeviceController::class, 'index'])->name('devices.index');

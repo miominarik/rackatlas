@@ -1037,5 +1037,10 @@
     "terminal through the agent": "terminál přes agenta",
     "Open the terminal through the agent": "Otevírat terminál přes agenta",
     "A second service on the server connects out to RackAtlas and starts the shell, so the SSH port can stay closed. It runs as root, so only enable it where you want a remote shell.": "Druhá služba na serveru se připojí ven do RackAtlasu a spustí shell, takže SSH port může zůstat zavřený. Běží jako root, proto ji zapněte jen tam, kde chcete vzdálený shell.",
-    "The install command above already switches the terminal on. On a server where the agent is installed already, run this instead. The terminal service connects out to RackAtlas, so no port has to be open. It runs as root and opens the shell of the user set as TERMINAL_USER in agent.conf (root by default).": "Instalační příkaz výše už terminál zapíná. Na serveru, kde je agent nainstalovaný, spusťte místo toho tento. Terminálová služba se připojuje ven do RackAtlasu, takže není třeba otevírat žádný port. Běží jako root a otevírá shell uživatele z TERMINAL_USER v agent.conf (výchozí root)."
+    "The install command above already switches the terminal on. On a server where the agent is installed already, run this instead. The terminal service connects out to RackAtlas, so no port has to be open. It runs as root and opens the shell of the user set as TERMINAL_USER in agent.conf (root by default).": "Instalační příkaz výše už terminál zapíná. Na serveru, kde je agent nainstalovaný, spusťte místo toho tento. Terminálová služba se připojuje ven do RackAtlasu, takže není třeba otevírat žádný port. Běží jako root a otevírá shell uživatele z TERMINAL_USER v agent.conf (výchozí root).",
+    "Sign in with password": "Přihlášení heslem",
+    "Turn this off to sign in only with a passkey. Removing your last passkey turns it back on.": "Vypněte, pokud se chcete přihlašovat jen přístupovým klíčem. Odebráním posledního klíče se přihlášení heslem znovu zapne.",
+    "Add a passkey first, otherwise you could not sign in.": "Nejdřív přidejte přístupový klíč, jinak byste se nemohli přihlásit.",
+    "Password sign-in turned on.": "Přihlášení heslem je zapnuté.",
+    "Password sign-in turned off.": "Přihlášení heslem je vypnuté."
 }

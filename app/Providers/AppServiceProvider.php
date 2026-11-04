@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Passkeys\Passkey;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureLockoutProtection();
         $this->configureAgentRateLimiting();
         $this->configureWebRateLimiting();
 
@@ -102,6 +104,21 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return $limits;
+        });
+    }
+
+    /**
+     * Removing the last passkey turns password sign-in back on, so nobody locks themselves out.
+     */
+    private function configureLockoutProtection(): void
+    {
+        Passkey::deleting(function (Passkey $passkey): void {
+            $user = $passkey->user;
+
+            if ($user instanceof User && ! $user->password_login_enabled
+                && $user->passkeys()->whereKeyNot($passkey->getKey())->doesntExist()) {
+                $user->forceFill(['password_login_enabled' => true])->save();
+            }
         });
     }
 }

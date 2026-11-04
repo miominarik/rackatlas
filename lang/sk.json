@@ -1037,5 +1037,10 @@
     "terminal through the agent": "terminál cez agenta",
     "Open the terminal through the agent": "Otvárať terminál cez agenta",
     "A second service on the server connects out to RackAtlas and starts the shell, so the SSH port can stay closed. It runs as root, so only enable it where you want a remote shell.": "Druhá služba na serveri sa pripojí von do RackAtlasu a spustí shell, takže SSH port môže ostať zatvorený. Beží ako root, preto ju zapnite len tam, kde chcete vzdialený shell.",
-    "The install command above already switches the terminal on. On a server where the agent is installed already, run this instead. The terminal service connects out to RackAtlas, so no port has to be open. It runs as root and opens the shell of the user set as TERMINAL_USER in agent.conf (root by default).": "Inštalačný príkaz vyššie už terminál zapína. Na serveri, kde je agent nainštalovaný, spustite namiesto toho tento. Terminálová služba sa pripája von do RackAtlasu, takže netreba otvárať žiadny port. Beží ako root a otvára shell používateľa z TERMINAL_USER v agent.conf (predvolene root)."
+    "The install command above already switches the terminal on. On a server where the agent is installed already, run this instead. The terminal service connects out to RackAtlas, so no port has to be open. It runs as root and opens the shell of the user set as TERMINAL_USER in agent.conf (root by default).": "Inštalačný príkaz vyššie už terminál zapína. Na serveri, kde je agent nainštalovaný, spustite namiesto toho tento. Terminálová služba sa pripája von do RackAtlasu, takže netreba otvárať žiadny port. Beží ako root a otvára shell používateľa z TERMINAL_USER v agent.conf (predvolene root).",
+    "Sign in with password": "Prihlásenie heslom",
+    "Turn this off to sign in only with a passkey. Removing your last passkey turns it back on.": "Vypnite, ak sa chcete prihlasovať len prístupovým kľúčom. Odstránením posledného kľúča sa prihlásenie heslom znova zapne.",
+    "Add a passkey first, otherwise you could not sign in.": "Najprv pridajte prístupový kľúč, inak by ste sa nevedeli prihlásiť.",
+    "Password sign-in turned on.": "Prihlásenie heslom je zapnuté.",
+    "Password sign-in turned off.": "Prihlásenie heslom je vypnuté."
 }
