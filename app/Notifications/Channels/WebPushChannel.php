@@ -71,7 +71,13 @@ class WebPushChannel
             return [];
         }
 
-        $subscriptions = $notifiable->pushSubscriptions()->get()
+        $query = $notifiable->pushSubscriptions();
+
+        if (method_exists($notification, 'webPushDeviceIds')) {
+            $query->whereIn('user_device_id', $notification->webPushDeviceIds());
+        }
+
+        $subscriptions = $query->get()
             ->filter(fn (PushSubscription $s) => self::allowsEndpoint($s->endpoint))
             ->keyBy(fn (PushSubscription $s) => $s->endpoint);
 

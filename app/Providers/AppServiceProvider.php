@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\HoldLoginForApproval;
 use App\Listeners\LogAuthActivity;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Fortify\Events\TwoFactorAuthenticationDisabled;
 use Laravel\Passkeys\Passkey;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureWebRateLimiting();
 
         Event::listen(Login::class, [LogAuthActivity::class, 'login']);
+        Event::listen(TwoFactorAuthenticationDisabled::class, [HoldLoginForApproval::class, 'twoFactorDisabled']);
         Event::listen(Logout::class, [LogAuthActivity::class, 'logout']);
         Event::listen(Failed::class, [LogAuthActivity::class, 'failed']);
         Event::listen(PasswordReset::class, [LogAuthActivity::class, 'passwordReset']);

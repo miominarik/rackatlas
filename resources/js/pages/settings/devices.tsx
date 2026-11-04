@@ -14,6 +14,8 @@ import { SettingsSection } from '@/components/settings/section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
 import { timeAgo } from '@/lib/dashboard';
 import { index } from '@/routes/devices';
@@ -29,6 +31,8 @@ type Device = {
     last_active_at: string | null;
     created_at: string | null;
     is_current: boolean;
+    approves_logins: boolean;
+    has_push: boolean;
 };
 
 const icons = { mobile: Smartphone, tablet: Tablet, desktop: Laptop } as const;
@@ -36,9 +40,11 @@ const icons = { mobile: Smartphone, tablet: Tablet, desktop: Laptop } as const;
 function DeviceRow({
     device,
     generatedAt,
+    twoFactorEnabled,
 }: {
     device: Device;
     generatedAt: string;
+    twoFactorEnabled: boolean;
 }) {
     const { t, locale } = useTranslation();
     const [editing, setEditing] = useState(false);
@@ -47,6 +53,21 @@ function DeviceRow({
     const detail = [device.browser, device.platform]
         .filter(Boolean)
         .join(' · ');
+
+    const setApproves = (enabled: boolean) => {
+        router.patch(
+            DeviceController.updateLoginApproval.url(device.id),
+            { enabled },
+            {
+                preserveScroll: true,
+                onError: (errors) => {
+                    if (errors.enabled) {
+                        toast.error(errors.enabled);
+                    }
+                },
+            },
+        );
+    };
 
     const save = () => {
         router.patch(
@@ -120,6 +141,40 @@ function DeviceRow({
                                   : t('Never active')}
                             {device.ip_address ? ` · ${device.ip_address}` : ''}
                         </p>
+                        {(device.is_current || device.approves_logins) && (
+                            <label className="mt-2 flex items-start gap-3 text-sm">
+                                <Switch
+                                    checked={device.approves_logins}
+                                    onCheckedChange={setApproves}
+                                    aria-label={t(
+                                        'Approve sign-ins on this device',
+                                    )}
+                                    data-test="approve-logins-switch"
+                                />
+                                <span className="space-y-0.5">
+                                    <span className="block font-medium">
+                                        {t('Approve sign-ins on this device')}
+                                    </span>
+                                    <span className="block text-xs text-muted-foreground">
+                                        {device.approves_logins
+                                            ? t(
+                                                  'Every sign-in to your account waits until you allow it here.',
+                                              )
+                                            : !twoFactorEnabled
+                                              ? t(
+                                                    'Turn on two-factor authentication first, it is the way in when this device is lost.',
+                                                )
+                                              : !device.has_push
+                                                ? t(
+                                                      'Turn on push notifications on this device first.',
+                                                  )
+                                                : t(
+                                                      'Sign-ins to your account will ask for your approval here.',
+                                                  )}
+                                    </span>
+                                </span>
+                            </label>
+                        )}
                         {device.created_at && (
                             <p className="text-xs text-muted-foreground/80">
                                 {t('Signed in :date', {
@@ -176,9 +231,11 @@ function DeviceRow({
 export default function Devices({
     devices,
     generated_at,
+    twoFactorEnabled,
 }: {
     devices: Device[];
     generated_at: string;
+    twoFactorEnabled: boolean;
 }) {
     const { t } = useTranslation();
     const others = devices.filter((device) => !device.is_current).length;
@@ -229,6 +286,7 @@ export default function Devices({
                                 key={device.id}
                                 device={device}
                                 generatedAt={generated_at}
+                                twoFactorEnabled={twoFactorEnabled}
                             />
                         ))}
                     </ul>

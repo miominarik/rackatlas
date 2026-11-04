@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Http\Controllers\CurrentTeamController;
+use App\Models\LoginApproval;
 use App\Services\TurnstileVerifier;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -62,7 +63,33 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'loginApproval' => fn () => $this->pendingLoginApproval($request),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+
+    /**
+     * The newest sign-in that waits for an answer, shown as a dialog on the approving devices only.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function pendingLoginApproval(Request $request): ?array
+    {
+        $user = $request->user();
+
+        if ($user === null || ! TrackDevice::current($request)?->approves_logins) {
+            return null;
+        }
+
+        $approval = LoginApproval::where('user_id', $user->id)->open()->latest('id')->first();
+
+        return $approval === null ? null : [
+            'id' => $approval->id,
+            'choices' => $approval->choices,
+            'ip_address' => $approval->ip_address,
+            'browser' => $approval->browser,
+            'platform' => $approval->platform,
+            'expires_at' => $approval->expires_at->toIso8601String(),
         ];
     }
 

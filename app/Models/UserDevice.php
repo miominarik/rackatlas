@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 
@@ -22,12 +23,13 @@ use Illuminate\Support\Facades\Session;
  * @property string|null $browser
  * @property string|null $platform
  * @property string $type
+ * @property bool $approves_logins
  * @property string|null $ip_address
  * @property string|null $session_id
  * @property Carbon|null $last_active_at
  * @property Carbon|null $revoked_at
  */
-#[Fillable(['user_id', 'token_hash', 'name', 'browser', 'platform', 'type', 'ip_address', 'session_id', 'last_active_at', 'revoked_at'])]
+#[Fillable(['user_id', 'token_hash', 'name', 'browser', 'platform', 'type', 'approves_logins', 'ip_address', 'session_id', 'last_active_at', 'revoked_at'])]
 #[Hidden(['token_hash', 'session_id'])]
 class UserDevice extends Model
 {
@@ -39,6 +41,7 @@ class UserDevice extends Model
     protected function casts(): array
     {
         return [
+            'approves_logins' => 'boolean',
             'last_active_at' => 'datetime',
             'revoked_at' => 'datetime',
         ];
@@ -51,7 +54,7 @@ class UserDevice extends Model
             Session::getHandler()->destroy($this->session_id);
         }
 
-        $this->forceFill(['revoked_at' => now(), 'session_id' => null])->save();
+        $this->forceFill(['revoked_at' => now(), 'session_id' => null, 'approves_logins' => false])->save();
     }
 
     public static function hashToken(string $token): string
@@ -77,6 +80,12 @@ class UserDevice extends Model
         }
 
         return trim(implode(' · ', array_filter([$this->browser, $this->platform]))) ?: __('Unknown device');
+    }
+
+    /** @return HasMany<PushSubscription, $this> */
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
     }
 
     public function user(): BelongsTo

@@ -4,6 +4,7 @@ use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\NoIndexPrivatePages;
 use App\Http\Middleware\RememberMobileLogin;
+use App\Http\Middleware\RequireLoginApproval;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackDevice;
@@ -37,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             SetLocale::class,
             TrackDevice::class,
+            RequireLoginApproval::class,
             RememberMobileLogin::class,
             NoIndexPrivatePages::class,
             VerifyTurnstile::class,

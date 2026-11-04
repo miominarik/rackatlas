@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
 use App\Http\Controllers\Admin\TeamController as AdminTeamController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Auth\LoginApprovalController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
@@ -34,7 +35,18 @@ Route::get('sitemap.xml', [CrawlerController::class, 'sitemap'])->name('sitemap'
 // Public on purpose: visitors without an account pick the language of the home page too.
 Route::put('language', [LanguageController::class, 'update'])->name('language.update');
 
+Route::middleware('auth')->prefix('login/approval')->name('login-approval.')->group(function () {
+    Route::get('/', [LoginApprovalController::class, 'show'])->name('show');
+    Route::get('status', [LoginApprovalController::class, 'status'])->middleware('throttle:60,1')->name('status');
+    Route::post('renew', [LoginApprovalController::class, 'renew'])->middleware('throttle:3,1')->name('renew');
+    Route::post('code', [LoginApprovalController::class, 'code'])->middleware('throttle:5,1')->name('code');
+});
+
 Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
+    Route::post('login-approvals/{approval}', [LoginApprovalController::class, 'decide'])
+        ->middleware('throttle:20,1')
+        ->name('login-approvals.decide');
+
     Route::get('/', [DashboardController::class, 'show'])->name('dashboard');
     Route::put('dashboard/settings', [DashboardController::class, 'update'])->name('dashboard.settings.update');
     Route::delete('dashboard/settings', [DashboardController::class, 'reset'])->name('dashboard.settings.reset');

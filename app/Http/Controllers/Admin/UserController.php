@@ -147,6 +147,7 @@ class UserController extends Controller
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
         ])->save();
+        $user->devices()->update(['approves_logins' => false]);
 
         $this->audit('two-factor-reset', $user);
         $this->flash(__('Two-factor authentication was turned off for the user.'));

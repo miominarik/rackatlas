@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\TrackDevice;
 use App\Models\PushSubscription;
 use App\Notifications\Channels\WebPushChannel;
 use Closure;
@@ -43,6 +44,7 @@ class PushSubscriptionController extends Controller
         // The same browser can be registered by another account on the same device before.
         $subscription = PushSubscription::updateOrCreate(['endpoint_hash' => $hash], [
             'user_id' => $user->id,
+            'user_device_id' => TrackDevice::current($request)?->id,
             'endpoint' => $validated['endpoint'],
             'public_key' => $validated['keys']['p256dh'],
             'auth_token' => $validated['keys']['auth'],

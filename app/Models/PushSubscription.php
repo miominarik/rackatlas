@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $user_id
+ * @property int|null $user_device_id
  * @property string $endpoint_hash
  * @property string $endpoint
  * @property string $public_key
@@ -23,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $last_attempted_at
  * @property string|null $last_error
  */
-#[Fillable(['user_id', 'endpoint_hash', 'endpoint', 'public_key', 'auth_token', 'content_encoding', 'name', 'last_used_at', 'last_attempted_at', 'last_error'])]
+#[Fillable(['user_id', 'user_device_id', 'endpoint_hash', 'endpoint', 'public_key', 'auth_token', 'content_encoding', 'name', 'last_used_at', 'last_attempted_at', 'last_error'])]
 #[Hidden(['endpoint', 'public_key', 'auth_token'])]
 class PushSubscription extends Model
 {

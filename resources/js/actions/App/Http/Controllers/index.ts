@@ -3,6 +3,7 @@ import HomeController from './HomeController'
 import PrivacyController from './PrivacyController'
 import CrawlerController from './CrawlerController'
 import Settings from './Settings'
+import Auth from './Auth'
 import DashboardController from './DashboardController'
 import CurrentTeamController from './CurrentTeamController'
 import Servers from './Servers'
@@ -18,6 +19,7 @@ const Controllers = {
     PrivacyController: Object.assign(PrivacyController, PrivacyController),
     CrawlerController: Object.assign(CrawlerController, CrawlerController),
     Settings: Object.assign(Settings, Settings),
+    Auth: Object.assign(Auth, Auth),
     DashboardController: Object.assign(DashboardController, DashboardController),
     CurrentTeamController: Object.assign(CurrentTeamController, CurrentTeamController),
     Servers: Object.assign(Servers, Servers),
