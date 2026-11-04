@@ -25,13 +25,14 @@ class RequireLoginApproval
 
         $approval = $this->approvals->approvalOf($request);
 
-        if ($approval?->status === LoginApproval::APPROVED) {
-            $request->session()->forget(LoginApprovals::SESSION_KEY);
-
+        // The waiting page itself ends the wait, it has to see the approval to tell the browser.
+        if ($request->routeIs('login-approval.*', 'logout')) {
             return $next($request);
         }
 
-        if ($request->routeIs('login-approval.*', 'logout')) {
+        if ($approval?->status === LoginApproval::APPROVED) {
+            $request->session()->forget(LoginApprovals::SESSION_KEY);
+
             return $next($request);
         }
 

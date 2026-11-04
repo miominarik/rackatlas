@@ -65,6 +65,17 @@ class LoginApprovalTest extends TestCase
         $this->getJson(route('login-approval.status'))->assertJson(['status' => 'pending']);
     }
 
+    public function test_the_waiting_page_sees_an_approval_and_then_lets_the_user_in(): void
+    {
+        $user = User::factory()->create();
+        $this->approvingDevice($user);
+        $this->signIn($user);
+        LoginApproval::query()->update(['status' => LoginApproval::APPROVED]);
+
+        $this->getJson(route('login-approval.status'))->assertJson(['status' => 'approved']);
+        $this->get(route('dashboard'))->assertOk();
+    }
+
     public function test_the_approving_device_itself_signs_in_without_waiting(): void
     {
         $user = User::factory()->create();

@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 * @see app/Http/Controllers/Auth/LoginApprovalController.php:128
 * @route '/app/login-approvals/{approval}'
 */
-export const decide = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const decide = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: decide.url(args, options),
     method: 'post',
 })
@@ -19,7 +19,7 @@ decide.definition = {
 * @see app/Http/Controllers/Auth/LoginApprovalController.php:128
 * @route '/app/login-approvals/{approval}'
 */
-decide.url = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+decide.url = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { approval: args }
     }
@@ -52,7 +52,7 @@ decide.url = (args: { approval: string | number | { id: string | number } } | [a
 * @see app/Http/Controllers/Auth/LoginApprovalController.php:128
 * @route '/app/login-approvals/{approval}'
 */
-decide.post = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+decide.post = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: decide.url(args, options),
     method: 'post',
 })
@@ -62,7 +62,7 @@ decide.post = (args: { approval: string | number | { id: string | number } } | [
 * @see app/Http/Controllers/Auth/LoginApprovalController.php:128
 * @route '/app/login-approvals/{approval}'
 */
-const decideForm = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const decideForm = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: decide.url(args, options),
     method: 'post',
 })
@@ -72,7 +72,7 @@ const decideForm = (args: { approval: string | number | { id: string | number } 
 * @see app/Http/Controllers/Auth/LoginApprovalController.php:128
 * @route '/app/login-approvals/{approval}'
 */
-decideForm.post = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+decideForm.post = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: decide.url(args, options),
     method: 'post',
 })
