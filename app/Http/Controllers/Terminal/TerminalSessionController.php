@@ -41,6 +41,11 @@ class TerminalSessionController extends Controller
             'user_id' => $request->user()->id,
         ], now()->addSeconds((int) config('terminal.ticket_ttl')));
 
-        return response()->json(['token' => $token, 'url' => config('terminal.url')]);
+        return response()->json([
+            'token' => $token,
+            'url' => config('terminal.url'),
+            // Through the agent the traffic is end-to-end encrypted, so the browser has to do the handshake.
+            'mode' => $server->opensTerminalViaAgent() ? 'agent' : 'ssh',
+        ]);
     }
 }

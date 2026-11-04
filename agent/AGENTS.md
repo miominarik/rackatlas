@@ -35,6 +35,14 @@ separate service in the same package. The metrics agent above is unchanged and k
   whether the terminal is on for this server and where the bridge is, then keeps one outbound WebSocket to the
   bridge (`resources/terminal/server.mjs`, path `/agent`). The bridge checks the token again with the app.
   Shells start only when the bridge sends `open`. Protocol: see the header of `server.mjs` and `main.go`.
+- The terminal is end-to-end encrypted between the browser and this service (`agent/terminal/e2e.go`,
+  `resources/js/lib/terminal-e2e.ts`). The bridge and Cloudflare only relay ciphertext. The service keeps an ECDSA
+  P-256 identity key in `terminal.key` next to `agent.conf` (root, mode 0600, created on first start). Its
+  fingerprint is printed by `sudo rackatlas-terminal --fingerprint`; the user trusts it once in the browser, which
+  pins it in `localStorage` (like an SSH host key) and refuses a changed one without a new confirmation. Never send
+  plain keystrokes or shell output: the service ignores unencrypted input and prints nothing before the handshake.
+  Changing the handshake, the key derivation or the framing needs the Go side, the TypeScript side and `server.mjs`
+  to change together (and a new agent version), the Go tests cover the Go side.
 - It runs as root on purpose and has no sandbox, because the shell inherits it. It is **off by default**: the
   package never enables it. Two switches must both be on: the service (`--terminal` of the installer or
   `systemctl enable --now rackatlas-terminal`) and `servers.agent_terminal` in the app.
@@ -142,7 +150,7 @@ There is no Debian here (macOS), so test in pieces, never against the production
 
 ## Testing the terminal service
 
-`cd agent/terminal && go vet ./... && go build ./...` compiles it on macOS too (Linux-only calls such as `Credential` are
+`cd agent/terminal && go vet ./... && go test ./... && go build ./...` compiles it on macOS too (Linux-only calls such as `Credential` are
 in `syscall` and build everywhere Go supports). The bridge can be tried with a fake app and a fake agent in Node
 (see how `resources/terminal/server.mjs` is started in `package.json`). A real shell needs Linux, so ask the owner to try
 `systemctl enable --now rackatlas-terminal` on one server and open the terminal page.

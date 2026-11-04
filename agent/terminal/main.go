@@ -4,9 +4,10 @@
 // RackAtlas whether the terminal is switched on for this server and where the bridge is, then keeps
 // one outbound WebSocket to the bridge. Shells are started only when the bridge asks for one.
 //
-// Frames from the bridge (JSON text): open {id, cols, rows}, r {id, c, r}, close {id}.
-// Binary frames carry 4 bytes of session id followed by keystrokes. Frames to the bridge: ready,
-// exit and error as JSON text, shell output as binary with the same 4 byte prefix.
+// Frames from the bridge (JSON text): open {id, cols, rows}, key {id, pub}, r {id, c, r}, close {id}.
+// Binary frames carry 4 bytes of session id followed by encrypted keystrokes. Frames to the bridge:
+// ready, key, exit and error as JSON text, encrypted shell output as binary with the same 4 byte
+// prefix. The shell output only starts after the browser sent its key. See e2e.go for the encryption.
 package main
 
 import (
@@ -24,6 +25,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"os/user"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -43,7 +45,13 @@ const (
 	maxBackoff     = 120 * time.Second
 	maxShells      = 5
 	readBufferSize = 32 * 1024
+
+	// A browser has to send its key within this time after the shell was opened.
+	handshakeTimeout = 20 * time.Second
 )
+
+// ident is the identity key of this service, loaded once at start.
+var ident *identity
 
 type config struct {
 	url          string
@@ -52,8 +60,19 @@ type config struct {
 }
 
 type shell struct {
-	cmd  *exec.Cmd
-	ptmx *os.File
+	cmd   *exec.Cmd
+	ptmx  *os.File
+	keyed chan struct{} // closed once the encrypted channel is set up
+
+	mu      sync.Mutex
+	session *secureSession
+}
+
+func (s *shell) secure() *secureSession {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.session
 }
 
 type connection struct {
@@ -74,6 +93,20 @@ func main() {
 	if confPath == "" {
 		confPath = "/etc/rackatlas-agent/agent.conf"
 	}
+
+	keyPath := filepath.Join(filepath.Dir(confPath), "terminal.key")
+
+	var err error
+	if ident, err = loadIdentity(keyPath); err != nil {
+		log.Fatalf("identity key %s: %v (run as root)", keyPath, err)
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "--fingerprint" {
+		fmt.Println(ident.fingerprint())
+		return
+	}
+
+	log.Printf("identity fingerprint %s", ident.fingerprint())
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -288,12 +321,53 @@ func (c *connection) input(data []byte) {
 	}
 
 	c.shMu.Lock()
-	s := c.shells[binary.BigEndian.Uint32(data)]
+	id := binary.BigEndian.Uint32(data)
+	s := c.shells[id]
 	c.shMu.Unlock()
 
-	if s != nil {
-		s.ptmx.Write(data[4:])
+	if s == nil {
+		return
 	}
+
+	session := s.secure()
+	if session == nil {
+		// Plain keystrokes are never accepted, the browser has to finish the handshake first.
+		return
+	}
+
+	plain, err := session.open(data[4:])
+	if err != nil {
+		c.status("error", id, "The encrypted data could not be verified.")
+		s.stop()
+		return
+	}
+
+	s.ptmx.Write(plain)
+}
+
+// key answers the key of the browser and switches the shell to the encrypted channel.
+func (c *connection) key(id uint32, pub string) {
+	c.shMu.Lock()
+	s := c.shells[id]
+	c.shMu.Unlock()
+
+	if s == nil || s.secure() != nil {
+		return
+	}
+
+	reply, session, err := ident.accept(id, pub)
+	if err != nil {
+		c.status("error", id, "The encrypted handshake failed.")
+		s.stop()
+		return
+	}
+
+	c.send(websocket.TextMessage, reply)
+
+	s.mu.Lock()
+	s.session = session
+	s.mu.Unlock()
+	close(s.keyed)
 }
 
 func (c *connection) control(data []byte) {
@@ -304,6 +378,7 @@ func (c *connection) control(data []byte) {
 		Rows uint16 `json:"rows"`
 		C    uint16 `json:"c"`
 		R    uint16 `json:"r"`
+		Pub  string `json:"pub"`
 	}
 
 	if json.Unmarshal(data, &m) != nil {
@@ -313,6 +388,8 @@ func (c *connection) control(data []byte) {
 	switch m.T {
 	case "open":
 		go c.open(m.ID, m.Cols, m.Rows)
+	case "key":
+		c.key(m.ID, m.Pub)
 	case "r":
 		c.shMu.Lock()
 		s := c.shells[m.ID]
@@ -396,7 +473,7 @@ func (c *connection) open(id uint32, cols, rows uint16) {
 		return
 	}
 
-	s := &shell{cmd: cmd, ptmx: ptmx}
+	s := &shell{cmd: cmd, ptmx: ptmx, keyed: make(chan struct{})}
 
 	c.shMu.Lock()
 	c.shells[id] = s
@@ -404,18 +481,25 @@ func (c *connection) open(id uint32, cols, rows uint16) {
 
 	c.status("ready", id, "")
 
-	prefix := make([]byte, 4)
-	binary.BigEndian.PutUint32(prefix, id)
-	buffer := make([]byte, readBufferSize)
+	// Nothing is printed before the browser has set up the encryption. The output waits in the pty.
+	select {
+	case <-s.keyed:
+		prefix := make([]byte, 4)
+		binary.BigEndian.PutUint32(prefix, id)
+		buffer := make([]byte, readBufferSize)
+		session := s.secure()
 
-	for {
-		n, err := ptmx.Read(buffer)
-		if n > 0 {
-			c.send(websocket.BinaryMessage, append(append([]byte{}, prefix...), buffer[:n]...))
+		for {
+			n, err := ptmx.Read(buffer)
+			if n > 0 {
+				c.send(websocket.BinaryMessage, append(append([]byte{}, prefix...), session.seal(buffer[:n])...))
+			}
+			if err != nil {
+				break
+			}
 		}
-		if err != nil {
-			break
-		}
+	case <-time.After(handshakeTimeout):
+		c.status("error", id, "The browser did not set up the encryption. Update the agent and the page.")
 	}
 
 	s.stop()

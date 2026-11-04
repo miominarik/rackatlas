@@ -153,6 +153,23 @@ class TerminalTest extends TestCase
         $this->assertDatabaseHas('activity_log', ['event' => 'terminal-opened', 'causer_id' => $team->owner->id]);
     }
 
+    public function test_ticket_tells_the_browser_whether_to_encrypt_end_to_end(): void
+    {
+        $team = Team::factory()->create();
+        $agent = $this->agentTerminalServer($team);
+        $ssh = $this->sshServer($team);
+
+        $this->actingAs($team->owner)
+            ->postJson(route('terminal.sessions.store'), ['server_id' => $agent->id])
+            ->assertOk()
+            ->assertJsonPath('mode', 'agent');
+
+        $this->actingAs($team->owner)
+            ->postJson(route('terminal.sessions.store'), ['server_id' => $ssh->id])
+            ->assertOk()
+            ->assertJsonPath('mode', 'ssh');
+    }
+
     public function test_agent_terminal_wins_over_ssh_for_a_server_with_both(): void
     {
         $team = Team::factory()->create();

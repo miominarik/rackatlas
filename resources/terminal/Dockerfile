@@ -24,15 +24,20 @@ COPY <<'EOF_SERVER' /app/server.mjs
  *  - agent: the terminal service on the server keeps a WebSocket open to /agent, so no port has to
  *           be open on the server. The shell runs there, this process only relays the bytes.
  *
- * Frames from the browser: {"t":"i","d":"<keystrokes>"} and {"t":"r","c":cols,"r":rows}.
- * Frames to the browser: binary shell output, and {"t":"status"|"error",...} control messages.
+ * Frames from the browser: {"t":"i","d":"<keystrokes>"} (ssh only) and {"t":"r","c":cols,"r":rows}.
+ * Via the agent the terminal is end-to-end encrypted: the browser sends {"t":"k","pub":"<key>"} and
+ * then binary frames of ciphertext. This process cannot read them, it only relays them.
+ * Frames to the browser: binary shell output (ciphertext via the agent), and
+ * {"t":"status"|"error"|"key",...} control messages.
  *
  * Frames to the terminal service (many shells share one connection, a session id tells them apart):
- *   text:   {"t":"open","id":1,"cols":80,"rows":24} {"t":"r","id":1,"c":..,"r":..} {"t":"close","id":1}
- *   binary: 4 bytes session id (big endian) + keystrokes
+ *   text:   {"t":"open","id":1,"cols":80,"rows":24} {"t":"key","id":1,"pub":".."}
+ *           {"t":"r","id":1,"c":..,"r":..} {"t":"close","id":1}
+ *   binary: 4 bytes session id (big endian) + encrypted keystrokes
  * Frames from the terminal service:
  *   text:   {"t":"ready"|"exit","id":1} {"t":"error","id":1,"message":"..."}
- *   binary: 4 bytes session id + shell output
+ *           {"t":"key","id":1,"pub":"..","ident":"..","sig":".."}
+ *   binary: 4 bytes session id + encrypted shell output
  *
  * Start with `npm run terminal` (Node 20.6+, reads .env).
  */
@@ -166,6 +171,8 @@ agentWss.on('connection', (ws, request) => {
 
         if (message.t === 'ready') {
             shell?.onReady();
+        } else if (message.t === 'key') {
+            shell?.onKey?.(message);
         } else if (message.t === 'exit') {
             shell?.onExit();
         } else if (message.t === 'error') {
@@ -267,6 +274,12 @@ wss.on('connection', (ws, request) => {
 
     ws.on('message', (raw, isBinary) => {
         if (isBinary) {
+            // Ciphertext for the shell on the server. Only shells that are end-to-end encrypted take it.
+            if (shell?.secure) {
+                touch();
+                shell.write(raw);
+            }
+
             return;
         }
 
@@ -278,7 +291,11 @@ wss.on('connection', (ws, request) => {
             return;
         }
 
-        if (message.t === 'r') {
+        if (message.t === 'k') {
+            if (shell?.secure && typeof message.pub === 'string' && message.pub.length <= 200) {
+                shell.key(message.pub);
+            }
+        } else if (message.t === 'r') {
             const cols = Math.min(Math.max(Number(message.c) || 80, 10), 500);
             const rows = Math.min(Math.max(Number(message.r) || 24, 2), 200);
 
@@ -289,7 +306,7 @@ wss.on('connection', (ws, request) => {
                 sized = true;
                 sizeWaiter?.();
             }
-        } else if (message.t === 'i' && shell && typeof message.d === 'string') {
+        } else if (message.t === 'i' && shell && !shell.secure && typeof message.d === 'string') {
             touch();
             shell.write(message.d);
         }
@@ -318,6 +335,11 @@ wss.on('connection', (ws, request) => {
                 clearTimeout(startTimeout);
                 control({ t: 'status', state: 'ready' });
             },
+            onKey: (message) => {
+                const text = (value) => (typeof value === 'string' && value.length <= 400 ? value : '');
+
+                control({ t: 'key', pub: text(message.pub), ident: text(message.ident), sig: text(message.sig) });
+            },
             onExit: () => ws.close(),
             onError: (message) => {
                 clearTimeout(startTimeout);
@@ -326,6 +348,8 @@ wss.on('connection', (ws, request) => {
         });
 
         shell = {
+            secure: true,
+            key: (pub) => entry.ws.readyState === entry.ws.OPEN && entry.ws.send(JSON.stringify({ t: 'key', id, pub })),
             write: (data) => entry.ws.readyState === entry.ws.OPEN && entry.ws.send(frame(id, data), { binary: true }),
             resize: (cols, rows) => entry.ws.readyState === entry.ws.OPEN && entry.ws.send(JSON.stringify({ t: 'r', id, c: cols, r: rows })),
             end: () => {
