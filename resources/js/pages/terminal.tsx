@@ -284,14 +284,14 @@ export default function TerminalPage({
             <Head title={t('Terminal')} />
             <div
                 className={cn(
-                    'flex flex-col gap-4 p-4 md:p-6 lg:h-[calc(100svh-5rem)] lg:overflow-hidden',
+                    'mx-auto flex w-full max-w-[100rem] flex-col gap-4 p-4 md:p-6 lg:h-[calc(100svh-5rem)] lg:overflow-hidden',
                     fullscreen &&
-                        'fixed inset-0 z-50 h-svh gap-0 bg-background p-0 md:p-0 lg:h-svh',
+                        'fixed inset-0 z-50 h-svh max-w-none gap-0 bg-background p-0 md:p-0 lg:h-svh',
                 )}
             >
                 {!fullscreen && (
                     <div className="shrink-0">
-                        <h1 className="text-xl font-semibold">
+                        <h1 className="text-2xl font-semibold">
                             {t('Terminal')}
                         </h1>
                         <p className="text-sm text-muted-foreground">

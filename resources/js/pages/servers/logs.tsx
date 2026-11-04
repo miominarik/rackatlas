@@ -1,5 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Check, CheckCheck, RotateCcw, ScrollText } from 'lucide-react';
+import { Check, CheckCheck, Copy, RotateCcw, ScrollText } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import LogController from '@/actions/App/Http/Controllers/Servers/LogController';
 import { levelStyle } from '@/components/dashboard/recent-logs';
 import { Button } from '@/components/ui/button';
@@ -42,6 +44,124 @@ type Props = {
 
 const ALL = 'all';
 
+const DOT = {
+    critical: 'bg-red-500',
+    error: 'bg-amber-500',
+} as const;
+
+function LogDetail({
+    log,
+    generatedAt,
+    onResolve,
+    onReopen,
+}: {
+    log: LogEntry;
+    generatedAt: string;
+    onResolve: () => void;
+    onReopen: () => void;
+}) {
+    const { t, locale } = useTranslation();
+
+    const copy = async () => {
+        try {
+            await navigator.clipboard.writeText(log.message);
+            toast.success(t('Copied.'));
+        } catch {
+            toast.error(t('Copy failed.'));
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="space-y-2">
+                <span
+                    className={cn(
+                        'inline-block rounded-md px-2 py-0.5 text-xs font-medium tracking-wide uppercase',
+                        levelStyle[log.level],
+                    )}
+                >
+                    {t(log.level === 'critical' ? 'Critical' : 'Error')}
+                </span>
+                <h2 className="text-lg font-semibold">{log.server_name}</h2>
+            </div>
+
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                        {t('Message')}
+                    </h3>
+                    <Button variant="ghost" size="sm" onClick={copy}>
+                        <Copy className="size-3.5" />
+                        {t('Copy')}
+                    </Button>
+                </div>
+                <pre className="max-h-80 overflow-auto rounded-lg border bg-muted/50 p-4 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap">
+                    {log.message}
+                </pre>
+            </div>
+
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-5 text-sm">
+                <div>
+                    <dt className="text-xs text-muted-foreground">
+                        {t('Time')}
+                    </dt>
+                    <dd className="mt-1">
+                        {new Date(log.occurred_at).toLocaleString(locale)}
+                        <span className="block text-xs text-muted-foreground">
+                            {timeAgo(log.occurred_at, generatedAt, locale)}
+                        </span>
+                    </dd>
+                </div>
+                <div>
+                    <dt className="text-xs text-muted-foreground">
+                        {t('Source')}
+                    </dt>
+                    <dd className="mt-1 break-words">{log.source}</dd>
+                </div>
+                <div>
+                    <dt className="text-xs text-muted-foreground">
+                        {t('Occurrences')}
+                    </dt>
+                    <dd className="mt-1 tabular-nums">×{log.count}</dd>
+                </div>
+                <div>
+                    <dt className="text-xs text-muted-foreground">
+                        {t('Status')}
+                    </dt>
+                    <dd className="mt-1">
+                        {log.resolved_at ? (
+                            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                                <Check className="size-4" />
+                                {log.resolved_by
+                                    ? t('Resolved by :name', {
+                                          name: log.resolved_by,
+                                      })
+                                    : t('Resolved automatically')}
+                            </span>
+                        ) : (
+                            t('Open')
+                        )}
+                    </dd>
+                </div>
+            </dl>
+
+            <div className="border-t pt-5">
+                {log.resolved_at ? (
+                    <Button variant="outline" onClick={onReopen}>
+                        <RotateCcw className="size-4" />
+                        {t('Reopen')}
+                    </Button>
+                ) : (
+                    <Button onClick={onResolve}>
+                        <Check className="size-4" />
+                        {t('Mark as resolved')}
+                    </Button>
+                )}
+            </div>
+        </div>
+    );
+}
+
 export default function Logs({
     team,
     logs,
@@ -52,6 +172,7 @@ export default function Logs({
     generated_at,
 }: Props) {
     const { t, locale } = useTranslation();
+    const [selectedId, setSelectedId] = useState<number | null>(null);
 
     if (!team) {
         return (
@@ -111,52 +232,68 @@ export default function Logs({
             { preserveScroll: true },
         );
 
+    const activeId = logs.data.some((log) => log.id === selectedId)
+        ? selectedId
+        : (logs.data[0]?.id ?? null);
+    const active = logs.data.find((log) => log.id === activeId) ?? null;
+
+    const statuses = [
+        { value: 'open', label: t('Open') },
+        { value: 'resolved', label: t('Resolved') },
+        { value: 'all', label: t('All entries') },
+    ] as const;
+
     return (
         <>
             <Head title={t('Logs')} />
 
-            <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                        <h1 className="text-2xl font-semibold">{t('Logs')}</h1>
-                        <p className="text-sm text-muted-foreground">
-                            {t(
-                                'Only what is wrong: critical and error entries from the servers with the agent. Kept for :days days.',
-                                {
-                                    days: retention_days,
-                                },
-                            )}
-                        </p>
-                    </div>
-                    <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
-                        <Select
-                            value={filters.status}
-                            onValueChange={(status) => filter({ status })}
-                        >
-                            <SelectTrigger
-                                className="w-full sm:w-36"
-                                aria-label={t('Status')}
+            <div className="mx-auto flex w-full max-w-[100rem] flex-col gap-6 p-4 md:p-6 lg:h-[calc(100svh-5rem)] lg:overflow-hidden">
+                <div className="space-y-1 lg:shrink-0">
+                    <h1 className="text-2xl font-semibold">{t('Logs')}</h1>
+                    <p className="text-sm text-muted-foreground">
+                        {t(
+                            'Only what is wrong: critical and error entries from the servers with the agent. Kept for :days days.',
+                            { days: retention_days },
+                        )}
+                    </p>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-4 lg:shrink-0">
+                    <div
+                        role="tablist"
+                        className="inline-flex rounded-lg bg-muted p-1"
+                    >
+                        {statuses.map((status) => (
+                            <button
+                                key={status.value}
+                                type="button"
+                                role="tab"
+                                aria-selected={filters.status === status.value}
+                                onClick={() => filter({ status: status.value })}
+                                className={cn(
+                                    'flex items-center gap-2 rounded-md px-3.5 py-1.5 text-sm transition-colors',
+                                    filters.status === status.value
+                                        ? 'bg-card font-medium shadow-xs'
+                                        : 'text-muted-foreground hover:text-foreground',
+                                )}
                             >
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="open">
-                                    {t('Open')}
-                                </SelectItem>
-                                <SelectItem value="resolved">
-                                    {t('Resolved')}
-                                </SelectItem>
-                                <SelectItem value="all">
-                                    {t('All entries')}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
+                                {status.label}
+                                {status.value === 'open' && open_count > 0 && (
+                                    <span className="rounded-full bg-red-500/10 px-1.5 text-xs text-red-700 tabular-nums dark:text-red-300">
+                                        {open_count}
+                                    </span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
                         <Select
                             value={String(filters.server ?? ALL)}
                             onValueChange={(server) => filter({ server })}
                         >
                             <SelectTrigger
-                                className="w-full sm:w-44"
+                                className="w-44"
                                 aria-label={t('Server')}
                             >
                                 <SelectValue />
@@ -180,7 +317,7 @@ export default function Logs({
                             onValueChange={(level) => filter({ level })}
                         >
                             <SelectTrigger
-                                className="w-full sm:w-36"
+                                className="w-36"
                                 aria-label={t('Level')}
                             >
                                 <SelectValue />
@@ -197,27 +334,17 @@ export default function Logs({
                                 </SelectItem>
                             </SelectContent>
                         </Select>
+                        {open_count > 0 && filters.status !== 'resolved' && (
+                            <Button variant="outline" onClick={resolveAll}>
+                                <CheckCheck className="size-4" />
+                                {t('Mark all as resolved')}
+                            </Button>
+                        )}
                     </div>
                 </div>
 
-                {open_count > 0 && filters.status !== 'resolved' && (
-                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-muted/40 px-4 py-2.5">
-                        <p className="text-sm text-muted-foreground">
-                            {t(':count open entries', { count: open_count })}
-                        </p>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={resolveAll}
-                        >
-                            <CheckCheck className="size-4" />
-                            {t('Mark all as resolved')}
-                        </Button>
-                    </div>
-                )}
-
                 {logs.data.length === 0 ? (
-                    <div className="rounded-xl border border-dashed p-10 text-center">
+                    <div className="rounded-xl border border-dashed bg-card p-14 text-center">
                         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted">
                             <ScrollText className="size-7 text-muted-foreground" />
                         </div>
@@ -233,128 +360,119 @@ export default function Logs({
                         </p>
                     </div>
                 ) : (
-                    <ul className="divide-y overflow-hidden rounded-xl border bg-card">
-                        {logs.data.map((log) => (
-                            <li
-                                key={log.id}
-                                className={cn(
-                                    'space-y-1 px-4 py-3',
-                                    log.resolved_at && 'bg-muted/30 opacity-70',
-                                )}
-                            >
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                                    <span className="font-medium">
-                                        {log.server_name}
-                                    </span>
-                                    <span
+                    <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+                        <ul className="space-y-3 lg:min-h-0 lg:overflow-y-auto lg:pr-1 lg:pb-1">
+                            {logs.data.map((log) => (
+                                <li key={log.id}>
+                                    <div
                                         className={cn(
-                                            'rounded-md px-1.5 py-0.5 text-[11px] tracking-wide uppercase',
-                                            levelStyle[log.level],
+                                            'overflow-hidden rounded-xl border bg-card transition-colors',
+                                            log.id === activeId &&
+                                                'border-primary/60 ring-1 ring-primary/30',
+                                            log.resolved_at && 'opacity-70',
                                         )}
                                     >
-                                        {t(
-                                            log.level === 'critical'
-                                                ? 'Critical'
-                                                : 'Error',
-                                        )}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                        {log.source}
-                                    </span>
-                                    {log.count > 1 && (
-                                        <span className="text-xs text-muted-foreground">
-                                            ×{log.count}
-                                        </span>
-                                    )}
-                                    <span
-                                        className="ml-auto text-xs text-muted-foreground/70"
-                                        title={new Date(
-                                            log.occurred_at,
-                                        ).toLocaleString(locale)}
-                                    >
-                                        {timeAgo(
-                                            log.occurred_at,
-                                            generated_at,
-                                            locale,
-                                        )}
-                                    </span>
-                                </div>
-                                <p className="font-mono text-xs break-words whitespace-pre-wrap text-muted-foreground">
-                                    {log.message}
-                                </p>
-                                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                                    {log.resolved_at ? (
-                                        <p className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
-                                            <Check className="size-3.5" />
-                                            {log.resolved_by
-                                                ? t('Resolved by :name', {
-                                                      name: log.resolved_by,
-                                                  })
-                                                : t('Resolved automatically')}
-                                            <span className="text-muted-foreground">
-                                                {timeAgo(
-                                                    log.resolved_at,
-                                                    generated_at,
-                                                    locale,
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setSelectedId(
+                                                    log.id === selectedId
+                                                        ? null
+                                                        : log.id,
+                                                )
+                                            }
+                                            className="flex w-full items-start gap-4 p-5 text-left hover:bg-muted/40"
+                                        >
+                                            <span
+                                                className={cn(
+                                                    'mt-1.5 size-2.5 shrink-0 rounded-full',
+                                                    log.resolved_at
+                                                        ? 'bg-emerald-500'
+                                                        : DOT[log.level],
                                                 )}
+                                            />
+                                            <span className="min-w-0 flex-1 space-y-2">
+                                                <span className="flex items-baseline justify-between gap-3">
+                                                    <span className="truncate font-medium">
+                                                        {log.server_name}
+                                                    </span>
+                                                    <span className="shrink-0 text-xs text-muted-foreground">
+                                                        {timeAgo(
+                                                            log.occurred_at,
+                                                            generated_at,
+                                                            locale,
+                                                        )}
+                                                    </span>
+                                                </span>
+                                                <span className="line-clamp-2 block text-sm break-words text-muted-foreground">
+                                                    {log.message}
+                                                </span>
                                             </span>
-                                        </p>
-                                    ) : (
-                                        <span />
-                                    )}
-                                    {log.resolved_at ? (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => reopen(log)}
-                                        >
-                                            <RotateCcw className="size-3.5" />
-                                            {t('Reopen')}
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => resolve(log)}
-                                        >
-                                            <Check className="size-3.5" />
-                                            {t('Mark as resolved')}
-                                        </Button>
-                                    )}
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                                        </button>
 
-                {(logs.prev_page_url || logs.next_page_url) && (
-                    <div className="flex justify-between">
-                        <Button
-                            variant="outline"
-                            disabled={!logs.prev_page_url}
-                            asChild={!!logs.prev_page_url}
-                        >
-                            {logs.prev_page_url ? (
-                                <Link href={logs.prev_page_url}>
-                                    {t('Newer')}
-                                </Link>
-                            ) : (
-                                <span>{t('Newer')}</span>
+                                        {log.id === selectedId && (
+                                            <div className="border-t p-5 lg:hidden">
+                                                <LogDetail
+                                                    log={log}
+                                                    generatedAt={generated_at}
+                                                    onResolve={() =>
+                                                        resolve(log)
+                                                    }
+                                                    onReopen={() => reopen(log)}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </li>
+                            ))}
+
+                            {(logs.prev_page_url || logs.next_page_url) && (
+                                <li className="flex justify-between pt-2">
+                                    <Button
+                                        variant="outline"
+                                        disabled={!logs.prev_page_url}
+                                        asChild={!!logs.prev_page_url}
+                                    >
+                                        {logs.prev_page_url ? (
+                                            <Link href={logs.prev_page_url}>
+                                                {t('Newer')}
+                                            </Link>
+                                        ) : (
+                                            <span>{t('Newer')}</span>
+                                        )}
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        disabled={!logs.next_page_url}
+                                        asChild={!!logs.next_page_url}
+                                    >
+                                        {logs.next_page_url ? (
+                                            <Link href={logs.next_page_url}>
+                                                {t('Older')}
+                                            </Link>
+                                        ) : (
+                                            <span>{t('Older')}</span>
+                                        )}
+                                    </Button>
+                                </li>
                             )}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            disabled={!logs.next_page_url}
-                            asChild={!!logs.next_page_url}
-                        >
-                            {logs.next_page_url ? (
-                                <Link href={logs.next_page_url}>
-                                    {t('Older')}
-                                </Link>
+                        </ul>
+
+                        <aside className="hidden min-h-0 overflow-y-auto rounded-xl border bg-card p-8 lg:block">
+                            {active ? (
+                                <LogDetail
+                                    key={active.id}
+                                    log={active}
+                                    generatedAt={generated_at}
+                                    onResolve={() => resolve(active)}
+                                    onReopen={() => reopen(active)}
+                                />
                             ) : (
-                                <span>{t('Older')}</span>
+                                <p className="text-sm text-muted-foreground">
+                                    {t('Select an entry to see its details')}
+                                </p>
                             )}
-                        </Button>
+                        </aside>
                     </div>
                 )}
             </div>

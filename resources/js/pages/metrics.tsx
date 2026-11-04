@@ -582,7 +582,7 @@ export default function Metrics({
                 )}
 
                 {noData ? (
-                    <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+                    <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
                         {t('No data for this period yet.')}
                     </div>
                 ) : (

@@ -38,7 +38,7 @@ export default function RecentLogs({
                 </Link>
             </div>
             {logs.length === 0 ? (
-                <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                     {t('No serious log entries in this period.')}
                 </p>
             ) : (

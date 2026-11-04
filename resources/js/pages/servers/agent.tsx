@@ -48,7 +48,7 @@ export default function AgentInstall({
         <>
             <Head title={t('Install the agent')} />
 
-            <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:py-8">
+            <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="space-y-1">
                     <h1 className="text-2xl font-semibold">
                         {t('Install the agent on :server', {
@@ -65,7 +65,7 @@ export default function AgentInstall({
                 <div
                     role="status"
                     className={cn(
-                        'flex items-start gap-3 rounded-xl border p-4',
+                        'flex items-start gap-3 rounded-xl border bg-card p-4',
                         connected
                             ? 'border-emerald-500/30 bg-emerald-500/[0.06]'
                             : 'bg-muted/30',
@@ -102,7 +102,7 @@ export default function AgentInstall({
                 </div>
 
                 {install_command ? (
-                    <div className="space-y-4 rounded-xl border p-5">
+                    <div className="space-y-4 rounded-xl border bg-card p-5">
                         <ol className="list-decimal space-y-3 pl-5 text-sm">
                             <li>
                                 {t(
@@ -129,7 +129,7 @@ export default function AgentInstall({
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-3 rounded-xl border p-5 text-sm">
+                    <div className="space-y-3 rounded-xl border bg-card p-5 text-sm">
                         <p className="text-muted-foreground">
                             {t(
                                 'For safety the token is shown only once, right after it was created. To install the agent on another server or to replace a lost token, create a new one. The old token stops working.',
@@ -161,7 +161,7 @@ export default function AgentInstall({
                 )}
 
                 {manual_command && (
-                    <details className="rounded-xl border p-4 text-sm">
+                    <details className="rounded-xl border bg-card p-4 text-sm">
                         <summary className="cursor-pointer font-medium">
                             {t('Install step by step with apt')}
                         </summary>
@@ -176,7 +176,7 @@ export default function AgentInstall({
                     </details>
                 )}
 
-                <div className="space-y-2 rounded-xl border p-4 text-sm">
+                <div className="space-y-2 rounded-xl border bg-card p-4 text-sm">
                     <p className="font-medium">{t('Update the agent later')}</p>
                     <p className="text-muted-foreground">
                         {t(
@@ -187,7 +187,7 @@ export default function AgentInstall({
                 </div>
 
                 {terminal_command && (
-                    <div className="space-y-2 rounded-xl border p-4 text-sm">
+                    <div className="space-y-2 rounded-xl border bg-card p-4 text-sm">
                         <p className="font-medium">
                             {t('Terminal through the agent')}
                         </p>
@@ -200,7 +200,7 @@ export default function AgentInstall({
                     </div>
                 )}
 
-                <details className="rounded-xl border p-4 text-sm">
+                <details className="rounded-xl border bg-card p-4 text-sm">
                     <summary className="cursor-pointer font-medium">
                         {t('What does the installer do?')}
                     </summary>

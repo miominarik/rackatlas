@@ -247,19 +247,19 @@ export default function Notifications({
                 )}
             >
                 {!pushAvailable ? (
-                    <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                    <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                         {t(
                             'Push notifications are not set up on this server yet (VAPID keys are missing).',
                         )}
                     </p>
                 ) : push.state === 'unsupported' ? (
-                    <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                    <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                         {t(
                             'This browser does not support push notifications. On iPhone, add the app to the home screen first.',
                         )}
                     </p>
                 ) : push.state === 'denied' ? (
-                    <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                    <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                         {t(
                             'Notifications are blocked for this site. Allow them in the browser settings and reload the page.',
                         )}
@@ -288,7 +288,7 @@ export default function Notifications({
                 )}
 
                 {devices.length > 0 && (
-                    <ul className="divide-y rounded-xl border">
+                    <ul className="divide-y rounded-xl border bg-card">
                         {devices.map((device) => (
                             <li
                                 key={device.id}

@@ -173,6 +173,13 @@
         touch-action: manipulation;
     }
 
+    /* Thin, quiet scrollbars for lists, panels and tables. */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in oklab, var(--foreground) 22%, transparent)
+            transparent;
+    }
+
     /* Installed app: no rubber-band bounce that would reveal the page behind it. */
     @media (display-mode: standalone) {
         body {

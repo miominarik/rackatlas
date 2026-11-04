@@ -137,7 +137,7 @@ export default function EditUser({ member }: { member: Member | null }) {
                             <InputError message={errors.password} />
                         </div>
 
-                        <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                        <div className="flex items-center justify-between gap-4 rounded-lg border bg-card p-4">
                             <div>
                                 <Label htmlFor="is_admin">
                                     {t('Administrator')}
@@ -159,7 +159,7 @@ export default function EditUser({ member }: { member: Member | null }) {
                             />
                         </div>
 
-                        <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                        <div className="flex items-center justify-between gap-4 rounded-lg border bg-card p-4">
                             <div>
                                 <Label htmlFor="email_verified">
                                     {t('Email verified')}

@@ -194,7 +194,7 @@ export default function CategoryManager({
                 </DialogDescription>
 
                 {categories.length > 0 && (
-                    <ul className="max-h-72 divide-y overflow-auto rounded-lg border">
+                    <ul className="max-h-72 divide-y overflow-auto rounded-lg border bg-card">
                         {categories.map((category) => (
                             <CategoryRow
                                 key={category.id}

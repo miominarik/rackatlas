@@ -87,7 +87,7 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+            <SidebarHeader className="p-3 pb-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
@@ -99,11 +99,11 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="pt-2">
                 <NavMain items={items} />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="gap-2 p-3">
                 <NavUser />
                 <p className="px-2 text-center text-xs text-muted-foreground/70 group-data-[collapsible=icon]:hidden">
                     v{__APP_VERSION__}

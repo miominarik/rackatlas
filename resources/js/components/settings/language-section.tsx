@@ -36,7 +36,7 @@ export default function LanguageSection() {
                                 )
                             }
                             className={cn(
-                                'flex items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors',
+                                'flex items-center justify-between gap-3 rounded-xl border bg-card p-4 text-left transition-colors',
                                 active
                                     ? 'border-primary bg-primary/5 ring-1 ring-primary'
                                     : 'hover:bg-muted/50',

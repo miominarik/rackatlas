@@ -134,7 +134,7 @@ export default function ServerWizard({
     const sendsViaAgent = isAgent || form.data.uses_agent;
 
     const agentTerminalOption = (
-        <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 text-sm">
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-4 text-sm">
             <Checkbox
                 checked={form.data.agent_terminal}
                 onCheckedChange={(checked) =>
@@ -279,7 +279,7 @@ export default function ServerWizard({
         <>
             <Head title={editing ? t('Edit server') : t('Add server')} />
 
-            <div className="mx-auto w-full max-w-2xl space-y-8 p-4 md:py-8">
+            <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="space-y-1">
                     <h1 className="text-2xl font-semibold">
                         {editing ? t('Edit server') : t('Add a server')}
@@ -340,7 +340,7 @@ export default function ServerWizard({
                     ))}
                 </ol>
 
-                <div className="space-y-6 rounded-xl border p-5 sm:p-6">
+                <div className="space-y-6 rounded-xl border bg-card p-5 sm:p-6">
                     {step === 0 && (
                         <>
                             <div className="grid gap-2">
@@ -568,7 +568,7 @@ export default function ServerWizard({
                                             form.clearErrors();
                                         }}
                                         className={cn(
-                                            'flex items-start gap-3 rounded-lg border p-4 text-left transition-colors',
+                                            'flex items-start gap-3 rounded-lg border bg-card p-4 text-left transition-colors',
                                             form.data.auth_type === value
                                                 ? 'border-primary bg-primary/5 ring-1 ring-primary'
                                                 : 'hover:bg-muted/50',
@@ -686,7 +686,7 @@ export default function ServerWizard({
                             )}
 
                             {!isAgent && (
-                                <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 text-sm">
+                                <label className="flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-4 text-sm">
                                     <Checkbox
                                         checked={form.data.uses_agent}
                                         onCheckedChange={(checked) =>
@@ -850,7 +850,7 @@ export default function ServerWizard({
 
                     {step === 2 && (
                         <>
-                            <dl className="divide-y rounded-lg border text-sm">
+                            <dl className="divide-y rounded-lg border bg-card text-sm">
                                 {[
                                     [t('Name'), form.data.name],
                                     ...(form.data.provider.trim() ||
@@ -953,7 +953,7 @@ export default function ServerWizard({
                                         <div
                                             role="status"
                                             className={cn(
-                                                'flex items-start gap-2 rounded-lg border p-3 text-sm',
+                                                'flex items-start gap-2 rounded-lg border bg-card p-3 text-sm',
                                                 testResult.success
                                                     ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                                                     : 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300',
@@ -973,7 +973,7 @@ export default function ServerWizard({
                                     )}
 
                                     {server?.ssh_host_fingerprint && (
-                                        <div className="space-y-2 rounded-lg border p-3 text-sm">
+                                        <div className="space-y-2 rounded-lg border bg-card p-3 text-sm">
                                             <p className="text-muted-foreground">
                                                 {t(
                                                     'The host key of this server is pinned. If the server was reinstalled, reset it and the next connection pins the new one.',

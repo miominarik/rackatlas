@@ -22,7 +22,7 @@ export default function RecentErrors({
                 </span>
             </h2>
             {errors.length === 0 ? (
-                <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                     {t('No errors in this period.')}
                 </p>
             ) : (

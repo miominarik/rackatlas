@@ -210,7 +210,7 @@ function Form({
                             'Show, hide and reorder the parts of the dashboard.',
                         )}
                     </p>
-                    <ul className="divide-y rounded-lg border">
+                    <ul className="divide-y rounded-lg border bg-card">
                         {draft.widgets.map((widget, index) => (
                             <li
                                 key={widget.id}

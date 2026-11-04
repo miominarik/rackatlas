@@ -181,7 +181,8 @@ function CountryBadge({
                 }
 
                 const length = (count / servers.length) * circumference;
-                const gap = servers.length > 1 ? Math.min(2 * unit, length / 3) : 0;
+                const gap =
+                    servers.length > 1 ? Math.min(2 * unit, length / 3) : 0;
                 const segment = (
                     <circle
                         key={key}
@@ -237,7 +238,10 @@ function ServerPins({
         <g transform={`translate(${anchor.x} ${anchor.y})`}>
             {servers.length > 1 && (
                 <circle
-                    r={(30 + Math.floor((servers.length - 1) / perRing) * 26) * unit}
+                    r={
+                        (30 + Math.floor((servers.length - 1) / perRing) * 26) *
+                        unit
+                    }
                     fill="none"
                     strokeDasharray={`${3 * unit} ${4 * unit}`}
                     strokeWidth={1 * unit}
@@ -246,7 +250,10 @@ function ServerPins({
             )}
             {servers.map((server, index) => {
                 const ring = Math.floor(index / perRing);
-                const inRing = Math.min(perRing, servers.length - ring * perRing);
+                const inRing = Math.min(
+                    perRing,
+                    servers.length - ring * perRing,
+                );
                 const single = servers.length === 1;
                 const angle =
                     ((index % perRing) / inRing) * Math.PI * 2 -
@@ -303,7 +310,7 @@ function ServerPins({
                             paintOrder="stroke"
                             strokeLinejoin="round"
                             className={cn(
-                                'pointer-events-none stroke-background fill-foreground',
+                                'pointer-events-none fill-foreground stroke-background',
                                 active ? 'font-semibold' : 'font-medium',
                             )}
                         >
@@ -380,7 +387,8 @@ export default function ServerMap({ team, servers }: Props) {
     }, [placed]);
 
     const countryList = useMemo(
-        () => [...byCountry.entries()].sort((a, b) => b[1].length - a[1].length),
+        () =>
+            [...byCountry.entries()].sort((a, b) => b[1].length - a[1].length),
         [byCountry],
     );
 
@@ -570,10 +578,10 @@ export default function ServerMap({ team, servers }: Props) {
     return (
         <>
             <Head title={t('Map')} />
-            <div className="flex flex-col gap-4 p-4 md:p-6 lg:h-[calc(100svh-5rem)] lg:overflow-hidden">
+            <div className="mx-auto flex w-full max-w-[100rem] flex-col gap-4 p-4 md:p-6 lg:h-[calc(100svh-5rem)] lg:overflow-hidden">
                 <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h1 className="text-xl font-semibold">{t('Map')}</h1>
+                        <h1 className="text-2xl font-semibold">{t('Map')}</h1>
                         <p className="text-sm text-muted-foreground">
                             {t('Where your servers run in Europe.')}
                         </p>
@@ -867,7 +875,7 @@ export default function ServerMap({ team, servers }: Props) {
                                 </div>
 
                                 {countryList.length === 0 ? (
-                                    <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                                    <div className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                                         <p>
                                             {t(
                                                 'No server has a country yet. Set the provider and country in the server settings.',

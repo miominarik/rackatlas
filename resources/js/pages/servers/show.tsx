@@ -162,7 +162,7 @@ export default function ServerShow({
         <>
             <Head title={server.name} />
 
-            <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+            <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
                         <span
@@ -293,7 +293,7 @@ export default function ServerShow({
                             </p>
                         </div>
                     ) : (
-                        <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                        <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                             {t('Waiting for the first check…')}
                         </p>
                     )}
@@ -414,7 +414,7 @@ export default function ServerShow({
 
                 <Section title={t('Recent problems')}>
                     {alerts.length === 0 ? (
-                        <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                        <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
                             {t('No problems recorded for this server.')}
                         </p>
                     ) : (

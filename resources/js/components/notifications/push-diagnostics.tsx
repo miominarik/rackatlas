@@ -308,7 +308,7 @@ export function PushDiagnostics({
                 <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                     {title}
                 </p>
-                <ul className="divide-y rounded-lg border">
+                <ul className="divide-y rounded-lg border bg-card">
                     {checks.map((check) => (
                         <li key={check.id} className="flex gap-3 px-3 py-2">
                             {icon[check.status]}

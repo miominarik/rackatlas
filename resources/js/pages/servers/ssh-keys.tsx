@@ -75,7 +75,7 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                 </div>
 
                 {sshKeys.length === 0 ? (
-                    <div className="rounded-xl border border-dashed p-10 text-center">
+                    <div className="rounded-xl border border-dashed bg-card p-10 text-center">
                         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted">
                             <KeyRound className="size-7 text-muted-foreground" />
                         </div>

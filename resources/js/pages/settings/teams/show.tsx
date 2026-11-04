@@ -274,7 +274,7 @@ export default function ShowTeam({
                             <h3 className="text-sm font-medium">
                                 {t('Pending invitations')}
                             </h3>
-                            <ul className="divide-y rounded-lg border">
+                            <ul className="divide-y rounded-lg border bg-card">
                                 {invitations.map((invitation) => (
                                     <li
                                         key={invitation.id}

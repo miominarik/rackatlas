@@ -200,7 +200,7 @@ export default function ProcessesPanel({
             </div>
 
             {!supported ? (
-                <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                <p className="rounded-lg border border-dashed bg-card p-4 text-sm text-muted-foreground">
                     {t(
                         'This server does not report processes. Install or update the agent to version :version or newer.',
                         { version: '1.2.1' },

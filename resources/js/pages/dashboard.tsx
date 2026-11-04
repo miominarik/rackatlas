@@ -313,7 +313,7 @@ function DashboardContent({
                 </div>
 
                 {servers.length === 0 ? (
-                    <div className="rounded-xl border border-dashed p-10 text-center">
+                    <div className="rounded-xl border border-dashed bg-card p-10 text-center">
                         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted">
                             <LayoutDashboard className="size-7 text-muted-foreground" />
                         </div>
@@ -341,7 +341,7 @@ function DashboardContent({
                 )}
 
                 {settings.widgets.every((widget) => !widget.visible) && (
-                    <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                    <p className="rounded-xl border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
                         {t(
                             'All sections are hidden. Use Customize to show them again.',
                         )}

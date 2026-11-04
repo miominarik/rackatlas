@@ -29,7 +29,7 @@ export default function Teams({ teams }: { teams: TeamSummary[] }) {
                 flush={teams.length > 0}
             >
                 {teams.length === 0 ? (
-                    <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                    <p className="rounded-lg border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
                         {t('You are not in any team yet. Create one below.')}
                     </p>
                 ) : (
