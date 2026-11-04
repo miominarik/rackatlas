@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import babel from '@rolldown/plugin-babel';
@@ -36,8 +37,14 @@ function phpBinary(): string | null {
 }
 
 const php = phpBinary();
+const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as {
+    version: string;
+};
 
 export default defineConfig({
+    define: {
+        __APP_VERSION__: JSON.stringify(version),
+    },
     plugins: lazyPlugins(() => [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],

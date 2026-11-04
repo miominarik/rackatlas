@@ -30,6 +30,8 @@ import { index as serversIndex } from '@/routes/servers';
 import { index as sshKeysIndex } from '@/routes/ssh-keys';
 import type { Auth, NavItem } from '@/types';
 
+declare const __APP_VERSION__: string;
+
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
@@ -103,6 +105,9 @@ export function AppSidebar() {
 
             <SidebarFooter>
                 <NavUser />
+                <p className="px-2 text-center text-xs text-muted-foreground/70 group-data-[collapsible=icon]:hidden">
+                    v{__APP_VERSION__}
+                </p>
             </SidebarFooter>
         </Sidebar>
     );

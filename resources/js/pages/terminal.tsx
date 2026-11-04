@@ -1,4 +1,4 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link } from '@inertiajs/react';
 import {
     Eraser,
     LayoutGrid,
@@ -15,26 +15,26 @@ import {
     TriangleAlert,
     X,
     Copy,
-} from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import TerminalView from "@/components/terminal/terminal-view";
+} from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import TerminalView from '@/components/terminal/terminal-view';
 import type {
     TerminalHandle,
     TerminalState,
-} from "@/components/terminal/terminal-view";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from '@/components/terminal/terminal-view';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useTranslation } from "@/hooks/use-translation";
-import { dotClass } from "@/lib/server-colors";
-import { cn } from "@/lib/utils";
-import { terminal } from "@/routes";
-import { index as teamsIndex } from "@/routes/teams";
-import { toast } from "sonner";
+} from '@/components/ui/tooltip';
+import { useTranslation } from '@/hooks/use-translation';
+import { dotClass } from '@/lib/server-colors';
+import { cn } from '@/lib/utils';
+import { terminal } from '@/routes';
+import { index as teamsIndex } from '@/routes/teams';
+import { toast } from 'sonner';
 
 type TerminalServer = {
     id: number;
@@ -44,7 +44,7 @@ type TerminalServer = {
     username: string | null;
     provider: string | null;
     country: string | null;
-    status: "unknown" | "online" | "offline";
+    status: 'unknown' | 'online' | 'offline';
     category: { id: number; name: string; color: string } | null;
     can_connect: boolean;
 };
@@ -66,21 +66,21 @@ type Session = {
     message?: string;
 };
 
-const FONT_KEY = "terminal.fontSize";
+const FONT_KEY = 'terminal.fontSize';
 const MIN_FONT = 10;
 const MAX_FONT = 22;
 
-const STATUS_DOT: Record<TerminalServer["status"], string> = {
-    online: "bg-emerald-500",
-    offline: "bg-red-500",
-    unknown: "bg-slate-400",
+const STATUS_DOT: Record<TerminalServer['status'], string> = {
+    online: 'bg-emerald-500',
+    offline: 'bg-red-500',
+    unknown: 'bg-slate-400',
 };
 
 const STATE_DOT: Record<TerminalState, string> = {
-    connecting: "bg-amber-500 animate-pulse",
-    ready: "bg-emerald-500",
-    closed: "bg-slate-400",
-    error: "bg-red-500",
+    connecting: 'bg-amber-500 animate-pulse',
+    ready: 'bg-emerald-500',
+    closed: 'bg-slate-400',
+    error: 'bg-red-500',
 };
 
 function Notice({
@@ -113,12 +113,12 @@ export default function TerminalPage({
     const { t } = useTranslation();
     const [sessions, setSessions] = useState<Session[]>([]);
     const [activeId, setActiveId] = useState<number | null>(null);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState('');
     const [fullscreen, setFullscreen] = useState(false);
     const [tiled, setTiled] = useState(false);
     const [fontSize, setFontSize] = useState(() => {
         const saved = Number(
-            typeof window === "undefined"
+            typeof window === 'undefined'
                 ? 0
                 : window.localStorage.getItem(FONT_KEY),
         );
@@ -138,21 +138,21 @@ export default function TerminalPage({
         }
 
         const onKey = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
+            if (event.key === 'Escape') {
                 setFullscreen(false);
             }
         };
 
-        window.addEventListener("keydown", onKey);
+        window.addEventListener('keydown', onKey);
 
-        return () => window.removeEventListener("keydown", onKey);
+        return () => window.removeEventListener('keydown', onKey);
     }, [fullscreen]);
 
     const groups = useMemo(() => {
         const needle = search.trim().toLowerCase();
         const matching = servers.filter(
             (server) =>
-                needle === "" ||
+                needle === '' ||
                 [server.name, server.host, server.provider, server.username]
                     .filter(Boolean)
                     .some((value) => value!.toLowerCase().includes(needle)),
@@ -160,13 +160,13 @@ export default function TerminalPage({
         const map = new Map<string, TerminalServer[]>();
 
         for (const server of matching) {
-            const key = server.category?.name ?? "";
+            const key = server.category?.name ?? '';
 
             map.set(key, [...(map.get(key) ?? []), server]);
         }
 
         return [...map.entries()].sort((a, b) =>
-            a[0] === "" ? 1 : b[0] === "" ? -1 : a[0].localeCompare(b[0]),
+            a[0] === '' ? 1 : b[0] === '' ? -1 : a[0].localeCompare(b[0]),
         );
     }, [servers, search]);
 
@@ -180,7 +180,7 @@ export default function TerminalPage({
 
         setSessions((current) => [
             ...current,
-            { id, server, attempt: 0, state: "connecting" },
+            { id, server, attempt: 0, state: 'connecting' },
         ]);
         setActiveId(id);
     };
@@ -206,7 +206,7 @@ export default function TerminalPage({
                     ? {
                           ...session,
                           attempt: session.attempt + 1,
-                          state: "connecting",
+                          state: 'connecting',
                           message: undefined,
                       }
                     : session,
@@ -222,20 +222,20 @@ export default function TerminalPage({
 
     const stateLabel = (state: TerminalState): string =>
         ({
-            connecting: t("Connecting…"),
-            ready: t("Connected"),
-            closed: t("Disconnected"),
-            error: t("Connection failed"),
+            connecting: t('Connecting…'),
+            ready: t('Connected'),
+            closed: t('Disconnected'),
+            error: t('Connection failed'),
         })[state];
 
     if (team === null) {
         return (
             <>
-                <Head title={t("Terminal")} />
-                <Notice icon={MapPin} title={t("Create a team first")}>
-                    <p>{t("Create a team first, servers belong to a team.")}</p>
+                <Head title={t('Terminal')} />
+                <Notice icon={MapPin} title={t('Create a team first')}>
+                    <p>{t('Create a team first, servers belong to a team.')}</p>
                     <Button asChild className="mt-4">
-                        <Link href={teamsIndex()}>{t("Teams")}</Link>
+                        <Link href={teamsIndex()}>{t('Teams')}</Link>
                     </Button>
                 </Notice>
             </>
@@ -245,13 +245,13 @@ export default function TerminalPage({
     if (!canManage) {
         return (
             <>
-                <Head title={t("Terminal")} />
+                <Head title={t('Terminal')} />
                 <Notice
                     icon={TriangleAlert}
-                    title={t("Terminal is for team admins")}
+                    title={t('Terminal is for team admins')}
                 >
                     {t(
-                        "Opening a shell on a server is limited to the owner and admins of the team.",
+                        'Opening a shell on a server is limited to the owner and admins of the team.',
                     )}
                 </Notice>
             </>
@@ -261,14 +261,14 @@ export default function TerminalPage({
     if (!enabled) {
         return (
             <>
-                <Head title={t("Terminal")} />
+                <Head title={t('Terminal')} />
                 <Notice
                     icon={SquareTerminal}
-                    title={t("Terminal is not set up yet")}
+                    title={t('Terminal is not set up yet')}
                 >
                     <p>
                         {t(
-                            "Set TERMINAL_SECRET and TERMINAL_URL in the .env file, then start the terminal server:",
+                            'Set TERMINAL_SECRET and TERMINAL_URL in the .env file, then start the terminal server:',
                         )}
                     </p>
                     <code className="mt-3 inline-block rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-foreground">
@@ -281,31 +281,31 @@ export default function TerminalPage({
 
     return (
         <>
-            <Head title={t("Terminal")} />
+            <Head title={t('Terminal')} />
             <div
                 className={cn(
-                    "flex flex-col gap-4 p-4 md:p-6 lg:h-[calc(100svh-5rem)] lg:overflow-hidden",
+                    'flex flex-col gap-4 p-4 md:p-6 lg:h-[calc(100svh-5rem)] lg:overflow-hidden',
                     fullscreen &&
-                        "fixed inset-0 z-50 h-svh gap-0 bg-background p-0 md:p-0 lg:h-svh",
+                        'fixed inset-0 z-50 h-svh gap-0 bg-background p-0 md:p-0 lg:h-svh',
                 )}
             >
                 {!fullscreen && (
                     <div className="shrink-0">
                         <h1 className="text-xl font-semibold">
-                            {t("Terminal")}
+                            {t('Terminal')}
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {t("Open a shell on any of your servers.")}
+                            {t('Open a shell on any of your servers.')}
                         </p>
                     </div>
                 )}
 
                 <div
                     className={cn(
-                        "grid gap-4 lg:min-h-0 lg:flex-1",
+                        'grid gap-4 lg:min-h-0 lg:flex-1',
                         fullscreen
-                            ? "h-full grid-cols-1 gap-0"
-                            : "lg:grid-cols-[18rem_1fr]",
+                            ? 'h-full grid-cols-1 gap-0'
+                            : 'lg:grid-cols-[18rem_1fr]',
                     )}
                 >
                     {!fullscreen && (
@@ -318,7 +318,7 @@ export default function TerminalPage({
                                         onChange={(event) =>
                                             setSearch(event.target.value)
                                         }
-                                        placeholder={t("Search servers…")}
+                                        placeholder={t('Search servers…')}
                                         className="pl-8"
                                     />
                                 </div>
@@ -327,11 +327,11 @@ export default function TerminalPage({
                             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                                 {servers.length === 0 ? (
                                     <p className="p-3 text-sm text-muted-foreground">
-                                        {t("No servers yet.")}
+                                        {t('No servers yet.')}
                                     </p>
                                 ) : groups.length === 0 ? (
                                     <p className="p-3 text-sm text-muted-foreground">
-                                        {t("No server matches your search.")}
+                                        {t('No server matches your search.')}
                                     </p>
                                 ) : (
                                     groups.map(([category, list]) => (
@@ -343,7 +343,7 @@ export default function TerminalPage({
                                                 {list[0].category && (
                                                     <span
                                                         className={cn(
-                                                            "size-1.5 rounded-full",
+                                                            'size-1.5 rounded-full',
                                                             dotClass(
                                                                 list[0].category
                                                                     .color,
@@ -351,7 +351,7 @@ export default function TerminalPage({
                                                         )}
                                                     />
                                                 )}
-                                                {category || t("No category")}
+                                                {category || t('No category')}
                                             </h2>
                                             <ul className="space-y-0.5">
                                                 {list.map((server) => {
@@ -372,19 +372,19 @@ export default function TerminalPage({
                                                                 open(server)
                                                             }
                                                             className={cn(
-                                                                "flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors",
+                                                                'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors',
                                                                 server.can_connect
-                                                                    ? "hover:bg-muted"
-                                                                    : "cursor-not-allowed opacity-50",
+                                                                    ? 'hover:bg-muted'
+                                                                    : 'cursor-not-allowed opacity-50',
                                                                 active?.server
                                                                     .id ===
                                                                     server.id &&
-                                                                    "bg-muted",
+                                                                    'bg-muted',
                                                             )}
                                                         >
                                                             <span
                                                                 className={cn(
-                                                                    "size-2 shrink-0 rounded-full",
+                                                                    'size-2 shrink-0 rounded-full',
                                                                     STATUS_DOT[
                                                                         server
                                                                             .status
@@ -401,7 +401,7 @@ export default function TerminalPage({
                                                                     {server.host
                                                                         ? `${server.username}@${server.host}`
                                                                         : t(
-                                                                              "Agent",
+                                                                              'Agent',
                                                                           )}
                                                                 </span>
                                                             </span>
@@ -433,7 +433,7 @@ export default function TerminalPage({
                                                                     </TooltipTrigger>
                                                                     <TooltipContent>
                                                                         {t(
-                                                                            "Reports through the agent, no SSH access.",
+                                                                            'Reports through the agent, no SSH access.',
                                                                         )}
                                                                     </TooltipContent>
                                                                 </Tooltip>
@@ -451,8 +451,8 @@ export default function TerminalPage({
 
                     <section
                         className={cn(
-                            "flex min-h-96 min-w-0 flex-col overflow-hidden border bg-card lg:min-h-0",
-                            fullscreen ? "rounded-none border-0" : "rounded-xl",
+                            'flex min-h-96 min-w-0 flex-col overflow-hidden border bg-card lg:min-h-0',
+                            fullscreen ? 'rounded-none border-0' : 'rounded-xl',
                         )}
                     >
                         {sessions.length > 0 && (
@@ -469,10 +469,10 @@ export default function TerminalPage({
                                                 session.id === activeId
                                             }
                                             className={cn(
-                                                "group flex max-w-52 shrink-0 items-center gap-2 rounded-t-lg border border-b-0 px-3 py-1.5 text-sm transition-colors",
+                                                'group flex max-w-52 shrink-0 items-center gap-2 rounded-t-lg border border-b-0 px-3 py-1.5 text-sm transition-colors',
                                                 session.id === activeId
-                                                    ? "bg-card font-medium"
-                                                    : "border-transparent text-muted-foreground hover:bg-muted",
+                                                    ? 'bg-card font-medium'
+                                                    : 'border-transparent text-muted-foreground hover:bg-muted',
                                             )}
                                         >
                                             <button
@@ -484,7 +484,7 @@ export default function TerminalPage({
                                             >
                                                 <span
                                                     className={cn(
-                                                        "size-2 shrink-0 rounded-full",
+                                                        'size-2 shrink-0 rounded-full',
                                                         STATE_DOT[
                                                             session.state
                                                         ],
@@ -499,7 +499,7 @@ export default function TerminalPage({
                                                 onClick={() =>
                                                     close(session.id)
                                                 }
-                                                aria-label={t("Close")}
+                                                aria-label={t('Close')}
                                                 className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
                                             >
                                                 <X className="size-3.5" />
@@ -511,12 +511,12 @@ export default function TerminalPage({
                                 {active && (
                                     <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b px-3 py-2">
                                         <div className="flex min-w-0 items-center gap-2 text-sm">
-                                            {active.state === "connecting" ? (
+                                            {active.state === 'connecting' ? (
                                                 <Loader2 className="size-4 animate-spin text-amber-500" />
                                             ) : (
                                                 <span
                                                     className={cn(
-                                                        "size-2 rounded-full",
+                                                        'size-2 rounded-full',
                                                         STATE_DOT[active.state],
                                                     )}
                                                 />
@@ -531,8 +531,8 @@ export default function TerminalPage({
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            {(active.state === "closed" ||
-                                                active.state === "error") && (
+                                            {(active.state === 'closed' ||
+                                                active.state === 'error') && (
                                                 <Button
                                                     size="sm"
                                                     onClick={() =>
@@ -540,7 +540,7 @@ export default function TerminalPage({
                                                     }
                                                 >
                                                     <RefreshCw className="size-3.5" />
-                                                    {t("Reconnect")}
+                                                    {t('Reconnect')}
                                                 </Button>
                                             )}
                                             <Tooltip>
@@ -549,7 +549,7 @@ export default function TerminalPage({
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label={t(
-                                                            "Copy selection",
+                                                            'Copy selection',
                                                         )}
                                                         onClick={async () => {
                                                             const copied =
@@ -561,15 +561,15 @@ export default function TerminalPage({
 
                                                             toast[
                                                                 copied
-                                                                    ? "success"
-                                                                    : "info"
+                                                                    ? 'success'
+                                                                    : 'info'
                                                             ](
                                                                 copied
                                                                     ? t(
-                                                                          "Copied.",
+                                                                          'Copied.',
                                                                       )
                                                                     : t(
-                                                                          "Select some text first.",
+                                                                          'Select some text first.',
                                                                       ),
                                                             );
                                                         }}
@@ -578,7 +578,7 @@ export default function TerminalPage({
                                                     </Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    {t("Copy selection")}
+                                                    {t('Copy selection')}
                                                 </TooltipContent>
                                             </Tooltip>
                                             <Tooltip>
@@ -587,7 +587,7 @@ export default function TerminalPage({
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label={t(
-                                                            "Clear screen",
+                                                            'Clear screen',
                                                         )}
                                                         onClick={() =>
                                                             handles.current
@@ -599,7 +599,7 @@ export default function TerminalPage({
                                                     </Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    {t("Clear screen")}
+                                                    {t('Clear screen')}
                                                 </TooltipContent>
                                             </Tooltip>
                                             <div className="mx-1 flex items-center rounded-md border">
@@ -608,7 +608,7 @@ export default function TerminalPage({
                                                     size="icon"
                                                     className="size-8 rounded-none"
                                                     aria-label={t(
-                                                        "Smaller text",
+                                                        'Smaller text',
                                                     )}
                                                     disabled={
                                                         fontSize <= MIN_FONT
@@ -629,7 +629,7 @@ export default function TerminalPage({
                                                     size="icon"
                                                     className="size-8 rounded-none"
                                                     aria-label={t(
-                                                        "Larger text",
+                                                        'Larger text',
                                                     )}
                                                     disabled={
                                                         fontSize >= MAX_FONT
@@ -649,15 +649,15 @@ export default function TerminalPage({
                                                         <Button
                                                             variant={
                                                                 showTiles
-                                                                    ? "secondary"
-                                                                    : "ghost"
+                                                                    ? 'secondary'
+                                                                    : 'ghost'
                                                             }
                                                             size="icon"
                                                             aria-pressed={
                                                                 showTiles
                                                             }
                                                             aria-label={t(
-                                                                "Show terminals side by side",
+                                                                'Show terminals side by side',
                                                             )}
                                                             onClick={() =>
                                                                 setTiled(!tiled)
@@ -672,9 +672,9 @@ export default function TerminalPage({
                                                     </TooltipTrigger>
                                                     <TooltipContent>
                                                         {showTiles
-                                                            ? t("Back to tabs")
+                                                            ? t('Back to tabs')
                                                             : t(
-                                                                  "Show terminals side by side",
+                                                                  'Show terminals side by side',
                                                               )}
                                                     </TooltipContent>
                                                 </Tooltip>
@@ -685,7 +685,7 @@ export default function TerminalPage({
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label={t(
-                                                            "Full screen",
+                                                            'Full screen',
                                                         )}
                                                         onClick={() =>
                                                             setFullscreen(
@@ -703,9 +703,9 @@ export default function TerminalPage({
                                                 <TooltipContent>
                                                     {fullscreen
                                                         ? t(
-                                                              "Leave full screen (Esc)",
+                                                              'Leave full screen (Esc)',
                                                           )
-                                                        : t("Full screen")}
+                                                        : t('Full screen')}
                                                 </TooltipContent>
                                             </Tooltip>
                                         </div>
@@ -716,8 +716,8 @@ export default function TerminalPage({
 
                         <div
                             className={cn(
-                                "relative min-h-0 flex-1 bg-[#0c0e12]",
-                                showTiles && "grid gap-1 p-1",
+                                'relative min-h-0 flex-1 bg-[#0c0e12]',
+                                showTiles && 'grid gap-1 p-1',
                             )}
                             style={
                                 showTiles
@@ -738,36 +738,36 @@ export default function TerminalPage({
                                     }
                                     className={cn(
                                         showTiles
-                                            ? "relative flex min-h-0 min-w-0 flex-col overflow-hidden rounded-md border"
-                                            : "absolute inset-0 p-3",
+                                            ? 'relative flex min-h-0 min-w-0 flex-col overflow-hidden rounded-md border'
+                                            : 'absolute inset-0 p-3',
                                         showTiles &&
                                             (session.id === activeId
-                                                ? "border-primary"
-                                                : "border-white/10"),
+                                                ? 'border-primary'
+                                                : 'border-white/10'),
                                         !showTiles &&
                                             session.id !== activeId &&
-                                            "hidden",
+                                            'hidden',
                                     )}
                                 >
                                     {showTiles && (
                                         <div className="flex shrink-0 items-center gap-1.5 border-b border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-200">
                                             <span
                                                 className={cn(
-                                                    "size-2 shrink-0 rounded-full",
+                                                    'size-2 shrink-0 rounded-full',
                                                     STATE_DOT[session.state],
                                                 )}
                                             />
                                             <span className="min-w-0 flex-1 truncate">
                                                 {session.server.name}
                                             </span>
-                                            {(session.state === "closed" ||
-                                                session.state === "error") && (
+                                            {(session.state === 'closed' ||
+                                                session.state === 'error') && (
                                                 <button
                                                     type="button"
                                                     onClick={() =>
                                                         reconnect(session.id)
                                                     }
-                                                    aria-label={t("Reconnect")}
+                                                    aria-label={t('Reconnect')}
                                                     className="rounded p-0.5 hover:bg-white/10"
                                                 >
                                                     <RefreshCw className="size-3" />
@@ -778,7 +778,7 @@ export default function TerminalPage({
                                                 onClick={() =>
                                                     close(session.id)
                                                 }
-                                                aria-label={t("Close")}
+                                                aria-label={t('Close')}
                                                 className="rounded p-0.5 hover:bg-white/10"
                                             >
                                                 <X className="size-3" />
@@ -787,8 +787,8 @@ export default function TerminalPage({
                                     )}
                                     <div
                                         className={cn(
-                                            showTiles && "min-h-0 flex-1 p-1.5",
-                                            !showTiles && "h-full w-full",
+                                            showTiles && 'min-h-0 flex-1 p-1.5',
+                                            !showTiles && 'h-full w-full',
                                         )}
                                     >
                                         <TerminalView
@@ -815,7 +815,7 @@ export default function TerminalPage({
                                 </div>
                             ))}
 
-                            {active?.state === "error" && active.message && (
+                            {active?.state === 'error' && active.message && (
                                 <div className="absolute inset-x-3 bottom-3 flex items-start gap-2 rounded-lg border border-red-500/40 bg-red-950/90 px-3 py-2 text-sm text-red-100 shadow-lg">
                                     <TriangleAlert className="mt-0.5 size-4 shrink-0" />
                                     <span>{active.message}</span>
@@ -828,16 +828,16 @@ export default function TerminalPage({
                                         <SquareTerminal className="size-7 text-slate-300" />
                                     </div>
                                     <h2 className="text-base font-medium text-slate-100">
-                                        {t("Pick a server to start")}
+                                        {t('Pick a server to start')}
                                     </h2>
                                     <p className="max-w-sm text-sm text-slate-400">
                                         {t(
-                                            "Choose a server on the left to open a shell. You can keep several sessions open in tabs.",
+                                            'Choose a server on the left to open a shell. You can keep several sessions open in tabs.',
                                         )}
                                     </p>
                                     <p className="text-xs text-slate-500">
                                         {t(
-                                            "Sessions close after :minutes minutes without typing.",
+                                            'Sessions close after :minutes minutes without typing.',
                                             { minutes: idleMinutes },
                                         )}
                                     </p>
@@ -852,5 +852,5 @@ export default function TerminalPage({
 }
 
 TerminalPage.layout = {
-    breadcrumbs: [{ title: "Terminal", href: terminal() }],
+    breadcrumbs: [{ title: 'Terminal', href: terminal() }],
 };
