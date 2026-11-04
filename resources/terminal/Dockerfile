@@ -24,4 +24,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s \
     CMD node -e "fetch('http://127.0.0.1:'+(process.env.TERMINAL_PORT||443)+'/up').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "server.mjs"]
-s
