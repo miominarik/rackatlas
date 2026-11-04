@@ -55,6 +55,11 @@ class Team extends Model
         return $this->hasMany(SshKey::class);
     }
 
+    public function backups(): HasMany
+    {
+        return $this->hasMany(Backup::class);
+    }
+
     public function roleOf(User $user): ?TeamRole
     {
         $role = $this->members()->whereKey($user->getKey())->first()?->pivot->role;

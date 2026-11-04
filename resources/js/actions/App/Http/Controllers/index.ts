@@ -11,6 +11,7 @@ import MapController from './MapController'
 import Terminal from './Terminal'
 import MetricsController from './MetricsController'
 import MetricsProcessesController from './MetricsProcessesController'
+import BackupController from './BackupController'
 import Admin from './Admin'
 
 const Controllers = {
@@ -27,6 +28,7 @@ const Controllers = {
     Terminal: Object.assign(Terminal, Terminal),
     MetricsController: Object.assign(MetricsController, MetricsController),
     MetricsProcessesController: Object.assign(MetricsProcessesController, MetricsProcessesController),
+    BackupController: Object.assign(BackupController, BackupController),
     Admin: Object.assign(Admin, Admin),
 }
 

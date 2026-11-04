@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AgentIngestController;
 use App\Http\Controllers\Api\AgentTerminalController;
+use App\Http\Controllers\Api\BackupWebhookController;
 use App\Http\Controllers\Api\TerminalBridgeController;
 use App\Http\Middleware\AuthenticateAgent;
 use App\Http\Middleware\AuthenticateTerminalBridge;
@@ -21,3 +22,7 @@ Route::middleware(AuthenticateTerminalBridge::class)->prefix('terminal')->group(
     Route::post('session-ended', [TerminalBridgeController::class, 'sessionEnded'])->name('terminal.session-ended');
     Route::post('host-key', [TerminalBridgeController::class, 'pinHostKey'])->name('terminal.host-key');
 });
+
+Route::match(['get', 'post'], 'webhooks/backups/{token}', BackupWebhookController::class)
+    ->middleware('throttle:60,1')
+    ->name('webhooks.backups');

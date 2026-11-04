@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
 use App\Http\Controllers\Admin\TeamController as AdminTeamController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginApprovalController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
@@ -87,6 +88,14 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::get('ssh-keys', [SshKeyController::class, 'index'])->name('ssh-keys.index');
     Route::post('ssh-keys', [SshKeyController::class, 'store'])->name('ssh-keys.store');
     Route::delete('ssh-keys/{sshKey}', [SshKeyController::class, 'destroy'])->name('ssh-keys.destroy');
+
+    Route::get('backups', [BackupController::class, 'index'])->name('backups.index');
+    Route::post('backups', [BackupController::class, 'store'])->name('backups.store');
+    Route::put('backups/{backup}', [BackupController::class, 'update'])->name('backups.update');
+    Route::post('backups/{backup}/regenerate', [BackupController::class, 'regenerate'])
+        ->middleware('throttle:10,1')
+        ->name('backups.regenerate');
+    Route::delete('backups/{backup}', [BackupController::class, 'destroy'])->name('backups.destroy');
 
     Route::post('server-categories', [ServerCategoryController::class, 'store'])->name('server-categories.store');
     Route::patch('server-categories/{serverCategory}', [ServerCategoryController::class, 'update'])->name('server-categories.update');

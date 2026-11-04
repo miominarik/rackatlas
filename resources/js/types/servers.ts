@@ -60,3 +60,18 @@ export type ServerFormData = {
     ssh_host_fingerprint?: string | null;
     ignored_alerts: string[];
 };
+
+export type Backup = {
+    id: number;
+    name: string;
+    notes: string | null;
+    server_id: number | null;
+    server_name: string | null;
+    expected_interval_hours: number | null;
+    webhook_url: string;
+    last_run_at: string | null;
+    last_status: 'success' | 'failed' | null;
+    last_message: string | null;
+    last_size_bytes: number | null;
+    overdue: boolean;
+};

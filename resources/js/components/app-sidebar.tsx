@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
+    DatabaseBackup,
     KeyRound,
     LayoutGrid,
     Map as MapIcon,
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard, map as mapRoute, terminal } from '@/routes';
 import { index as adminIndex } from '@/routes/admin';
+import { index as backupsIndex } from '@/routes/backups';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
 import { index as serversIndex } from '@/routes/servers';
@@ -62,6 +64,11 @@ const mainNavItems: NavItem[] = [
         title: 'Logs',
         href: logsIndex(),
         icon: ScrollText,
+    },
+    {
+        title: 'Backups',
+        href: backupsIndex(),
+        icon: DatabaseBackup,
     },
     {
         title: 'SSH keys',
