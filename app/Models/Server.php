@@ -6,6 +6,8 @@ use App\Enums\ServerAuthType;
 use App\Enums\ServerStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -26,7 +28,8 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property int $port
  * @property string|null $ssh_host_fingerprint
  * @property string $username
- * @property ServerAuthType $auth_type
+ * @property ServerAuthType $auth_type How the app logs in over SSH. Agent means there is no SSH access at all.
+ * @property bool $uses_agent Whether the data comes from the agent although the server also has SSH access
  * @property string|null $password
  * @property int|null $ssh_key_id
  * @property string|null $agent_token_hash
@@ -38,7 +41,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
  */
-#[Fillable(['team_id', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'password', 'ssh_key_id', 'ignored_alerts'])]
+#[Fillable(['team_id', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'password', 'ssh_key_id', 'ignored_alerts'])]
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
@@ -51,6 +54,7 @@ class Server extends Model
     {
         return [
             'auth_type' => ServerAuthType::class,
+            'uses_agent' => 'boolean',
             'password' => 'encrypted',
             'status' => ServerStatus::class,
             'last_checked_at' => 'datetime',
@@ -67,6 +71,35 @@ class Server extends Model
     public function ignoresAlert(string $source): bool
     {
         return in_array($source, $this->ignored_alerts ?? [], true);
+    }
+
+    /**
+     * Whether the metrics come from the agent. Otherwise the app collects them over SSH.
+     */
+    public function collectsViaAgent(): bool
+    {
+        return $this->auth_type === ServerAuthType::Agent || $this->uses_agent;
+    }
+
+    /**
+     * Whether a terminal can be opened, which needs SSH login details.
+     */
+    public function hasSshAccess(): bool
+    {
+        return $this->auth_type !== ServerAuthType::Agent;
+    }
+
+    /**
+     * Servers that send their data through the agent, with or without SSH access.
+     *
+     * @param  Builder<Server>  $query
+     */
+    #[Scope]
+    protected function viaAgent(Builder $query): void
+    {
+        $query->where(fn (Builder $inner) => $inner
+            ->where('auth_type', ServerAuthType::Agent->value)
+            ->orWhere('uses_agent', true));
     }
 
     public function team(): BelongsTo
@@ -113,8 +146,8 @@ class Server extends Model
 
     public static function findByAgentToken(string $token): ?self
     {
-        return static::where('agent_token_hash', hash('sha256', $token))
-            ->where('auth_type', ServerAuthType::Agent)
+        return static::query()->viaAgent()
+            ->where('agent_token_hash', hash('sha256', $token))
             ->first();
     }
 
@@ -132,7 +165,7 @@ class Server extends Model
     {
         return LogOptions::defaults()
             ->useLogName('server')
-            ->logOnly(['name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
+            ->logOnly(['name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ServerAuthType;
 use App\Jobs\CollectServerMetrics;
 use App\Models\Server;
 use Illuminate\Console\Attributes\Description;
@@ -18,7 +17,7 @@ class CollectServerMetricsCommand extends Command
         $servers = Server::query()
             ->with('sshKey')
             // Servers with the agent send their metrics themselves.
-            ->where('auth_type', '!=', ServerAuthType::Agent->value)
+            ->whereNot(fn ($query) => $query->viaAgent())
             ->when($this->option('server'), fn ($query, $id) => $query->whereKey($id))
             ->get();
 

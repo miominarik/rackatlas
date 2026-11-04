@@ -77,6 +77,7 @@ export type DashboardServer = {
     username: string | null;
     status: 'unknown' | 'online' | 'offline';
     auth_type: 'password' | 'key' | 'agent';
+    uses_agent?: boolean;
     failed_units: string[];
     ignored_alerts: string[];
     category: { id: number; name: string; color: string } | null;

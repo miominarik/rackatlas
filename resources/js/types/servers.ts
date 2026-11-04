@@ -34,6 +34,7 @@ export type ServerSummary = {
     port: number;
     username: string | null;
     auth_type: ServerAuthType;
+    uses_agent: boolean;
     ssh_key_name: string | null;
     agent_version: string | null;
     server_category_id: number | null;
@@ -51,6 +52,7 @@ export type ServerFormData = {
     port: number;
     username: string | null;
     auth_type: ServerAuthType;
+    uses_agent: boolean;
     ssh_key_id: number | null;
     server_category_id: number | null;
     ssh_host_fingerprint?: string | null;

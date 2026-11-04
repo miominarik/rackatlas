@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Terminal;
 
-use App\Enums\ServerAuthType;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use Illuminate\Http\Request;
@@ -35,7 +34,7 @@ class TerminalController extends Controller
                         'country' => $server->country,
                         'status' => $server->status->value,
                         'category' => $server->category?->only('id', 'name', 'color'),
-                        'can_connect' => $server->auth_type !== ServerAuthType::Agent,
+                        'can_connect' => $server->hasSshAccess(),
                     ])
                 : [],
         ]);

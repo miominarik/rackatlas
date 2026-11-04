@@ -52,6 +52,7 @@ class ServerController extends Controller
                         'port' => $server->port,
                         'username' => $server->username,
                         'auth_type' => $server->auth_type->value,
+                        'uses_agent' => $server->collectsViaAgent(),
                         'ssh_key_name' => $server->sshKey?->name,
                         'agent_version' => $server->agent_version,
                         'server_category_id' => $server->server_category_id,
@@ -83,6 +84,7 @@ class ServerController extends Controller
                 'port' => $server->port,
                 'username' => $server->username,
                 'auth_type' => $server->auth_type->value,
+                'uses_agent' => $server->collectsViaAgent(),
                 'ssh_key_name' => $server->sshKey?->name,
                 'ssh_host_fingerprint' => $server->ssh_host_fingerprint,
                 'agent_version' => $server->agent_version,
@@ -199,6 +201,7 @@ class ServerController extends Controller
                 'port' => $server->port,
                 'username' => $server->username,
                 'auth_type' => $server->auth_type->value,
+                'uses_agent' => $server->uses_agent,
                 'ssh_key_id' => $server->ssh_key_id,
                 'server_category_id' => $server->server_category_id,
                 'ssh_host_fingerprint' => $server->ssh_host_fingerprint,
@@ -298,6 +301,7 @@ class ServerController extends Controller
             'username' => $data['username'] ?? null,
             'server_category_id' => $categoryId,
             'auth_type' => $data['auth_type'],
+            'uses_agent' => $data['auth_type'] !== ServerAuthType::Agent->value && ($data['uses_agent'] ?? false),
             'password' => $usesPassword ? ($data['password'] ?? null) : null,
             'ssh_key_id' => $usesKey ? $data['ssh_key_id'] : null,
             'ignored_alerts' => array_values(array_unique($data['ignored_alerts'] ?? [])) ?: null,
@@ -324,11 +328,11 @@ class ServerController extends Controller
     }
 
     /**
-     * A server with the agent needs its token, which is shown once on the install page.
+     * A server that sends its data through the agent needs its token, which is shown once on the install page.
      */
     private function afterSave(Server $server): RedirectResponse
     {
-        if ($server->auth_type !== ServerAuthType::Agent) {
+        if (! $server->collectsViaAgent()) {
             $server->forceFill(['agent_token_hash' => null])->save();
 
             return to_route('servers.index');

@@ -119,7 +119,7 @@ function ServerRow({
                 )}
             </div>
             <span className="hidden items-center gap-1.5 rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-border ring-inset sm:inline-flex">
-                {server.auth_type === 'agent' ? (
+                {server.uses_agent ? (
                     <>
                         <Radio className="size-3" />
                         {server.agent_version

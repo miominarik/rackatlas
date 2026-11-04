@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Servers;
 
-use App\Enums\ServerAuthType;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use Illuminate\Http\RedirectResponse;
@@ -85,6 +84,6 @@ class ServerAgentController extends Controller
     {
         $this->authorize('manage', $server->team);
 
-        abort_unless($server->auth_type === ServerAuthType::Agent, 404);
+        abort_unless($server->collectsViaAgent(), 404);
     }
 }

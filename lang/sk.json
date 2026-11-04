@@ -780,7 +780,7 @@
     "Nothing connects into your server, so no IP has to be allowed.": "Nič sa nepripája dovnútra servera, takže netreba povoľovať žiadne IP adresy.",
     "Older": "Staršie",
     "Only what is wrong: critical and error entries from the servers with the agent. Kept for :days days.": "Len to, čo je zlé: kritické a chybové záznamy zo serverov s agentom. Uchovávajú sa :days dní.",
-    "Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords.": "Odporúčané. Malý program na serveri nám posiela údaje. Bez povoľovania IP, bez uložených hesiel.",
+    "Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords. No terminal.": "Odporúčané. Malý program na serveri nám posiela údaje. Bez povoľovania IP, bez uložených hesiel. Bez terminálu.",
     "Run one command on the server. It works on Debian and Ubuntu with systemd.": "Spustite na serveri jeden príkaz. Funguje na Debiane a Ubuntu so systemd.",
     "Run this command:": "Spustite tento príkaz:",
     "Server": "Server",
@@ -796,8 +796,8 @@
     "To remove it: sudo apt remove rackatlas-agent": "Odstránenie: sudo apt remove rackatlas-agent",
     "Wait a minute. The status above turns green when the first report arrives.": "Počkajte minútu. Stav vyššie sa zmení na zelený, keď príde prvý report.",
     "Waiting for the first report…": "Čaká sa na prvý report…",
-    "We log in over SSH with a password. Simple, but weaker than a key.": "Prihlásime sa cez SSH heslom. Jednoduché, ale slabšie ako kľúč.",
-    "We log in over SSH. More secure than a password, reusable across servers.": "Prihlásime sa cez SSH. Bezpečnejšie ako heslo, použiteľné na viacerých serveroch.",
+    "We log in over SSH with a password, for the terminal and optionally for collecting data. Simple, but weaker than a key.": "Prihlásime sa cez SSH heslom, pre terminál a voliteľne na zber údajov. Jednoduché, ale slabšie ako kľúč.",
+    "We log in over SSH, for the terminal and optionally for collecting data. More secure than a password, reusable across servers.": "Prihlásime sa cez SSH, pre terminál a voliteľne na zber údajov. Bezpečnejšie ako heslo, použiteľné na viacerých serveroch.",
     "What does the installer do?": "Čo robí inštalátor?",
     "What is it called?": "Ako sa volá?",
     "When a server with the agent logs an error, it shows up here.": "Keď server s agentom zapíše chybu, zobrazí sa tu.",
@@ -1005,5 +1005,9 @@
     "Choose a server on the left to open a shell. You can keep several sessions open in tabs.": "Vyberte server vľavo a otvorí sa shell. Naraz môžete mať otvorených viac relácií na kartách.",
     "Sessions close after :minutes minutes without typing.": "Relácia sa zatvorí po :minutes minútach bez písania.",
     "The terminal is not set up on this installation.": "Terminál nie je na tejto inštalácii nastavený.",
-    "This server reports through the agent and has no SSH access.": "Tento server sa hlási cez agenta a nemá SSH prístup."
+    "This server reports through the agent and has no SSH access.": "Tento server sa hlási cez agenta a nemá SSH prístup.",
+    "Agent only": "Len agent",
+    "Collect the data with the agent": "Zbierať údaje agentom",
+    "The agent sends the metrics, so we do not poll the server over SSH. The SSH login is kept for the terminal. After saving you get the install command.": "Agent posiela metriky, takže server nekontrolujeme cez SSH. SSH prihlásenie zostáva pre terminál. Po uložení dostanete inštalačný príkaz.",
+    "data from the agent": "údaje z agenta"
 }

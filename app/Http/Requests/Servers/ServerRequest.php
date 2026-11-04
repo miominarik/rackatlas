@@ -47,6 +47,7 @@ class ServerRequest extends FormRequest
             'ignored_alerts' => ['nullable', 'array'],
             'ignored_alerts.*' => ['string', Rule::in(Server::IGNORABLE_ALERTS)],
             'auth_type' => ['required', Rule::enum(ServerAuthType::class)],
+            'uses_agent' => ['nullable', 'boolean'],
             'password' => [Rule::requiredIf($isPassword && ! $existing), 'nullable', 'string', 'max:1000'],
             'ssh_key_id' => [
                 Rule::requiredIf($isKey),

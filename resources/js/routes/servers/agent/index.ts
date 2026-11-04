@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:18
+* @see app/Http/Controllers/Servers/ServerAgentController.php:17
 * @route '/app/servers/{server}/agent'
 */
 export const show = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:18
+* @see app/Http/Controllers/Servers/ServerAgentController.php:17
 * @route '/app/servers/{server}/agent'
 */
 show.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ show.url = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:18
+* @see app/Http/Controllers/Servers/ServerAgentController.php:17
 * @route '/app/servers/{server}/agent'
 */
 show.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -59,7 +59,7 @@ show.get = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:18
+* @see app/Http/Controllers/Servers/ServerAgentController.php:17
 * @route '/app/servers/{server}/agent'
 */
 show.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -69,7 +69,7 @@ show.head = (args: { server: number | { id: number } } | [server: number | { id:
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:18
+* @see app/Http/Controllers/Servers/ServerAgentController.php:17
 * @route '/app/servers/{server}/agent'
 */
 const showForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ const showForm = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:18
+* @see app/Http/Controllers/Servers/ServerAgentController.php:17
 * @route '/app/servers/{server}/agent'
 */
 showForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -89,7 +89,7 @@ showForm.get = (args: { server: number | { id: number } } | [server: number | { 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:18
+* @see app/Http/Controllers/Servers/ServerAgentController.php:17
 * @route '/app/servers/{server}/agent'
 */
 showForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -106,7 +106,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:44
+* @see app/Http/Controllers/Servers/ServerAgentController.php:43
 * @route '/app/servers/{server}/agent/token'
 */
 export const rotate = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -121,7 +121,7 @@ rotate.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:44
+* @see app/Http/Controllers/Servers/ServerAgentController.php:43
 * @route '/app/servers/{server}/agent/token'
 */
 rotate.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -154,7 +154,7 @@ rotate.url = (args: { server: number | { id: number } } | [server: number | { id
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:44
+* @see app/Http/Controllers/Servers/ServerAgentController.php:43
 * @route '/app/servers/{server}/agent/token'
 */
 rotate.post = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -164,7 +164,7 @@ rotate.post = (args: { server: number | { id: number } } | [server: number | { i
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:44
+* @see app/Http/Controllers/Servers/ServerAgentController.php:43
 * @route '/app/servers/{server}/agent/token'
 */
 const rotateForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -174,7 +174,7 @@ const rotateForm = (args: { server: number | { id: number } } | [server: number 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:44
+* @see app/Http/Controllers/Servers/ServerAgentController.php:43
 * @route '/app/servers/{server}/agent/token'
 */
 rotateForm.post = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

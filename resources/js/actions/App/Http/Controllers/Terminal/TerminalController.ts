@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 const TerminalController = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ TerminalController.definition = {
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 TerminalController.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ TerminalController.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 TerminalController.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ TerminalController.get = (options?: RouteQueryOptions): RouteDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 TerminalController.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ TerminalController.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 const TerminalControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const TerminalControllerForm = (options?: RouteQueryOptions): RouteFormDefinitio
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 TerminalControllerForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ TerminalControllerForm.get = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 TerminalControllerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

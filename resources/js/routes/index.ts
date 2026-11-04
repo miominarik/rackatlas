@@ -705,7 +705,7 @@ map.form = mapForm
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 export const terminal = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -720,7 +720,7 @@ terminal.definition = {
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 terminal.url = (options?: RouteQueryOptions) => {
@@ -729,7 +729,7 @@ terminal.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 terminal.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -739,7 +739,7 @@ terminal.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 terminal.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -749,7 +749,7 @@ terminal.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 const terminalForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -759,7 +759,7 @@ const terminalForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 terminalForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -769,7 +769,7 @@ terminalForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\Terminal\TerminalController::__invoke
-* @see app/Http/Controllers/Terminal/TerminalController.php:17
+* @see app/Http/Controllers/Terminal/TerminalController.php:16
 * @route '/app/terminal'
 */
 terminalForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

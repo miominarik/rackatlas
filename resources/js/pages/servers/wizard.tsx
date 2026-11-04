@@ -64,7 +64,7 @@ const ignorableAlerts: [string, string][] = [
 
 const stepFields: Record<number, string[]> = {
     0: ['name', 'provider', 'country', 'server_category_id', 'new_category', 'ignored_alerts'],
-    1: ['auth_type', 'host', 'port', 'username', 'password', 'ssh_key_id'],
+    1: ['auth_type', 'uses_agent', 'host', 'port', 'username', 'password', 'ssh_key_id'],
 };
 
 export default function ServerWizard({
@@ -99,6 +99,7 @@ export default function ServerWizard({
             : '',
         new_category: '',
         auth_type: (server?.auth_type ?? 'agent') as ServerAuthType,
+        uses_agent: server?.uses_agent ?? false,
         password: '',
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
         ignored_alerts: server?.ignored_alerts ?? ([] as string[]),
@@ -113,6 +114,7 @@ export default function ServerWizard({
     ];
 
     const isAgent = form.data.auth_type === 'agent';
+    const sendsViaAgent = isAgent || form.data.uses_agent;
 
     const selectedKey = keys.find(
         (key) => String(key.id) === form.data.ssh_key_id,
@@ -488,9 +490,9 @@ export default function ServerWizard({
                                     [
                                         [
                                             'agent',
-                                            t('Agent'),
+                                            t('Agent only'),
                                             t(
-                                                'Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords.',
+                                                'Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords. No terminal.',
                                             ),
                                             Radio,
                                         ],
@@ -498,7 +500,7 @@ export default function ServerWizard({
                                             'key',
                                             t('SSH key'),
                                             t(
-                                                'We log in over SSH. More secure than a password, reusable across servers.',
+                                                'We log in over SSH, for the terminal and optionally for collecting data. More secure than a password, reusable across servers.',
                                             ),
                                             KeyRound,
                                         ],
@@ -506,7 +508,7 @@ export default function ServerWizard({
                                             'password',
                                             t('Password'),
                                             t(
-                                                'We log in over SSH with a password. Simple, but weaker than a key.',
+                                                'We log in over SSH with a password, for the terminal and optionally for collecting data. Simple, but weaker than a key.',
                                             ),
                                             Lock,
                                         ],
@@ -637,6 +639,34 @@ export default function ServerWizard({
                                         />
                                     </div>
                                 </>
+                            )}
+
+                            {!isAgent && (
+                                <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 text-sm">
+                                    <Checkbox
+                                        checked={form.data.uses_agent}
+                                        onCheckedChange={(checked) =>
+                                            form.setData(
+                                                'uses_agent',
+                                                checked === true,
+                                            )
+                                        }
+                                        className="mt-0.5"
+                                        data-test="uses-agent-checkbox"
+                                    />
+                                    <span>
+                                        <span className="block font-medium">
+                                            {t(
+                                                'Collect the data with the agent',
+                                            )}
+                                        </span>
+                                        <span className="block text-muted-foreground">
+                                            {t(
+                                                'The agent sends the metrics, so we do not poll the server over SSH. The SSH login is kept for the terminal. After saving you get the install command.',
+                                            )}
+                                        </span>
+                                    </span>
+                                </label>
                             )}
 
                             {form.data.auth_type === 'password' && (
@@ -814,12 +844,16 @@ export default function ServerWizard({
                                         t('Access'),
                                         isAgent
                                             ? t('Agent')
-                                            : form.data.auth_type === 'key'
-                                              ? t('SSH key: :name', {
-                                                    name:
-                                                        selectedKey?.name ?? '',
-                                                })
-                                              : t('Password'),
+                                            : (form.data.auth_type === 'key'
+                                                  ? t('SSH key: :name', {
+                                                        name:
+                                                            selectedKey?.name ??
+                                                            '',
+                                                    })
+                                                  : t('Password')) +
+                                              (form.data.uses_agent
+                                                  ? ` · ${t('data from the agent')}`
+                                                  : ''),
                                     ],
                                 ].map(([label, value]) => (
                                     <div
@@ -836,13 +870,15 @@ export default function ServerWizard({
                                 ))}
                             </dl>
 
-                            {isAgent ? (
+                            {sendsViaAgent && (
                                 <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
                                     {t(
                                         'After saving you get the install command for the server.',
                                     )}
                                 </p>
-                            ) : (
+                            )}
+
+                            {!isAgent && (
                                 <div className="space-y-3">
                                     <Button
                                         type="button"
@@ -951,7 +987,7 @@ export default function ServerWizard({
                             )}
                             {editing
                                 ? t('Save changes')
-                                : isAgent
+                                : sendsViaAgent
                                   ? t('Add server and get the install command')
                                   : t('Add server')}
                         </Button>

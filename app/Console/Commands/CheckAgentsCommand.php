@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ServerAuthType;
 use App\Enums\ServerErrorType;
 use App\Enums\ServerStatus;
 use App\Models\Server;
@@ -19,7 +18,7 @@ class CheckAgentsCommand extends Command
     public function handle(): int
     {
         $silent = Server::query()
-            ->where('auth_type', ServerAuthType::Agent->value)
+            ->viaAgent()
             ->where('status', ServerStatus::Online->value)
             ->where('last_seen_at', '<', now()->subMinutes(self::SILENT_MINUTES))
             ->get();

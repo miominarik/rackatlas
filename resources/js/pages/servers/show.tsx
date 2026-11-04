@@ -268,7 +268,7 @@ export default function ServerShow({
                                 {metrics.net_rx_bps !== null &&
                                 metrics.net_tx_bps !== null
                                     ? `↓ ${formatBytes(metrics.net_rx_bps)}/s · ↑ ${formatBytes(metrics.net_tx_bps)}/s`
-                                    : server.auth_type === 'agent'
+                                    : server.uses_agent
                                       ? t(
                                             'no data yet, it needs the agent 1.3.0 or newer',
                                         )
@@ -319,6 +319,9 @@ export default function ServerShow({
                         <Field label={t('Authentication')}>
                             {authLabel}
                             {server.ssh_key_name && ` · ${server.ssh_key_name}`}
+                            {server.auth_type !== 'agent' &&
+                                server.uses_agent &&
+                                ` · ${t('data from the agent')}`}
                         </Field>
                         <Field label={t('Category')}>
                             {server.category ? (
@@ -335,7 +338,7 @@ export default function ServerShow({
                                 '–'
                             )}
                         </Field>
-                        {server.auth_type === 'agent' && (
+                        {server.uses_agent && (
                             <Field label={t('Agent version')}>
                                 {server.agent_version ?? '–'}
                             </Field>
