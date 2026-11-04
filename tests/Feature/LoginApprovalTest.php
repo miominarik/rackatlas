@@ -76,6 +76,35 @@ class LoginApprovalTest extends TestCase
         $this->get(route('dashboard'))->assertOk();
     }
 
+    public function test_the_password_alone_is_enough_when_a_device_approves(): void
+    {
+        $user = User::factory()->withTwoFactor()->create();
+        $this->approvingDevice($user);
+
+        $this->signIn($user)->assertRedirect(route('dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertSame(1, LoginApproval::count());
+        $this->get(route('dashboard'))->assertRedirect(route('login-approval.show'));
+    }
+
+    public function test_the_code_is_still_asked_without_an_approving_device(): void
+    {
+        $user = User::factory()->withTwoFactor()->create();
+
+        $this->signIn($user)->assertRedirect(route('two-factor.login'));
+        $this->assertGuest();
+    }
+
+    public function test_the_approving_device_itself_still_gets_the_code_challenge(): void
+    {
+        $user = User::factory()->withTwoFactor()->create();
+        $this->approvingDevice($user);
+
+        $this->withDeviceCookie('phone-token')->signIn($user)->assertRedirect(route('two-factor.login'));
+        $this->assertGuest();
+    }
+
     public function test_the_approving_device_itself_signs_in_without_waiting(): void
     {
         $user = User::factory()->create();

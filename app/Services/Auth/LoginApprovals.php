@@ -48,6 +48,15 @@ class LoginApprovals
     }
 
     /**
+     * Whether a device will be asked to approve this sign-in, so no two-factor code is needed first.
+     */
+    public function willBeApprovedByDevice(User $user, Request $request): bool
+    {
+        return $user->devices()->active()->where('approves_logins', true)->exists()
+            && ! $this->deviceOf($user, $request)?->approves_logins;
+    }
+
+    /**
      * A new request for the session, for example after the first one ran out.
      */
     public function renew(User $user, Request $request): ?LoginApproval
