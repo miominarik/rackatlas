@@ -1,8 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { KeyRound, Plus, Trash2 } from 'lucide-react';
+import { Eye, KeyRound, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import SshKeyController from '@/actions/App/Http/Controllers/Servers/SshKeyController';
 import CopyField from '@/components/servers/copy-field';
+import RevealSshKey from '@/components/servers/reveal-ssh-key';
 import SshKeyCreator from '@/components/servers/ssh-key-creator';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,6 +26,7 @@ type Props = {
 export default function SshKeys({ team, canManage, sshKeys }: Props) {
     const { t } = useTranslation();
     const [creating, setCreating] = useState(false);
+    const [revealing, setRevealing] = useState<SshKey | null>(null);
 
     if (!team) {
         return (
@@ -113,6 +115,20 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                                         <Button
                                             variant="ghost"
                                             size="icon"
+                                            title={t('Show private key')}
+                                            aria-label={t(
+                                                'Show private key of :name',
+                                                { name: key.name },
+                                            )}
+                                            onClick={() => setRevealing(key)}
+                                        >
+                                            <Eye className="size-4" />
+                                        </Button>
+                                    )}
+                                    {canManage && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
                                             disabled={
                                                 (key.servers_count ?? 0) > 0
                                             }
@@ -175,6 +191,28 @@ export default function SshKeys({ team, canManage, sshKeys }: Props) {
                                 router.reload({ only: ['sshKeys'] });
                             }}
                             onCancel={() => setCreating(false)}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={revealing !== null}
+                onOpenChange={(open) => !open && setRevealing(null)}
+            >
+                <DialogContent>
+                    <DialogTitle>{t('Show private key')}</DialogTitle>
+                    <DialogDescription>
+                        {t(
+                            'Confirm your password to decrypt the private key of :name.',
+                            { name: revealing?.name ?? '' },
+                        )}
+                    </DialogDescription>
+                    {revealing && (
+                        <RevealSshKey
+                            key={revealing.id}
+                            sshKey={revealing}
+                            onClose={() => setRevealing(null)}
                         />
                     )}
                 </DialogContent>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Servers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Servers\RevealSshKeyRequest;
 use App\Http\Requests\Servers\StoreSshKeyRequest;
 use App\Models\SshKey;
 use App\Services\Ssh\SshKeyService;
@@ -11,9 +12,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use InvalidArgumentException;
 use Inertia\Inertia;
 use Inertia\Response;
+use InvalidArgumentException;
 
 class SshKeyController extends Controller
 {
@@ -62,6 +63,22 @@ class SshKeyController extends Controller
         ]);
 
         return response()->json(['key' => $this->present($key)], 201);
+    }
+
+    /**
+     * Decrypt the private key for a team manager who confirmed their password.
+     */
+    public function reveal(RevealSshKeyRequest $request, SshKey $sshKey): JsonResponse
+    {
+        activity('ssh-key')
+            ->performedOn($sshKey)
+            ->causedBy($request->user())
+            ->log('private key revealed');
+
+        return response()->json([
+            'private_key' => $sshKey->private_key,
+            'passphrase' => $sshKey->passphrase,
+        ])->header('Cache-Control', 'no-store, private');
     }
 
     /**

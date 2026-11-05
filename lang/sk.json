@@ -1169,5 +1169,10 @@
     "API key created.": "API kľúč bol vytvorený.",
     "API key revoked.": "API kľúč bol zrušený.",
     "API documentation": "API dokumentácia",
-    "API": "API"
+    "API": "API",
+    "Keep this key secret. Anyone who has it can log in to your servers.": "Kľúč udržte v tajnosti. Kto ho má, môže sa prihlásiť na vaše servery.",
+    "Passphrase": "Heslo ku kľúču",
+    "Show private key": "Zobraziť súkromný kľúč",
+    "Show private key of :name": "Zobraziť súkromný kľúč :name",
+    "Confirm your password to decrypt the private key of :name.": "Potvrďte heslo, aby sa dešifroval súkromný kľúč :name."
 }

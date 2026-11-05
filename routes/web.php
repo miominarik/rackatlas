@@ -102,6 +102,9 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
 
     Route::get('ssh-keys', [SshKeyController::class, 'index'])->name('ssh-keys.index');
     Route::post('ssh-keys', [SshKeyController::class, 'store'])->name('ssh-keys.store');
+    Route::post('ssh-keys/{sshKey}/reveal', [SshKeyController::class, 'reveal'])
+        ->middleware('throttle:5,1')
+        ->name('ssh-keys.reveal');
     Route::delete('ssh-keys/{sshKey}', [SshKeyController::class, 'destroy'])->name('ssh-keys.destroy');
 
     Route::get('backups', [BackupController::class, 'index'])->name('backups.index');
