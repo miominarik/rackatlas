@@ -8,43 +8,15 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// The tasks run inside the scheduler process instead of starting `php artisan`
-// sub-processes, because many shared hostings do not allow that.
-Schedule::call(fn () => Artisan::call('servers:collect-metrics'))
-    ->name('servers:collect-metrics')
-    ->everyMinute()
-    ->withoutOverlapping(5);
-
-Schedule::call(fn () => Artisan::call('servers:check-agents'))
-    ->name('servers:check-agents')
-    ->everyMinute()
-    ->withoutOverlapping(2);
-
-Schedule::call(fn () => Artisan::call('servers:evaluate-alerts'))
-    ->name('servers:evaluate-alerts')
-    ->everyMinute()
-    ->withoutOverlapping(2);
-
-Schedule::call(fn () => Artisan::call('backups:check'))
-    ->name('backups:check')
-    ->everyFiveMinutes()
-    ->withoutOverlapping(5);
-
-Schedule::call(fn () => Artisan::call('cloudflare:refresh-ips'))
-    ->name('cloudflare:refresh-ips')
-    ->dailyAt('03:10');
-
-Schedule::call(fn () => Artisan::call('servers:thin-processes'))
-    ->name('servers:thin-processes')
-    ->dailyAt('03:30');
-
-Schedule::call(fn () => Artisan::call('model:prune'))
-    ->name('model:prune')
-    ->daily();
-
-Schedule::call(fn () => Artisan::call('activitylog:clean'))
-    ->name('activitylog:clean')
-    ->daily();
-
-// The queued jobs (metrics collection, notifications) are processed by the permanent
-// queue worker of the hosting, so the scheduler does not run `queue:work` itself.
+// Run by the scheduler of the server: `php artisan schedule:work` as a service or
+// `* * * * * php artisan schedule:run` in cron. Every task is its own `php artisan` process, so a slow
+// one never delays the others. The queued jobs (metrics collection, notifications) are processed by
+// the queue worker service (`php artisan queue:work`), not by the scheduler.
+Schedule::command('servers:collect-metrics')->everyMinute()->withoutOverlapping(5)->runInBackground();
+Schedule::command('servers:check-agents')->everyMinute()->withoutOverlapping(2)->runInBackground();
+Schedule::command('servers:evaluate-alerts')->everyMinute()->withoutOverlapping(2)->runInBackground();
+Schedule::command('backups:check')->everyFiveMinutes()->withoutOverlapping(5)->runInBackground();
+Schedule::command('cloudflare:refresh-ips')->dailyAt('03:10');
+Schedule::command('servers:thin-processes')->dailyAt('03:30');
+Schedule::command('model:prune')->daily();
+Schedule::command('activitylog:clean')->daily();

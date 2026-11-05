@@ -25,17 +25,16 @@ use App\Http\Controllers\Servers\TestConnectionController;
 use App\Http\Controllers\Settings\LanguageController;
 use App\Http\Controllers\Terminal\TerminalController;
 use App\Http\Controllers\Terminal\TerminalSessionController;
-use App\Http\Middleware\ServePrerenderedPage;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->middleware(ServePrerenderedPage::class)->name('home');
-Route::get('privacy', PrivacyController::class)->middleware(ServePrerenderedPage::class)->name('privacy');
+Route::get('/', HomeController::class)->name('home');
+Route::get('privacy', PrivacyController::class)->name('privacy');
 Route::get('api-docs', ApiDocsController::class)->name('api-docs');
 Route::post('feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,60')->name('feedback.store');
 
 // One URL per language so every language can be indexed and linked with hreflang.
-Route::get('{locale}', HomeController::class)->whereIn('locale', ['sk', 'cs', 'en'])->middleware(ServePrerenderedPage::class)->name('home.localized');
-Route::get('{locale}/privacy', PrivacyController::class)->whereIn('locale', ['sk', 'cs', 'en'])->middleware(ServePrerenderedPage::class)->name('privacy.localized');
+Route::get('{locale}', HomeController::class)->whereIn('locale', ['sk', 'cs', 'en'])->name('home.localized');
+Route::get('{locale}/privacy', PrivacyController::class)->whereIn('locale', ['sk', 'cs', 'en'])->name('privacy.localized');
 Route::get('robots.txt', [CrawlerController::class, 'robots'])->name('robots');
 Route::get('sitemap.xml', [CrawlerController::class, 'sitemap'])->name('sitemap');
 
