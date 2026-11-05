@@ -20,6 +20,13 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
+     * Pages that need the browser (xterm touches `window` and cannot be rendered by the SSR server).
+     *
+     * @var array<int, string>
+     */
+    protected $withoutSsr = ['terminal'];
+
+    /**
      * Determines the current asset version.
      *
      * @see https://inertiajs.com/asset-versioning

@@ -428,6 +428,8 @@ wss.on('connection', (ws, request) => {
         }
 
         if (!exchanged.ok) {
+            console.warn(`exchange failed: status=${exchanged.status} token=${token.slice(0, 6)}… length=${token.length} ip=${ip}`);
+
             return fail(exchanged.data.message || 'The ticket is invalid or expired.');
         }
 
