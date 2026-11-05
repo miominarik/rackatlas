@@ -22,7 +22,12 @@ class ServePrerenderedPage
             return $next($request);
         }
 
-        $html = PrerenderedPages::find((string) $request->route()?->getName(), (string) $request->route('locale'));
+        // The pages without a language in the URL get the language the visitor was recognized by.
+        $routeName = (string) $request->route()?->getName();
+        $html = PrerenderedPages::find(
+            PrerenderedPages::LOCALIZED_ROUTES[$routeName] ?? $routeName,
+            (string) ($request->route('locale') ?? app()->getLocale()),
+        );
 
         return $html === null ? $next($request) : response($html);
     }

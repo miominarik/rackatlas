@@ -30,6 +30,12 @@ class PrerenderedPagesTest extends TestCase
         $this->get('/sk')->assertOk()->assertSee('PRERENDERED', false);
     }
 
+    public function test_page_without_a_language_in_the_url_gets_the_recognized_language(): void
+    {
+        $this->get('/', ['Accept-Language' => 'sk-SK,sk;q=0.9'])->assertSee('PRERENDERED', false);
+        $this->get('/', ['Accept-Language' => 'cs'])->assertDontSee('PRERENDERED', false);
+    }
+
     public function test_other_language_and_page_without_a_file_are_rendered_live(): void
     {
         $this->get('/cs')->assertOk()->assertDontSee('PRERENDERED', false);

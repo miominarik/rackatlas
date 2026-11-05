@@ -15,6 +15,9 @@ class PrerenderedPages
 {
     public const DIRECTORY = 'prerender';
 
+    /** The routes without a language in the URL and the localized route whose page they show. */
+    public const LOCALIZED_ROUTES = ['home' => 'home.localized', 'privacy' => 'privacy.localized'];
+
     /**
      * The public pages by the name of their localized route.
      *

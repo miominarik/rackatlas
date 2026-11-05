@@ -26,8 +26,8 @@ use App\Http\Controllers\Terminal\TerminalSessionController;
 use App\Http\Middleware\ServePrerenderedPage;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->name('home');
-Route::get('privacy', PrivacyController::class)->name('privacy');
+Route::get('/', HomeController::class)->middleware(ServePrerenderedPage::class)->name('home');
+Route::get('privacy', PrivacyController::class)->middleware(ServePrerenderedPage::class)->name('privacy');
 Route::post('feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,60')->name('feedback.store');
 
 // One URL per language so every language can be indexed and linked with hreflang.
