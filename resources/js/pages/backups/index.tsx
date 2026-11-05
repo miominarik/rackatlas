@@ -50,7 +50,7 @@ const formatSize = (bytes: number): string => {
 };
 
 const fieldClass =
-    'w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
+    'w-full rounded-md border border-input bg-white dark:bg-input/30 px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
 
 function BackupDialog({
     backup,

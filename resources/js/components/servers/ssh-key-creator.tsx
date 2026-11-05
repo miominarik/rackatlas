@@ -125,7 +125,7 @@ export default function SshKeyCreator({
                                 form.setData('private_key', e.target.value)
                             }
                             placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"
-                            className="w-full rounded-md border border-input bg-transparent px-3 py-2 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                            className="w-full rounded-md border border-input bg-white px-3 py-2 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
                             spellCheck={false}
                         />
                         <InputError message={form.errors.private_key} />

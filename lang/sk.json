@@ -1145,5 +1145,10 @@
     "Download": "Stiahnuť",
     "Request the journal of :name": "Vyžiadať journal služby :name",
     "The systemd services of the servers with the agent: what runs, what is stopped, switched off or crashed. Press Journal and the agent sends its journal within a minute.": "Systemd služby serverov s agentom: čo beží, čo je zastavené, vypnuté alebo padnuté. Stlač Journal a agent pošle journal služby do minúty.",
-    "Request again": "Vyžiadať znova"
+    "Request again": "Vyžiadať znova",
+    "Clear filters": "Zrušiť filtre",
+    "Hide system units": "Skryť systémové služby",
+    "Collapse all": "Zbaliť všetko",
+    "Expand all": "Rozbaliť všetko",
+    ":count services on :servers servers": ":count služieb na :servers serveroch"
 }

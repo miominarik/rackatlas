@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * On a phone the user stays signed in: the password and passkey sign-in are remembered without
- * ticking anything, so the short session does not log them out. On a computer nothing changes.
+ * On a phone or tablet the user stays signed in: the password and passkey sign-in are remembered
+ * without ticking anything, so the short session never logs them out. On a computer nothing changes.
  */
 class RememberMobileLogin
 {
@@ -21,8 +21,16 @@ class RememberMobileLogin
         return $next($request);
     }
 
+    /**
+     * The browser hint is the most reliable one. The user agent covers browsers without it, and a
+     * browser that asks for the desktop site still sends the hint on a phone.
+     */
     private function isMobile(Request $request): bool
     {
-        return (bool) preg_match('/Mobi|Android|iPhone|iPad|iPod/i', (string) $request->userAgent());
+        if ($request->header('Sec-CH-UA-Mobile') === '?1') {
+            return true;
+        }
+
+        return (bool) preg_match('/Mobi|Android|iPhone|iPad|iPod|Silk|Tablet/i', (string) $request->userAgent());
     }
 }
