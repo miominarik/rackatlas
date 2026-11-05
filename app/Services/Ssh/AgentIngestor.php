@@ -50,7 +50,7 @@ class AgentIngestor
 
         $fresh = [];
 
-        DB::transaction(function () use ($server, $data, $entries, $failedNow, $systemInfo, $agentVersion, &$fresh) {
+        DB::transaction(function () use ($server, $data, $sections, $entries, $failedNow, $systemInfo, $agentVersion, &$fresh) {
             $this->collector->store($server, $data);
 
             if (isset($sections['SERVICES'])) {

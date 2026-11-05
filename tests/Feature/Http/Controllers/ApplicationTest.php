@@ -94,6 +94,19 @@ class ApplicationTest extends TestCase
             ->assertJsonPath('journal', ['nginx.service']);
     }
 
+    public function test_ingest_stores_the_services_section(): void
+    {
+        $server = $this->agentServer(Team::factory()->create());
+        $token = $server->issueAgentToken();
+
+        $report = "###CPU1\ncpu  100 0 100 800 0 0 0 0 0 0\n###CPU2\ncpu  150 0 150 900 0 0 0 0 0 0\n###LOAD\n0.1 0.1 0.1 1/1 1\n###CORES\n2\n###MEM\nMemTotal: 1000 kB\nMemAvailable: 500 kB\n###UPTIME\n10\n"
+            ."###JOURNAL_CRITICAL\n###JOURNAL_ERROR\n###SERVICES\nssh.service|active|running|disabled|OpenBSD Secure Shell server\ngetty@tty1.service|active|running||Getty on tty1\n###FAILED_UNITS\n";
+
+        $this->call('POST', route('agent.ingest'), [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer '.$token], $report)->assertOk();
+
+        $this->assertEqualsCanonicalizing(['ssh.service', 'getty@tty1.service'], $server->services()->pluck('unit')->all());
+    }
+
     public function test_a_request_nobody_answered_expires(): void
     {
         $service = ServerService::factory()->for($this->agentServer(Team::factory()->create()))
