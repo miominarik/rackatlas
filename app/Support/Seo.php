@@ -44,6 +44,30 @@ final class Seo
     }
 
     /**
+     * A page that exists in one language and one URL only (no hreflang alternates).
+     *
+     * @param  list<array<string, mixed>>  $schema  JSON-LD nodes
+     * @param  list<array{label: string, url: string}>  $links  plain links for visitors without JavaScript
+     * @return array<string, mixed>
+     */
+    public static function standalone(string $title, string $description, string $routeName, array $schema = [], array $links = []): array
+    {
+        return [
+            'title' => $title.' - '.config('app.name'),
+            'heading' => $title,
+            'description' => $description,
+            'url' => route($routeName),
+            'alternates' => [],
+            'image' => url('og-image.png'),
+            'imageAlt' => 'RackAtlas: Linux server monitoring without open ports',
+            'locale' => self::OG_LOCALES['en'],
+            'alternateLocales' => [],
+            'schema' => $schema,
+            'links' => $links,
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function organization(): array

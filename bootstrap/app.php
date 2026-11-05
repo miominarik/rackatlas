@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureApiScope;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\NoIndexPrivatePages;
@@ -27,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // The site is behind Cloudflare: only its addresses are trusted proxies (list kept up to date nightly).
         $middleware->replace(TrustProxies::class, TrustCloudflareProxies::class);
+
+        $middleware->alias(['api.scope' => EnsureApiScope::class]);
 
         $middleware->append(SecurityHeaders::class);
 

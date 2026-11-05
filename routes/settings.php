@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\AcceptTeamInvitationController;
+use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\Settings\DeviceController;
 use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\NotificationDiagnosticsController;
@@ -77,6 +78,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::patch('members/{member}', [TeamMemberController::class, 'update'])->name('teams.members.update');
         Route::delete('members/{member}', [TeamMemberController::class, 'destroy'])->name('teams.members.destroy');
+
+        Route::post('api-tokens', [ApiTokenController::class, 'store'])
+            ->middleware('throttle:10,1')
+            ->name('teams.api-tokens.store');
+        Route::delete('api-tokens/{apiToken}', [ApiTokenController::class, 'destroy'])->name('teams.api-tokens.destroy');
 
         Route::post('invitations', [TeamInvitationController::class, 'store'])->name('teams.invitations.store');
         Route::post('invitations/{invitation}/resend', [TeamInvitationController::class, 'resend'])

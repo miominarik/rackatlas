@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
 use App\Http\Controllers\Admin\TeamController as AdminTeamController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\LoginApprovalController;
 use App\Http\Controllers\BackupController;
@@ -29,6 +30,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->middleware(ServePrerenderedPage::class)->name('home');
 Route::get('privacy', PrivacyController::class)->middleware(ServePrerenderedPage::class)->name('privacy');
+Route::get('api-docs', ApiDocsController::class)->name('api-docs');
 Route::post('feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,60')->name('feedback.store');
 
 // One URL per language so every language can be indexed and linked with hreflang.

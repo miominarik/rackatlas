@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 * @see app/Http/Controllers/ApplicationController.php:65
 * @route '/app/applications/{service}/journal'
 */
-export const request = (args: { service: string | number | { id: string | number } } | [service: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const request = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: request.url(args, options),
     method: 'post',
 })
@@ -19,7 +19,7 @@ request.definition = {
 * @see app/Http/Controllers/ApplicationController.php:65
 * @route '/app/applications/{service}/journal'
 */
-request.url = (args: { service: string | number | { id: string | number } } | [service: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+request.url = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { service: args }
     }
@@ -52,7 +52,7 @@ request.url = (args: { service: string | number | { id: string | number } } | [s
 * @see app/Http/Controllers/ApplicationController.php:65
 * @route '/app/applications/{service}/journal'
 */
-request.post = (args: { service: string | number | { id: string | number } } | [service: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+request.post = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: request.url(args, options),
     method: 'post',
 })
@@ -62,7 +62,7 @@ request.post = (args: { service: string | number | { id: string | number } } | [
 * @see app/Http/Controllers/ApplicationController.php:65
 * @route '/app/applications/{service}/journal'
 */
-const requestForm = (args: { service: string | number | { id: string | number } } | [service: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const requestForm = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: request.url(args, options),
     method: 'post',
 })
@@ -72,7 +72,7 @@ const requestForm = (args: { service: string | number | { id: string | number } 
 * @see app/Http/Controllers/ApplicationController.php:65
 * @route '/app/applications/{service}/journal'
 */
-requestForm.post = (args: { service: string | number | { id: string | number } } | [service: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+requestForm.post = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: request.url(args, options),
     method: 'post',
 })

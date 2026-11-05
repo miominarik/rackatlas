@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 const AgentIngestController = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ AgentIngestController.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 AgentIngestController.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ AgentIngestController.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 AgentIngestController.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ AgentIngestController.post = (options?: RouteQueryOptions): RouteDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 const AgentIngestControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const AgentIngestControllerForm = (options?: RouteQueryOptions): RouteFormDefini
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 AgentIngestControllerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

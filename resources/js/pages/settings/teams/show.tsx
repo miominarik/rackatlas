@@ -3,6 +3,8 @@ import { Mail, RefreshCw, Trash2, UserMinus } from 'lucide-react';
 import TeamController from '@/actions/App/Http/Controllers/Settings/TeamController';
 import TeamInvitationController from '@/actions/App/Http/Controllers/Settings/TeamInvitationController';
 import TeamMemberController from '@/actions/App/Http/Controllers/Settings/TeamMemberController';
+import { ApiKeys } from '@/components/settings/api-keys';
+import type { ApiKey } from '@/components/settings/api-keys';
 import { SettingsSection } from '@/components/settings/section';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -28,6 +30,10 @@ type Props = {
     members: TeamMember[];
     invitations: TeamInvitation[];
     assignableRoles: TeamRole[];
+    apiTokens: ApiKey[];
+    apiScopes: string[];
+    apiExpiryDays: number[];
+    apiUrl: string;
 };
 
 const roleLabel: Record<TeamRole, string> = {
@@ -43,6 +49,10 @@ export default function ShowTeam({
     members,
     invitations,
     assignableRoles,
+    apiTokens,
+    apiScopes,
+    apiExpiryDays,
+    apiUrl,
 }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const { t, locale } = useTranslation();
@@ -354,6 +364,16 @@ export default function ShowTeam({
                         </div>
                     )}
                 </SettingsSection>
+            )}
+
+            {canManage && (
+                <ApiKeys
+                    teamId={team.id}
+                    keys={apiTokens}
+                    scopes={apiScopes}
+                    expiryDays={apiExpiryDays}
+                    apiUrl={apiUrl}
+                />
             )}
 
             {canDelete && (

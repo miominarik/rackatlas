@@ -1,6 +1,7 @@
 import Api from './Api'
 import HomeController from './HomeController'
 import PrivacyController from './PrivacyController'
+import ApiDocsController from './ApiDocsController'
 import FeedbackController from './FeedbackController'
 import CrawlerController from './CrawlerController'
 import Settings from './Settings'
@@ -10,6 +11,7 @@ import CurrentTeamController from './CurrentTeamController'
 import Servers from './Servers'
 import MapController from './MapController'
 import Terminal from './Terminal'
+import ApplicationController from './ApplicationController'
 import MetricsController from './MetricsController'
 import MetricsProcessesController from './MetricsProcessesController'
 import BackupController from './BackupController'
@@ -19,6 +21,7 @@ const Controllers = {
     Api: Object.assign(Api, Api),
     HomeController: Object.assign(HomeController, HomeController),
     PrivacyController: Object.assign(PrivacyController, PrivacyController),
+    ApiDocsController: Object.assign(ApiDocsController, ApiDocsController),
     FeedbackController: Object.assign(FeedbackController, FeedbackController),
     CrawlerController: Object.assign(CrawlerController, CrawlerController),
     Settings: Object.assign(Settings, Settings),
@@ -28,6 +31,7 @@ const Controllers = {
     Servers: Object.assign(Servers, Servers),
     MapController: Object.assign(MapController, MapController),
     Terminal: Object.assign(Terminal, Terminal),
+    ApplicationController: Object.assign(ApplicationController, ApplicationController),
     MetricsController: Object.assign(MetricsController, MetricsController),
     MetricsProcessesController: Object.assign(MetricsProcessesController, MetricsProcessesController),
     BackupController: Object.assign(BackupController, BackupController),

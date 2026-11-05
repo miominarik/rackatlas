@@ -10,6 +10,7 @@ import { dashboard, login, register } from '@/routes';
 import { store as feedbackStore } from '@/routes/feedback';
 import { localized as homeLocalized } from '@/routes/home';
 import { localized as privacyLocalized } from '@/routes/privacy';
+import { apiDocs } from '@/routes';
 
 type Props = {
     canRegister: boolean;
@@ -384,6 +385,12 @@ export default function Welcome({ canRegister, faq }: Props) {
                             >
                                 {t('FAQ')}
                             </a>
+                            <Link
+                                href={apiDocs()}
+                                className="hover:text-[var(--l-ink)]"
+                            >
+                                {t('API')}
+                            </Link>
                         </nav>
                         <div className="ml-auto flex items-center gap-0.5 text-sm sm:gap-1 sm:text-[15px]">
                             {signedIn ? (
@@ -1174,6 +1181,14 @@ export default function Welcome({ canRegister, faq }: Props) {
                                             className="hover:text-[var(--l-ink)]"
                                         >
                                             {t('Privacy and cookies')}
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link
+                                            href={apiDocs()}
+                                            className="hover:text-[var(--l-ink)]"
+                                        >
+                                            {t('API documentation')}
                                         </Link>
                                     </li>
                                     <li>

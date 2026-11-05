@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Settings;
 
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\Teams\StoreApiTokenRequest;
 use App\Http\Requests\Settings\Teams\StoreTeamRequest;
 use App\Http\Requests\Settings\Teams\UpdateTeamRequest;
+use App\Models\ApiToken;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -86,6 +88,19 @@ class TeamController extends Controller
                     'expired' => $invitation->isExpired(),
                 ])
                 : [],
+            'apiTokens' => $canManage
+                ? $team->apiTokens()->latest()->get()->map(fn (ApiToken $token) => [
+                    'id' => $token->id,
+                    'name' => $token->name,
+                    'scopes' => $token->abilities,
+                    'last_used_at' => $token->last_used_at?->toIso8601String(),
+                    'expires_at' => $token->expires_at?->toIso8601String(),
+                    'expired' => $token->isExpired(),
+                ])
+                : [],
+            'apiScopes' => ApiToken::SCOPES,
+            'apiExpiryDays' => StoreApiTokenRequest::EXPIRY_DAYS,
+            'apiUrl' => url('/api/v1'),
             'assignableRoles' => array_map(fn (TeamRole $role) => $role->value, TeamRole::assignable()),
         ]);
     }

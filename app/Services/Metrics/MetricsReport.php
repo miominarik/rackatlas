@@ -63,7 +63,7 @@ class MetricsReport
      * yields seconds shifted by the offset of that zone. This is the shift to add to get real
      * unix time at that moment (it changes with daylight saving time).
      */
-    private function offset(int $shifted): int
+    public static function offset(int $shifted): int
     {
         return Carbon::createFromTimestampUTC($shifted)->shiftTimezone(config('app.timezone'))->timestamp - $shifted;
     }
@@ -72,7 +72,7 @@ class MetricsReport
      * SQL that turns a datetime column into unix seconds without depending on the time zone
      * of the database session.
      */
-    private function epoch(string $column): string
+    public static function epoch(string $column): string
     {
         return DB::connection()->getDriverName() === 'sqlite'
             ? "CAST(strftime('%s', {$column}) AS INTEGER)"
@@ -84,7 +84,7 @@ class MetricsReport
      */
     private function points(string $since, int $bucket): array
     {
-        $epoch = $this->epoch('collected_at');
+        $epoch = self::epoch('collected_at');
         $ram = 'memory_used * 100.0 / NULLIF(memory_total, 0)';
 
         return DB::table('server_metrics')
@@ -103,7 +103,7 @@ class MetricsReport
             ->orderBy('bucket')
             ->get()
             ->map(fn ($row) => [
-                't' => (int) $row->bucket + $this->offset((int) $row->bucket),
+                't' => (int) $row->bucket + self::offset((int) $row->bucket),
                 'samples' => (int) $row->samples,
                 'cpu_avg' => $this->round($row->cpu_avg),
                 'cpu_max' => $this->round($row->cpu_max),
@@ -120,8 +120,8 @@ class MetricsReport
                 'load_5' => $this->round($row->load_5, 2),
                 'load_15' => $this->round($row->load_15, 2),
                 'cores' => (int) $row->cores,
-                'boot_min' => (int) $row->boot_min + $this->offset((int) $row->bucket),
-                'boot_max' => (int) $row->boot_max + $this->offset((int) $row->bucket),
+                'boot_min' => (int) $row->boot_min + self::offset((int) $row->bucket),
+                'boot_max' => (int) $row->boot_max + self::offset((int) $row->bucket),
             ])
             ->all();
     }
@@ -133,7 +133,7 @@ class MetricsReport
      */
     private function disks(string $since, int $bucket): array
     {
-        $epoch = $this->epoch('m.collected_at');
+        $epoch = self::epoch('m.collected_at');
 
         return ServerMetricDisk::onlyMonitored(DB::table('server_metric_disks as d'), 'd.mount', 'd.device', 'd.total_bytes')
             ->join('server_metrics as m', 'm.id', '=', 'd.server_metric_id')
@@ -146,7 +146,7 @@ class MetricsReport
             ->get()
             ->groupBy('mount')
             ->map(fn ($rows) => $rows->map(fn ($row) => [
-                't' => (int) $row->bucket + $this->offset((int) $row->bucket),
+                't' => (int) $row->bucket + self::offset((int) $row->bucket),
                 'pct' => $this->round($row->pct),
                 'used' => (int) $row->used,
                 'total' => (int) $row->total,

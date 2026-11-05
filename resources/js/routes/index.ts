@@ -380,6 +380,87 @@ privacyForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 privacy.form = privacyForm
 
 /**
+* @see \App\Http\Controllers\ApiDocsController::__invoke
+* @see app/Http/Controllers/ApiDocsController.php:16
+* @route '/api-docs'
+*/
+export const apiDocs = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: apiDocs.url(options),
+    method: 'get',
+})
+
+apiDocs.definition = {
+    methods: ["get","head"],
+    url: '/api-docs',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\ApiDocsController::__invoke
+* @see app/Http/Controllers/ApiDocsController.php:16
+* @route '/api-docs'
+*/
+apiDocs.url = (options?: RouteQueryOptions) => {
+    return apiDocs.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ApiDocsController::__invoke
+* @see app/Http/Controllers/ApiDocsController.php:16
+* @route '/api-docs'
+*/
+apiDocs.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: apiDocs.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\ApiDocsController::__invoke
+* @see app/Http/Controllers/ApiDocsController.php:16
+* @route '/api-docs'
+*/
+apiDocs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: apiDocs.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\ApiDocsController::__invoke
+* @see app/Http/Controllers/ApiDocsController.php:16
+* @route '/api-docs'
+*/
+const apiDocsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: apiDocs.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\ApiDocsController::__invoke
+* @see app/Http/Controllers/ApiDocsController.php:16
+* @route '/api-docs'
+*/
+apiDocsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: apiDocs.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\ApiDocsController::__invoke
+* @see app/Http/Controllers/ApiDocsController.php:16
+* @route '/api-docs'
+*/
+apiDocsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: apiDocs.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+apiDocs.form = apiDocsForm
+
+/**
 * @see \App\Http\Controllers\CrawlerController::robots
 * @see app/Http/Controllers/CrawlerController.php:12
 * @route '/robots.txt'

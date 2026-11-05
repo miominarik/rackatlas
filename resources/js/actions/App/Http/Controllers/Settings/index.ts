@@ -7,6 +7,7 @@ import NotificationDiagnosticsController from './NotificationDiagnosticsControll
 import PushSubscriptionController from './PushSubscriptionController'
 import TeamController from './TeamController'
 import TeamMemberController from './TeamMemberController'
+import ApiTokenController from './ApiTokenController'
 import TeamInvitationController from './TeamInvitationController'
 import AcceptTeamInvitationController from './AcceptTeamInvitationController'
 
@@ -20,6 +21,7 @@ const Settings = {
     PushSubscriptionController: Object.assign(PushSubscriptionController, PushSubscriptionController),
     TeamController: Object.assign(TeamController, TeamController),
     TeamMemberController: Object.assign(TeamMemberController, TeamMemberController),
+    ApiTokenController: Object.assign(ApiTokenController, ApiTokenController),
     TeamInvitationController: Object.assign(TeamInvitationController, TeamInvitationController),
     AcceptTeamInvitationController: Object.assign(AcceptTeamInvitationController, AcceptTeamInvitationController),
 }

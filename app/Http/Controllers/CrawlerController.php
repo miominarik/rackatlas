@@ -48,6 +48,8 @@ class CrawlerController extends Controller
             }
         }
 
+        $xml .= '    <url><loc>'.e(route('api-docs')).'</loc><lastmod>'.$built.'</lastmod></url>'."\n";
+
         return response($xml.'</urlset>'."\n", 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
 }

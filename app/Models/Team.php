@@ -60,6 +60,11 @@ class Team extends Model
         return $this->hasMany(Backup::class);
     }
 
+    public function apiTokens(): HasMany
+    {
+        return $this->hasMany(ApiToken::class);
+    }
+
     public function roleOf(User $user): ?TeamRole
     {
         $role = $this->members()->whereKey($user->getKey())->first()?->pivot->role;

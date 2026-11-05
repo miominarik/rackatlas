@@ -11,7 +11,7 @@ class NoIndexPrivatePages
     /**
      * Only the pages listed here belong in search results.
      */
-    private const INDEXABLE = ['home', 'home.localized', 'privacy', 'privacy.localized', 'robots', 'sitemap'];
+    private const INDEXABLE = ['home', 'home.localized', 'privacy', 'privacy.localized', 'api-docs', 'robots', 'sitemap'];
 
     public function handle(Request $request, Closure $next): Response
     {

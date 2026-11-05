@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 export const ingest = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ ingest.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 ingest.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ ingest.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 ingest.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ ingest.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 const ingestForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const ingestForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:20
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
 * @route '/api/agent/ingest'
 */
 ingestForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -54,6 +54,62 @@ ingestForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 })
 
 ingest.form = ingestForm
+
+/**
+* @see \App\Http\Controllers\Api\AgentJournalController::__invoke
+* @see app/Http/Controllers/Api/AgentJournalController.php:17
+* @route '/api/agent/journal'
+*/
+export const journal = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: journal.url(options),
+    method: 'post',
+})
+
+journal.definition = {
+    methods: ["post"],
+    url: '/api/agent/journal',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\AgentJournalController::__invoke
+* @see app/Http/Controllers/Api/AgentJournalController.php:17
+* @route '/api/agent/journal'
+*/
+journal.url = (options?: RouteQueryOptions) => {
+    return journal.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\AgentJournalController::__invoke
+* @see app/Http/Controllers/Api/AgentJournalController.php:17
+* @route '/api/agent/journal'
+*/
+journal.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: journal.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentJournalController::__invoke
+* @see app/Http/Controllers/Api/AgentJournalController.php:17
+* @route '/api/agent/journal'
+*/
+const journalForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: journal.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentJournalController::__invoke
+* @see app/Http/Controllers/Api/AgentJournalController.php:17
+* @route '/api/agent/journal'
+*/
+journalForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: journal.url(options),
+    method: 'post',
+})
+
+journal.form = journalForm
 
 /**
 * @see \App\Http\Controllers\Api\AgentTerminalController::__invoke
@@ -138,6 +194,7 @@ terminal.form = terminalForm
 
 const agent = {
     ingest: Object.assign(ingest, ingest),
+    journal: Object.assign(journal, journal),
     terminal: Object.assign(terminal, terminal),
 }
 
