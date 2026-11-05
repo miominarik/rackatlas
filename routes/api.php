@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AgentIngestController;
+use App\Http\Controllers\Api\AgentJournalController;
 use App\Http\Controllers\Api\AgentTerminalController;
 use App\Http\Controllers\Api\BackupWebhookController;
 use App\Http\Controllers\Api\TerminalBridgeController;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('agent/ingest', AgentIngestController::class)
     ->middleware(['throttle:agent', AuthenticateAgent::class])
     ->name('agent.ingest');
+
+Route::post('agent/journal', AgentJournalController::class)
+    ->middleware(['throttle:agent', AuthenticateAgent::class])
+    ->name('agent.journal');
 
 Route::get('agent/terminal', AgentTerminalController::class)
     ->middleware(['throttle:agent', AuthenticateAgent::class])

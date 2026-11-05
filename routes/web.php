@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
 use App\Http\Controllers\Admin\TeamController as AdminTeamController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\LoginApprovalController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CrawlerController;
@@ -78,6 +79,15 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::post('terminal/sessions', [TerminalSessionController::class, 'store'])
         ->middleware('throttle:30,1')
         ->name('terminal.sessions.store');
+    Route::get('applications', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('applications/{service}/journal', [ApplicationController::class, 'journal'])
+        ->whereNumber('service')
+        ->name('applications.journal');
+    Route::post('applications/{service}/journal', [ApplicationController::class, 'requestJournal'])
+        ->whereNumber('service')
+        ->middleware('throttle:10,1')
+        ->name('applications.journal.request');
+
     Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
     Route::get('metrics/processes', MetricsProcessesController::class)
         ->middleware('throttle:60,1')

@@ -6,6 +6,7 @@ use App\Enums\ServerErrorType;
 use App\Exceptions\MetricsCollectionException;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
+use App\Models\ServerService;
 use App\Services\Ssh\AgentIngestor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,6 +47,16 @@ class AgentIngestController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
-        return response()->json(['ok' => true]);
+        // The services whose journal somebody asked for. The agent sends them in a separate request.
+        $journal = $server->services()
+            ->whereNotNull('journal_requested_at')
+            ->where('journal_requested_at', '>', now()->subMinutes(ServerService::JOURNAL_REQUEST_MINUTES))
+            ->orderBy('journal_requested_at')
+            ->limit(2)
+            ->pluck('unit')
+            ->filter(fn (string $unit) => preg_match('/^[A-Za-z0-9][A-Za-z0-9:_.@-]*\.service$/', $unit) === 1)
+            ->values();
+
+        return response()->json(['ok' => true, 'journal' => $journal]);
     }
 }

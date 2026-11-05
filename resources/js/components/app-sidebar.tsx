@@ -3,6 +3,7 @@ import {
     Activity,
     DatabaseBackup,
     KeyRound,
+    Layers,
     LayoutGrid,
     Map as MapIcon,
     Map,
@@ -25,6 +26,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard, map as mapRoute, terminal } from '@/routes';
 import { index as adminIndex } from '@/routes/admin';
+import { index as applicationsIndex } from '@/routes/applications';
 import { index as backupsIndex } from '@/routes/backups';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
@@ -54,6 +56,11 @@ const mainNavItems: NavItem[] = [
         title: 'Terminal',
         href: terminal(),
         icon: SquareTerminal,
+    },
+    {
+        title: 'Applications',
+        href: applicationsIndex(),
+        icon: Layers,
     },
     {
         title: 'Metrics',

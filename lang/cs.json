@@ -1129,5 +1129,21 @@
     "Thank you for your opinion!": "Děkujeme za váš názor!",
     "Every message is read by a real person.": "Každou zprávu čte skutečný člověk.",
     "Share your opinion": "Sdílet názor",
-    "FAQ": "Časté dotazy"
+    "FAQ": "Časté dotazy",
+    "Applications": "Aplikace",
+    "Crashed": "Spadlé",
+    "Running": "Běží",
+    "Stopped": "Zastavené",
+    "Journal": "Journal",
+    "Search services": "Hledat služby",
+    "No service matches the filter.": "Filtru nevyhovuje žádná služba.",
+    "Reported :time": "Hlášení :time",
+    "Download the journal of :name": "Stáhnout journal služby :name",
+    "No services yet. They appear once a server with the agent (version 1.6 or newer) sends its first report.": "Zatím žádné služby. Zobrazí se, jakmile server s agentem (verze 1.6 nebo novější) pošle první hlášení.",
+    "Waiting for the agent": "Čekám na agenta",
+    "Journal from :time": "Journal z času :time",
+    "Download": "Stáhnout",
+    "Request the journal of :name": "Vyžádat journal služby :name",
+    "The systemd services of the servers with the agent: what runs, what is stopped, switched off or crashed. Press Journal and the agent sends its journal within a minute.": "Systemd služby serverů s agentem: co běží, co je zastavené, vypnuté nebo spadlé. Stiskni Journal a agent pošle journal služby do minuty.",
+    "Request again": "Vyžádat znovu"
 }

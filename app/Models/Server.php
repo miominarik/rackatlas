@@ -169,6 +169,11 @@ class Server extends Model
             ->first();
     }
 
+    public function services(): HasMany
+    {
+        return $this->hasMany(ServerService::class);
+    }
+
     public function alerts(): HasMany
     {
         return $this->hasMany(ServerAlert::class);

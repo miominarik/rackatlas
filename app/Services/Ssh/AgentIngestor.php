@@ -15,6 +15,7 @@ class AgentIngestor
         private readonly LogParser $logs,
         private readonly ServerMetricsCollector $collector,
         private readonly AlertEvaluator $alerts,
+        private readonly ServiceSync $services,
     ) {}
 
     /**
@@ -51,6 +52,10 @@ class AgentIngestor
 
         DB::transaction(function () use ($server, $data, $entries, $failedNow, $systemInfo, $agentVersion, &$fresh) {
             $this->collector->store($server, $data);
+
+            if (isset($sections['SERVICES'])) {
+                $this->services->sync($server, $sections['SERVICES']);
+            }
 
             $fresh = $this->withoutKnown($server, $this->mergeIntoOpen($server, $entries));
 
