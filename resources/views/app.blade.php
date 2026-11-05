@@ -55,7 +55,7 @@
         <x-inertia::app />
         @if ($seo !== null)
             <noscript>
-                <h1>{{ $seo['heading'] }}</h1>
+                <p><strong>{{ $seo['heading'] }}</strong></p>
                 <p>{{ $seo['description'] }}</p>
                 <ul>
                     @foreach ($seo['links'] as $link)
