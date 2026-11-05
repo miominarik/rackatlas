@@ -6,7 +6,6 @@
     "scripts": {
         "build": "vp build",
         "build:ssr": "vp build && vp build --ssr",
-        "build:prerender": "vp build && vp build --ssr && php artisan seo:prerender",
         "dev": "vp dev",
         "check": "vp check",
         "check:fix": "vp check --fix",
