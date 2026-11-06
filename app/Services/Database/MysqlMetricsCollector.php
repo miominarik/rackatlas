@@ -156,6 +156,6 @@ class MysqlMetricsCollector
             return __('Authentication failed. Check the username and password.', [], $locale);
         }
 
-        return __('Could not connect to :host on port :port.', ['host' => $host, 'port' => $port], $locale);
+        return __('Could not connect to :host on port :port.', ['host' => $host, 'port' => $port], $locale).' '.mb_substr($e->getMessage(), 0, 300);
     }
 }
