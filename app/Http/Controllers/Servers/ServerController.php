@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Servers;
 
 use App\Enums\ServerAuthType;
+use App\Enums\ServerType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Servers\ServerRequest;
 use App\Models\Server;
@@ -45,6 +46,7 @@ class ServerController extends Controller
                 ? $team->servers()->with(['category', 'sshKey', 'latestMetric.disks'])->orderBy('name')->get()
                     ->map(fn (Server $server) => [
                         'id' => $server->id,
+                        'type' => $server->type->value,
                         'name' => $server->name,
                         'provider' => $server->provider,
                         'country' => $server->country,
@@ -68,9 +70,13 @@ class ServerController extends Controller
     /**
      * Everything the app knows about one server: its settings, current state, open problems and latest log entries.
      */
-    public function show(Server $server): Response
+    public function show(Server $server): Response|RedirectResponse
     {
         $this->authorize('view', $server->team);
+
+        if ($server->isMysql()) {
+            return to_route('databases.show', $server);
+        }
 
         $server->load(['category', 'sshKey', 'latestMetric.disks']);
         $metric = $server->latestMetric;
@@ -195,6 +201,7 @@ class ServerController extends Controller
             ...$this->wizardProps($server->team),
             'server' => [
                 'id' => $server->id,
+                'type' => $server->type->value,
                 'name' => $server->name,
                 'provider' => $server->provider,
                 'country' => $server->country,
@@ -232,6 +239,9 @@ class ServerController extends Controller
     public function update(ServerRequest $request, Server $server): RedirectResponse
     {
         $attributes = $this->attributes($request, $server->team);
+
+        // The type is fixed once the server exists.
+        unset($attributes['type']);
 
         if ($attributes['auth_type'] === ServerAuthType::Password->value && empty($attributes['password'])) {
             unset($attributes['password']);
@@ -291,11 +301,31 @@ class ServerController extends Controller
                 ->firstOrCreate(['name' => trim($data['new_category'])])->id;
         }
 
+        if ($request->serverType() === ServerType::Mysql) {
+            return [
+                'type' => ServerType::Mysql->value,
+                'name' => $data['name'],
+                'provider' => filled($data['provider'] ?? null) ? trim($data['provider']) : null,
+                'country' => $data['country'] ?? null,
+                'host' => $data['host'],
+                'port' => $data['port'] ?? 3306,
+                'username' => $data['username'],
+                'server_category_id' => $categoryId,
+                'auth_type' => ServerAuthType::Password->value,
+                'uses_agent' => false,
+                'agent_terminal' => false,
+                'password' => $data['password'] ?? null,
+                'ssh_key_id' => null,
+                'ignored_alerts' => null,
+            ];
+        }
+
         $usesAgent = $data['auth_type'] === ServerAuthType::Agent->value || ($data['uses_agent'] ?? false);
         $usesPassword = $data['auth_type'] === ServerAuthType::Password->value;
         $usesKey = $data['auth_type'] === ServerAuthType::Key->value;
 
         return [
+            'type' => ServerType::Server->value,
             'name' => $data['name'],
             'provider' => filled($data['provider'] ?? null) ? trim($data['provider']) : null,
             'country' => $data['country'] ?? null,
@@ -336,6 +366,10 @@ class ServerController extends Controller
      */
     private function afterSave(Server $server): RedirectResponse
     {
+        if ($server->isMysql()) {
+            return to_route('servers.index');
+        }
+
         if (! $server->collectsViaAgent()) {
             $server->forceFill(['agent_token_hash' => null])->save();
 

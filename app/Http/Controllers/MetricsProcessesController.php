@@ -27,7 +27,7 @@ class MetricsProcessesController extends Controller
         ]);
 
         /** @var Server $server */
-        $server = $team->servers()->findOrFail($validated['server']);
+        $server = $team->machines()->findOrFail($validated['server']);
 
         // A window is one point of a chart, so never more than a day: a bad value cannot scan the table.
         $to = min((int) $validated['to'], (int) $validated['from'] + 86400);

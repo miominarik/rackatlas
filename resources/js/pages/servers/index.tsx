@@ -1,5 +1,6 @@
 import { Head, Link, router, usePoll } from '@inertiajs/react';
 import {
+    Database,
     KeyRound,
     Lock,
     Pencil,
@@ -10,6 +11,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
+import DatabaseController from '@/actions/App/Http/Controllers/DatabaseController';
 import ServerController from '@/actions/App/Http/Controllers/Servers/ServerController';
 import CategoryManager from '@/components/servers/category-manager';
 import { Button } from '@/components/ui/button';
@@ -59,6 +61,9 @@ function ServerRow({
 }) {
     const { t } = useTranslation();
 
+    const isMysql = server.type === 'mysql';
+    const Icon = isMysql ? Database : Server;
+
     const statusLabel = {
         online: t('Online'),
         offline: t('Offline'),
@@ -68,7 +73,7 @@ function ServerRow({
     return (
         <li className="flex items-center gap-4 rounded-xl border bg-card p-4">
             <div className="relative flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                <Server className="size-5 text-muted-foreground" />
+                <Icon className="size-5 text-muted-foreground" />
                 <span
                     title={statusLabel}
                     className={cn(
@@ -80,9 +85,22 @@ function ServerRow({
                 </span>
             </div>
             <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{server.name}</p>
+                <p className="truncate font-medium">
+                    {isMysql ? (
+                        <Link
+                            href={DatabaseController.show(server.id)}
+                            className="hover:underline"
+                        >
+                            {server.name}
+                        </Link>
+                    ) : (
+                        server.name
+                    )}
+                </p>
                 <p className="truncate font-mono text-xs text-muted-foreground">
-                    {serverAddress(server, t('Agent'))}
+                    {isMysql
+                        ? `${server.username}@${server.host}:${server.port}`
+                        : serverAddress(server, t('Agent'))}
                 </p>
                 {server.metrics ? (
                     <p className="mt-1 flex flex-wrap gap-x-3 font-mono text-xs">
@@ -119,7 +137,12 @@ function ServerRow({
                 )}
             </div>
             <span className="hidden items-center gap-1.5 rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-border ring-inset sm:inline-flex">
-                {server.uses_agent ? (
+                {isMysql ? (
+                    <>
+                        <Database className="size-3" />
+                        MySQL
+                    </>
+                ) : server.uses_agent ? (
                     <>
                         <Radio className="size-3" />
                         {server.agent_version

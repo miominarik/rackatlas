@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Servers;
 
 use App\Enums\ServerAuthType;
+use App\Enums\ServerType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Servers\TestConnectionRequest;
 use App\Models\Server;
 use App\Models\SshKey;
+use App\Services\Database\MysqlMetricsCollector;
 use App\Services\Ssh\ConnectionTester;
 use Illuminate\Http\JsonResponse;
 
@@ -15,12 +17,13 @@ class TestConnectionController extends Controller
     /**
      * Check that the entered connection details work, before saving them.
      */
-    public function __invoke(TestConnectionRequest $request, ConnectionTester $tester): JsonResponse
+    public function __invoke(TestConnectionRequest $request, ConnectionTester $tester, MysqlMetricsCollector $mysql): JsonResponse
     {
         $data = $request->validated();
         $team = $request->team();
 
-        $usesPassword = $data['auth_type'] === ServerAuthType::Password->value;
+        $isMysql = ($data['type'] ?? null) === ServerType::Mysql->value;
+        $usesPassword = $isMysql || $data['auth_type'] === ServerAuthType::Password->value;
         $password = $data['password'] ?? null;
         $key = null;
         $stored = ! empty($data['server_id'])
@@ -41,6 +44,10 @@ class TestConnectionController extends Controller
             if ($key === null) {
                 return response()->json(['success' => false, 'message' => __('Choose an SSH key first.')]);
             }
+        }
+
+        if ($isMysql) {
+            return response()->json($mysql->test($data['host'], (int) $data['port'], $data['username'], (string) $password));
         }
 
         $pinned = $stored !== null && $stored->host === $data['host'] && (int) $stored->port === (int) $data['port']

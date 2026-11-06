@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ServerType;
 use App\Enums\TeamRole;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +44,14 @@ class Team extends Model
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
+    }
+
+    /**
+     * The Linux machines, without the databases that are listed among the servers too.
+     */
+    public function machines(): HasMany
+    {
+        return $this->servers()->where('type', ServerType::Server->value);
     }
 
     public function serverCategories(): HasMany

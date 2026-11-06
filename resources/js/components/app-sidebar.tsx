@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
+    Database,
     DatabaseBackup,
     KeyRound,
     Layers,
@@ -28,6 +29,7 @@ import { dashboard, map as mapRoute, terminal } from '@/routes';
 import { index as adminIndex } from '@/routes/admin';
 import { index as applicationsIndex } from '@/routes/applications';
 import { index as backupsIndex } from '@/routes/backups';
+import { index as databasesIndex } from '@/routes/databases';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
 import { index as serversIndex } from '@/routes/servers';
@@ -35,6 +37,14 @@ import { index as sshKeysIndex } from '@/routes/ssh-keys';
 import type { Auth, NavItem } from '@/types';
 
 declare const __APP_VERSION__: string;
+
+const databaseNavItems: NavItem[] = [
+    {
+        title: 'MySQL',
+        href: databasesIndex(),
+        icon: Database,
+    },
+];
 
 const mainNavItems: NavItem[] = [
     {
@@ -115,6 +125,7 @@ export function AppSidebar() {
 
             <SidebarContent className="pt-2">
                 <NavMain items={items} />
+                <NavMain items={databaseNavItems} label="Database" />
             </SidebarContent>
 
             <SidebarFooter className="gap-2 p-3">

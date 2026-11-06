@@ -15,6 +15,7 @@ class CollectServerMetricsCommand extends Command
     public function handle(): int
     {
         $servers = Server::query()
+            ->machines()
             ->with('sshKey')
             // Servers with the agent send their metrics themselves.
             ->whereNot(fn ($query) => $query->viaAgent())

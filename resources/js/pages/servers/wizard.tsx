@@ -2,6 +2,7 @@ import { Head, Link, router, useForm, useHttp } from '@inertiajs/react';
 import {
     Check,
     CheckCircle2,
+    Database,
     KeyRound,
     Lock,
     Plus,
@@ -64,6 +65,7 @@ const ignorableAlerts: [string, string][] = [
 
 const stepFields: Record<number, string[]> = {
     0: [
+        'type',
         'name',
         'provider',
         'country',
@@ -104,6 +106,7 @@ export default function ServerWizard({
     const [testResult, setTestResult] = useState<TestResult | null>(null);
 
     const form = useForm({
+        type: (server?.type ?? 'server') as 'server' | 'mysql',
         name: server?.name ?? '',
         provider: server?.provider ?? '',
         country: server?.country ?? '',
@@ -130,7 +133,8 @@ export default function ServerWizard({
         { title: t('Review'), description: t('Check and save') },
     ];
 
-    const isAgent = form.data.auth_type === 'agent';
+    const isMysql = form.data.type === 'mysql';
+    const isAgent = !isMysql && form.data.auth_type === 'agent';
     const sendsViaAgent = isAgent || form.data.uses_agent;
 
     const agentTerminalOption = (
@@ -224,9 +228,23 @@ export default function ServerWizard({
         }));
     };
 
+    const chooseType = (type: 'server' | 'mysql') => {
+        form.setData((data) => ({
+            ...data,
+            type,
+            auth_type: type === 'mysql' ? 'password' : 'agent',
+            port: type === 'mysql' ? '3306' : '22',
+            username: type === 'mysql' ? '' : 'root',
+            uses_agent: false,
+            agent_terminal: false,
+        }));
+        form.clearErrors();
+    };
+
     const runTest = () => {
         setTestResult(null);
         tester.transform(() => ({
+            type: form.data.type,
             host: form.data.host,
             port: form.data.port,
             username: form.data.username,
@@ -343,6 +361,62 @@ export default function ServerWizard({
                 <div className="space-y-6 rounded-xl border bg-card p-5 sm:p-6">
                     {step === 0 && (
                         <>
+                            {!editing && (
+                                <div
+                                    role="radiogroup"
+                                    aria-label={t('What do you want to add?')}
+                                    className="grid gap-3 sm:grid-cols-2"
+                                >
+                                    {(
+                                        [
+                                            [
+                                                'server',
+                                                t('Linux server'),
+                                                t(
+                                                    'CPU, memory, disks, services and logs of a machine.',
+                                                ),
+                                                ServerCog,
+                                            ],
+                                            [
+                                                'mysql',
+                                                t('MySQL database'),
+                                                t(
+                                                    'Connections, queries, size and availability of a MySQL server.',
+                                                ),
+                                                Database,
+                                            ],
+                                        ] as const
+                                    ).map(([value, title, hint, Icon]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={
+                                                form.data.type === value
+                                            }
+                                            onClick={() => chooseType(value)}
+                                            data-test={`type-${value}`}
+                                            className={cn(
+                                                'flex items-start gap-3 rounded-lg border bg-card p-4 text-left transition-colors',
+                                                form.data.type === value
+                                                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                                    : 'hover:bg-muted/50',
+                                            )}
+                                        >
+                                            <Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+                                            <span>
+                                                <span className="block font-medium">
+                                                    {title}
+                                                </span>
+                                                <span className="block text-sm text-muted-foreground">
+                                                    {hint}
+                                                </span>
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
                             <div className="grid gap-2">
                                 <Label htmlFor="name">{t('Server name')}</Label>
                                 <Input
@@ -523,6 +597,7 @@ export default function ServerWizard({
 
                     {step === 1 && (
                         <>
+                            {!isMysql && (
                             <div
                                 role="radiogroup"
                                 aria-label={t('How do we get the data?')}
@@ -586,6 +661,7 @@ export default function ServerWizard({
                                     </button>
                                 ))}
                             </div>
+                            )}
 
                             {isAgent && (
                                 <div className="space-y-3 rounded-lg border bg-muted/30 p-4 text-sm">
@@ -644,7 +720,9 @@ export default function ServerWizard({
                                         </div>
                                         <div className="grid gap-2">
                                             <Label htmlFor="port">
-                                                {t('SSH port')}
+                                                {isMysql
+                                                    ? t('MySQL port')
+                                                    : t('SSH port')}
                                             </Label>
                                             <Input
                                                 id="port"
@@ -685,7 +763,7 @@ export default function ServerWizard({
                                 </>
                             )}
 
-                            {!isAgent && (
+                            {!isAgent && !isMysql && (
                                 <label className="flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-4 text-sm">
                                     <Checkbox
                                         checked={form.data.uses_agent}

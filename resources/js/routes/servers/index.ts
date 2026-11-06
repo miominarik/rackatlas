@@ -3,7 +3,7 @@ import agent from './agent'
 import hostKey from './host-key'
 /**
 * @see \App\Http\Controllers\Servers\ServerController::index
-* @see app/Http/Controllers/Servers/ServerController.php:27
+* @see app/Http/Controllers/Servers/ServerController.php:28
 * @route '/app/servers'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -18,7 +18,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::index
-* @see app/Http/Controllers/Servers/ServerController.php:27
+* @see app/Http/Controllers/Servers/ServerController.php:28
 * @route '/app/servers'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -27,7 +27,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::index
-* @see app/Http/Controllers/Servers/ServerController.php:27
+* @see app/Http/Controllers/Servers/ServerController.php:28
 * @route '/app/servers'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -37,7 +37,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::index
-* @see app/Http/Controllers/Servers/ServerController.php:27
+* @see app/Http/Controllers/Servers/ServerController.php:28
 * @route '/app/servers'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -47,7 +47,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::index
-* @see app/Http/Controllers/Servers/ServerController.php:27
+* @see app/Http/Controllers/Servers/ServerController.php:28
 * @route '/app/servers'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -57,7 +57,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::index
-* @see app/Http/Controllers/Servers/ServerController.php:27
+* @see app/Http/Controllers/Servers/ServerController.php:28
 * @route '/app/servers'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -67,7 +67,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::index
-* @see app/Http/Controllers/Servers/ServerController.php:27
+* @see app/Http/Controllers/Servers/ServerController.php:28
 * @route '/app/servers'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -84,7 +84,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::create
-* @see app/Http/Controllers/Servers/ServerController.php:160
+* @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
 */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -99,7 +99,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::create
-* @see app/Http/Controllers/Servers/ServerController.php:160
+* @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
 */
 create.url = (options?: RouteQueryOptions) => {
@@ -108,7 +108,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::create
-* @see app/Http/Controllers/Servers/ServerController.php:160
+* @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
 */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -118,7 +118,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::create
-* @see app/Http/Controllers/Servers/ServerController.php:160
+* @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
 */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -128,7 +128,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::create
-* @see app/Http/Controllers/Servers/ServerController.php:160
+* @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
 */
 const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -138,7 +138,7 @@ const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::create
-* @see app/Http/Controllers/Servers/ServerController.php:160
+* @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
 */
 createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -148,7 +148,7 @@ createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::create
-* @see app/Http/Controllers/Servers/ServerController.php:160
+* @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
 */
 createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -165,7 +165,7 @@ create.form = createForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::store
-* @see app/Http/Controllers/Servers/ServerController.php:176
+* @see app/Http/Controllers/Servers/ServerController.php:182
 * @route '/app/servers'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -180,7 +180,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::store
-* @see app/Http/Controllers/Servers/ServerController.php:176
+* @see app/Http/Controllers/Servers/ServerController.php:182
 * @route '/app/servers'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -189,7 +189,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::store
-* @see app/Http/Controllers/Servers/ServerController.php:176
+* @see app/Http/Controllers/Servers/ServerController.php:182
 * @route '/app/servers'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -199,7 +199,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::store
-* @see app/Http/Controllers/Servers/ServerController.php:176
+* @see app/Http/Controllers/Servers/ServerController.php:182
 * @route '/app/servers'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -209,7 +209,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::store
-* @see app/Http/Controllers/Servers/ServerController.php:176
+* @see app/Http/Controllers/Servers/ServerController.php:182
 * @route '/app/servers'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -221,7 +221,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:18
+* @see app/Http/Controllers/Servers/TestConnectionController.php:20
 * @route '/app/servers/test-connection'
 */
 export const testConnection = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -236,7 +236,7 @@ testConnection.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:18
+* @see app/Http/Controllers/Servers/TestConnectionController.php:20
 * @route '/app/servers/test-connection'
 */
 testConnection.url = (options?: RouteQueryOptions) => {
@@ -245,7 +245,7 @@ testConnection.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:18
+* @see app/Http/Controllers/Servers/TestConnectionController.php:20
 * @route '/app/servers/test-connection'
 */
 testConnection.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -255,7 +255,7 @@ testConnection.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:18
+* @see app/Http/Controllers/Servers/TestConnectionController.php:20
 * @route '/app/servers/test-connection'
 */
 const testConnectionForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -265,7 +265,7 @@ const testConnectionForm = (options?: RouteQueryOptions): RouteFormDefinition<'p
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:18
+* @see app/Http/Controllers/Servers/TestConnectionController.php:20
 * @route '/app/servers/test-connection'
 */
 testConnectionForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -277,7 +277,7 @@ testConnection.form = testConnectionForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
-* @see app/Http/Controllers/Servers/ServerController.php:71
+* @see app/Http/Controllers/Servers/ServerController.php:73
 * @route '/app/servers/{server}'
 */
 export const show = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -292,7 +292,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
-* @see app/Http/Controllers/Servers/ServerController.php:71
+* @see app/Http/Controllers/Servers/ServerController.php:73
 * @route '/app/servers/{server}'
 */
 show.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -325,7 +325,7 @@ show.url = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
-* @see app/Http/Controllers/Servers/ServerController.php:71
+* @see app/Http/Controllers/Servers/ServerController.php:73
 * @route '/app/servers/{server}'
 */
 show.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -335,7 +335,7 @@ show.get = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
-* @see app/Http/Controllers/Servers/ServerController.php:71
+* @see app/Http/Controllers/Servers/ServerController.php:73
 * @route '/app/servers/{server}'
 */
 show.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -345,7 +345,7 @@ show.head = (args: { server: number | { id: number } } | [server: number | { id:
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
-* @see app/Http/Controllers/Servers/ServerController.php:71
+* @see app/Http/Controllers/Servers/ServerController.php:73
 * @route '/app/servers/{server}'
 */
 const showForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -355,7 +355,7 @@ const showForm = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
-* @see app/Http/Controllers/Servers/ServerController.php:71
+* @see app/Http/Controllers/Servers/ServerController.php:73
 * @route '/app/servers/{server}'
 */
 showForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -365,7 +365,7 @@ showForm.get = (args: { server: number | { id: number } } | [server: number | { 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
-* @see app/Http/Controllers/Servers/ServerController.php:71
+* @see app/Http/Controllers/Servers/ServerController.php:73
 * @route '/app/servers/{server}'
 */
 showForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -382,7 +382,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::edit
-* @see app/Http/Controllers/Servers/ServerController.php:190
+* @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
 */
 export const edit = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -397,7 +397,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::edit
-* @see app/Http/Controllers/Servers/ServerController.php:190
+* @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
 */
 edit.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -430,7 +430,7 @@ edit.url = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::edit
-* @see app/Http/Controllers/Servers/ServerController.php:190
+* @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
 */
 edit.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -440,7 +440,7 @@ edit.get = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::edit
-* @see app/Http/Controllers/Servers/ServerController.php:190
+* @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
 */
 edit.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -450,7 +450,7 @@ edit.head = (args: { server: number | { id: number } } | [server: number | { id:
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::edit
-* @see app/Http/Controllers/Servers/ServerController.php:190
+* @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
 */
 const editForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -460,7 +460,7 @@ const editForm = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::edit
-* @see app/Http/Controllers/Servers/ServerController.php:190
+* @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
 */
 editForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -470,7 +470,7 @@ editForm.get = (args: { server: number | { id: number } } | [server: number | { 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::edit
-* @see app/Http/Controllers/Servers/ServerController.php:190
+* @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
 */
 editForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -487,7 +487,7 @@ edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:232
+* @see app/Http/Controllers/Servers/ServerController.php:239
 * @route '/app/servers/{server}'
 */
 export const update = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -502,7 +502,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:232
+* @see app/Http/Controllers/Servers/ServerController.php:239
 * @route '/app/servers/{server}'
 */
 update.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -535,7 +535,7 @@ update.url = (args: { server: number | { id: number } } | [server: number | { id
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:232
+* @see app/Http/Controllers/Servers/ServerController.php:239
 * @route '/app/servers/{server}'
 */
 update.put = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -545,7 +545,7 @@ update.put = (args: { server: number | { id: number } } | [server: number | { id
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:232
+* @see app/Http/Controllers/Servers/ServerController.php:239
 * @route '/app/servers/{server}'
 */
 const updateForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -560,7 +560,7 @@ const updateForm = (args: { server: number | { id: number } } | [server: number 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::update
-* @see app/Http/Controllers/Servers/ServerController.php:232
+* @see app/Http/Controllers/Servers/ServerController.php:239
 * @route '/app/servers/{server}'
 */
 updateForm.put = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -577,7 +577,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:254
+* @see app/Http/Controllers/Servers/ServerController.php:264
 * @route '/app/servers/{server}'
 */
 export const destroy = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -592,7 +592,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:254
+* @see app/Http/Controllers/Servers/ServerController.php:264
 * @route '/app/servers/{server}'
 */
 destroy.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -625,7 +625,7 @@ destroy.url = (args: { server: number | { id: number } } | [server: number | { i
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:254
+* @see app/Http/Controllers/Servers/ServerController.php:264
 * @route '/app/servers/{server}'
 */
 destroy.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -635,7 +635,7 @@ destroy.delete = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:254
+* @see app/Http/Controllers/Servers/ServerController.php:264
 * @route '/app/servers/{server}'
 */
 const destroyForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -650,7 +650,7 @@ const destroyForm = (args: { server: number | { id: number } } | [server: number
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:254
+* @see app/Http/Controllers/Servers/ServerController.php:264
 * @route '/app/servers/{server}'
 */
 destroyForm.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

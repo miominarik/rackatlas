@@ -32,7 +32,7 @@ class LogController extends Controller
         ]);
         $status = $filters['status'] ?? 'open';
 
-        $servers = $team->servers()->orderBy('name')->get(['id', 'name']);
+        $servers = $team->machines()->orderBy('name')->get(['id', 'name']);
 
         $scoped = fn () => ServerLog::query()
             ->whereIn('server_id', $servers->pluck('id'))

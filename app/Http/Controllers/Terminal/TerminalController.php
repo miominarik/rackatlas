@@ -23,7 +23,7 @@ class TerminalController extends Controller
             'enabled' => filled(config('terminal.secret')),
             'idleMinutes' => config('terminal.idle_minutes'),
             'servers' => $team
-                ? $team->servers()->with('category')->orderBy('name')->get()
+                ? $team->machines()->with('category')->orderBy('name')->get()
                     ->map(fn (Server $server) => [
                         'id' => $server->id,
                         'name' => $server->name,

@@ -27,7 +27,7 @@ class MetricsController extends Controller
             'range' => ['nullable', 'in:'.implode(',', array_keys(MetricsReport::RANGES))],
         ]);
 
-        $servers = $team->servers()->orderBy('name')->get(['id', 'name', 'status', 'auth_type', 'agent_version', 'last_seen_at', 'last_checked_at']);
+        $servers = $team->machines()->orderBy('name')->get(['id', 'name', 'status', 'auth_type', 'agent_version', 'last_seen_at', 'last_checked_at']);
 
         /** @var Server|null $server */
         $server = $servers->firstWhere('id', $validated['server'] ?? null) ?? $servers->first();

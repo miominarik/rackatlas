@@ -10,14 +10,20 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { NavItem } from '@/types';
 import { useTranslation } from '@/hooks/use-translation';
 
-export function NavMain({ items }: { items: NavItem[] }) {
+export function NavMain({
+    items,
+    label = 'Platform',
+}: {
+    items: NavItem[];
+    label?: string;
+}) {
     const { t } = useTranslation();
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
-        <SidebarGroup className="px-3 py-0">
+        <SidebarGroup className="px-3 py-0 not-first:mt-4">
             <SidebarGroupLabel className="mb-1 h-8 px-3 text-[11px] font-semibold tracking-wider text-sidebar-foreground/50 uppercase">
-                {t('Platform')}
+                {t(label)}
             </SidebarGroupLabel>
             <SidebarMenu className="gap-1">
                 {items.map((item) => (

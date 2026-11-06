@@ -25,7 +25,7 @@ class TerminalSessionController extends Controller
         }
 
         $team = $request->user()->currentTeam();
-        $server = $team?->servers()->find($data['server_id']);
+        $server = $team?->machines()->find($data['server_id']);
 
         abort_if($server === null, 404);
         $this->authorize('manage', $team);

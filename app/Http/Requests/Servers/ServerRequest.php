@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Servers;
 
 use App\Enums\ServerAuthType;
+use App\Enums\ServerType;
 use App\Models\Server;
 use App\Models\Team;
 use App\Support\EuropeanCountries;
@@ -14,6 +15,18 @@ class ServerRequest extends FormRequest
     public function team(): ?Team
     {
         return $this->route('server')?->team ?? $this->user()->currentTeam();
+    }
+
+    /**
+     * The kind of server. It cannot be changed after the server was created.
+     */
+    public function serverType(): ServerType
+    {
+        $existing = $this->route('server');
+
+        return $existing instanceof Server
+            ? $existing->type
+            : (ServerType::tryFrom((string) $this->input('type')) ?? ServerType::Server);
     }
 
     public function authorize(): bool
@@ -29,13 +42,16 @@ class ServerRequest extends FormRequest
     public function rules(): array
     {
         $team = $this->team();
-        $isPassword = $this->input('auth_type') === ServerAuthType::Password->value;
-        $isKey = $this->input('auth_type') === ServerAuthType::Key->value;
+        $isMysql = $this->serverType() === ServerType::Mysql;
+        // A database always logs in with a password, over the network.
+        $isPassword = $isMysql || $this->input('auth_type') === ServerAuthType::Password->value;
+        $isKey = ! $isMysql && $this->input('auth_type') === ServerAuthType::Key->value;
         // A server with the agent reports by itself, so it needs no address or login.
-        $needsAddress = $this->input('auth_type') !== ServerAuthType::Agent->value;
+        $needsAddress = $isMysql || $this->input('auth_type') !== ServerAuthType::Agent->value;
         $existing = $this->route('server') instanceof Server;
 
         return [
+            'type' => ['nullable', Rule::enum(ServerType::class)],
             'name' => ['required', 'string', 'max:255'],
             'provider' => ['nullable', 'string', 'max:100'],
             'country' => ['nullable', 'string', Rule::in(EuropeanCountries::CODES)],
@@ -46,7 +62,7 @@ class ServerRequest extends FormRequest
             'new_category' => ['nullable', 'string', 'max:100'],
             'ignored_alerts' => ['nullable', 'array'],
             'ignored_alerts.*' => ['string', Rule::in(Server::IGNORABLE_ALERTS)],
-            'auth_type' => ['required', Rule::enum(ServerAuthType::class)],
+            'auth_type' => [$isMysql ? 'nullable' : 'required', Rule::enum(ServerAuthType::class)],
             'uses_agent' => ['nullable', 'boolean'],
             'agent_terminal' => ['nullable', 'boolean'],
             'password' => [Rule::requiredIf($isPassword && ! $existing), 'nullable', 'string', 'max:1000'],

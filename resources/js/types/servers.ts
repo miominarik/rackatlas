@@ -16,6 +16,8 @@ export type SshKey = {
     servers_count?: number;
 };
 
+export type ServerType = 'server' | 'mysql';
+
 export type ServerStatus = 'unknown' | 'online' | 'offline';
 
 export type ServerMetrics = {
@@ -27,6 +29,7 @@ export type ServerMetrics = {
 
 export type ServerSummary = {
     id: number;
+    type: ServerType;
     name: string;
     provider: string | null;
     country: string | null;
@@ -46,6 +49,7 @@ export type ServerSummary = {
 
 export type ServerFormData = {
     id: number;
+    type: ServerType;
     name: string;
     provider: string | null;
     country: string | null;
@@ -75,4 +79,30 @@ export type Backup = {
     last_message: string | null;
     last_size_bytes: number | null;
     overdue: boolean;
+};
+
+export type DatabaseMetric = {
+    collected_at: string;
+    version: string | null;
+    uptime_seconds: number;
+    threads_connected: number;
+    threads_running: number;
+    max_connections: number;
+    connections_percent: number;
+    queries_per_second: number | null;
+    slow_queries_total: number;
+    aborted_connects_total: number;
+    buffer_pool_size: number | null;
+    data_bytes: number;
+    databases_count: number;
+};
+
+export type DatabaseSummary = {
+    id: number;
+    name: string;
+    host: string;
+    port: number;
+    status: ServerStatus;
+    last_checked_at: string | null;
+    metric: DatabaseMetric | null;
 };

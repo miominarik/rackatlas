@@ -34,7 +34,7 @@ class DashboardController extends Controller
             return Inertia::render('dashboard', ['team' => null]);
         }
 
-        $servers = $team->servers()
+        $servers = $team->machines()
             ->with(['category', 'latestMetric.disks'])
             ->orderBy('name')
             ->get();

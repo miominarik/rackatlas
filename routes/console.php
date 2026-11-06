@@ -13,6 +13,7 @@ Artisan::command('inspire', function () {
 // one never delays the others. The queued jobs (metrics collection, notifications) are processed by
 // the queue worker service (`php artisan queue:work`), not by the scheduler.
 Schedule::command('servers:collect-metrics')->everyMinute()->withoutOverlapping(5)->runInBackground();
+Schedule::command('databases:collect-metrics')->everyMinute()->withoutOverlapping(5)->runInBackground();
 Schedule::command('servers:check-agents')->everyMinute()->withoutOverlapping(2)->runInBackground();
 Schedule::command('servers:evaluate-alerts')->everyMinute()->withoutOverlapping(2)->runInBackground();
 Schedule::command('backups:check')->everyFiveMinutes()->withoutOverlapping(5)->runInBackground();

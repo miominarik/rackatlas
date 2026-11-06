@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\LoginApprovalController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
+use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
@@ -74,6 +75,9 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::put('servers/{server}', [ServerController::class, 'update'])->name('servers.update');
     Route::delete('servers/{server}/host-key', [ServerController::class, 'forgetHostKey'])->name('servers.host-key.destroy');
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
+
+    Route::get('databases', [DatabaseController::class, 'index'])->name('databases.index');
+    Route::get('databases/{server}', [DatabaseController::class, 'show'])->name('databases.show')->whereNumber('server');
 
     Route::get('map', MapController::class)->name('map');
     Route::get('terminal', TerminalController::class)->name('terminal');

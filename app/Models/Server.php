@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ServerAuthType;
 use App\Enums\ServerStatus;
+use App\Enums\ServerType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -20,6 +21,7 @@ use Spatie\Activitylog\Support\LogOptions;
 /**
  * @property int $id
  * @property int $team_id
+ * @property ServerType $type
  * @property int|null $server_category_id
  * @property string $name
  * @property string|null $provider Hosting company the server runs at
@@ -42,11 +44,18 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
  */
-#[Fillable(['team_id', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts'])]
+#[Fillable(['team_id', 'type', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts'])]
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
     use LogsActivity;
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'type' => 'server',
+    ];
 
     /** The sources of warnings a server can be told to stay quiet about. */
     public const IGNORABLE_ALERTS = ['cpu', 'ram', 'disk', 'services', 'logs'];
@@ -54,6 +63,7 @@ class Server extends Model
     protected function casts(): array
     {
         return [
+            'type' => ServerType::class,
             'auth_type' => ServerAuthType::class,
             'uses_agent' => 'boolean',
             'agent_terminal' => 'boolean',
@@ -76,11 +86,24 @@ class Server extends Model
     }
 
     /**
+     * Whether this is a Linux machine, as opposed to a database that is only queried.
+     */
+    public function isMachine(): bool
+    {
+        return $this->type === ServerType::Server;
+    }
+
+    public function isMysql(): bool
+    {
+        return $this->type === ServerType::Mysql;
+    }
+
+    /**
      * Whether the metrics come from the agent. Otherwise the app collects them over SSH.
      */
     public function collectsViaAgent(): bool
     {
-        return $this->auth_type === ServerAuthType::Agent || $this->uses_agent;
+        return $this->isMachine() && $this->auth_type === ServerAuthType::Agent || $this->uses_agent;
     }
 
     /**
@@ -88,7 +111,7 @@ class Server extends Model
      */
     public function hasSshAccess(): bool
     {
-        return $this->auth_type !== ServerAuthType::Agent;
+        return $this->isMachine() && $this->auth_type !== ServerAuthType::Agent;
     }
 
     /**
@@ -105,6 +128,26 @@ class Server extends Model
     public function canOpenTerminal(): bool
     {
         return $this->hasSshAccess() || $this->opensTerminalViaAgent();
+    }
+
+    /**
+     * Linux machines only, without the databases.
+     *
+     * @param  Builder<Server>  $query
+     */
+    #[Scope]
+    protected function machines(Builder $query): void
+    {
+        $query->where('type', ServerType::Server->value);
+    }
+
+    /**
+     * @param  Builder<Server>  $query
+     */
+    #[Scope]
+    protected function mysql(Builder $query): void
+    {
+        $query->where('type', ServerType::Mysql->value);
     }
 
     /**
@@ -138,6 +181,16 @@ class Server extends Model
     public function metrics(): HasMany
     {
         return $this->hasMany(ServerMetric::class);
+    }
+
+    public function databaseMetrics(): HasMany
+    {
+        return $this->hasMany(DatabaseMetric::class);
+    }
+
+    public function latestDatabaseMetric(): HasOne
+    {
+        return $this->hasOne(DatabaseMetric::class)->latestOfMany('collected_at');
     }
 
     public function latestMetric(): HasOne
@@ -188,7 +241,7 @@ class Server extends Model
     {
         return LogOptions::defaults()
             ->useLogName('server')
-            ->logOnly(['name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
+            ->logOnly(['type', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }
