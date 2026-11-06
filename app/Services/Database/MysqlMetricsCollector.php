@@ -75,7 +75,7 @@ class MysqlMetricsCollector
             ->fetchAll(PDO::FETCH_KEY_PAIR);
 
         $schemas = $pdo->query(
-            'SELECT COUNT(DISTINCT table_schema) AS schemas, COALESCE(SUM(data_length + index_length), 0) AS bytes '
+            'SELECT COUNT(DISTINCT table_schema) AS schema_count, COALESCE(SUM(data_length + index_length), 0) AS data_total '
             .'FROM information_schema.tables WHERE table_schema NOT IN ('.implode(',', array_map(fn ($s) => $pdo->quote($s), self::SYSTEM_SCHEMAS)).')'
         )->fetch(PDO::FETCH_ASSOC);
 
@@ -89,8 +89,8 @@ class MysqlMetricsCollector
             'slow_queries_total' => (int) ($status['Slow_queries'] ?? 0),
             'aborted_connects_total' => (int) ($status['Aborted_connects'] ?? 0),
             'buffer_pool_size' => isset($variables['innodb_buffer_pool_size']) ? (int) $variables['innodb_buffer_pool_size'] : null,
-            'data_bytes' => (int) ($schemas['bytes'] ?? 0),
-            'databases_count' => (int) ($schemas['schemas'] ?? 0),
+            'data_bytes' => (int) ($schemas['data_total'] ?? 0),
+            'databases_count' => (int) ($schemas['schema_count'] ?? 0),
         ];
     }
 
