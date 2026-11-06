@@ -25,13 +25,23 @@ use Illuminate\Support\Carbon;
  * @property int $slow_queries_total
  * @property int $aborted_connects_total
  * @property int|null $buffer_pool_size
- * @property int $data_bytes
- * @property int $databases_count
+ * @property int $bytes_received_total
+ * @property int $bytes_sent_total
+ * @property int $com_select_total
+ * @property int $com_insert_total
+ * @property int $com_update_total
+ * @property int $com_delete_total
+ * @property bool|null $replica_io_running
+ * @property bool|null $replica_sql_running
+ * @property int|null $replica_lag_seconds
+ * @property string|null $replica_source
+ * @property string|null $replica_error
  */
 #[Fillable([
     'server_id', 'collected_at', 'version', 'uptime_seconds', 'threads_connected', 'threads_running', 'max_connections',
     'questions_total', 'queries_per_second', 'slow_queries_total', 'aborted_connects_total', 'buffer_pool_size',
-    'data_bytes', 'databases_count',
+    'bytes_received_total', 'bytes_sent_total', 'com_select_total', 'com_insert_total', 'com_update_total', 'com_delete_total',
+    'replica_io_running', 'replica_sql_running', 'replica_lag_seconds', 'replica_source', 'replica_error',
 ])]
 class DatabaseMetric extends Model
 {
@@ -45,6 +55,8 @@ class DatabaseMetric extends Model
     {
         return [
             'collected_at' => 'datetime',
+            'replica_io_running' => 'boolean',
+            'replica_sql_running' => 'boolean',
         ];
     }
 

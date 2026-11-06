@@ -1,7 +1,8 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import processes from './processes'
 /**
 * @see \App\Http\Controllers\DatabaseController::index
-* @see app/Http/Controllers/DatabaseController.php:20
+* @see app/Http/Controllers/DatabaseController.php:23
 * @route '/app/databases'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +17,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\DatabaseController::index
-* @see app/Http/Controllers/DatabaseController.php:20
+* @see app/Http/Controllers/DatabaseController.php:23
 * @route '/app/databases'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +26,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DatabaseController::index
-* @see app/Http/Controllers/DatabaseController.php:20
+* @see app/Http/Controllers/DatabaseController.php:23
 * @route '/app/databases'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +36,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\DatabaseController::index
-* @see app/Http/Controllers/DatabaseController.php:20
+* @see app/Http/Controllers/DatabaseController.php:23
 * @route '/app/databases'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +46,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\DatabaseController::index
-* @see app/Http/Controllers/DatabaseController.php:20
+* @see app/Http/Controllers/DatabaseController.php:23
 * @route '/app/databases'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +56,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\DatabaseController::index
-* @see app/Http/Controllers/DatabaseController.php:20
+* @see app/Http/Controllers/DatabaseController.php:23
 * @route '/app/databases'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +66,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\DatabaseController::index
-* @see app/Http/Controllers/DatabaseController.php:20
+* @see app/Http/Controllers/DatabaseController.php:23
 * @route '/app/databases'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +83,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:49
+* @see app/Http/Controllers/DatabaseController.php:52
 * @route '/app/databases/{server}'
 */
 export const show = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -97,7 +98,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:49
+* @see app/Http/Controllers/DatabaseController.php:52
 * @route '/app/databases/{server}'
 */
 show.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +131,7 @@ show.url = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:49
+* @see app/Http/Controllers/DatabaseController.php:52
 * @route '/app/databases/{server}'
 */
 show.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -140,7 +141,7 @@ show.get = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:49
+* @see app/Http/Controllers/DatabaseController.php:52
 * @route '/app/databases/{server}'
 */
 show.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -150,7 +151,7 @@ show.head = (args: { server: number | { id: number } } | [server: number | { id:
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:49
+* @see app/Http/Controllers/DatabaseController.php:52
 * @route '/app/databases/{server}'
 */
 const showForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -160,7 +161,7 @@ const showForm = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:49
+* @see app/Http/Controllers/DatabaseController.php:52
 * @route '/app/databases/{server}'
 */
 showForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -170,7 +171,7 @@ showForm.get = (args: { server: number | { id: number } } | [server: number | { 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:49
+* @see app/Http/Controllers/DatabaseController.php:52
 * @route '/app/databases/{server}'
 */
 showForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -188,6 +189,7 @@ show.form = showForm
 const databases = {
     index: Object.assign(index, index),
     show: Object.assign(show, show),
+    processes: Object.assign(processes, processes),
 }
 
 export default databases

@@ -9,8 +9,9 @@ use App\Http\Controllers\Auth\LoginApprovalController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\CurrentTeamController;
-use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DatabaseController;
+use App\Http\Controllers\DatabaseProcessController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MapController;
@@ -78,6 +79,14 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
 
     Route::get('databases', [DatabaseController::class, 'index'])->name('databases.index');
     Route::get('databases/{server}', [DatabaseController::class, 'show'])->name('databases.show')->whereNumber('server');
+    Route::get('databases/{server}/processes', [DatabaseProcessController::class, 'index'])
+        ->middleware('throttle:60,1')
+        ->name('databases.processes.index')
+        ->whereNumber('server');
+    Route::post('databases/{server}/processes/{process}/kill', [DatabaseProcessController::class, 'kill'])
+        ->middleware('throttle:30,1')
+        ->name('databases.processes.kill')
+        ->whereNumber(['server', 'process']);
 
     Route::get('map', MapController::class)->name('map');
     Route::get('terminal', TerminalController::class)->name('terminal');

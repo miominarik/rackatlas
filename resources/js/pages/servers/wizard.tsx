@@ -14,6 +14,7 @@ import {
 import { useState } from 'react';
 import ServerController from '@/actions/App/Http/Controllers/Servers/ServerController';
 import TestConnectionController from '@/actions/App/Http/Controllers/Servers/TestConnectionController';
+import CreateUserCommand from '@/components/databases/create-user-command';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import CopyField from '@/components/servers/copy-field';
@@ -694,6 +695,18 @@ export default function ServerWizard({
                             )}
 
                             {isAgent && agentTerminalOption}
+
+                            {isMysql && !editing && (
+                                <CreateUserCommand
+                                    onUse={(username, password) =>
+                                        form.setData((data) => ({
+                                            ...data,
+                                            username,
+                                            password,
+                                        }))
+                                    }
+                                />
+                            )}
 
                             {!isAgent && (
                                 <>

@@ -15,8 +15,6 @@ class MysqlMetricsCollector
     private const CONNECT_TIMEOUT = 8;
 
     /** Schemas that belong to MySQL itself and say nothing about the data of the user. */
-    private const SYSTEM_SCHEMAS = ['information_schema', 'performance_schema', 'mysql', 'sys'];
-
     /**
      * Read the status of one MySQL server and store it. A failure is written to the server errors
      * and the server is marked offline.
@@ -64,6 +62,42 @@ class MysqlMetricsCollector
     }
 
     /**
+     * The statements that are running right now, longest first. Idle connections and the
+     * connection of this check itself are left out.
+     *
+     * @return array<int, array{id: int, user: string, host: string, db: string|null, time: int, state: string|null, query: string}>
+     */
+    public function runningQueries(Server $server): array
+    {
+        $pdo = $this->connect($server->host, $server->port, $server->username, (string) $server->password);
+
+        $statement = $pdo->prepare(
+            "SELECT ID, USER, HOST, DB, TIME, STATE, INFO FROM information_schema.PROCESSLIST WHERE COMMAND = 'Query' AND INFO IS NOT NULL AND ID <> CONNECTION_ID() ORDER BY TIME DESC LIMIT 100"
+        );
+        $statement->execute();
+
+        return array_map(fn (array $row) => [
+            'id' => (int) $row['ID'],
+            'user' => (string) $row['USER'],
+            'host' => (string) $row['HOST'],
+            'db' => $row['DB'] !== null ? (string) $row['DB'] : null,
+            'time' => (int) $row['TIME'],
+            'state' => $row['STATE'] !== null && $row['STATE'] !== '' ? (string) $row['STATE'] : null,
+            'query' => mb_substr((string) $row['INFO'], 0, 2000),
+        ], $statement->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * Stop the running statement of a connection. The connection itself stays open.
+     */
+    public function killQuery(Server $server, int $processId): void
+    {
+        $pdo = $this->connect($server->host, $server->port, $server->username, (string) $server->password);
+
+        $pdo->exec('KILL QUERY '.$processId);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function read(Server $server): array
@@ -73,11 +107,6 @@ class MysqlMetricsCollector
         $status = $pdo->query('SHOW GLOBAL STATUS')->fetchAll(PDO::FETCH_KEY_PAIR);
         $variables = $pdo->query("SHOW GLOBAL VARIABLES WHERE Variable_name IN ('version', 'max_connections', 'innodb_buffer_pool_size')")
             ->fetchAll(PDO::FETCH_KEY_PAIR);
-
-        $schemas = $pdo->query(
-            'SELECT COUNT(DISTINCT table_schema) AS schema_count, COALESCE(SUM(data_length + index_length), 0) AS data_total '
-            .'FROM information_schema.tables WHERE table_schema NOT IN ('.implode(',', array_map(fn ($s) => $pdo->quote($s), self::SYSTEM_SCHEMAS)).')'
-        )->fetch(PDO::FETCH_ASSOC);
 
         return [
             'version' => mb_substr((string) ($variables['version'] ?? ''), 0, 100) ?: null,
@@ -89,8 +118,76 @@ class MysqlMetricsCollector
             'slow_queries_total' => (int) ($status['Slow_queries'] ?? 0),
             'aborted_connects_total' => (int) ($status['Aborted_connects'] ?? 0),
             'buffer_pool_size' => isset($variables['innodb_buffer_pool_size']) ? (int) $variables['innodb_buffer_pool_size'] : null,
-            'data_bytes' => (int) ($schemas['data_total'] ?? 0),
-            'databases_count' => (int) ($schemas['schema_count'] ?? 0),
+            'bytes_received_total' => (int) ($status['Bytes_received'] ?? 0),
+            'bytes_sent_total' => (int) ($status['Bytes_sent'] ?? 0),
+            'com_select_total' => (int) ($status['Com_select'] ?? 0),
+            'com_insert_total' => (int) ($status['Com_insert'] ?? 0),
+            'com_update_total' => (int) ($status['Com_update'] ?? 0),
+            'com_delete_total' => (int) ($status['Com_delete'] ?? 0),
+            ...$this->replication($pdo),
+        ];
+    }
+
+    /**
+     * The state of the replication when the server is a replica. A server that is not one, or a
+     * user without the REPLICATION CLIENT privilege, gives no values. MySQL before 8.0.22
+     * and MariaDB only know the older SLAVE name.
+     *
+     * @return array{replica_io_running: bool|null, replica_sql_running: bool|null, replica_lag_seconds: int|null, replica_source: string|null, replica_error: string|null}
+     */
+    private function replication(PDO $pdo): array
+    {
+        $none = [
+            'replica_io_running' => null, 'replica_sql_running' => null, 'replica_lag_seconds' => null,
+            'replica_source' => null, 'replica_error' => null,
+        ];
+
+        try {
+            $rows = $pdo->query('SHOW REPLICA STATUS')->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable) {
+            try {
+                $rows = $pdo->query('SHOW SLAVE STATUS')->fetchAll(PDO::FETCH_ASSOC);
+            } catch (Throwable) {
+                return $none;
+            }
+        }
+
+        if ($rows === []) {
+            return $none;
+        }
+
+        $pick = fn (array $row, string ...$names) => array_values(array_filter(
+            array_map(fn ($name) => $row[$name] ?? null, $names),
+            fn ($value) => $value !== null,
+        ))[0] ?? null;
+
+        $io = true;
+        $sql = true;
+        $lag = null;
+        $error = null;
+        $sources = [];
+
+        foreach ($rows as $row) {
+            $io = $io && $pick($row, 'Replica_IO_Running', 'Slave_IO_Running') === 'Yes';
+            $sql = $sql && $pick($row, 'Replica_SQL_Running', 'Slave_SQL_Running') === 'Yes';
+
+            $rowLag = $pick($row, 'Seconds_Behind_Source', 'Seconds_Behind_Master');
+            $lag = $rowLag === null ? $lag : max((int) $lag, (int) $rowLag);
+
+            $error ??= array_values(array_filter([
+                (string) $pick($row, 'Last_IO_Error'), (string) $pick($row, 'Last_SQL_Error'), (string) $pick($row, 'Last_Error'),
+            ]))[0] ?? null;
+
+            $host = $pick($row, 'Source_Host', 'Master_Host');
+            $sources[] = $host !== null ? $host.':'.$pick($row, 'Source_Port', 'Master_Port') : null;
+        }
+
+        return [
+            'replica_io_running' => $io,
+            'replica_sql_running' => $sql,
+            'replica_lag_seconds' => $lag,
+            'replica_source' => mb_substr(implode(', ', array_filter($sources)), 0, 255) ?: null,
+            'replica_error' => $error !== null ? mb_substr($error, 0, 500) : null,
         ];
     }
 
@@ -150,7 +247,7 @@ class MysqlMetricsCollector
         };
     }
 
-    private function describe(Throwable $e, string $host, int $port, ?string $locale = null): string
+    public function describe(Throwable $e, string $host, int $port, ?string $locale = null): string
     {
         if ($e->getCode() === 1045) {
             return __('Authentication failed. Check the username and password.', [], $locale);

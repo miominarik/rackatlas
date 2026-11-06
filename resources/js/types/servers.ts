@@ -93,8 +93,13 @@ export type DatabaseMetric = {
     slow_queries_total: number;
     aborted_connects_total: number;
     buffer_pool_size: number | null;
-    data_bytes: number;
-    databases_count: number;
+    replication: {
+        source: string | null;
+        io_running: boolean;
+        sql_running: boolean;
+        lag_seconds: number | null;
+        error: string | null;
+    } | null;
 };
 
 export type DatabaseSummary = {

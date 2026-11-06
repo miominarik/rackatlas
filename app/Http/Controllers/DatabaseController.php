@@ -12,7 +12,10 @@ use Inertia\Response;
 class DatabaseController extends Controller
 {
     /** The most points drawn in a chart, longer histories are thinned out. */
-    private const MAX_POINTS = 120;
+    private const MAX_POINTS = 300;
+
+    /** Length of the selectable chart ranges, in seconds. */
+    private const RANGES = ['1h' => 3600, '6h' => 21600, '24h' => 86400, '7d' => 604800, '30d' => 2592000];
 
     /**
      * The MySQL servers of the current team with their latest reading.
@@ -44,21 +47,24 @@ class DatabaseController extends Controller
     }
 
     /**
-     * One MySQL server: its latest reading, the last day as a chart and the latest errors.
+     * One MySQL server: its latest reading, a chart of the chosen range and the latest errors.
      */
-    public function show(Server $server): Response
+    public function show(Request $request, Server $server): Response
     {
         abort_unless($server->isMysql(), 404);
         $this->authorize('view', $server->team);
 
         $server->load('latestDatabaseMetric');
 
+        $range = array_key_exists((string) $request->query('range'), self::RANGES) ? (string) $request->query('range') : '24h';
+
         $history = $server->databaseMetrics()
-            ->where('collected_at', '>=', now()->subDay())
+            ->where('collected_at', '>=', now()->subSeconds(self::RANGES[$range]))
             ->orderBy('collected_at')
             ->get();
 
         $step = max(1, (int) ceil($history->count() / self::MAX_POINTS));
+        $points = $history->values()->filter(fn ($metric, int $i) => $i % $step === 0)->values();
 
         return Inertia::render('databases/show', [
             'database' => [
@@ -73,13 +79,22 @@ class DatabaseController extends Controller
                 'metric' => $this->presentMetric($server->latestDatabaseMetric),
             ],
             'canManage' => request()->user()->can('manage', $server->team),
-            'history' => $history->values()->filter(fn ($metric, int $i) => $i % $step === 0)->values()
-                ->map(fn (DatabaseMetric $metric) => [
-                    'at' => $metric->collected_at->toIso8601String(),
-                    'queries_per_second' => $metric->queries_per_second !== null ? (float) $metric->queries_per_second : null,
-                    'threads_connected' => $metric->threads_connected,
-                    'threads_running' => $metric->threads_running,
-                ]),
+            'range' => $range,
+            'ranges' => array_keys(self::RANGES),
+            'range_seconds' => self::RANGES[$range],
+            'history' => $points->map(fn (DatabaseMetric $metric, int $i) => [
+                'at' => $metric->collected_at->toIso8601String(),
+                'queries_per_second' => $metric->queries_per_second !== null ? (float) $metric->queries_per_second : null,
+                'threads_connected' => $metric->threads_connected,
+                'threads_running' => $metric->threads_running,
+                'bytes_received_per_second' => $this->rate($points[$i - 1] ?? null, $metric, 'bytes_received_total'),
+                'bytes_sent_per_second' => $this->rate($points[$i - 1] ?? null, $metric, 'bytes_sent_total'),
+                'selects_per_second' => $this->rate($points[$i - 1] ?? null, $metric, 'com_select_total'),
+                'inserts_per_second' => $this->rate($points[$i - 1] ?? null, $metric, 'com_insert_total'),
+                'updates_per_second' => $this->rate($points[$i - 1] ?? null, $metric, 'com_update_total'),
+                'deletes_per_second' => $this->rate($points[$i - 1] ?? null, $metric, 'com_delete_total'),
+                'replica_lag_seconds' => $metric->replica_lag_seconds,
+            ]),
             'errors' => $server->errors()->where('occurred_at', '>=', now()->subDays(7))->latest('occurred_at')->limit(10)->get()
                 ->map(fn (ServerError $error) => [
                     'id' => $error->id,
@@ -89,6 +104,21 @@ class DatabaseController extends Controller
                 ]),
             'generated_at' => now()->toIso8601String(),
         ]);
+    }
+
+    /**
+     * Average growth per second of a counter between two readings. A restart of the server
+     * resets the counters, so there is no value then.
+     */
+    private function rate(?DatabaseMetric $previous, DatabaseMetric $current, string $counter): ?float
+    {
+        if ($previous === null || $current->{$counter} < $previous->{$counter}) {
+            return null;
+        }
+
+        $seconds = $previous->collected_at->diffInSeconds($current->collected_at, true);
+
+        return $seconds > 0 ? round(($current->{$counter} - $previous->{$counter}) / $seconds, 2) : null;
     }
 
     /**
@@ -112,8 +142,13 @@ class DatabaseController extends Controller
             'slow_queries_total' => $metric->slow_queries_total,
             'aborted_connects_total' => $metric->aborted_connects_total,
             'buffer_pool_size' => $metric->buffer_pool_size,
-            'data_bytes' => $metric->data_bytes,
-            'databases_count' => $metric->databases_count,
+            'replication' => $metric->replica_io_running === null ? null : [
+                'source' => $metric->replica_source,
+                'io_running' => $metric->replica_io_running,
+                'sql_running' => $metric->replica_sql_running,
+                'lag_seconds' => $metric->replica_lag_seconds,
+                'error' => $metric->replica_error,
+            ],
         ];
     }
 }

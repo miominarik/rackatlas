@@ -5,7 +5,7 @@ import DatabaseController from '@/actions/App/Http/Controllers/DatabaseControlle
 import UsageBar from '@/components/dashboard/usage-bar';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
-import { formatBytes, formatUptime, timeAgo } from '@/lib/dashboard';
+import { formatUptime, timeAgo } from '@/lib/dashboard';
 import { cn } from '@/lib/utils';
 import { index as databasesIndex } from '@/routes/databases';
 import { index as teamsIndex } from '@/routes/teams';
@@ -155,17 +155,6 @@ export default function Databases({
                                                     {database.metric
                                                         .queries_per_second ??
                                                         '–'}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt className="text-xs text-muted-foreground">
-                                                    {t('Data size')}
-                                                </dt>
-                                                <dd className="font-mono">
-                                                    {formatBytes(
-                                                        database.metric
-                                                            .data_bytes,
-                                                    )}
                                                 </dd>
                                             </div>
                                             <div>
