@@ -2,13 +2,20 @@ import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import {
     Bell,
+    ChevronsUpDown,
     MonitorSmartphone,
     ShieldCheck,
     User,
     Users,
 } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetTitle,
+} from '@/components/ui/sheet';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn, toUrl } from '@/lib/utils';
@@ -74,19 +81,10 @@ const items = groups.flatMap((group) => group.items);
 export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const { t } = useTranslation();
-    const tabs = useRef<HTMLElement>(null);
+    const [picking, setPicking] = useState(false);
 
     const current =
         items.find((item) => isCurrentOrParentUrl(item.href)) ?? items[0];
-
-    // On a phone the tab bar scrolls sideways, keep the open page in view.
-    useEffect(() => {
-        const active = tabs.current?.querySelector<HTMLElement>(
-            '[aria-current="page"]',
-        );
-
-        active?.scrollIntoView({ inline: 'center', block: 'nearest' });
-    }, [current.title]);
 
     return (
         <div className="mx-auto w-full max-w-[100rem] p-4 md:p-6">
@@ -97,12 +95,101 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 </p>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10">
-                {/* Phones: one row of tabs that stays below the top bar while scrolling. */}
+            <div className="grid gap-4 lg:gap-6">
+                {/* Phones: the open section as a button that lists all the sections in a sheet. */}
+                <div className="lg:hidden">
+                    <button
+                        type="button"
+                        onClick={() => setPicking(true)}
+                        aria-haspopup="dialog"
+                        data-test="settings-section-picker"
+                        className="flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left active:bg-muted"
+                    >
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <current.icon className="size-5" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                            <span className="block font-medium">
+                                {t(current.title)}
+                            </span>
+                            <span className="block text-xs text-muted-foreground">
+                                {t(current.description)}
+                            </span>
+                        </span>
+                        <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+                    </button>
+
+                    <Sheet open={picking} onOpenChange={setPicking}>
+                        <SheetContent
+                            side="bottom"
+                            className="max-h-[80svh] gap-0 overflow-y-auto rounded-t-2xl pb-[env(safe-area-inset-bottom)]"
+                        >
+                            <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted" />
+                            <SheetTitle className="px-5 pt-3 pb-1 text-base">
+                                {t('Settings')}
+                            </SheetTitle>
+                            <SheetDescription className="sr-only">
+                                {t('Manage your profile and account settings')}
+                            </SheetDescription>
+                            <nav
+                                aria-label={t('Settings')}
+                                className="space-y-4 p-4"
+                            >
+                                {groups.map((group) => (
+                                    <div
+                                        key={group.title}
+                                        className="space-y-1"
+                                    >
+                                        <p className="px-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                            {t(group.title)}
+                                        </p>
+                                        {group.items.map((item) => {
+                                            const active = item === current;
+
+                                            return (
+                                                <Link
+                                                    key={toUrl(item.href)}
+                                                    href={item.href}
+                                                    onClick={() =>
+                                                        setPicking(false)
+                                                    }
+                                                    aria-current={
+                                                        active
+                                                            ? 'page'
+                                                            : undefined
+                                                    }
+                                                    className={cn(
+                                                        'flex items-center gap-3 rounded-xl p-2.5 active:bg-muted',
+                                                        active && 'bg-muted',
+                                                    )}
+                                                >
+                                                    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                                        <item.icon className="size-5" />
+                                                    </span>
+                                                    <span className="min-w-0">
+                                                        <span className="block text-sm font-medium">
+                                                            {t(item.title)}
+                                                        </span>
+                                                        <span className="block text-xs text-muted-foreground">
+                                                            {t(
+                                                                item.description,
+                                                            )}
+                                                        </span>
+                                                    </span>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                ))}
+                            </nav>
+                        </SheetContent>
+                    </Sheet>
+                </div>
+
+                {/* Computers: tabs under the heading. */}
                 <nav
-                    ref={tabs}
                     aria-label={t('Settings')}
-                    className="sticky top-14 z-10 -mx-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto border-b bg-background/95 px-4 py-2 backdrop-blur md:-mx-6 md:px-6 lg:hidden [&::-webkit-scrollbar]:hidden"
+                    className="hidden gap-1 border-b lg:flex"
                 >
                     {items.map((item) => {
                         const active = item === current;
@@ -113,81 +200,25 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                 href={item.href}
                                 aria-current={active ? 'page' : undefined}
                                 className={cn(
-                                    'flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-sm transition-colors',
+                                    '-mb-px flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm transition-colors',
                                     active
-                                        ? 'bg-primary/10 font-medium text-primary'
-                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                                        ? 'border-primary font-medium text-foreground'
+                                        : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground',
                                 )}
                             >
-                                <item.icon className="size-4" />
+                                <item.icon
+                                    className={cn(
+                                        'size-4',
+                                        active && 'text-primary',
+                                    )}
+                                />
                                 {t(item.title)}
                             </Link>
                         );
                     })}
                 </nav>
 
-                {/* Computers: grouped list at the left. */}
-                <aside className="hidden lg:block">
-                    <nav
-                        aria-label={t('Settings')}
-                        className="sticky top-24 space-y-6"
-                    >
-                        {groups.map((group) => (
-                            <div key={group.title} className="space-y-1">
-                                <p className="px-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                                    {t(group.title)}
-                                </p>
-                                {group.items.map((item) => {
-                                    const active = item === current;
-
-                                    return (
-                                        <Link
-                                            key={toUrl(item.href)}
-                                            href={item.href}
-                                            aria-current={
-                                                active ? 'page' : undefined
-                                            }
-                                            className={cn(
-                                                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                                                active
-                                                    ? 'bg-muted font-medium text-foreground'
-                                                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-                                            )}
-                                        >
-                                            <item.icon
-                                                className={cn(
-                                                    'size-4',
-                                                    active && 'text-primary',
-                                                )}
-                                            />
-                                            {t(item.title)}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        ))}
-                    </nav>
-                </aside>
-
-                <div className="max-w-4xl min-w-0 space-y-4 lg:space-y-6">
-                    <p className="text-sm text-muted-foreground lg:hidden">
-                        {t(current.description)}
-                    </p>
-
-                    <div className="hidden items-center gap-3 lg:flex">
-                        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                            <current.icon className="size-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-semibold tracking-tight">
-                                {t(current.title)}
-                            </h2>
-                            <p className="text-sm text-muted-foreground">
-                                {t(current.description)}
-                            </p>
-                        </div>
-                    </div>
-
+                <div className="min-w-0 space-y-4 lg:space-y-0 lg:divide-y">
                     {children}
                 </div>
             </div>

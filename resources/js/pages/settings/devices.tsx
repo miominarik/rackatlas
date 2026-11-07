@@ -1,5 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import {
+    Bell,
     Check,
     LogOut,
     Pencil,
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
 import { timeAgo } from '@/lib/dashboard';
+import { cn } from '@/lib/utils';
 import { index } from '@/routes/devices';
 
 type Device = {
@@ -34,7 +36,16 @@ type Device = {
 
 const icons = { mobile: Smartphone, tablet: Tablet, desktop: Laptop } as const;
 
-function DeviceRow({
+function Detail({ label, children }: { label: string; children: string }) {
+    return (
+        <div className="flex justify-between gap-4">
+            <dt className="shrink-0 text-muted-foreground">{label}</dt>
+            <dd className="min-w-0 truncate text-right">{children}</dd>
+        </div>
+    );
+}
+
+function DeviceCard({
     device,
     generatedAt,
 }: {
@@ -57,112 +68,127 @@ function DeviceRow({
         );
     };
 
+    const signOut = () => {
+        if (window.confirm(t('Sign out :device?', { device: device.label }))) {
+            router.delete(DeviceController.destroy.url(device.id), {
+                preserveScroll: true,
+            });
+        }
+    };
+
     return (
-        <li className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:px-6">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                <Icon className="size-5 text-muted-foreground" />
+        <li
+            className={cn(
+                'flex flex-col gap-4 rounded-xl border bg-card p-4',
+                device.is_current && 'border-primary/40 bg-primary/[0.03]',
+            )}
+        >
+            <div className="flex items-start gap-3">
+                <div
+                    className={cn(
+                        'flex size-11 shrink-0 items-center justify-center rounded-xl',
+                        device.is_current
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-muted text-muted-foreground',
+                    )}
+                >
+                    <Icon className="size-5" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                    {editing ? (
+                        <form
+                            className="flex items-center gap-2"
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                save();
+                            }}
+                        >
+                            <Input
+                                value={name}
+                                onChange={(event) =>
+                                    setName(event.target.value)
+                                }
+                                placeholder={detail || t('Name of the device')}
+                                maxLength={100}
+                                autoFocus
+                                aria-label={t('Name of the device')}
+                            />
+                            <Button
+                                type="submit"
+                                size="icon"
+                                aria-label={t('Save')}
+                            >
+                                <Check className="size-4" />
+                            </Button>
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => setEditing(false)}
+                                aria-label={t('Cancel')}
+                            >
+                                <X className="size-4" />
+                            </Button>
+                        </form>
+                    ) : (
+                        <>
+                            <p className="truncate font-medium">
+                                {device.label}
+                            </p>
+                            <div className="mt-1 flex flex-wrap gap-1.5">
+                                {device.is_current && (
+                                    <Badge variant="secondary">
+                                        {t('This device')}
+                                    </Badge>
+                                )}
+                                {device.has_push && (
+                                    <Badge variant="outline">
+                                        <Bell className="size-3" />
+                                        {t('Notifications')}
+                                    </Badge>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
 
-            <div className="min-w-0 flex-1 basis-48">
-                {editing ? (
-                    <form
-                        className="flex items-center gap-2"
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            save();
-                        }}
-                    >
-                        <Input
-                            value={name}
-                            onChange={(event) => setName(event.target.value)}
-                            placeholder={detail || t('Name of the device')}
-                            maxLength={100}
-                            aria-label={t('Name of the device')}
-                        />
-                        <Button
-                            type="submit"
-                            size="icon"
-                            aria-label={t('Save')}
-                        >
-                            <Check className="size-4" />
-                        </Button>
-                        <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setEditing(false)}
-                            aria-label={t('Cancel')}
-                        >
-                            <X className="size-4" />
-                        </Button>
-                    </form>
-                ) : (
-                    <>
-                        <p className="flex flex-wrap items-center gap-2 font-medium">
-                            <span className="truncate">{device.label}</span>
-                            {device.is_current && (
-                                <Badge variant="secondary">
-                                    {t('This device')}
-                                </Badge>
-                            )}
-                        </p>
-                        <p className="truncate text-sm text-muted-foreground">
-                            {device.name ? `${detail} · ` : ''}
-                            {device.is_current
-                                ? t('Active now')
-                                : device.last_active_at
-                                  ? t('Active :time', {
-                                        time: timeAgo(
-                                            device.last_active_at,
-                                            generatedAt,
-                                            locale,
-                                        ),
-                                    })
-                                  : t('Never active')}
-                            {device.ip_address ? ` · ${device.ip_address}` : ''}
-                        </p>
-                        {device.created_at && (
-                            <p className="text-xs text-muted-foreground/80">
-                                {t('Signed in :date', {
-                                    date: new Date(
-                                        device.created_at,
-                                    ).toLocaleDateString(locale),
-                                })}
-                            </p>
-                        )}
-                    </>
+            <dl className="space-y-1.5 border-t pt-3 text-sm">
+                {detail && <Detail label={t('Browser')}>{detail}</Detail>}
+                <Detail label={t('Last active')}>
+                    {device.is_current
+                        ? t('Active now')
+                        : device.last_active_at
+                          ? timeAgo(device.last_active_at, generatedAt, locale)
+                          : t('Never active')}
+                </Detail>
+                {device.ip_address && (
+                    <Detail label={t('IP address')}>{device.ip_address}</Detail>
                 )}
-            </div>
+                {device.created_at && (
+                    <Detail label={t('Signed in')}>
+                        {new Date(device.created_at).toLocaleDateString(locale)}
+                    </Detail>
+                )}
+            </dl>
 
             {!editing && (
-                <div className="flex items-center gap-1">
+                <div className="mt-auto flex gap-2">
                     <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-10 md:size-9"
+                        variant="outline"
+                        size="sm"
                         onClick={() => setEditing(true)}
-                        aria-label={t('Rename')}
                     >
                         <Pencil className="size-4" />
+                        {t('Rename')}
                     </Button>
                     {!device.is_current && (
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                                if (
-                                    window.confirm(
-                                        t('Sign out :device?', {
-                                            device: device.label,
-                                        }),
-                                    )
-                                ) {
-                                    router.delete(
-                                        DeviceController.destroy.url(device.id),
-                                        { preserveScroll: true },
-                                    );
-                                }
-                            }}
+                            className="text-destructive hover:text-destructive"
+                            onClick={signOut}
                         >
                             <LogOut className="size-4" />
                             {t('Sign out')}
@@ -182,20 +208,37 @@ export default function Devices({
     generated_at: string;
 }) {
     const { t } = useTranslation();
-    const others = devices.filter((device) => !device.is_current).length;
+    const current = devices.filter((device) => device.is_current);
+    const others = devices.filter((device) => !device.is_current);
 
     return (
         <>
             <Head title={t('Devices')} />
 
+            {current.length > 0 && (
+                <SettingsSection
+                    title={t('This device')}
+                    description={t(
+                        'A device is added here when you sign in on it. Each device has its own dashboard layout.',
+                    )}
+                >
+                    <ul className="grid gap-4 xl:grid-cols-2">
+                        {current.map((device) => (
+                            <DeviceCard
+                                key={device.id}
+                                device={device}
+                                generatedAt={generated_at}
+                            />
+                        ))}
+                    </ul>
+                </SettingsSection>
+            )}
+
             <SettingsSection
-                flush
-                title={t('Your devices')}
-                description={t(
-                    'A device is added here when you sign in on it. Each device has its own dashboard layout.',
-                )}
+                title={t('Other devices')}
+                description={t('Where else you are signed in.')}
                 action={
-                    others > 0 && (
+                    others.length > 0 && (
                         <Button
                             variant="outline"
                             size="sm"
@@ -219,14 +262,16 @@ export default function Devices({
                     )
                 }
             >
-                {devices.length === 0 ? (
-                    <p className="p-6 text-center text-sm text-muted-foreground">
-                        {t('No devices yet.')}
+                {others.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-muted-foreground">
+                        {devices.length === 0
+                            ? t('No devices yet.')
+                            : t('You are not signed in anywhere else.')}
                     </p>
                 ) : (
-                    <ul className="divide-y">
-                        {devices.map((device) => (
-                            <DeviceRow
+                    <ul className="grid gap-4 xl:grid-cols-2">
+                        {others.map((device) => (
+                            <DeviceCard
                                 key={device.id}
                                 device={device}
                                 generatedAt={generated_at}

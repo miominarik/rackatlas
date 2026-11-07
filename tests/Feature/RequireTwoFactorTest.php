@@ -14,8 +14,19 @@ class RequireTwoFactorTest extends TestCase
     {
         $user = User::factory()->create(['two_factor_required' => true]);
 
-        $this->actingAs($user)->get(route('dashboard'))->assertRedirect(route('security.edit'));
-        $this->actingAs($user)->get(route('servers.index'))->assertRedirect(route('security.edit'));
+        $this->actingAs($user)->get(route('dashboard'))->assertRedirect(route('two-factor.required'));
+        $this->actingAs($user)->get(route('servers.index'))->assertRedirect(route('two-factor.required'));
+    }
+
+    public function test_the_required_screen_explains_and_is_skipped_once_it_is_on(): void
+    {
+        $user = User::factory()->create(['two_factor_required' => true]);
+
+        $this->actingAs($user)->get(route('two-factor.required'))->assertOk()
+            ->assertInertia(fn ($page) => $page->component('auth/two-factor-required'));
+
+        $this->actingAs(User::factory()->withTwoFactor()->create(['two_factor_required' => true]))
+            ->get(route('two-factor.required'))->assertRedirect(route('dashboard'));
     }
 
     public function test_the_setup_pages_stay_open(): void

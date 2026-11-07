@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -15,7 +14,6 @@ class RequireTwoFactor
 {
     /** Everything needed to set it up, and to leave. */
     private const SETUP_ROUTES = [
-        'security.edit',
         'two-factor.*',
         'password.confirm*',
         'password.confirmation',
@@ -44,8 +42,6 @@ class RequireTwoFactor
             abort(423, __('Turn on two-factor authentication first.'));
         }
 
-        Inertia::flash('toast', ['type' => 'error', 'message' => __('Turn on two-factor authentication to continue.')]);
-
-        return redirect()->route('security.edit');
+        return redirect()->route('two-factor.required');
     }
 }

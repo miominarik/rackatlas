@@ -136,7 +136,7 @@ export function PermissionEditor({
                     return (
                         <li
                             key={item.key}
-                            className="flex items-center gap-4 px-4 py-3"
+                            className="flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4"
                         >
                             <div className="min-w-0 flex-1">
                                 <p className="text-sm font-medium">
@@ -166,7 +166,7 @@ export function PermissionEditor({
                                         set(item.key, next as PermissionLevel)
                                     }
                                 >
-                                    <SelectTrigger className="w-40">
+                                    <SelectTrigger className="w-32 shrink-0 sm:w-40">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>

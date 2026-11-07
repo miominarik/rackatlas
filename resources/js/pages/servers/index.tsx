@@ -71,7 +71,7 @@ function ServerRow({
     }[server.status];
 
     return (
-        <li className="flex items-center gap-4 rounded-xl border bg-card p-4">
+        <li className="flex items-center gap-3 rounded-xl border bg-card p-3 sm:gap-4 sm:p-4">
             <div className="relative flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
                 <Icon className="size-5 text-muted-foreground" />
                 <span
@@ -164,7 +164,7 @@ function ServerRow({
                 )}
             </span>
             {canManage && (
-                <div className="flex gap-1">
+                <div className="flex shrink-0 flex-col sm:flex-row sm:gap-1">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -263,7 +263,7 @@ export default function Servers({
 
             <div className="mx-auto w-full max-w-[100rem] space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                         <h1 className="text-2xl font-semibold">
                             {t('Servers')}
                         </h1>
@@ -274,7 +274,7 @@ export default function Servers({
                         </p>
                     </div>
                     {canManage && (
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <CategoryManager
                                 categories={categories}
                                 colors={colors}

@@ -1222,5 +1222,18 @@
     "Turn on two-factor authentication first.": "Nejprve zapněte dvoufázové ověření.",
     "Turn on two-factor authentication to continue.": "Pro pokračování zapněte dvoufázové ověření.",
     "Two-factor authentication is required": "Dvoufázové ověření je povinné",
-    "An administrator made it mandatory for your account. Turn it on below to continue using the application.": "Administrátor ho pro váš účet nastavil jako povinné. Zapněte ho níže a budete moci pokračovat v používání aplikace."
+    "An administrator made it mandatory for your account. Turn it on below to continue using the application.": "Administrátor ho pro váš účet nastavil jako povinné. Zapněte ho níže a budete moci pokračovat v používání aplikace.",
+    "An administrator made two-factor authentication mandatory for your account. Until you turn it on, the rest of the app is locked.": "Administrátor ti zapnul povinné dvoufázové ověření. Dokud ho nezapneš, zbytek aplikace je zamčený.",
+    "Set it up now, it takes a minute.": "Nastav ho hned, zabere to minutu.",
+    "More": "Více",
+    "Other sections of the app": "Další sekce aplikace",
+    "Confirm it is you": "Potvrď, že jsi to ty",
+    "Go back": "Zpět",
+    "On": "Zapnuto",
+    "Off": "Vypnuto",
+    "Other devices": "Ostatní zařízení",
+    "Where else you are signed in.": "Kde jinde jsi přihlášen.",
+    "You are not signed in anywhere else.": "Nikde jinde nejsi přihlášen.",
+    "Last active": "Poslední aktivita",
+    "IP address": "IP adresa"
 }

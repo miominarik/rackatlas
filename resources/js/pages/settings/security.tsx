@@ -1,5 +1,8 @@
 import { Form, Head, router } from '@inertiajs/react';
+import { KeyRound, ShieldCheck, ShieldAlert, Lock } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useRef } from 'react';
+import { cn } from '@/lib/utils';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
@@ -23,6 +26,39 @@ type Props = {
 } & ManagePasskeysProps &
     ManageTwoFactorProps;
 
+function Status({
+    icon: Icon,
+    label,
+    value,
+    good,
+}: {
+    icon: LucideIcon;
+    label: string;
+    value: string;
+    good: boolean;
+}) {
+    return (
+        <li className="flex items-center gap-3 rounded-xl border bg-card p-4">
+            <span
+                className={cn(
+                    'flex size-10 shrink-0 items-center justify-center rounded-lg',
+                    good
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                        : 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+                )}
+            >
+                <Icon className="size-5" />
+            </span>
+            <span className="min-w-0">
+                <span className="block text-xs text-muted-foreground">
+                    {label}
+                </span>
+                <span className="block truncate font-medium">{value}</span>
+            </span>
+        </li>
+    );
+}
+
 export default function Security(props: Props) {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
@@ -31,6 +67,61 @@ export default function Security(props: Props) {
     return (
         <>
             <Head title={t('Security settings')} />
+
+            <ul className="grid gap-3 pb-4 sm:grid-cols-3 lg:pb-8">
+                {props.canManageTwoFactor && (
+                    <Status
+                        icon={
+                            props.twoFactorEnabled ? ShieldCheck : ShieldAlert
+                        }
+                        label={t('Two-factor authentication')}
+                        value={
+                            props.twoFactorEnabled
+                                ? t('Enabled')
+                                : t('Disabled')
+                        }
+                        good={!!props.twoFactorEnabled}
+                    />
+                )}
+                {props.canManagePasskeys && (
+                    <Status
+                        icon={KeyRound}
+                        label={t('Passkeys')}
+                        value={String((props.passkeys ?? []).length)}
+                        good={(props.passkeys ?? []).length > 0}
+                    />
+                )}
+                <Status
+                    icon={Lock}
+                    label={t('Sign in with password')}
+                    value={props.passwordLoginEnabled ? t('On') : t('Off')}
+                    good
+                />
+            </ul>
+
+            {props.twoFactorRequired && !props.twoFactorEnabled && (
+                <Alert className="mb-4 lg:mb-8">
+                    <AlertTitle>
+                        {t('Two-factor authentication is required')}
+                    </AlertTitle>
+                    <AlertDescription>
+                        {t(
+                            'An administrator made it mandatory for your account. Turn it on below to continue using the application.',
+                        )}
+                    </AlertDescription>
+                </Alert>
+            )}
+
+            <ManageTwoFactor
+                canManageTwoFactor={props.canManageTwoFactor}
+                requiresConfirmation={props.requiresConfirmation}
+                twoFactorEnabled={props.twoFactorEnabled}
+            />
+
+            <ManagePasskeys
+                canManagePasskeys={props.canManagePasskeys}
+                passkeys={props.passkeys}
+            />
 
             <SettingsSection
                 title={t('Update password')}
@@ -62,24 +153,26 @@ export default function Security(props: Props) {
                 >
                     {({ errors, processing }) => (
                         <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="current_password">
-                                    {t('Current password')}
-                                </Label>
+                            <div className="grid gap-6 md:grid-cols-3">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="current_password">
+                                        {t('Current password')}
+                                    </Label>
 
-                                <PasswordInput
-                                    id="current_password"
-                                    ref={currentPasswordInput}
-                                    name="current_password"
-                                    className="mt-1 block w-full"
-                                    autoComplete="current-password"
-                                    placeholder={t('Current password')}
-                                />
+                                    <PasswordInput
+                                        id="current_password"
+                                        ref={currentPasswordInput}
+                                        name="current_password"
+                                        className="mt-1 block w-full"
+                                        autoComplete="current-password"
+                                        placeholder={t('Current password')}
+                                    />
 
-                                <InputError message={errors.current_password} />
-                            </div>
+                                    <InputError
+                                        message={errors.current_password}
+                                    />
+                                </div>
 
-                            <div className="grid gap-6 md:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="password">
                                         {t('New password')}
@@ -136,14 +229,18 @@ export default function Security(props: Props) {
                 description={t(
                     'Turn this off to sign in only with a passkey. Removing your last passkey turns it back on.',
                 )}
-                action={
+            >
+                <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor="password-login">
+                        {props.passwordLoginEnabled ? t('On') : t('Off')}
+                    </Label>
                     <Switch
+                        id="password-login"
                         checked={props.passwordLoginEnabled}
                         disabled={
                             props.passwordLoginEnabled &&
                             (props.passkeys ?? []).length === 0
                         }
-                        aria-label={t('Sign in with password')}
                         data-test="password-login-switch"
                         onCheckedChange={(enabled) =>
                             router.put(
@@ -153,8 +250,7 @@ export default function Security(props: Props) {
                             )
                         }
                     />
-                }
-            >
+                </div>
                 {props.passwordLoginEnabled &&
                 (props.passkeys ?? []).length === 0 ? (
                     <p className="text-sm text-muted-foreground">
@@ -164,30 +260,6 @@ export default function Security(props: Props) {
                     </p>
                 ) : null}
             </SettingsSection>
-
-            {props.twoFactorRequired && !props.twoFactorEnabled && (
-                <Alert>
-                    <AlertTitle>
-                        {t('Two-factor authentication is required')}
-                    </AlertTitle>
-                    <AlertDescription>
-                        {t(
-                            'An administrator made it mandatory for your account. Turn it on below to continue using the application.',
-                        )}
-                    </AlertDescription>
-                </Alert>
-            )}
-
-            <ManageTwoFactor
-                canManageTwoFactor={props.canManageTwoFactor}
-                requiresConfirmation={props.requiresConfirmation}
-                twoFactorEnabled={props.twoFactorEnabled}
-            />
-
-            <ManagePasskeys
-                canManagePasskeys={props.canManagePasskeys}
-                passkeys={props.passkeys}
-            />
         </>
     );
 }

@@ -265,7 +265,7 @@ export default function Logs({
                 <div className="flex flex-wrap items-center justify-between gap-4 lg:shrink-0">
                     <div
                         role="tablist"
-                        className="inline-flex rounded-lg bg-muted p-1"
+                        className="flex w-full rounded-lg bg-muted p-1 sm:inline-flex sm:w-auto"
                     >
                         {statuses.map((status) => (
                             <button
@@ -275,7 +275,7 @@ export default function Logs({
                                 aria-selected={filters.status === status.value}
                                 onClick={() => filter({ status: status.value })}
                                 className={cn(
-                                    'flex items-center gap-2 rounded-md px-3.5 py-1.5 text-sm transition-colors',
+                                    'flex flex-1 items-center justify-center gap-2 rounded-md px-3.5 py-1.5 text-sm transition-colors sm:flex-none',
                                     filters.status === status.value
                                         ? 'bg-card font-medium shadow-xs'
                                         : 'text-muted-foreground hover:text-foreground',
@@ -291,13 +291,13 @@ export default function Logs({
                         ))}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                         <Select
                             value={String(filters.server ?? ALL)}
                             onValueChange={(server) => filter({ server })}
                         >
                             <SelectTrigger
-                                className="w-44"
+                                className="w-full sm:w-44"
                                 aria-label={t('Server')}
                             >
                                 <SelectValue />
@@ -321,7 +321,7 @@ export default function Logs({
                             onValueChange={(level) => filter({ level })}
                         >
                             <SelectTrigger
-                                className="w-36"
+                                className="w-full sm:w-36"
                                 aria-label={t('Level')}
                             >
                                 <SelectValue />
@@ -387,7 +387,7 @@ export default function Logs({
                                                         : log.id,
                                                 )
                                             }
-                                            className="flex w-full items-start gap-4 p-5 text-left hover:bg-muted/40"
+                                            className="flex w-full items-start gap-3 p-4 text-left hover:bg-muted/40 sm:gap-4 sm:p-5"
                                         >
                                             <span
                                                 className={cn(
@@ -417,7 +417,7 @@ export default function Logs({
                                         </button>
 
                                         {log.id === selectedId && (
-                                            <div className="border-t p-5 lg:hidden">
+                                            <div className="border-t p-4 sm:p-5 lg:hidden">
                                                 <LogDetail
                                                     log={log}
                                                     generatedAt={generated_at}

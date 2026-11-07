@@ -1222,5 +1222,18 @@
     "Turn on two-factor authentication first.": "Najprv zapnite dvojfaktorové overenie.",
     "Turn on two-factor authentication to continue.": "Na pokračovanie zapnite dvojfaktorové overenie.",
     "Two-factor authentication is required": "Dvojfaktorové overenie je povinné",
-    "An administrator made it mandatory for your account. Turn it on below to continue using the application.": "Administrátor ho pre váš účet nastavil ako povinné. Zapnite ho nižšie a budete môcť pokračovať v používaní aplikácie."
+    "An administrator made it mandatory for your account. Turn it on below to continue using the application.": "Administrátor ho pre váš účet nastavil ako povinné. Zapnite ho nižšie a budete môcť pokračovať v používaní aplikácie.",
+    "An administrator made two-factor authentication mandatory for your account. Until you turn it on, the rest of the app is locked.": "Administrátor ti zapol povinné dvojfaktorové overenie. Kým ho nezapneš, zvyšok aplikácie je zamknutý.",
+    "Set it up now, it takes a minute.": "Nastav ho hneď, zaberie to minútu.",
+    "More": "Viac",
+    "Other sections of the app": "Ďalšie sekcie aplikácie",
+    "Confirm it is you": "Potvrď, že si to ty",
+    "Go back": "Späť",
+    "On": "Zapnuté",
+    "Off": "Vypnuté",
+    "Other devices": "Ostatné zariadenia",
+    "Where else you are signed in.": "Kde ešte si prihlásený.",
+    "You are not signed in anywhere else.": "Nikde inde nie si prihlásený.",
+    "Last active": "Posledná aktivita",
+    "IP address": "IP adresa"
 }

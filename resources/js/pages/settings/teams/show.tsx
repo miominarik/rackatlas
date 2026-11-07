@@ -219,8 +219,8 @@ export default function ShowTeam({
 
                         return (
                             <li key={member.id}>
-                                <div className="flex items-center gap-4 p-4">
-                                    <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4">
+                                    <div className="min-w-0 basis-full sm:flex-1 sm:basis-0">
                                         <p className="truncate font-medium">
                                             {member.name}
                                             {isSelf && (

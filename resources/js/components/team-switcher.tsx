@@ -90,7 +90,7 @@ export function TeamSwitcher() {
                 <Button
                     variant="outline"
                     size="sm"
-                    className="max-w-32 gap-2 sm:max-w-56"
+                    className="max-w-[60vw] gap-2 sm:max-w-96"
                     data-test="team-switcher"
                 >
                     <Users className="size-4 shrink-0" />
@@ -100,7 +100,7 @@ export function TeamSwitcher() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
                 align="end"
-                className="w-60 max-w-[calc(100vw-2rem)]"
+                className="w-72 max-w-[calc(100vw-2rem)]"
             >
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
                     {t('Teams')}
@@ -109,11 +109,11 @@ export function TeamSwitcher() {
                     <DropdownMenuItem
                         key={team.id}
                         onSelect={() => switchTeam(team)}
-                        className="gap-2"
+                        className="items-start gap-2"
                     >
-                        <span className="flex-1 truncate">{team.name}</span>
+                        <span className="flex-1 break-words">{team.name}</span>
                         {team.id === currentTeam?.id && (
-                            <Check className="size-4" />
+                            <Check className="mt-0.5 size-4 shrink-0" />
                         )}
                     </DropdownMenuItem>
                 ))}

@@ -30,6 +30,7 @@ export function SettingsSection({
         <section
             className={cn(
                 'overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs',
+                'lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-10 lg:overflow-visible lg:rounded-none lg:border-0 lg:bg-transparent lg:py-8 lg:shadow-none lg:first:pt-0',
                 danger && 'border-red-200 dark:border-red-500/25',
                 className,
             )}
@@ -37,8 +38,9 @@ export function SettingsSection({
             <header
                 className={cn(
                     'flex flex-wrap items-start justify-between gap-3 border-b px-4 py-4 sm:px-6',
+                    'lg:sticky lg:top-24 lg:flex-col lg:justify-start lg:border-b-0 lg:p-0',
                     danger &&
-                        'border-red-200 bg-red-50/60 dark:border-red-500/25 dark:bg-red-500/[0.06]',
+                        'border-red-200 bg-red-50/60 lg:bg-transparent dark:border-red-500/25 dark:bg-red-500/[0.06] dark:lg:bg-transparent',
                 )}
             >
                 <div className="min-w-0 space-y-1">
@@ -58,7 +60,13 @@ export function SettingsSection({
                 </div>
                 {action}
             </header>
-            <div className={cn(!flush && 'space-y-6 px-4 py-5 sm:px-6')}>
+            <div
+                className={cn(
+                    !flush && 'space-y-6 px-4 py-5 sm:px-6',
+                    'lg:overflow-hidden lg:rounded-xl lg:border lg:bg-card lg:shadow-xs',
+                    danger && 'lg:border-red-200 dark:lg:border-red-500/25',
+                )}
+            >
                 {children}
             </div>
         </section>

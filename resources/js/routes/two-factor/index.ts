@@ -558,6 +558,87 @@ regenerateRecoveryCodesForm.post = (options?: RouteQueryOptions): RouteFormDefin
 
 regenerateRecoveryCodes.form = regenerateRecoveryCodesForm
 
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::required
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+export const required = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: required.url(options),
+    method: 'get',
+})
+
+required.definition = {
+    methods: ["get","head"],
+    url: '/app/two-factor-required',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::required
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+required.url = (options?: RouteQueryOptions) => {
+    return required.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::required
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+required.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: required.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::required
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+required.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: required.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::required
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+const requiredForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: required.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::required
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+requiredForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: required.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::required
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+requiredForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: required.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+required.form = requiredForm
+
 const twoFactor = {
     login: Object.assign(login, loginDf2c2a),
     enable: Object.assign(enable, enable),
@@ -567,6 +648,7 @@ const twoFactor = {
     secretKey: Object.assign(secretKey, secretKey),
     recoveryCodes: Object.assign(recoveryCodes, recoveryCodes),
     regenerateRecoveryCodes: Object.assign(regenerateRecoveryCodes, regenerateRecoveryCodes),
+    required: Object.assign(required, required),
 }
 
 export default twoFactor
