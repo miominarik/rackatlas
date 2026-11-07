@@ -874,12 +874,6 @@ export default function Welcome({ canRegister, faq }: Props) {
                                 ),
                             ],
                             [
-                                t('Sign-in approved on your phone'),
-                                t(
-                                    'Confirm a new sign-in with one tap on a push notification. A code is only the fallback.',
-                                ),
-                            ],
-                            [
                                 t('Passkeys and two-factor'),
                                 t(
                                     'Sign in with a passkey or an authenticator app and keep your account safe.',

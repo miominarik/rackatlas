@@ -36,7 +36,7 @@ class DatabaseProcessController extends Controller
             $mysql->killQuery($server, $process);
         } catch (Throwable $e) {
             $message = str_contains($e->getMessage(), '1095')
-                ? __('The MySQL user :user may not kill queries of other users. Grant it CONNECTION_ADMIN (or SUPER).', ['user' => $server->username])
+                ? __('The MySQL user :user may not kill this query. It needs CONNECTION_ADMIN, and for queries of administrator accounts such as root also SYSTEM_USER.', ['user' => $server->username])
                 : __('Could not kill the query.').' '.mb_substr($e->getMessage(), 0, 300);
 
             return response()->json(['success' => false, 'message' => $message]);

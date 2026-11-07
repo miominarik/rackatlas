@@ -45,9 +45,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:10,1')
         ->name('devices.destroy-others');
     Route::patch('app/settings/devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
-    Route::patch('app/settings/devices/{device}/login-approval', [DeviceController::class, 'updateLoginApproval'])
-        ->middleware([RequirePassword::class, 'throttle:10,1'])
-        ->name('devices.login-approval.update');
     Route::delete('app/settings/devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
 
     Route::get('app/settings/notifications', [NotificationController::class, 'edit'])->name('notifications.edit');

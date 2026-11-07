@@ -1,5 +1,4 @@
 import { useDocumentLocale } from '@/hooks/use-translation';
-import { LoginApprovalDialog } from '@/components/login-approval-dialog';
 import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -15,7 +14,6 @@ export default function AppLayout({
     return (
         <AppLayoutTemplate breadcrumbs={breadcrumbs}>
             {children}
-            <LoginApprovalDialog />
         </AppLayoutTemplate>
     );
 }

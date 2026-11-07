@@ -8,7 +8,6 @@ use App\Models\UserDevice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,10 +35,8 @@ class DeviceController extends Controller
                     'last_active_at' => $device->last_active_at?->toIso8601String(),
                     'created_at' => $device->created_at?->toIso8601String(),
                     'is_current' => $current?->id === $device->id,
-                    'approves_logins' => $device->approves_logins,
                     'has_push' => $device->push_subscriptions_count > 0,
                 ])->values(),
-            'twoFactorEnabled' => $request->user()->hasEnabledTwoFactorAuthentication(),
             'generated_at' => now()->toIso8601String(),
         ]);
     }
@@ -55,43 +52,6 @@ class DeviceController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Device renamed.')]);
 
         return back();
-    }
-
-    /**
-     * Let the device approve the sign-ins of the account, or stop it. Only the device in the hand can
-     * be switched on (it needs push notifications), any device can be switched off.
-     */
-    public function updateLoginApproval(Request $request, UserDevice $device): RedirectResponse
-    {
-        $this->authorizeDevice($request, $device);
-
-        $enabled = $request->validate(['enabled' => ['required', 'boolean']])['enabled'];
-
-        if ($enabled) {
-            $this->ensureCanApprove($request, $device);
-        }
-
-        $device->forceFill(['approves_logins' => $enabled])->save();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => $enabled
-            ? __('This device now approves sign-ins.')
-            : __('This device no longer approves sign-ins.')]);
-
-        return back();
-    }
-
-    private function ensureCanApprove(Request $request, UserDevice $device): void
-    {
-        $problem = match (true) {
-            TrackDevice::current($request)?->id !== $device->id => __('Turn this on from the device itself.'),
-            ! $request->user()->hasEnabledTwoFactorAuthentication() => __('Turn on two-factor authentication first, it is the way in when this device is lost.'),
-            ! $device->pushSubscriptions()->exists() => __('Turn on push notifications on this device first.'),
-            default => null,
-        };
-
-        if ($problem !== null) {
-            throw ValidationException::withMessages(['enabled' => $problem]);
-        }
     }
 
     /**
