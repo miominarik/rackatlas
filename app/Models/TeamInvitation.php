@@ -14,11 +14,12 @@ use Illuminate\Support\Str;
  * @property int $team_id
  * @property string $email
  * @property TeamRole $role
+ * @property array<string, string>|null $permissions
  * @property string $token SHA-256 hash of the token in the invitation link
  * @property int $invited_by
  * @property Carbon $expires_at
  */
-#[Fillable(['team_id', 'email', 'role', 'token', 'invited_by', 'expires_at'])]
+#[Fillable(['team_id', 'email', 'role', 'permissions', 'token', 'invited_by', 'expires_at'])]
 class TeamInvitation extends Model
 {
     public const VALID_DAYS = 7;
@@ -27,6 +28,7 @@ class TeamInvitation extends Model
     {
         return [
             'role' => TeamRole::class,
+            'permissions' => 'array',
             'expires_at' => 'datetime',
         ];
     }

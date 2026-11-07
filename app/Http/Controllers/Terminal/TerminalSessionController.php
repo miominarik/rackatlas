@@ -28,7 +28,7 @@ class TerminalSessionController extends Controller
         $server = $team?->machines()->find($data['server_id']);
 
         abort_if($server === null, 404);
-        $this->authorize('manage', $team);
+        $this->authorize('permit', [$team, 'terminal.edit']);
 
         if (! $server->canOpenTerminal()) {
             return response()->json(['message' => __('This server reports through the agent and has no SSH access.')], 422);

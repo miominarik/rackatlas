@@ -17,7 +17,7 @@ class BackupController extends Controller
 
         return Inertia::render('backups/index', [
             'team' => $team?->only('id', 'name'),
-            'canManage' => $team !== null && $request->user()->can('manage', $team),
+            'canManage' => $team !== null && $request->user()->can('permit', [$team, 'backups.edit']),
             'servers' => $team ? $team->servers()->orderBy('name')->get(['id', 'name']) : [],
             'backups' => $team
                 ? $team->backups()->with('server:id,name')->orderBy('name')->get()
@@ -53,7 +53,7 @@ class BackupController extends Controller
 
     public function regenerate(Backup $backup): RedirectResponse
     {
-        $this->authorize('manage', $backup->team);
+        $this->authorize('permit', [$backup->team, 'backups.edit']);
 
         $backup->forceFill(['token' => Backup::newToken()])->save();
 
@@ -64,7 +64,7 @@ class BackupController extends Controller
 
     public function destroy(Backup $backup): RedirectResponse
     {
-        $this->authorize('manage', $backup->team);
+        $this->authorize('permit', [$backup->team, 'backups.edit']);
 
         $backup->delete();
 

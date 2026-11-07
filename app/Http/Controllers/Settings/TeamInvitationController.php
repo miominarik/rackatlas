@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Enums\TeamPermission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\Teams\StoreTeamInvitationRequest;
 use App\Mail\TeamInvitationMail;
@@ -24,7 +25,8 @@ class TeamInvitationController extends Controller
         $token = TeamInvitation::newToken();
 
         $invitation = $team->invitations()->create([
-            ...$request->validated(),
+            ...$request->safe()->except('permissions'),
+            'permissions' => TeamPermission::sanitize($request->validated('permissions')),
             'email' => Str::lower($request->validated('email')),
             'token' => TeamInvitation::hashToken($token),
             'invited_by' => $request->user()->id,

@@ -39,6 +39,7 @@ class SecurityController extends Controller
                     ->values()
                     ->all()
                 : [],
+            'twoFactorRequired' => $request->user()->two_factor_required,
             'passwordLoginEnabled' => $request->user()->password_login_enabled,
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
         ];

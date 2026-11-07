@@ -11,7 +11,7 @@ class BackupRequest extends FormRequest
     {
         $team = $this->route('backup')?->team ?? $this->user()->currentTeam();
 
-        return $team !== null && $this->user()->can('manage', $team);
+        return $team !== null && $this->user()->can('permit', [$team, 'backups.edit']);
     }
 
     /**

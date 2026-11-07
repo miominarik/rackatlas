@@ -104,6 +104,7 @@ class LogController extends Controller
         $team = $request->user()->currentTeam();
 
         abort_if($team === null, 404);
+        $this->authorize('permit', [$team, 'logs.edit']);
 
         $filters = $request->validate([
             'server' => ['nullable', 'integer'],
@@ -124,6 +125,6 @@ class LogController extends Controller
 
     private function authorizeLog(Request $request, ServerLog $log): void
     {
-        Gate::forUser($request->user())->authorize('view', $log->server->team);
+        Gate::forUser($request->user())->authorize('permit', [$log->server->team, 'logs.edit']);
     }
 }

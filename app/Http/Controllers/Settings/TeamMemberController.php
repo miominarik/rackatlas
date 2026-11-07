@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\Teams\UpdateTeamMemberRequest;
@@ -14,16 +15,26 @@ use Inertia\Inertia;
 class TeamMemberController extends Controller
 {
     /**
-     * Change the role of a team member.
+     * Change the role or the permissions of a team member.
      */
     public function update(UpdateTeamMemberRequest $request, Team $team, User $member): RedirectResponse
     {
         $this->authorize('manage', $team);
         $this->ensureEditableMember($team, $member);
 
-        $team->members()->updateExistingPivot($member->id, ['role' => $request->validated('role')]);
+        $changes = [];
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Role updated.')]);
+        if ($request->has('role')) {
+            $changes['role'] = $request->validated('role');
+        }
+
+        if ($request->has('permissions')) {
+            $changes['permissions'] = json_encode(TeamPermission::sanitize($request->validated('permissions')));
+        }
+
+        $team->members()->updateExistingPivot($member->id, $changes);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $request->has('permissions') ? __('Permissions updated.') : __('Role updated.')]);
 
         return to_route('teams.show', $team);
     }

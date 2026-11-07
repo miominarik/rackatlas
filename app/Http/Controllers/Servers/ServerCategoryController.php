@@ -30,7 +30,7 @@ class ServerCategoryController extends Controller
 
     public function destroy(ServerCategory $serverCategory): RedirectResponse
     {
-        $this->authorize('manage', $serverCategory->team);
+        $this->authorize('permit', [$serverCategory->team, 'servers.edit']);
 
         $serverCategory->delete();
 

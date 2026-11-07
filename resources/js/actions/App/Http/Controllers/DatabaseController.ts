@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:52
+* @see app/Http/Controllers/DatabaseController.php:53
 * @route '/app/databases/{server}'
 */
 export const show = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -97,7 +97,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:52
+* @see app/Http/Controllers/DatabaseController.php:53
 * @route '/app/databases/{server}'
 */
 show.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ show.url = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:52
+* @see app/Http/Controllers/DatabaseController.php:53
 * @route '/app/databases/{server}'
 */
 show.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -140,7 +140,7 @@ show.get = (args: { server: number | { id: number } } | [server: number | { id: 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:52
+* @see app/Http/Controllers/DatabaseController.php:53
 * @route '/app/databases/{server}'
 */
 show.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -150,7 +150,7 @@ show.head = (args: { server: number | { id: number } } | [server: number | { id:
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:52
+* @see app/Http/Controllers/DatabaseController.php:53
 * @route '/app/databases/{server}'
 */
 const showForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -160,7 +160,7 @@ const showForm = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:52
+* @see app/Http/Controllers/DatabaseController.php:53
 * @route '/app/databases/{server}'
 */
 showForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -170,7 +170,7 @@ showForm.get = (args: { server: number | { id: number } } | [server: number | { 
 
 /**
 * @see \App\Http\Controllers\DatabaseController::show
-* @see app/Http/Controllers/DatabaseController.php:52
+* @see app/Http/Controllers/DatabaseController.php:53
 * @route '/app/databases/{server}'
 */
 showForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

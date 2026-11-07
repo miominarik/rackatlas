@@ -66,6 +66,7 @@ class UserController extends Controller
         $user = new User(['name' => $data['name'], 'email' => $data['email'], 'password' => $data['password']]);
         $user->forceFill([
             'is_admin' => $data['is_admin'],
+            'two_factor_required' => $data['two_factor_required'] ?? false,
             'email_verified_at' => $data['email_verified'] ? now() : null,
         ])->save();
 
@@ -84,6 +85,7 @@ class UserController extends Controller
                 'is_admin' => $user->is_admin,
                 'verified' => $user->email_verified_at !== null,
                 'two_factor' => $user->two_factor_confirmed_at !== null,
+                'two_factor_required' => $user->two_factor_required,
                 'passkeys' => $user->passkeys()->count(),
                 'devices' => $user->devices()->active()->count(),
                 'created_at' => $user->created_at?->toIso8601String(),
@@ -116,6 +118,7 @@ class UserController extends Controller
 
         $user->forceFill([
             'is_admin' => $data['is_admin'],
+            'two_factor_required' => $data['two_factor_required'] ?? $user->two_factor_required,
             'email_verified_at' => $data['email_verified']
                 ? ($user->isDirty('email') || ! $verified ? now() : $user->email_verified_at)
                 : null,

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::update
-* @see app/Http/Controllers/Settings/TeamMemberController.php:19
+* @see app/Http/Controllers/Settings/TeamMemberController.php:20
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 export const update = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -16,7 +16,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::update
-* @see app/Http/Controllers/Settings/TeamMemberController.php:19
+* @see app/Http/Controllers/Settings/TeamMemberController.php:20
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 update.url = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -46,7 +46,7 @@ update.url = (args: { team: number | { id: number }, member: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::update
-* @see app/Http/Controllers/Settings/TeamMemberController.php:19
+* @see app/Http/Controllers/Settings/TeamMemberController.php:20
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 update.patch = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -56,7 +56,7 @@ update.patch = (args: { team: number | { id: number }, member: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::update
-* @see app/Http/Controllers/Settings/TeamMemberController.php:19
+* @see app/Http/Controllers/Settings/TeamMemberController.php:20
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 const updateForm = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -71,7 +71,7 @@ const updateForm = (args: { team: number | { id: number }, member: number | { id
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::update
-* @see app/Http/Controllers/Settings/TeamMemberController.php:19
+* @see app/Http/Controllers/Settings/TeamMemberController.php:20
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 updateForm.patch = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -88,7 +88,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::destroy
-* @see app/Http/Controllers/Settings/TeamMemberController.php:34
+* @see app/Http/Controllers/Settings/TeamMemberController.php:45
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 export const destroy = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -103,7 +103,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::destroy
-* @see app/Http/Controllers/Settings/TeamMemberController.php:34
+* @see app/Http/Controllers/Settings/TeamMemberController.php:45
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 destroy.url = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -133,7 +133,7 @@ destroy.url = (args: { team: number | { id: number }, member: number | { id: num
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::destroy
-* @see app/Http/Controllers/Settings/TeamMemberController.php:34
+* @see app/Http/Controllers/Settings/TeamMemberController.php:45
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 destroy.delete = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -143,7 +143,7 @@ destroy.delete = (args: { team: number | { id: number }, member: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::destroy
-* @see app/Http/Controllers/Settings/TeamMemberController.php:34
+* @see app/Http/Controllers/Settings/TeamMemberController.php:45
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 const destroyForm = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -158,7 +158,7 @@ const destroyForm = (args: { team: number | { id: number }, member: number | { i
 
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::destroy
-* @see app/Http/Controllers/Settings/TeamMemberController.php:34
+* @see app/Http/Controllers/Settings/TeamMemberController.php:45
 * @route '/app/settings/teams/{team}/members/{member}'
 */
 destroyForm.delete = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

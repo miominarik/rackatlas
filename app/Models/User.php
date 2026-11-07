@@ -30,6 +30,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property bool $is_admin
  * @property string $password
  * @property bool $password_login_enabled
+ * @property bool $two_factor_required
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
@@ -57,6 +58,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             'email_verified_at' => 'datetime',
             'is_admin' => 'boolean',
             'password_login_enabled' => 'boolean',
+            'two_factor_required' => 'boolean',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
@@ -90,7 +92,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class)
-            ->withPivot('role')
+            ->withPivot('role', 'permissions')
             ->withTimestamps();
     }
 

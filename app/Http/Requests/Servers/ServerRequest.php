@@ -33,7 +33,7 @@ class ServerRequest extends FormRequest
     {
         $team = $this->team();
 
-        return $team !== null && $this->user()->can('manage', $team);
+        return $team !== null && $this->user()->can('permit', [$team, 'servers.edit']);
     }
 
     /**

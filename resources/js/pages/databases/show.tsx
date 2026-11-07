@@ -33,6 +33,7 @@ type Props = {
         last_seen_at: string | null;
     };
     canManage: boolean;
+    canKill: boolean;
     range: string;
     ranges: string[];
     range_seconds: number;
@@ -107,6 +108,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 export default function DatabaseShow({
     database,
     canManage,
+    canKill,
     range,
     ranges,
     range_seconds,
@@ -551,7 +553,7 @@ export default function DatabaseShow({
                 {database.status !== 'unknown' && (
                     <RunningQueries
                         serverId={database.id}
-                        canManage={canManage}
+                        canKill={canKill}
                     />
                 )}
 

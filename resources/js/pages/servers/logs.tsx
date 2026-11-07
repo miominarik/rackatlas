@@ -12,6 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { usePermissions } from '@/hooks/use-permissions';
 import { useTranslation } from '@/hooks/use-translation';
 import { timeAgo } from '@/lib/dashboard';
 import { cn } from '@/lib/utils';
@@ -54,8 +55,10 @@ function LogDetail({
     generatedAt,
     onResolve,
     onReopen,
+    canEdit,
 }: {
     log: LogEntry;
+    canEdit: boolean;
     generatedAt: string;
     onResolve: () => void;
     onReopen: () => void;
@@ -146,7 +149,7 @@ function LogDetail({
             </dl>
 
             <div className="border-t pt-5">
-                {log.resolved_at ? (
+                {!canEdit ? null : log.resolved_at ? (
                     <Button variant="outline" onClick={onReopen}>
                         <RotateCcw className="size-4" />
                         {t('Reopen')}
@@ -172,6 +175,7 @@ export default function Logs({
     generated_at,
 }: Props) {
     const { t, locale } = useTranslation();
+    const canEdit = usePermissions().can('logs.edit');
     const [selectedId, setSelectedId] = useState<number | null>(null);
 
     if (!team) {
@@ -334,12 +338,14 @@ export default function Logs({
                                 </SelectItem>
                             </SelectContent>
                         </Select>
-                        {open_count > 0 && filters.status !== 'resolved' && (
-                            <Button variant="outline" onClick={resolveAll}>
-                                <CheckCheck className="size-4" />
-                                {t('Mark all as resolved')}
-                            </Button>
-                        )}
+                        {canEdit &&
+                            open_count > 0 &&
+                            filters.status !== 'resolved' && (
+                                <Button variant="outline" onClick={resolveAll}>
+                                    <CheckCheck className="size-4" />
+                                    {t('Mark all as resolved')}
+                                </Button>
+                            )}
                     </div>
                 </div>
 
@@ -419,6 +425,7 @@ export default function Logs({
                                                         resolve(log)
                                                     }
                                                     onReopen={() => reopen(log)}
+                                                    canEdit={canEdit}
                                                 />
                                             </div>
                                         )}
@@ -466,6 +473,7 @@ export default function Logs({
                                     generatedAt={generated_at}
                                     onResolve={() => resolve(active)}
                                     onReopen={() => reopen(active)}
+                                    canEdit={canEdit}
                                 />
                             ) : (
                                 <p className="text-sm text-muted-foreground">

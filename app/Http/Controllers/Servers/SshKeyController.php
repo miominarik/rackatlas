@@ -27,7 +27,7 @@ class SshKeyController extends Controller
 
         return Inertia::render('servers/ssh-keys', [
             'team' => $team?->only('id', 'name'),
-            'canManage' => $team !== null && $request->user()->can('manage', $team),
+            'canManage' => $team !== null && $request->user()->can('permit', [$team, 'ssh_keys.edit']),
             'sshKeys' => $team
                 ? $team->sshKeys()->withCount('servers')->orderBy('name')->get()
                     ->map(fn (SshKey $key) => [...$this->present($key), 'servers_count' => $key->servers_count])
@@ -86,7 +86,7 @@ class SshKeyController extends Controller
      */
     public function destroy(SshKey $sshKey): RedirectResponse
     {
-        $this->authorize('manage', $sshKey->team);
+        $this->authorize('permit', [$sshKey->team, 'ssh_keys.edit']);
 
         if ($sshKey->servers()->exists()) {
             Inertia::flash('toast', ['type' => 'error', 'message' => __('This key is used by a server. Change the server first.')]);

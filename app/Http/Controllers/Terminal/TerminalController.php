@@ -19,7 +19,7 @@ class TerminalController extends Controller
 
         return Inertia::render('terminal', [
             'team' => $team?->only('id', 'name'),
-            'canManage' => $team !== null && $request->user()->can('manage', $team),
+            'canManage' => $team !== null && $request->user()->can('permit', [$team, 'terminal.edit']),
             'enabled' => filled(config('terminal.secret')),
             'idleMinutes' => config('terminal.idle_minutes'),
             'servers' => $team

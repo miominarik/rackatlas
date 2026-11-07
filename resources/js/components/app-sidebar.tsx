@@ -34,6 +34,7 @@ import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
 import { index as serversIndex } from '@/routes/servers';
 import { index as sshKeysIndex } from '@/routes/ssh-keys';
+import { usePermissions } from '@/hooks/use-permissions';
 import type { Auth, NavItem } from '@/types';
 
 declare const __APP_VERSION__: string;
@@ -41,6 +42,7 @@ declare const __APP_VERSION__: string;
 const databaseNavItems: NavItem[] = [
     {
         title: 'MySQL',
+        permission: 'databases.view',
         href: databasesIndex(),
         icon: Database,
     },
@@ -54,41 +56,49 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Servers',
+        permission: 'servers.view',
         href: serversIndex(),
         icon: Server,
     },
     {
         title: 'Map',
+        permission: 'map.view',
         href: mapRoute(),
         icon: MapIcon,
     },
     {
         title: 'Terminal',
+        permission: 'terminal.edit',
         href: terminal(),
         icon: SquareTerminal,
     },
     {
         title: 'Applications',
+        permission: 'applications.view',
         href: applicationsIndex(),
         icon: Layers,
     },
     {
         title: 'Metrics',
+        permission: 'metrics.view',
         href: metricsIndex(),
         icon: Activity,
     },
     {
         title: 'Logs',
+        permission: 'logs.view',
         href: logsIndex(),
         icon: ScrollText,
     },
     {
         title: 'Backups',
+        permission: 'backups.view',
         href: backupsIndex(),
         icon: DatabaseBackup,
     },
     {
         title: 'SSH keys',
+        permission: 'ssh_keys.view',
         href: sshKeysIndex(),
         icon: KeyRound,
     },
@@ -96,10 +106,16 @@ const mainNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { props, url } = usePage<{ auth: Auth }>();
+    const { can } = usePermissions();
+
+    const allowed = (items: NavItem[]) =>
+        items.filter((item) => !item.permission || can(item.permission));
+    const visibleItems = allowed(mainNavItems);
+    const visibleDatabaseItems = allowed(databaseNavItems);
 
     const items = props.auth.user.is_admin
         ? [
-              ...mainNavItems,
+              ...visibleItems,
               {
                   title: 'Administration',
                   href: adminIndex(),
@@ -107,7 +123,7 @@ export function AppSidebar() {
                   isActive: url.startsWith('/app/admin'),
               },
           ]
-        : mainNavItems;
+        : visibleItems;
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -125,7 +141,9 @@ export function AppSidebar() {
 
             <SidebarContent className="pt-2">
                 <NavMain items={items} />
-                <NavMain items={databaseNavItems} label="Database" />
+                {visibleDatabaseItems.length > 0 && (
+                    <NavMain items={visibleDatabaseItems} label="Database" />
+                )}
             </SidebarContent>
 
             <SidebarFooter className="gap-2 p-3">

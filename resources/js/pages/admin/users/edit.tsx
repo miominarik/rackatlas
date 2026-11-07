@@ -21,6 +21,7 @@ type Member = {
     is_admin: boolean;
     verified: boolean;
     two_factor: boolean;
+    two_factor_required: boolean;
     passkeys: number;
     devices: number;
     created_at: string | null;
@@ -44,6 +45,7 @@ export default function EditUser({ member }: { member: Member | null }) {
         password: '',
         is_admin: member?.is_admin ?? false,
         email_verified: member?.verified ?? true,
+        two_factor_required: member?.two_factor_required ?? false,
     });
 
     const errors = form.errors as Record<string, string | undefined>;
@@ -176,6 +178,30 @@ export default function EditUser({ member }: { member: Member | null }) {
                                 onCheckedChange={(value) =>
                                     form.setData('email_verified', value)
                                 }
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 rounded-lg border bg-card p-4">
+                            <div>
+                                <Label htmlFor="two_factor_required">
+                                    {t('Require two-factor authentication')}
+                                </Label>
+                                <p className="text-sm text-muted-foreground">
+                                    {t(
+                                        'The user has to turn on two-factor authentication at the next sign-in and cannot turn it off.',
+                                    )}
+                                </p>
+                                <InputError
+                                    message={errors.two_factor_required}
+                                />
+                            </div>
+                            <Switch
+                                id="two_factor_required"
+                                checked={form.data.two_factor_required}
+                                onCheckedChange={(value) =>
+                                    form.setData('two_factor_required', value)
+                                }
+                                data-test="two-factor-required-switch"
                             />
                         </div>
 

@@ -82,7 +82,7 @@ edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:59
+* @see app/Http/Controllers/Settings/SecurityController.php:60
 * @route '/app/settings/password'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +97,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:59
+* @see app/Http/Controllers/Settings/SecurityController.php:60
 * @route '/app/settings/password'
 */
 update.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:59
+* @see app/Http/Controllers/Settings/SecurityController.php:60
 * @route '/app/settings/password'
 */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -116,7 +116,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:59
+* @see app/Http/Controllers/Settings/SecurityController.php:60
 * @route '/app/settings/password'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -131,7 +131,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::update
-* @see app/Http/Controllers/Settings/SecurityController.php:59
+* @see app/Http/Controllers/Settings/SecurityController.php:60
 * @route '/app/settings/password'
 */
 updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -148,7 +148,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
-* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @see app/Http/Controllers/Settings/SecurityController.php:74
 * @route '/app/settings/password-login'
 */
 export const updatePasswordLogin = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -163,7 +163,7 @@ updatePasswordLogin.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
-* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @see app/Http/Controllers/Settings/SecurityController.php:74
 * @route '/app/settings/password-login'
 */
 updatePasswordLogin.url = (options?: RouteQueryOptions) => {
@@ -172,7 +172,7 @@ updatePasswordLogin.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
-* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @see app/Http/Controllers/Settings/SecurityController.php:74
 * @route '/app/settings/password-login'
 */
 updatePasswordLogin.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -182,7 +182,7 @@ updatePasswordLogin.put = (options?: RouteQueryOptions): RouteDefinition<'put'> 
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
-* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @see app/Http/Controllers/Settings/SecurityController.php:74
 * @route '/app/settings/password-login'
 */
 const updatePasswordLoginForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -197,7 +197,7 @@ const updatePasswordLoginForm = (options?: RouteQueryOptions): RouteFormDefiniti
 
 /**
 * @see \App\Http\Controllers\Settings\SecurityController::updatePasswordLogin
-* @see app/Http/Controllers/Settings/SecurityController.php:73
+* @see app/Http/Controllers/Settings/SecurityController.php:74
 * @route '/app/settings/password-login'
 */
 updatePasswordLoginForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

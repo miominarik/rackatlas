@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::store
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:20
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:21
 * @route '/app/settings/teams/{team}/invitations'
 */
 export const store = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::store
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:20
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:21
 * @route '/app/settings/teams/{team}/invitations'
 */
 store.url = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ store.url = (args: { team: number | { id: number } } | [team: number | { id: num
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::store
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:20
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:21
 * @route '/app/settings/teams/{team}/invitations'
 */
 store.post = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ store.post = (args: { team: number | { id: number } } | [team: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::store
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:20
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:21
 * @route '/app/settings/teams/{team}/invitations'
 */
 const storeForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ const storeForm = (args: { team: number | { id: number } } | [team: number | { i
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::store
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:20
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:21
 * @route '/app/settings/teams/{team}/invitations'
 */
 storeForm.post = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -81,7 +81,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::resend
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:44
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:46
 * @route '/app/settings/teams/{team}/invitations/{invitation}/resend'
 */
 export const resend = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -96,7 +96,7 @@ resend.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::resend
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:44
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:46
 * @route '/app/settings/teams/{team}/invitations/{invitation}/resend'
 */
 resend.url = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -126,7 +126,7 @@ resend.url = (args: { team: number | { id: number }, invitation: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::resend
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:44
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:46
 * @route '/app/settings/teams/{team}/invitations/{invitation}/resend'
 */
 resend.post = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -136,7 +136,7 @@ resend.post = (args: { team: number | { id: number }, invitation: number | { id:
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::resend
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:44
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:46
 * @route '/app/settings/teams/{team}/invitations/{invitation}/resend'
 */
 const resendForm = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -146,7 +146,7 @@ const resendForm = (args: { team: number | { id: number }, invitation: number | 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::resend
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:44
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:46
 * @route '/app/settings/teams/{team}/invitations/{invitation}/resend'
 */
 resendForm.post = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -158,7 +158,7 @@ resend.form = resendForm
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::destroy
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:65
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:67
 * @route '/app/settings/teams/{team}/invitations/{invitation}'
 */
 export const destroy = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -173,7 +173,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::destroy
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:65
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:67
 * @route '/app/settings/teams/{team}/invitations/{invitation}'
 */
 destroy.url = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -203,7 +203,7 @@ destroy.url = (args: { team: number | { id: number }, invitation: number | { id:
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::destroy
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:65
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:67
 * @route '/app/settings/teams/{team}/invitations/{invitation}'
 */
 destroy.delete = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -213,7 +213,7 @@ destroy.delete = (args: { team: number | { id: number }, invitation: number | { 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::destroy
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:65
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:67
 * @route '/app/settings/teams/{team}/invitations/{invitation}'
 */
 const destroyForm = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -228,7 +228,7 @@ const destroyForm = (args: { team: number | { id: number }, invitation: number |
 
 /**
 * @see \App\Http\Controllers\Settings\TeamInvitationController::destroy
-* @see app/Http/Controllers/Settings/TeamInvitationController.php:65
+* @see app/Http/Controllers/Settings/TeamInvitationController.php:67
 * @route '/app/settings/teams/{team}/invitations/{invitation}'
 */
 destroyForm.delete = (args: { team: number | { id: number }, invitation: number | { id: number } } | [team: number | { id: number }, invitation: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -64,7 +64,7 @@ class ApplicationController extends Controller
      */
     public function requestJournal(Request $request, ServerService $service): RedirectResponse
     {
-        Gate::forUser($request->user())->authorize('view', $service->server->team);
+        Gate::forUser($request->user())->authorize('permit', [$service->server->team, 'applications.view']);
 
         $service->forceFill(['journal_requested_at' => now()])->save();
 
@@ -76,7 +76,7 @@ class ApplicationController extends Controller
      */
     public function journal(Request $request, ServerService $service): HttpResponse
     {
-        Gate::forUser($request->user())->authorize('view', $service->server->team);
+        Gate::forUser($request->user())->authorize('permit', [$service->server->team, 'applications.view']);
 
         abort_if($service->journal === null, 404);
 

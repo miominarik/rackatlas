@@ -87,7 +87,7 @@ class ServerAgentController extends Controller
 
     private function authorizeAgentServer(Server $server): void
     {
-        $this->authorize('manage', $server->team);
+        $this->authorize('permit', [$server->team, 'servers.edit']);
 
         abort_unless($server->collectsViaAgent(), 404);
     }

@@ -12,7 +12,7 @@ class ServerCategoryRequest extends FormRequest
     {
         $team = $this->route('serverCategory')?->team ?? $this->user()->currentTeam();
 
-        return $team !== null && $this->user()->can('manage', $team);
+        return $team !== null && $this->user()->can('permit', [$team, 'servers.edit']);
     }
 
     /**

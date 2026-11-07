@@ -32,7 +32,8 @@ class DatabaseController extends Controller
 
         return Inertia::render('databases/index', [
             'team' => $team->only('id', 'name'),
-            'canManage' => $request->user()->can('manage', $team),
+            'canManage' => $request->user()->can('permit', [$team, 'databases.edit']),
+            'canKill' => $request->user()->can('permit', [$team, 'database_kill.edit']),
             'databases' => $servers->map(fn (Server $server) => [
                 'id' => $server->id,
                 'name' => $server->name,
@@ -52,7 +53,7 @@ class DatabaseController extends Controller
     public function show(Request $request, Server $server): Response
     {
         abort_unless($server->isMysql(), 404);
-        $this->authorize('view', $server->team);
+        $this->authorize('permit', [$server->team, 'databases.view']);
 
         $server->load('latestDatabaseMetric');
 
@@ -78,7 +79,8 @@ class DatabaseController extends Controller
                 'last_seen_at' => $server->last_seen_at?->toIso8601String(),
                 'metric' => $this->presentMetric($server->latestDatabaseMetric),
             ],
-            'canManage' => request()->user()->can('manage', $server->team),
+            'canManage' => request()->user()->can('permit', [$server->team, 'databases.edit']),
+            'canKill' => request()->user()->can('permit', [$server->team, 'database_kill.edit']),
             'range' => $range,
             'ranges' => array_keys(self::RANGES),
             'range_seconds' => self::RANGES[$range],

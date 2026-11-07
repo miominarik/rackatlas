@@ -49,7 +49,7 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::post('dashboard/settings/copy', [DashboardController::class, 'copy'])->name('dashboard.settings.copy');
     Route::put('current-team', [CurrentTeamController::class, 'update'])->name('current-team.update');
 
-    Route::get('servers', [ServerController::class, 'index'])->name('servers.index');
+    Route::get('servers', [ServerController::class, 'index'])->middleware('permission:servers.view')->name('servers.index');
     Route::get('servers/create', [ServerController::class, 'create'])->name('servers.create');
     Route::post('servers', [ServerController::class, 'store'])->name('servers.store');
     Route::post('servers/test-connection', TestConnectionController::class)
@@ -65,7 +65,7 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
     Route::delete('servers/{server}/host-key', [ServerController::class, 'forgetHostKey'])->name('servers.host-key.destroy');
     Route::delete('servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
 
-    Route::get('databases', [DatabaseController::class, 'index'])->name('databases.index');
+    Route::get('databases', [DatabaseController::class, 'index'])->middleware('permission:databases.view')->name('databases.index');
     Route::get('databases/{server}', [DatabaseController::class, 'show'])->name('databases.show')->whereNumber('server');
     Route::get('databases/{server}/processes', [DatabaseProcessController::class, 'index'])
         ->middleware('throttle:60,1')
@@ -76,12 +76,12 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
         ->name('databases.processes.kill')
         ->whereNumber(['server', 'process']);
 
-    Route::get('map', MapController::class)->name('map');
-    Route::get('terminal', TerminalController::class)->name('terminal');
+    Route::get('map', MapController::class)->middleware('permission:map.view')->name('map');
+    Route::get('terminal', TerminalController::class)->middleware('permission:terminal.edit')->name('terminal');
     Route::post('terminal/sessions', [TerminalSessionController::class, 'store'])
         ->middleware('throttle:30,1')
         ->name('terminal.sessions.store');
-    Route::get('applications', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('applications', [ApplicationController::class, 'index'])->middleware('permission:applications.view')->name('applications.index');
     Route::get('applications/{service}/journal', [ApplicationController::class, 'journal'])
         ->whereNumber('service')
         ->name('applications.journal');
@@ -90,24 +90,24 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:10,1')
         ->name('applications.journal.request');
 
-    Route::get('metrics', [MetricsController::class, 'index'])->name('metrics.index');
+    Route::get('metrics', [MetricsController::class, 'index'])->middleware('permission:metrics.view')->name('metrics.index');
     Route::get('metrics/processes', MetricsProcessesController::class)
-        ->middleware('throttle:60,1')
+        ->middleware(['throttle:60,1', 'permission:metrics.view'])
         ->name('metrics.processes');
 
-    Route::get('logs', [LogController::class, 'index'])->name('logs.index');
+    Route::get('logs', [LogController::class, 'index'])->middleware('permission:logs.view')->name('logs.index');
     Route::post('logs/resolve-all', [LogController::class, 'resolveAll'])->name('logs.resolve-all');
     Route::post('logs/{log}/resolve', [LogController::class, 'resolve'])->name('logs.resolve');
     Route::delete('logs/{log}/resolve', [LogController::class, 'reopen'])->name('logs.reopen');
 
-    Route::get('ssh-keys', [SshKeyController::class, 'index'])->name('ssh-keys.index');
+    Route::get('ssh-keys', [SshKeyController::class, 'index'])->middleware('permission:ssh_keys.view')->name('ssh-keys.index');
     Route::post('ssh-keys', [SshKeyController::class, 'store'])->name('ssh-keys.store');
     Route::post('ssh-keys/{sshKey}/reveal', [SshKeyController::class, 'reveal'])
         ->middleware('throttle:5,1')
         ->name('ssh-keys.reveal');
     Route::delete('ssh-keys/{sshKey}', [SshKeyController::class, 'destroy'])->name('ssh-keys.destroy');
 
-    Route::get('backups', [BackupController::class, 'index'])->name('backups.index');
+    Route::get('backups', [BackupController::class, 'index'])->middleware('permission:backups.view')->name('backups.index');
     Route::post('backups', [BackupController::class, 'store'])->name('backups.store');
     Route::put('backups/{backup}', [BackupController::class, 'update'])->name('backups.update');
     Route::post('backups/{backup}/regenerate', [BackupController::class, 'regenerate'])

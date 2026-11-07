@@ -15,7 +15,7 @@ class DatabaseProcessController extends Controller
     public function index(Server $server, MysqlMetricsCollector $mysql): JsonResponse
     {
         abort_unless($server->isMysql(), 404);
-        $this->authorize('view', $server->team);
+        $this->authorize('permit', [$server->team, 'databases.view']);
 
         try {
             return response()->json(['success' => true, 'queries' => $mysql->runningQueries($server)]);
@@ -30,7 +30,7 @@ class DatabaseProcessController extends Controller
     public function kill(Server $server, int $process, MysqlMetricsCollector $mysql): JsonResponse
     {
         abort_unless($server->isMysql(), 404);
-        $this->authorize('manage', $server->team);
+        $this->authorize('permit', [$server->team, 'database_kill.edit']);
 
         try {
             $mysql->killQuery($server, $process);

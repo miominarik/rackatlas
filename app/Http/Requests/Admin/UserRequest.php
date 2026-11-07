@@ -29,6 +29,7 @@ class UserRequest extends FormRequest
             'password' => [$target ? 'nullable' : 'required', 'string', Password::default()],
             'is_admin' => ['required', 'boolean'],
             'email_verified' => ['required', 'boolean'],
+            'two_factor_required' => ['sometimes', 'boolean'],
         ];
     }
 }

@@ -28,10 +28,10 @@ const REFRESH_MS = 5000;
 
 export default function RunningQueries({
     serverId,
-    canManage,
+    canKill,
 }: {
     serverId: number;
-    canManage: boolean;
+    canKill: boolean;
 }) {
     const { t } = useTranslation();
     const list = useHttp<Record<string, never>, ProcessList>({});
@@ -189,7 +189,7 @@ export default function RunningQueries({
                                         <ChevronsUpDown className="size-4" />
                                     )}
                                 </Button>
-                                {canManage && (
+                                {canKill && (
                                     <Button
                                         variant="outline"
                                         size="sm"

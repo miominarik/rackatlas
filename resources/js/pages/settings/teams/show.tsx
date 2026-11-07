@@ -1,10 +1,15 @@
 import { Form, Head, router, usePage } from '@inertiajs/react';
-import { Mail, RefreshCw, Trash2, UserMinus } from 'lucide-react';
+import { Mail, RefreshCw, ShieldCheck, Trash2, UserMinus } from 'lucide-react';
+import { useState } from 'react';
 import TeamController from '@/actions/App/Http/Controllers/Settings/TeamController';
 import TeamInvitationController from '@/actions/App/Http/Controllers/Settings/TeamInvitationController';
 import TeamMemberController from '@/actions/App/Http/Controllers/Settings/TeamMemberController';
 import { ApiKeys } from '@/components/settings/api-keys';
 import type { ApiKey } from '@/components/settings/api-keys';
+import {
+    PermissionEditor,
+    PermissionFields,
+} from '@/components/settings/permission-editor';
 import { SettingsSection } from '@/components/settings/section';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -19,7 +24,14 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { index, show } from '@/routes/teams';
-import type { Auth, TeamInvitation, TeamMember, TeamRole } from '@/types';
+import type {
+    Auth,
+    PermissionCatalogItem,
+    PermissionMap,
+    TeamInvitation,
+    TeamMember,
+    TeamRole,
+} from '@/types';
 import { useTranslation } from '@/hooks/use-translation';
 
 type Props = {
@@ -30,6 +42,7 @@ type Props = {
     members: TeamMember[];
     invitations: TeamInvitation[];
     assignableRoles: TeamRole[];
+    permissionCatalog: PermissionCatalogItem[];
     apiTokens: ApiKey[];
     apiScopes: string[];
     apiExpiryDays: number[];
@@ -42,6 +55,60 @@ const roleLabel: Record<TeamRole, string> = {
     member: 'Member',
 };
 
+function defaultPermissions(catalog: PermissionCatalogItem[]): PermissionMap {
+    return Object.fromEntries(
+        catalog.map((item) => [
+            item.key,
+            item.levels.includes('view') ? 'view' : 'none',
+        ]),
+    ) as PermissionMap;
+}
+
+function MemberPermissions({
+    teamId,
+    member,
+    catalog,
+}: {
+    teamId: number;
+    member: TeamMember;
+    catalog: PermissionCatalogItem[];
+}) {
+    const { t } = useTranslation();
+    const [value, setValue] = useState<PermissionMap>(member.permissions);
+    const [saving, setSaving] = useState(false);
+
+    return (
+        <div className="space-y-4 border-t bg-muted/30 p-4">
+            <PermissionEditor
+                catalog={catalog}
+                value={value}
+                onChange={setValue}
+                disabled={saving}
+            />
+            <Button
+                disabled={saving}
+                onClick={() =>
+                    router.patch(
+                        TeamMemberController.update.url({
+                            team: teamId,
+                            member: member.id,
+                        }),
+                        { permissions: value },
+                        {
+                            preserveScroll: true,
+                            onStart: () => setSaving(true),
+                            onFinish: () => setSaving(false),
+                        },
+                    )
+                }
+            >
+                {saving && <Spinner />}
+                {t('Save permissions')}
+            </Button>
+        </div>
+    );
+}
+
 export default function ShowTeam({
     team,
     canManage,
@@ -49,6 +116,7 @@ export default function ShowTeam({
     members,
     invitations,
     assignableRoles,
+    permissionCatalog,
     apiTokens,
     apiScopes,
     apiExpiryDays,
@@ -56,6 +124,11 @@ export default function ShowTeam({
 }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const { t, locale } = useTranslation();
+    const [openMember, setOpenMember] = useState<number | null>(null);
+    const [inviteRole, setInviteRole] = useState<TeamRole>('member');
+    const [invitePermissions, setInvitePermissions] = useState<PermissionMap>(
+        defaultPermissions(permissionCatalog),
+    );
 
     const changeRole = (member: TeamMember, role: string) => {
         router.patch(
@@ -145,67 +218,104 @@ export default function ShowTeam({
                         const isOwner = member.role === 'owner';
 
                         return (
-                            <li
-                                key={member.id}
-                                className="flex items-center gap-4 p-4"
-                            >
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate font-medium">
-                                        {member.name}
-                                        {isSelf && (
-                                            <span className="ml-2 text-xs font-normal text-muted-foreground">
-                                                {t('(you)')}
-                                            </span>
-                                        )}
-                                    </p>
-                                    <p className="truncate text-sm text-muted-foreground">
-                                        {member.email}
-                                    </p>
+                            <li key={member.id}>
+                                <div className="flex items-center gap-4 p-4">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate font-medium">
+                                            {member.name}
+                                            {isSelf && (
+                                                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                                                    {t('(you)')}
+                                                </span>
+                                            )}
+                                        </p>
+                                        <p className="truncate text-sm text-muted-foreground">
+                                            {member.email}
+                                        </p>
+                                    </div>
+
+                                    {canManage && !isOwner ? (
+                                        <Select
+                                            value={member.role}
+                                            onValueChange={(role) =>
+                                                changeRole(member, role)
+                                            }
+                                        >
+                                            <SelectTrigger className="w-28">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {assignableRoles.map((role) => (
+                                                    <SelectItem
+                                                        key={role}
+                                                        value={role}
+                                                    >
+                                                        {t(roleLabel[role])}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase ring-1 ring-border ring-inset">
+                                            {t(roleLabel[member.role])}
+                                        </span>
+                                    )}
+
+                                    {canManage && member.role === 'member' && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() =>
+                                                setOpenMember(
+                                                    openMember === member.id
+                                                        ? null
+                                                        : member.id,
+                                                )
+                                            }
+                                            aria-label={t(
+                                                'Permissions of :member',
+                                                {
+                                                    member: member.name,
+                                                },
+                                            )}
+                                            aria-expanded={
+                                                openMember === member.id
+                                            }
+                                        >
+                                            <ShieldCheck className="size-4" />
+                                        </Button>
+                                    )}
+
+                                    {!isOwner && (canManage || isSelf) && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => removeMember(member)}
+                                            aria-label={
+                                                isSelf
+                                                    ? t('Leave team')
+                                                    : t('Remove :member', {
+                                                          member: member.name,
+                                                      })
+                                            }
+                                        >
+                                            <UserMinus className="size-4" />
+                                        </Button>
+                                    )}
                                 </div>
 
-                                {canManage && !isOwner ? (
-                                    <Select
-                                        value={member.role}
-                                        onValueChange={(role) =>
-                                            changeRole(member, role)
-                                        }
-                                    >
-                                        <SelectTrigger className="w-28">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {assignableRoles.map((role) => (
-                                                <SelectItem
-                                                    key={role}
-                                                    value={role}
-                                                >
-                                                    {t(roleLabel[role])}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                ) : (
-                                    <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase ring-1 ring-border ring-inset">
-                                        {t(roleLabel[member.role])}
-                                    </span>
-                                )}
-
-                                {!isOwner && (canManage || isSelf) && (
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => removeMember(member)}
-                                        aria-label={
-                                            isSelf
-                                                ? t('Leave team')
-                                                : t('Remove :member', {
-                                                      member: member.name,
-                                                  })
-                                        }
-                                    >
-                                        <UserMinus className="size-4" />
-                                    </Button>
-                                )}
+                                {canManage &&
+                                    member.role === 'member' &&
+                                    openMember === member.id && (
+                                        <MemberPermissions
+                                            key={JSON.stringify(
+                                                member.permissions,
+                                            )}
+                                            teamId={team.id}
+                                            member={member}
+                                            catalog={permissionCatalog}
+                                        />
+                                    )}
                             </li>
                         );
                     })}
@@ -248,7 +358,10 @@ export default function ShowTeam({
                                         </Label>
                                         <Select
                                             name="role"
-                                            defaultValue="member"
+                                            value={inviteRole}
+                                            onValueChange={(role) =>
+                                                setInviteRole(role as TeamRole)
+                                            }
                                         >
                                             <SelectTrigger id="invite-role">
                                                 <SelectValue />
@@ -267,6 +380,26 @@ export default function ShowTeam({
                                         <InputError message={errors.role} />
                                     </div>
                                 </div>
+
+                                {inviteRole === 'member' ? (
+                                    <div className="space-y-2">
+                                        <Label>{t('Permissions')}</Label>
+                                        <PermissionEditor
+                                            catalog={permissionCatalog}
+                                            value={invitePermissions}
+                                            onChange={setInvitePermissions}
+                                        />
+                                        <PermissionFields
+                                            value={invitePermissions}
+                                        />
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">
+                                        {t(
+                                            'Admins can do everything in the team.',
+                                        )}
+                                    </p>
+                                )}
 
                                 <Button
                                     disabled={processing}

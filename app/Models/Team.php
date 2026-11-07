@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PermissionLevel;
 use App\Enums\ServerType;
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,7 +34,7 @@ class Team extends Model
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->withPivot('role')
+            ->withPivot('role', 'permissions')
             ->withTimestamps();
     }
 
@@ -79,6 +81,50 @@ class Team extends Model
         $role = $this->members()->whereKey($user->getKey())->first()?->pivot->role;
 
         return $role ? TeamRole::from($role) : null;
+    }
+
+    /**
+     * What the user may do in this team, a level for every permission. Owners and admins may do
+     * everything, a member gets what is set for the member on top of the defaults.
+     *
+     * @return array<string, PermissionLevel>
+     */
+    public function permissionsOf(User $user): array
+    {
+        $member = $this->members()->whereKey($user->getKey())->first();
+
+        if ($member === null) {
+            return array_map(fn () => PermissionLevel::None, TeamPermission::defaults());
+        }
+
+        if (TeamRole::from($member->pivot->role)->canManage()) {
+            return array_map(fn () => PermissionLevel::Edit, TeamPermission::defaults());
+        }
+
+        $stored = $member->pivot->permissions;
+        $stored = is_string($stored) ? json_decode($stored, true) : $stored;
+
+        return [
+            ...TeamPermission::defaults(),
+            ...array_map(PermissionLevel::from(...), TeamPermission::sanitize(is_array($stored) ? $stored : null)),
+        ];
+    }
+
+    /**
+     * Whether the user has the permission at the level, as "servers.edit" or "logs.view".
+     */
+    public function permits(User $user, string $ability): bool
+    {
+        [$key, $level] = explode('.', $ability) + [1 => 'view'];
+
+        $permission = TeamPermission::tryFrom($key);
+        $required = PermissionLevel::tryFrom($level);
+
+        if ($permission === null || $required === null) {
+            return false;
+        }
+
+        return $this->permissionsOf($user)[$permission->value]->atLeast($required);
     }
 
     public function getActivitylogOptions(): LogOptions

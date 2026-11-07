@@ -31,7 +31,7 @@ class ServerController extends Controller
 
         return Inertia::render('servers/index', [
             'team' => $team?->only('id', 'name'),
-            'canManage' => $team !== null && $request->user()->can('manage', $team),
+            'canManage' => $team !== null && $request->user()->can('permit', [$team, 'servers.edit']),
             'categories' => $team
                 ? $team->serverCategories()->withCount('servers')->orderBy('name')->get()
                     ->map(fn (ServerCategory $category) => [
@@ -72,7 +72,7 @@ class ServerController extends Controller
      */
     public function show(Server $server): Response|RedirectResponse
     {
-        $this->authorize('view', $server->team);
+        $this->authorize('permit', [$server->team, 'servers.view']);
 
         if ($server->isMysql()) {
             return to_route('databases.show', $server);
@@ -125,7 +125,7 @@ class ServerController extends Controller
                     ])->values(),
                 ] : null,
             ],
-            'canManage' => request()->user()->can('manage', $server->team),
+            'canManage' => request()->user()->can('permit', [$server->team, 'servers.edit']),
             'thresholds' => DashboardSettings::defaults()['thresholds'],
             'alerts' => $server->alerts()->latest('opened_at')->limit(10)->get()
                 ->map(fn (ServerAlert $alert) => [
@@ -171,7 +171,7 @@ class ServerController extends Controller
             return $this->needsTeam();
         }
 
-        $this->authorize('manage', $team);
+        $this->authorize('permit', [$team, 'servers.edit']);
 
         return Inertia::render('servers/wizard', $this->wizardProps($team));
     }
@@ -195,7 +195,7 @@ class ServerController extends Controller
      */
     public function edit(Server $server): Response
     {
-        $this->authorize('manage', $server->team);
+        $this->authorize('permit', [$server->team, 'servers.edit']);
 
         return Inertia::render('servers/wizard', [
             ...$this->wizardProps($server->team),
@@ -224,7 +224,7 @@ class ServerController extends Controller
      */
     public function forgetHostKey(Server $server): RedirectResponse
     {
-        $this->authorize('manage', $server->team);
+        $this->authorize('permit', [$server->team, 'servers.edit']);
 
         $server->forceFill(['ssh_host_fingerprint' => null])->save();
 
@@ -263,7 +263,7 @@ class ServerController extends Controller
      */
     public function destroy(Server $server): RedirectResponse
     {
-        $this->authorize('manage', $server->team);
+        $this->authorize('permit', [$server->team, 'servers.edit']);
 
         $server->delete();
 

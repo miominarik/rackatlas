@@ -55,7 +55,7 @@ class AcceptTeamInvitationController extends Controller
         }
 
         $invitation->team->members()->syncWithoutDetaching([
-            $request->user()->id => ['role' => $invitation->role->value],
+            $request->user()->id => ['role' => $invitation->role->value, 'permissions' => json_encode($invitation->permissions ?? [])],
         ]);
 
         $invitation->delete();

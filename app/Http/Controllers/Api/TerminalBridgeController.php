@@ -37,7 +37,7 @@ class TerminalBridgeController extends Controller
         $user = User::find($ticket['user_id']);
         $server = Server::with(['team', 'sshKey'])->find($ticket['server_id']);
 
-        if ($user === null || $server === null || ! $user->can('manage', $server->team) || ! $server->canOpenTerminal()) {
+        if ($user === null || $server === null || ! $user->can('permit', [$server->team, 'terminal.edit']) || ! $server->canOpenTerminal()) {
             return response()->json(['message' => 'Not allowed.'], 403);
         }
 

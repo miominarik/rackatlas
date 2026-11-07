@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Settings\Teams;
 
+use App\Enums\PermissionLevel;
 use App\Enums\TeamRole;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -34,6 +35,8 @@ class StoreTeamInvitationRequest extends FormRequest
                 },
             ],
             'role' => ['required', Rule::enum(TeamRole::class)->only(TeamRole::assignable())],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', Rule::enum(PermissionLevel::class)],
         ];
     }
 

@@ -8,7 +8,7 @@ class RevealSshKeyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('manage', $this->route('sshKey')->team);
+        return $this->user()->can('permit', [$this->route('sshKey')->team, 'ssh_keys.edit']);
     }
 
     /**

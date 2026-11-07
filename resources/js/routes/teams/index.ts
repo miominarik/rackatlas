@@ -4,7 +4,7 @@ import apiTokens from './api-tokens'
 import invitations from './invitations'
 /**
 * @see \App\Http\Controllers\Settings\TeamController::index
-* @see app/Http/Controllers/Settings/TeamController.php:22
+* @see app/Http/Controllers/Settings/TeamController.php:26
 * @route '/app/settings/teams'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -19,7 +19,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::index
-* @see app/Http/Controllers/Settings/TeamController.php:22
+* @see app/Http/Controllers/Settings/TeamController.php:26
 * @route '/app/settings/teams'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -28,7 +28,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::index
-* @see app/Http/Controllers/Settings/TeamController.php:22
+* @see app/Http/Controllers/Settings/TeamController.php:26
 * @route '/app/settings/teams'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -38,7 +38,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::index
-* @see app/Http/Controllers/Settings/TeamController.php:22
+* @see app/Http/Controllers/Settings/TeamController.php:26
 * @route '/app/settings/teams'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -48,7 +48,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::index
-* @see app/Http/Controllers/Settings/TeamController.php:22
+* @see app/Http/Controllers/Settings/TeamController.php:26
 * @route '/app/settings/teams'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::index
-* @see app/Http/Controllers/Settings/TeamController.php:22
+* @see app/Http/Controllers/Settings/TeamController.php:26
 * @route '/app/settings/teams'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -68,7 +68,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::index
-* @see app/Http/Controllers/Settings/TeamController.php:22
+* @see app/Http/Controllers/Settings/TeamController.php:26
 * @route '/app/settings/teams'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -85,7 +85,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::store
-* @see app/Http/Controllers/Settings/TeamController.php:43
+* @see app/Http/Controllers/Settings/TeamController.php:47
 * @route '/app/settings/teams'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -100,7 +100,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::store
-* @see app/Http/Controllers/Settings/TeamController.php:43
+* @see app/Http/Controllers/Settings/TeamController.php:47
 * @route '/app/settings/teams'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -109,7 +109,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::store
-* @see app/Http/Controllers/Settings/TeamController.php:43
+* @see app/Http/Controllers/Settings/TeamController.php:47
 * @route '/app/settings/teams'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -119,7 +119,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::store
-* @see app/Http/Controllers/Settings/TeamController.php:43
+* @see app/Http/Controllers/Settings/TeamController.php:47
 * @route '/app/settings/teams'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -129,7 +129,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::store
-* @see app/Http/Controllers/Settings/TeamController.php:43
+* @see app/Http/Controllers/Settings/TeamController.php:47
 * @route '/app/settings/teams'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -141,7 +141,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::show
-* @see app/Http/Controllers/Settings/TeamController.php:60
+* @see app/Http/Controllers/Settings/TeamController.php:64
 * @route '/app/settings/teams/{team}'
 */
 export const show = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -156,7 +156,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::show
-* @see app/Http/Controllers/Settings/TeamController.php:60
+* @see app/Http/Controllers/Settings/TeamController.php:64
 * @route '/app/settings/teams/{team}'
 */
 show.url = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -189,7 +189,7 @@ show.url = (args: { team: number | { id: number } } | [team: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::show
-* @see app/Http/Controllers/Settings/TeamController.php:60
+* @see app/Http/Controllers/Settings/TeamController.php:64
 * @route '/app/settings/teams/{team}'
 */
 show.get = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -199,7 +199,7 @@ show.get = (args: { team: number | { id: number } } | [team: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::show
-* @see app/Http/Controllers/Settings/TeamController.php:60
+* @see app/Http/Controllers/Settings/TeamController.php:64
 * @route '/app/settings/teams/{team}'
 */
 show.head = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -209,7 +209,7 @@ show.head = (args: { team: number | { id: number } } | [team: number | { id: num
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::show
-* @see app/Http/Controllers/Settings/TeamController.php:60
+* @see app/Http/Controllers/Settings/TeamController.php:64
 * @route '/app/settings/teams/{team}'
 */
 const showForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ const showForm = (args: { team: number | { id: number } } | [team: number | { id
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::show
-* @see app/Http/Controllers/Settings/TeamController.php:60
+* @see app/Http/Controllers/Settings/TeamController.php:64
 * @route '/app/settings/teams/{team}'
 */
 showForm.get = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -229,7 +229,7 @@ showForm.get = (args: { team: number | { id: number } } | [team: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::show
-* @see app/Http/Controllers/Settings/TeamController.php:60
+* @see app/Http/Controllers/Settings/TeamController.php:64
 * @route '/app/settings/teams/{team}'
 */
 showForm.head = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -246,7 +246,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::update
-* @see app/Http/Controllers/Settings/TeamController.php:111
+* @see app/Http/Controllers/Settings/TeamController.php:142
 * @route '/app/settings/teams/{team}'
 */
 export const update = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -261,7 +261,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::update
-* @see app/Http/Controllers/Settings/TeamController.php:111
+* @see app/Http/Controllers/Settings/TeamController.php:142
 * @route '/app/settings/teams/{team}'
 */
 update.url = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -294,7 +294,7 @@ update.url = (args: { team: number | { id: number } } | [team: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::update
-* @see app/Http/Controllers/Settings/TeamController.php:111
+* @see app/Http/Controllers/Settings/TeamController.php:142
 * @route '/app/settings/teams/{team}'
 */
 update.patch = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -304,7 +304,7 @@ update.patch = (args: { team: number | { id: number } } | [team: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::update
-* @see app/Http/Controllers/Settings/TeamController.php:111
+* @see app/Http/Controllers/Settings/TeamController.php:142
 * @route '/app/settings/teams/{team}'
 */
 const updateForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -319,7 +319,7 @@ const updateForm = (args: { team: number | { id: number } } | [team: number | { 
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::update
-* @see app/Http/Controllers/Settings/TeamController.php:111
+* @see app/Http/Controllers/Settings/TeamController.php:142
 * @route '/app/settings/teams/{team}'
 */
 updateForm.patch = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -336,7 +336,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::destroy
-* @see app/Http/Controllers/Settings/TeamController.php:125
+* @see app/Http/Controllers/Settings/TeamController.php:156
 * @route '/app/settings/teams/{team}'
 */
 export const destroy = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -351,7 +351,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::destroy
-* @see app/Http/Controllers/Settings/TeamController.php:125
+* @see app/Http/Controllers/Settings/TeamController.php:156
 * @route '/app/settings/teams/{team}'
 */
 destroy.url = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -384,7 +384,7 @@ destroy.url = (args: { team: number | { id: number } } | [team: number | { id: n
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::destroy
-* @see app/Http/Controllers/Settings/TeamController.php:125
+* @see app/Http/Controllers/Settings/TeamController.php:156
 * @route '/app/settings/teams/{team}'
 */
 destroy.delete = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -394,7 +394,7 @@ destroy.delete = (args: { team: number | { id: number } } | [team: number | { id
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::destroy
-* @see app/Http/Controllers/Settings/TeamController.php:125
+* @see app/Http/Controllers/Settings/TeamController.php:156
 * @route '/app/settings/teams/{team}'
 */
 const destroyForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -409,7 +409,7 @@ const destroyForm = (args: { team: number | { id: number } } | [team: number | {
 
 /**
 * @see \App\Http\Controllers\Settings\TeamController::destroy
-* @see app/Http/Controllers/Settings/TeamController.php:125
+* @see app/Http/Controllers/Settings/TeamController.php:156
 * @route '/app/settings/teams/{team}'
 */
 destroyForm.delete = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\PermissionLevel;
 use App\Http\Controllers\CurrentTeamController;
 use App\Services\TurnstileVerifier;
 use Illuminate\Http\Request;
@@ -66,11 +67,26 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'locales' => config('app.supported_locales'),
             'translations' => $this->translations(),
+            'permissions' => fn () => $this->currentPermissions($request, $currentTeam['id'] ?? null),
             'auth' => [
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    /**
+     * What the user may do in the current team, a level for every part of the app.
+     *
+     * @return array<string, string>|null
+     */
+    private function currentPermissions(Request $request, ?int $teamId): ?array
+    {
+        $team = $teamId === null ? null : $request->user()?->teams()->whereKey($teamId)->first();
+
+        return $team === null
+            ? null
+            : array_map(fn (PermissionLevel $level) => $level->value, $team->permissionsOf($request->user()));
     }
 
     /**

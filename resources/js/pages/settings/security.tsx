@@ -4,6 +4,7 @@ import SecurityController from '@/actions/App/Http/Controllers/Settings/Security
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { SettingsSection } from '@/components/settings/section';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,7 @@ import { useTranslation } from '@/hooks/use-translation';
 type Props = {
     passwordRules: string;
     passwordLoginEnabled: boolean;
+    twoFactorRequired: boolean;
 } & ManagePasskeysProps &
     ManageTwoFactorProps;
 
@@ -162,6 +164,19 @@ export default function Security(props: Props) {
                     </p>
                 ) : null}
             </SettingsSection>
+
+            {props.twoFactorRequired && !props.twoFactorEnabled && (
+                <Alert>
+                    <AlertTitle>
+                        {t('Two-factor authentication is required')}
+                    </AlertTitle>
+                    <AlertDescription>
+                        {t(
+                            'An administrator made it mandatory for your account. Turn it on below to continue using the application.',
+                        )}
+                    </AlertDescription>
+                </Alert>
+            )}
 
             <ManageTwoFactor
                 canManageTwoFactor={props.canManageTwoFactor}

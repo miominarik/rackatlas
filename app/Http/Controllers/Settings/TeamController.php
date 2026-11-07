@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Enums\PermissionLevel;
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\Teams\StoreApiTokenRequest;
@@ -9,6 +11,8 @@ use App\Http\Requests\Settings\Teams\StoreTeamRequest;
 use App\Http\Requests\Settings\Teams\UpdateTeamRequest;
 use App\Models\ApiToken;
 use App\Models\Team;
+use App\Models\TeamInvitation;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -78,12 +82,14 @@ class TeamController extends Controller
                 'name' => $member->name,
                 'email' => $member->email,
                 'role' => $member->pivot->role,
+                'permissions' => $this->presentPermissions($team, $member),
             ]),
             'invitations' => $canManage
                 ? $team->invitations()->latest()->get()->map(fn ($invitation) => [
                     'id' => $invitation->id,
                     'email' => $invitation->email,
                     'role' => $invitation->role->value,
+                    'permissions' => $this->presentInvitationPermissions($invitation),
                     'expires_at' => $invitation->expires_at->toIso8601String(),
                     'expired' => $invitation->isExpired(),
                 ])
@@ -101,8 +107,33 @@ class TeamController extends Controller
             'apiScopes' => ApiToken::SCOPES,
             'apiExpiryDays' => StoreApiTokenRequest::EXPIRY_DAYS,
             'apiUrl' => url('/api/v1'),
+            'permissionCatalog' => array_map(fn (TeamPermission $permission) => [
+                'key' => $permission->value,
+                'levels' => array_map(fn (PermissionLevel $level) => $level->value, $permission->levels()),
+            ], TeamPermission::cases()),
             'assignableRoles' => array_map(fn (TeamRole $role) => $role->value, TeamRole::assignable()),
         ]);
+    }
+
+    /**
+     * The level of every permission of a member, as it works in the team.
+     *
+     * @return array<string, string>
+     */
+    private function presentPermissions(Team $team, User $member): array
+    {
+        return array_map(fn (PermissionLevel $level) => $level->value, $team->permissionsOf($member));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function presentInvitationPermissions(TeamInvitation $invitation): array
+    {
+        return [
+            ...array_map(fn (PermissionLevel $level) => $level->value, TeamPermission::defaults()),
+            ...TeamPermission::sanitize($invitation->permissions),
+        ];
     }
 
     /**

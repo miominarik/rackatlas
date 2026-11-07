@@ -219,7 +219,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::edit
-* @see app/Http/Controllers/Admin/UserController.php:77
+* @see app/Http/Controllers/Admin/UserController.php:78
 * @route '/app/admin/users/{user}'
 */
 export const edit = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -234,7 +234,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::edit
-* @see app/Http/Controllers/Admin/UserController.php:77
+* @see app/Http/Controllers/Admin/UserController.php:78
 * @route '/app/admin/users/{user}'
 */
 edit.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -267,7 +267,7 @@ edit.url = (args: { user: number | { id: number } } | [user: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::edit
-* @see app/Http/Controllers/Admin/UserController.php:77
+* @see app/Http/Controllers/Admin/UserController.php:78
 * @route '/app/admin/users/{user}'
 */
 edit.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -277,7 +277,7 @@ edit.get = (args: { user: number | { id: number } } | [user: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::edit
-* @see app/Http/Controllers/Admin/UserController.php:77
+* @see app/Http/Controllers/Admin/UserController.php:78
 * @route '/app/admin/users/{user}'
 */
 edit.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -287,7 +287,7 @@ edit.head = (args: { user: number | { id: number } } | [user: number | { id: num
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::edit
-* @see app/Http/Controllers/Admin/UserController.php:77
+* @see app/Http/Controllers/Admin/UserController.php:78
 * @route '/app/admin/users/{user}'
 */
 const editForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -297,7 +297,7 @@ const editForm = (args: { user: number | { id: number } } | [user: number | { id
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::edit
-* @see app/Http/Controllers/Admin/UserController.php:77
+* @see app/Http/Controllers/Admin/UserController.php:78
 * @route '/app/admin/users/{user}'
 */
 editForm.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -307,7 +307,7 @@ editForm.get = (args: { user: number | { id: number } } | [user: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::edit
-* @see app/Http/Controllers/Admin/UserController.php:77
+* @see app/Http/Controllers/Admin/UserController.php:78
 * @route '/app/admin/users/{user}'
 */
 editForm.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -324,7 +324,7 @@ edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::update
-* @see app/Http/Controllers/Admin/UserController.php:101
+* @see app/Http/Controllers/Admin/UserController.php:103
 * @route '/app/admin/users/{user}'
 */
 export const update = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -339,7 +339,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::update
-* @see app/Http/Controllers/Admin/UserController.php:101
+* @see app/Http/Controllers/Admin/UserController.php:103
 * @route '/app/admin/users/{user}'
 */
 update.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -372,7 +372,7 @@ update.url = (args: { user: number | { id: number } } | [user: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::update
-* @see app/Http/Controllers/Admin/UserController.php:101
+* @see app/Http/Controllers/Admin/UserController.php:103
 * @route '/app/admin/users/{user}'
 */
 update.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -382,7 +382,7 @@ update.put = (args: { user: number | { id: number } } | [user: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::update
-* @see app/Http/Controllers/Admin/UserController.php:101
+* @see app/Http/Controllers/Admin/UserController.php:103
 * @route '/app/admin/users/{user}'
 */
 const updateForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -397,7 +397,7 @@ const updateForm = (args: { user: number | { id: number } } | [user: number | { 
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::update
-* @see app/Http/Controllers/Admin/UserController.php:101
+* @see app/Http/Controllers/Admin/UserController.php:103
 * @route '/app/admin/users/{user}'
 */
 updateForm.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -414,7 +414,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::signOut
-* @see app/Http/Controllers/Admin/UserController.php:132
+* @see app/Http/Controllers/Admin/UserController.php:135
 * @route '/app/admin/users/{user}/sign-out'
 */
 export const signOut = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -429,7 +429,7 @@ signOut.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::signOut
-* @see app/Http/Controllers/Admin/UserController.php:132
+* @see app/Http/Controllers/Admin/UserController.php:135
 * @route '/app/admin/users/{user}/sign-out'
 */
 signOut.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -462,7 +462,7 @@ signOut.url = (args: { user: number | { id: number } } | [user: number | { id: n
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::signOut
-* @see app/Http/Controllers/Admin/UserController.php:132
+* @see app/Http/Controllers/Admin/UserController.php:135
 * @route '/app/admin/users/{user}/sign-out'
 */
 signOut.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -472,7 +472,7 @@ signOut.post = (args: { user: number | { id: number } } | [user: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::signOut
-* @see app/Http/Controllers/Admin/UserController.php:132
+* @see app/Http/Controllers/Admin/UserController.php:135
 * @route '/app/admin/users/{user}/sign-out'
 */
 const signOutForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -482,7 +482,7 @@ const signOutForm = (args: { user: number | { id: number } } | [user: number | {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::signOut
-* @see app/Http/Controllers/Admin/UserController.php:132
+* @see app/Http/Controllers/Admin/UserController.php:135
 * @route '/app/admin/users/{user}/sign-out'
 */
 signOutForm.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -494,7 +494,7 @@ signOut.form = signOutForm
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:143
+* @see app/Http/Controllers/Admin/UserController.php:146
 * @route '/app/admin/users/{user}/two-factor'
 */
 export const resetTwoFactor = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -509,7 +509,7 @@ resetTwoFactor.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:143
+* @see app/Http/Controllers/Admin/UserController.php:146
 * @route '/app/admin/users/{user}/two-factor'
 */
 resetTwoFactor.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -542,7 +542,7 @@ resetTwoFactor.url = (args: { user: number | { id: number } } | [user: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:143
+* @see app/Http/Controllers/Admin/UserController.php:146
 * @route '/app/admin/users/{user}/two-factor'
 */
 resetTwoFactor.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -552,7 +552,7 @@ resetTwoFactor.delete = (args: { user: number | { id: number } } | [user: number
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:143
+* @see app/Http/Controllers/Admin/UserController.php:146
 * @route '/app/admin/users/{user}/two-factor'
 */
 const resetTwoFactorForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -567,7 +567,7 @@ const resetTwoFactorForm = (args: { user: number | { id: number } } | [user: num
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::resetTwoFactor
-* @see app/Http/Controllers/Admin/UserController.php:143
+* @see app/Http/Controllers/Admin/UserController.php:146
 * @route '/app/admin/users/{user}/two-factor'
 */
 resetTwoFactorForm.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -584,7 +584,7 @@ resetTwoFactor.form = resetTwoFactorForm
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:157
+* @see app/Http/Controllers/Admin/UserController.php:160
 * @route '/app/admin/users/{user}'
 */
 export const destroy = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -599,7 +599,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:157
+* @see app/Http/Controllers/Admin/UserController.php:160
 * @route '/app/admin/users/{user}'
 */
 destroy.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -632,7 +632,7 @@ destroy.url = (args: { user: number | { id: number } } | [user: number | { id: n
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:157
+* @see app/Http/Controllers/Admin/UserController.php:160
 * @route '/app/admin/users/{user}'
 */
 destroy.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -642,7 +642,7 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:157
+* @see app/Http/Controllers/Admin/UserController.php:160
 * @route '/app/admin/users/{user}'
 */
 const destroyForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -657,7 +657,7 @@ const destroyForm = (args: { user: number | { id: number } } | [user: number | {
 
 /**
 * @see \App\Http\Controllers\Admin\UserController::destroy
-* @see app/Http/Controllers/Admin/UserController.php:157
+* @see app/Http/Controllers/Admin/UserController.php:160
 * @route '/app/admin/users/{user}'
 */
 destroyForm.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
