@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:226
+* @see app/Http/Controllers/Servers/ServerController.php:234
 * @route '/app/servers/{server}/host-key'
 */
 export const destroy = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -16,7 +16,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:226
+* @see app/Http/Controllers/Servers/ServerController.php:234
 * @route '/app/servers/{server}/host-key'
 */
 destroy.url = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ destroy.url = (args: { server: number | { id: number } } | [server: number | { i
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:226
+* @see app/Http/Controllers/Servers/ServerController.php:234
 * @route '/app/servers/{server}/host-key'
 */
 destroy.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -59,7 +59,7 @@ destroy.delete = (args: { server: number | { id: number } } | [server: number | 
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:226
+* @see app/Http/Controllers/Servers/ServerController.php:234
 * @route '/app/servers/{server}/host-key'
 */
 const destroyForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -74,7 +74,7 @@ const destroyForm = (args: { server: number | { id: number } } | [server: number
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
-* @see app/Http/Controllers/Servers/ServerController.php:226
+* @see app/Http/Controllers/Servers/ServerController.php:234
 * @route '/app/servers/{server}/host-key'
 */
 destroyForm.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

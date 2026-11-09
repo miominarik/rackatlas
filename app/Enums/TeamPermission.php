@@ -18,6 +18,7 @@ enum TeamPermission: string
     case SshKeys = 'ssh_keys';
     case Databases = 'databases';
     case DatabaseKill = 'database_kill';
+    case Redis = 'redis';
     case Docs = 'docs';
 
     /**

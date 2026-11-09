@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:20
+* @see app/Http/Controllers/Servers/TestConnectionController.php:21
 * @route '/app/servers/test-connection'
 */
 const TestConnectionController = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ TestConnectionController.definition = {
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:20
+* @see app/Http/Controllers/Servers/TestConnectionController.php:21
 * @route '/app/servers/test-connection'
 */
 TestConnectionController.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ TestConnectionController.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:20
+* @see app/Http/Controllers/Servers/TestConnectionController.php:21
 * @route '/app/servers/test-connection'
 */
 TestConnectionController.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ TestConnectionController.post = (options?: RouteQueryOptions): RouteDefinition<'
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:20
+* @see app/Http/Controllers/Servers/TestConnectionController.php:21
 * @route '/app/servers/test-connection'
 */
 const TestConnectionControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const TestConnectionControllerForm = (options?: RouteQueryOptions): RouteFormDef
 
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:20
+* @see app/Http/Controllers/Servers/TestConnectionController.php:21
 * @route '/app/servers/test-connection'
 */
 TestConnectionControllerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

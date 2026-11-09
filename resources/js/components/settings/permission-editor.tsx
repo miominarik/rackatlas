@@ -42,6 +42,10 @@ const labels: Record<string, { title: string; hint: string }> = {
         title: 'MySQL',
         hint: 'See the databases, edit means changing their connection',
     },
+    redis: {
+        title: 'Redis',
+        hint: 'See the Redis servers and Sentinel, edit means changing their connection',
+    },
     docs: {
         title: 'Documentation',
         hint: 'Write and change the documentation of servers and services',

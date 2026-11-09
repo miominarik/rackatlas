@@ -5,6 +5,7 @@ import {
     Database,
     KeyRound,
     Lock,
+    MemoryStick,
     Plus,
     Radio,
     ServerCog,
@@ -39,6 +40,7 @@ import { index } from '@/routes/servers';
 import type {
     ServerAuthType,
     ServerCategory,
+    RedisServerOption,
     ServerFormData,
     SshKey,
 } from '@/types';
@@ -48,6 +50,7 @@ type Props = {
     server: ServerFormData | null;
     categories: ServerCategory[];
     sshKeys: SshKey[];
+    redisServers: RedisServerOption[];
 };
 
 type TestResult = { success: boolean; message: string };
@@ -55,6 +58,7 @@ type TestResult = { success: boolean; message: string };
 const NEW_CATEGORY = '__new__';
 const NO_CATEGORY = '__none__';
 const NO_COUNTRY = '__none__';
+const NO_SENTINEL = '__none__';
 
 const ignorableAlerts: [string, string][] = [
     ['cpu', 'CPU'],
@@ -83,6 +87,9 @@ const stepFields: Record<number, string[]> = {
         'username',
         'password',
         'ssh_key_id',
+        'sentinel_peer_id',
+        'sentinel_port',
+        'sentinel_master_name',
     ],
 };
 
@@ -91,6 +98,7 @@ export default function ServerWizard({
     server,
     categories,
     sshKeys: initialKeys,
+    redisServers,
 }: Props) {
     const { t, locale } = useTranslation();
     const countries = sortedCountries(locale);
@@ -107,7 +115,7 @@ export default function ServerWizard({
     const [testResult, setTestResult] = useState<TestResult | null>(null);
 
     const form = useForm({
-        type: (server?.type ?? 'server') as 'server' | 'mysql',
+        type: (server?.type ?? 'server') as 'server' | 'mysql' | 'redis',
         name: server?.name ?? '',
         provider: server?.provider ?? '',
         country: server?.country ?? '',
@@ -124,6 +132,11 @@ export default function ServerWizard({
         password: '',
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
         ignored_alerts: server?.ignored_alerts ?? ([] as string[]),
+        sentinel_peer_id: server?.sentinel_peer_id
+            ? String(server.sentinel_peer_id)
+            : '',
+        sentinel_port: String(server?.sentinel_port ?? 26379),
+        sentinel_master_name: server?.sentinel_master_name ?? 'mymaster',
     });
 
     const tester = useHttp<Record<string, string>, TestResult>({});
@@ -135,7 +148,11 @@ export default function ServerWizard({
     ];
 
     const isMysql = form.data.type === 'mysql';
-    const isAgent = !isMysql && form.data.auth_type === 'agent';
+    const isRedis = form.data.type === 'redis';
+    const isDatabase = isMysql || isRedis;
+    const hasSentinel = isRedis && form.data.sentinel_peer_id !== '';
+    const sentinelPeers = redisServers.filter((peer) => peer.id !== server?.id);
+    const isAgent = !isDatabase && form.data.auth_type === 'agent';
     const sendsViaAgent = isAgent || form.data.uses_agent;
 
     const agentTerminalOption = (
@@ -174,6 +191,16 @@ export default function ServerWizard({
         }
 
         if (step === 1 && !isAgent) {
+            if (isRedis) {
+                return [
+                    'host',
+                    'port',
+                    ...(hasSentinel
+                        ? ['sentinel_port', 'sentinel_master_name']
+                        : []),
+                ];
+            }
+
             const address = ['host', 'port', 'username'];
 
             if (form.data.auth_type === 'key') {
@@ -229,13 +256,16 @@ export default function ServerWizard({
         }));
     };
 
-    const chooseType = (type: 'server' | 'mysql') => {
+    const chooseType = (type: 'server' | 'mysql' | 'redis') => {
+        const database = type !== 'server';
+
         form.setData((data) => ({
             ...data,
             type,
-            auth_type: type === 'mysql' ? 'password' : 'agent',
-            port: type === 'mysql' ? '3306' : '22',
-            username: type === 'mysql' ? '' : 'root',
+            auth_type: database ? 'password' : 'agent',
+            port: { server: '22', mysql: '3306', redis: '6379' }[type],
+            username: database ? '' : 'root',
+            sentinel_peer_id: '',
             uses_agent: false,
             agent_terminal: false,
         }));
@@ -252,6 +282,10 @@ export default function ServerWizard({
             auth_type: form.data.auth_type,
             password: form.data.password,
             ssh_key_id: form.data.ssh_key_id,
+            sentinel_port: hasSentinel ? form.data.sentinel_port : '',
+            sentinel_master_name: hasSentinel
+                ? form.data.sentinel_master_name
+                : '',
             server_id: server ? String(server.id) : '',
         }));
 
@@ -366,7 +400,7 @@ export default function ServerWizard({
                                 <div
                                     role="radiogroup"
                                     aria-label={t('What do you want to add?')}
-                                    className="grid gap-3 sm:grid-cols-2"
+                                    className="grid gap-3 sm:grid-cols-3"
                                 >
                                     {(
                                         [
@@ -385,6 +419,14 @@ export default function ServerWizard({
                                                     'Connections, queries, size and availability of a MySQL server.',
                                                 ),
                                                 Database,
+                                            ],
+                                            [
+                                                'redis',
+                                                t('Redis server'),
+                                                t(
+                                                    'Memory, clients, commands and replication of a Redis server, optionally with Redis Sentinel.',
+                                                ),
+                                                MemoryStick,
                                             ],
                                         ] as const
                                     ).map(([value, title, hint, Icon]) => (
@@ -598,7 +640,7 @@ export default function ServerWizard({
 
                     {step === 1 && (
                         <>
-                            {!isMysql && (
+                            {!isDatabase && (
                             <div
                                 role="radiogroup"
                                 aria-label={t('How do we get the data?')}
@@ -735,7 +777,9 @@ export default function ServerWizard({
                                             <Label htmlFor="port">
                                                 {isMysql
                                                     ? t('MySQL port')
-                                                    : t('SSH port')}
+                                                    : isRedis
+                                                      ? t('Redis port')
+                                                      : t('SSH port')}
                                             </Label>
                                             <Input
                                                 id="port"
@@ -756,7 +800,9 @@ export default function ServerWizard({
 
                                     <div className="grid gap-2">
                                         <Label htmlFor="username">
-                                            {t('Username')}
+                                            {isRedis
+                                                ? t('Username (optional)')
+                                                : t('Username')}
                                         </Label>
                                         <Input
                                             id="username"
@@ -776,7 +822,7 @@ export default function ServerWizard({
                                 </>
                             )}
 
-                            {!isAgent && !isMysql && (
+                            {!isAgent && !isDatabase && (
                                 <label className="flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-4 text-sm">
                                     <Checkbox
                                         checked={form.data.uses_agent}
@@ -811,7 +857,9 @@ export default function ServerWizard({
                             {form.data.auth_type === 'password' && (
                                 <div className="grid gap-2">
                                     <Label htmlFor="password">
-                                        {t('Password')}
+                                        {isRedis
+                                            ? t('Password (optional)')
+                                            : t('Password')}
                                     </Label>
                                     <PasswordInput
                                         id="password"
@@ -838,6 +886,116 @@ export default function ServerWizard({
                                         {t('The password is stored encrypted.')}
                                     </p>
                                 </div>
+                            )}
+
+                            {isRedis && (
+                                <fieldset className="space-y-4 rounded-lg border bg-card p-4">
+                                    <legend className="px-1 text-sm font-medium">
+                                        {t('Redis Sentinel')}
+                                    </legend>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t(
+                                            'If this server and another Redis server are connected through Redis Sentinel, choose the other one. Sentinel is expected on the same host and uses the same username and password.',
+                                        )}
+                                    </p>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="sentinel_peer_id">
+                                            {t('Connected with')}
+                                        </Label>
+                                        <Select
+                                            value={
+                                                form.data.sentinel_peer_id ||
+                                                NO_SENTINEL
+                                            }
+                                            onValueChange={(value) =>
+                                                form.setData(
+                                                    'sentinel_peer_id',
+                                                    value === NO_SENTINEL
+                                                        ? ''
+                                                        : value,
+                                                )
+                                            }
+                                        >
+                                            <SelectTrigger
+                                                id="sentinel_peer_id"
+                                                data-test="sentinel-peer-select"
+                                            >
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={NO_SENTINEL}>
+                                                    {t('No Sentinel')}
+                                                </SelectItem>
+                                                {sentinelPeers.map((peer) => (
+                                                    <SelectItem
+                                                        key={peer.id}
+                                                        value={String(peer.id)}
+                                                    >
+                                                        {peer.name} (
+                                                        {peer.host}:{peer.port})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError
+                                            message={form.errors.sentinel_peer_id}
+                                        />
+                                    </div>
+                                    {hasSentinel && (
+                                        <div className="grid gap-4 sm:grid-cols-[1fr_9rem]">
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="sentinel_master_name">
+                                                    {t('Master name')}
+                                                </Label>
+                                                <Input
+                                                    id="sentinel_master_name"
+                                                    value={
+                                                        form.data
+                                                            .sentinel_master_name
+                                                    }
+                                                    onChange={(e) =>
+                                                        form.setData(
+                                                            'sentinel_master_name',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    placeholder="mymaster"
+                                                    autoComplete="off"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        form.errors
+                                                            .sentinel_master_name
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="sentinel_port">
+                                                    {t('Sentinel port')}
+                                                </Label>
+                                                <Input
+                                                    id="sentinel_port"
+                                                    inputMode="numeric"
+                                                    value={
+                                                        form.data.sentinel_port
+                                                    }
+                                                    onChange={(e) =>
+                                                        form.setData(
+                                                            'sentinel_port',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        form.errors
+                                                            .sentinel_port
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </fieldset>
                             )}
 
                             {form.data.auth_type === 'key' && (
@@ -969,9 +1127,17 @@ export default function ServerWizard({
                                         : [
                                               [
                                                   t('Address'),
-                                                  `${form.data.username}@${form.data.host}:${form.data.port}`,
+                                                  `${form.data.username ? `${form.data.username}@` : ''}${form.data.host}:${form.data.port}`,
                                               ],
                                           ]),
+                                    ...(hasSentinel
+                                        ? [
+                                              [
+                                                  t('Redis Sentinel'),
+                                                  `${form.data.sentinel_master_name} · ${t('port :port', { port: form.data.sentinel_port })} · ${sentinelPeers.find((peer) => String(peer.id) === form.data.sentinel_peer_id)?.name ?? ''}`,
+                                              ],
+                                          ]
+                                        : []),
                                     [
                                         t('Category'),
                                         categoryChoice === NEW_CATEGORY

@@ -78,6 +78,10 @@ class ServerController extends Controller
             return to_route('databases.show', $server);
         }
 
+        if ($server->isRedis()) {
+            return to_route('redis.index');
+        }
+
         $server->load(['category', 'sshKey', 'latestMetric.disks']);
         $metric = $server->latestMetric;
 
@@ -185,6 +189,7 @@ class ServerController extends Controller
         $team = $request->team();
 
         $server = $team->servers()->create($this->attributes($request, $team));
+        $this->linkSentinel($request, $server);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Server added.')]);
 
@@ -216,6 +221,9 @@ class ServerController extends Controller
                 'server_category_id' => $server->server_category_id,
                 'ssh_host_fingerprint' => $server->ssh_host_fingerprint,
                 'ignored_alerts' => $server->ignored_alerts ?? [],
+                'sentinel_peer_id' => $server->sentinel_peer_id,
+                'sentinel_port' => $server->sentinel_port,
+                'sentinel_master_name' => $server->sentinel_master_name,
             ],
         ]);
     }
@@ -253,6 +261,7 @@ class ServerController extends Controller
         }
 
         $server->update($attributes);
+        $this->linkSentinel($request, $server);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Server updated.')]);
 
@@ -283,7 +292,29 @@ class ServerController extends Controller
             'server' => null,
             'categories' => $team->serverCategories()->orderBy('name')->get(['id', 'name', 'color']),
             'sshKeys' => $team->sshKeys()->orderBy('name')->get(['id', 'name', 'algorithm', 'fingerprint', 'public_key']),
+            'redisServers' => $team->servers()->redis()->orderBy('name')->get(['id', 'name', 'host', 'port']),
         ];
+    }
+
+    /**
+     * Connect a Redis server with the one it runs Redis Sentinel with, or remove the link.
+     */
+    private function linkSentinel(ServerRequest $request, Server $server): void
+    {
+        if (! $server->isRedis()) {
+            return;
+        }
+
+        $data = $request->validated();
+        $peer = filled($data['sentinel_peer_id'] ?? null)
+            ? $server->team->servers()->redis()->find($data['sentinel_peer_id'])
+            : null;
+
+        $server->linkSentinel(
+            $peer,
+            $peer !== null ? (int) $data['sentinel_port'] : null,
+            $peer !== null ? $data['sentinel_master_name'] : null,
+        );
     }
 
     /**
@@ -300,6 +331,25 @@ class ServerController extends Controller
         if (filled($data['new_category'] ?? null)) {
             $categoryId = $team->serverCategories()
                 ->firstOrCreate(['name' => trim($data['new_category'])])->id;
+        }
+
+        if ($request->serverType() === ServerType::Redis) {
+            return [
+                'type' => ServerType::Redis->value,
+                'name' => $data['name'],
+                'provider' => filled($data['provider'] ?? null) ? trim($data['provider']) : null,
+                'country' => $data['country'] ?? null,
+                'host' => $data['host'],
+                'port' => $data['port'] ?? 6379,
+                'username' => filled($data['username'] ?? null) ? $data['username'] : null,
+                'server_category_id' => $categoryId,
+                'auth_type' => ServerAuthType::Password->value,
+                'uses_agent' => false,
+                'agent_terminal' => false,
+                'password' => $data['password'] ?? null,
+                'ssh_key_id' => null,
+                'ignored_alerts' => null,
+            ];
         }
 
         if ($request->serverType() === ServerType::Mysql) {
@@ -367,7 +417,7 @@ class ServerController extends Controller
      */
     private function afterSave(Server $server): RedirectResponse
     {
-        if ($server->isMysql()) {
+        if ($server->isMysql() || $server->isRedis()) {
             return to_route('servers.index');
         }
 

@@ -3,6 +3,7 @@ import {
     Database,
     KeyRound,
     Lock,
+    MemoryStick,
     Pencil,
     Plus,
     Radio,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import DatabaseController from '@/actions/App/Http/Controllers/DatabaseController';
+import RedisController from '@/actions/App/Http/Controllers/RedisController';
 import ServerController from '@/actions/App/Http/Controllers/Servers/ServerController';
 import CategoryManager from '@/components/servers/category-manager';
 import { Button } from '@/components/ui/button';
@@ -62,7 +64,8 @@ function ServerRow({
     const { t } = useTranslation();
 
     const isMysql = server.type === 'mysql';
-    const Icon = isMysql ? Database : Server;
+    const isRedis = server.type === 'redis';
+    const Icon = isMysql ? Database : isRedis ? MemoryStick : Server;
 
     const statusLabel = {
         online: t('Online'),
@@ -86,9 +89,13 @@ function ServerRow({
             </div>
             <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">
-                    {isMysql ? (
+                    {isMysql || isRedis ? (
                         <Link
-                            href={DatabaseController.show(server.id)}
+                            href={
+                                isMysql
+                                    ? DatabaseController.show(server.id)
+                                    : RedisController.index()
+                            }
                             className="hover:underline"
                         >
                             {server.name}
@@ -98,8 +105,8 @@ function ServerRow({
                     )}
                 </p>
                 <p className="truncate font-mono text-xs text-muted-foreground">
-                    {isMysql
-                        ? `${server.username}@${server.host}:${server.port}`
+                    {isMysql || isRedis
+                        ? `${server.username ? `${server.username}@` : ''}${server.host}:${server.port}`
                         : serverAddress(server, t('Agent'))}
                 </p>
                 {server.metrics ? (
@@ -141,6 +148,11 @@ function ServerRow({
                     <>
                         <Database className="size-3" />
                         MySQL
+                    </>
+                ) : isRedis ? (
+                    <>
+                        <MemoryStick className="size-3" />
+                        Redis
                     </>
                 ) : server.uses_agent ? (
                     <>

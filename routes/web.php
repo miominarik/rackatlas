@@ -18,6 +18,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\MetricsProcessesController;
 use App\Http\Controllers\PrivacyController;
+use App\Http\Controllers\RedisController;
 use App\Http\Controllers\Servers\LogController;
 use App\Http\Controllers\Servers\ServerAgentController;
 use App\Http\Controllers\Servers\ServerCategoryController;
@@ -76,6 +77,8 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:30,1')
         ->name('databases.processes.kill')
         ->whereNumber(['server', 'process']);
+
+    Route::get('redis', [RedisController::class, 'index'])->middleware('permission:redis.view')->name('redis.index');
 
     Route::get('map', MapController::class)->middleware('permission:map.view')->name('map');
     Route::get('terminal', TerminalController::class)->middleware('permission:terminal.edit')->name('terminal');

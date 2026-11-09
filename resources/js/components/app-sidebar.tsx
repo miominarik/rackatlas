@@ -9,6 +9,7 @@ import {
     LayoutGrid,
     Map as MapIcon,
     Map,
+    MemoryStick,
     ScrollText,
     Server,
     Shield,
@@ -34,6 +35,7 @@ import { index as databasesIndex } from '@/routes/databases';
 import { index as documentsIndex } from '@/routes/documents';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
+import { index as redisIndex } from '@/routes/redis';
 import { index as serversIndex } from '@/routes/servers';
 import { index as sshKeysIndex } from '@/routes/ssh-keys';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -47,6 +49,12 @@ const databaseNavItems: NavItem[] = [
         permission: 'databases.view',
         href: databasesIndex(),
         icon: Database,
+    },
+    {
+        title: 'Redis',
+        permission: 'redis.view',
+        href: redisIndex(),
+        icon: MemoryStick,
     },
 ];
 

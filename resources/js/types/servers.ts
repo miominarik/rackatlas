@@ -16,7 +16,7 @@ export type SshKey = {
     servers_count?: number;
 };
 
-export type ServerType = 'server' | 'mysql';
+export type ServerType = 'server' | 'mysql' | 'redis';
 
 export type ServerStatus = 'unknown' | 'online' | 'offline';
 
@@ -63,6 +63,16 @@ export type ServerFormData = {
     server_category_id: number | null;
     ssh_host_fingerprint?: string | null;
     ignored_alerts: string[];
+    sentinel_peer_id: number | null;
+    sentinel_port: number | null;
+    sentinel_master_name: string | null;
+};
+
+export type RedisServerOption = {
+    id: number;
+    name: string;
+    host: string;
+    port: number;
 };
 
 export type Backup = {
@@ -110,4 +120,76 @@ export type DatabaseSummary = {
     status: ServerStatus;
     last_checked_at: string | null;
     metric: DatabaseMetric | null;
+};
+
+export type RedisMetric = {
+    collected_at: string;
+    version: string | null;
+    role: string | null;
+    uptime_seconds: number;
+    connected_clients: number;
+    blocked_clients: number;
+    max_clients: number;
+    used_memory: number;
+    max_memory: number;
+    memory_percent: number | null;
+    used_memory_rss: number;
+    commands_per_second: number | null;
+    hit_rate_percent: number | null;
+    evicted_keys_total: number;
+    rejected_connections_total: number;
+    keys_count: number;
+    connected_replicas: number;
+    master: string | null;
+    master_link_status: string | null;
+    master_last_io_seconds_ago: number | null;
+    persistence_ok: boolean | null;
+};
+
+export type RedisSummary = {
+    id: number;
+    name: string;
+    host: string;
+    port: number;
+    status: ServerStatus;
+    last_checked_at: string | null;
+    sentinel_peer_id: number | null;
+    metric: RedisMetric | null;
+};
+
+export type SentinelReport =
+    | {
+          reachable: true;
+          master_name: string;
+          master_ip: string | null;
+          master_port: number | null;
+          master_flags: string[];
+          master_down: boolean;
+          failover_in_progress: boolean;
+          quorum: number | null;
+          known_sentinels: number;
+          quorum_ok: boolean;
+          quorum_message: string;
+          replicas: {
+              ip: string | null;
+              port: number | null;
+              flags: string[];
+              link_status: string | null;
+              link_down_seconds: number | null;
+          }[];
+      }
+    | { reachable: false; master_name: string; error: string };
+
+export type SentinelGroup = {
+    master_name: string;
+    agree: boolean;
+    masters: string[];
+    members: {
+        server_id: number;
+        server_name: string;
+        port: number | null;
+        collected_at: string | null;
+        sentinel: SentinelReport | null;
+    }[];
+    roles: Record<string, string | null>;
 };
