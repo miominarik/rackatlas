@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
 * @see app/Http/Controllers/HomeController.php:16
@@ -43,42 +43,6 @@ HomeController980bb49ee7ae63891f1d891d2fbcf1c9.head = (options?: RouteQueryOptio
     method: 'head',
 })
 
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/'
-*/
-const HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: HomeController980bb49ee7ae63891f1d891d2fbcf1c9.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/'
-*/
-HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: HomeController980bb49ee7ae63891f1d891d2fbcf1c9.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/'
-*/
-HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: HomeController980bb49ee7ae63891f1d891d2fbcf1c9.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-HomeController980bb49ee7ae63891f1d891d2fbcf1c9.form = HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
 * @see app/Http/Controllers/HomeController.php:16
@@ -140,43 +104,6 @@ HomeControllerbf65595efa5b2f0b55f31d01179be727.head = (args: { locale: string | 
     url: HomeControllerbf65595efa5b2f0b55f31d01179be727.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/{locale}'
-*/
-const HomeControllerbf65595efa5b2f0b55f31d01179be727Form = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: HomeControllerbf65595efa5b2f0b55f31d01179be727.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/{locale}'
-*/
-HomeControllerbf65595efa5b2f0b55f31d01179be727Form.get = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: HomeControllerbf65595efa5b2f0b55f31d01179be727.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/{locale}'
-*/
-HomeControllerbf65595efa5b2f0b55f31d01179be727Form.head = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: HomeControllerbf65595efa5b2f0b55f31d01179be727.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-HomeControllerbf65595efa5b2f0b55f31d01179be727.form = HomeControllerbf65595efa5b2f0b55f31d01179be727Form
 
 /**
 * Multiple routes resolve to \App\Http\Controllers\HomeController::HomeController, so this export is a

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\TeamMemberController::update
 * @see app/Http/Controllers/Settings/TeamMemberController.php:20
@@ -55,38 +55,6 @@ update.patch = (args: { team: number | { id: number }, member: number | { id: nu
 })
 
 /**
-* @see \App\Http\Controllers\Settings\TeamMemberController::update
-* @see app/Http/Controllers/Settings/TeamMemberController.php:20
-* @route '/app/settings/teams/{team}/members/{member}'
-*/
-const updateForm = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Settings\TeamMemberController::update
-* @see app/Http/Controllers/Settings/TeamMemberController.php:20
-* @route '/app/settings/teams/{team}/members/{member}'
-*/
-updateForm.patch = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Settings\TeamMemberController::destroy
 * @see app/Http/Controllers/Settings/TeamMemberController.php:45
 * @route '/app/settings/teams/{team}/members/{member}'
@@ -140,38 +108,6 @@ destroy.delete = (args: { team: number | { id: number }, member: number | { id: 
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Settings\TeamMemberController::destroy
-* @see app/Http/Controllers/Settings/TeamMemberController.php:45
-* @route '/app/settings/teams/{team}/members/{member}'
-*/
-const destroyForm = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Settings\TeamMemberController::destroy
-* @see app/Http/Controllers/Settings/TeamMemberController.php:45
-* @route '/app/settings/teams/{team}/members/{member}'
-*/
-destroyForm.delete = (args: { team: number | { id: number }, member: number | { id: number } } | [team: number | { id: number }, member: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const TeamMemberController = { update, destroy }
 

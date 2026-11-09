@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Servers\ServerAgentController::show
 * @see app/Http/Controllers/Servers/ServerAgentController.php:17
@@ -68,43 +68,6 @@ show.head = (args: { server: number | { id: number } } | [server: number | { id:
 })
 
 /**
-* @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:17
-* @route '/app/servers/{server}/agent'
-*/
-const showForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:17
-* @route '/app/servers/{server}/agent'
-*/
-showForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Servers\ServerAgentController::show
-* @see app/Http/Controllers/Servers/ServerAgentController.php:17
-* @route '/app/servers/{server}/agent'
-*/
-showForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Servers\ServerAgentController::rotate
 * @see app/Http/Controllers/Servers/ServerAgentController.php:46
 * @route '/app/servers/{server}/agent/token'
@@ -161,28 +124,6 @@ rotate.post = (args: { server: number | { id: number } } | [server: number | { i
     url: rotate.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:46
-* @route '/app/servers/{server}/agent/token'
-*/
-const rotateForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: rotate.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Servers\ServerAgentController::rotate
-* @see app/Http/Controllers/Servers/ServerAgentController.php:46
-* @route '/app/servers/{server}/agent/token'
-*/
-rotateForm.post = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: rotate.url(args, options),
-    method: 'post',
-})
-
-rotate.form = rotateForm
 
 const ServerAgentController = { show, rotate }
 

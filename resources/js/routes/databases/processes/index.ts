@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\DatabaseProcessController::index
 * @see app/Http/Controllers/DatabaseProcessController.php:15
@@ -68,43 +68,6 @@ index.head = (args: { server: number | { id: number } } | [server: number | { id
 })
 
 /**
-* @see \App\Http\Controllers\DatabaseProcessController::index
-* @see app/Http/Controllers/DatabaseProcessController.php:15
-* @route '/app/databases/{server}/processes'
-*/
-const indexForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\DatabaseProcessController::index
-* @see app/Http/Controllers/DatabaseProcessController.php:15
-* @route '/app/databases/{server}/processes'
-*/
-indexForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\DatabaseProcessController::index
-* @see app/Http/Controllers/DatabaseProcessController.php:15
-* @route '/app/databases/{server}/processes'
-*/
-indexForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\DatabaseProcessController::kill
 * @see app/Http/Controllers/DatabaseProcessController.php:30
 * @route '/app/databases/{server}/processes/{process}/kill'
@@ -156,28 +119,6 @@ kill.post = (args: { server: number | { id: number }, process: string | number }
     url: kill.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\DatabaseProcessController::kill
-* @see app/Http/Controllers/DatabaseProcessController.php:30
-* @route '/app/databases/{server}/processes/{process}/kill'
-*/
-const killForm = (args: { server: number | { id: number }, process: string | number } | [server: number | { id: number }, process: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: kill.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\DatabaseProcessController::kill
-* @see app/Http/Controllers/DatabaseProcessController.php:30
-* @route '/app/databases/{server}/processes/{process}/kill'
-*/
-killForm.post = (args: { server: number | { id: number }, process: string | number } | [server: number | { id: number }, process: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: kill.url(args, options),
-    method: 'post',
-})
-
-kill.form = killForm
 
 const processes = {
     index: Object.assign(index, index),

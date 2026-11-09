@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\CrawlerController::robots
 * @see app/Http/Controllers/CrawlerController.php:12
@@ -44,43 +44,6 @@ robots.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\CrawlerController::robots
-* @see app/Http/Controllers/CrawlerController.php:12
-* @route '/robots.txt'
-*/
-const robotsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: robots.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\CrawlerController::robots
-* @see app/Http/Controllers/CrawlerController.php:12
-* @route '/robots.txt'
-*/
-robotsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: robots.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\CrawlerController::robots
-* @see app/Http/Controllers/CrawlerController.php:12
-* @route '/robots.txt'
-*/
-robotsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: robots.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-robots.form = robotsForm
-
-/**
 * @see \App\Http\Controllers\CrawlerController::sitemap
 * @see app/Http/Controllers/CrawlerController.php:29
 * @route '/sitemap.xml'
@@ -123,43 +86,6 @@ sitemap.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: sitemap.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\CrawlerController::sitemap
-* @see app/Http/Controllers/CrawlerController.php:29
-* @route '/sitemap.xml'
-*/
-const sitemapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: sitemap.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\CrawlerController::sitemap
-* @see app/Http/Controllers/CrawlerController.php:29
-* @route '/sitemap.xml'
-*/
-sitemapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: sitemap.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\CrawlerController::sitemap
-* @see app/Http/Controllers/CrawlerController.php:29
-* @route '/sitemap.xml'
-*/
-sitemapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: sitemap.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-sitemap.form = sitemapForm
 
 const CrawlerController = { robots, sitemap }
 

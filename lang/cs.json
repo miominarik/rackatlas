@@ -1235,5 +1235,12 @@
     "Where else you are signed in.": "Kde jinde jsi přihlášen.",
     "You are not signed in anywhere else.": "Nikde jinde nejsi přihlášen.",
     "Last active": "Poslední aktivita",
-    "IP address": "IP adresa"
+    "IP address": "IP adresa",
+    "Servers online": "Servery online",
+    "Need attention": "Vyžadují pozornost",
+    ":count offline": ":count offline",
+    "Open incidents: :count": "Otevřené incidenty: :count",
+    "Load": "Zátěž",
+    "Incidents": "Incidenty",
+    "All servers of the team :team side by side": "Všechny servery týmu :team vedle sebe"
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Server;
+use App\Services\Metrics\FleetReport;
 use App\Services\Metrics\MetricsReport;
 use App\Support\DashboardSettings;
 use Illuminate\Http\Request;
@@ -23,15 +24,32 @@ class MetricsController extends Controller
         }
 
         $validated = $request->validate([
-            'server' => ['nullable', 'integer'],
+            'server' => ['nullable', 'string', 'regex:/^(all|\d+)$/'],
             'range' => ['nullable', 'in:'.implode(',', array_keys(MetricsReport::RANGES))],
         ]);
 
         $servers = $team->machines()->orderBy('name')->get(['id', 'name', 'status', 'auth_type', 'agent_version', 'last_seen_at', 'last_checked_at']);
 
-        /** @var Server|null $server */
-        $server = $servers->firstWhere('id', $validated['server'] ?? null) ?? $servers->first();
         $range = $validated['range'] ?? '24h';
+        $requested = $validated['server'] ?? 'all';
+
+        if ($requested === 'all' && $servers->isNotEmpty()) {
+            return Inertia::render('metrics', [
+                'team' => $team->only('id', 'name'),
+                'servers' => $servers->map(fn (Server $s) => ['id' => $s->id, 'name' => $s->name])->values(),
+                'server' => null,
+                'range' => $range,
+                'ranges' => array_keys(MetricsReport::RANGES),
+                'thresholds' => DashboardSettings::defaults()['thresholds'],
+                'fleet' => (new FleetReport(
+                    $team->machines()->with('latestMetric.disks')->orderBy('name')->get(),
+                    $range,
+                ))->build(),
+            ]);
+        }
+
+        /** @var Server|null $server */
+        $server = $servers->firstWhere('id', (int) $requested) ?? $servers->first();
 
         return Inertia::render('metrics', [
             'team' => $team->only('id', 'name'),
@@ -47,6 +65,7 @@ class MetricsController extends Controller
             'range' => $range,
             'ranges' => array_keys(MetricsReport::RANGES),
             'thresholds' => DashboardSettings::defaults()['thresholds'],
+            'fleet' => null,
             'current' => $server ? MetricsReport::current($server) : null,
             'report' => $server ? (new MetricsReport($server, $range))->build() : null,
         ]);

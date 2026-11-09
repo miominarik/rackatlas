@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\MapController::__invoke
 * @see app/Http/Controllers/MapController.php:15
@@ -42,42 +42,5 @@ MapController.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     url: MapController.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\MapController::__invoke
-* @see app/Http/Controllers/MapController.php:15
-* @route '/app/map'
-*/
-const MapControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: MapController.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\MapController::__invoke
-* @see app/Http/Controllers/MapController.php:15
-* @route '/app/map'
-*/
-MapControllerForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: MapController.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\MapController::__invoke
-* @see app/Http/Controllers/MapController.php:15
-* @route '/app/map'
-*/
-MapControllerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: MapController.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-MapController.form = MapControllerForm
 
 export default MapController

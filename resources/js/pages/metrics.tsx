@@ -2,6 +2,7 @@ import { Head, Link, router, usePoll } from '@inertiajs/react';
 import { Activity } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import FleetView from '@/components/metrics/fleet-view';
 import LineChart from '@/components/metrics/line-chart';
 import ProcessesPanel from '@/components/metrics/processes-panel';
 import type { ChartSeries } from '@/components/metrics/line-chart';
@@ -28,6 +29,7 @@ import { index as serversIndex } from '@/routes/servers';
 import { index as teamsIndex } from '@/routes/teams';
 import type {
     DashboardThresholds,
+    FleetReport,
     MetricsCurrent,
     MetricsIncident,
     MetricsRange,
@@ -44,6 +46,7 @@ type Props = {
     thresholds?: DashboardThresholds;
     current?: MetricsCurrent | null;
     report?: MetricsReport | null;
+    fleet?: FleetReport | null;
 };
 
 const RANGE_SECONDS: Record<MetricsRange, number> = {
@@ -183,10 +186,11 @@ export default function Metrics({
     thresholds,
     current = null,
     report = null,
+    fleet = null,
 }: Props) {
     const { t, locale } = useTranslation();
 
-    usePoll(60000, { only: ['current', 'report', 'server'] });
+    usePoll(60000, { only: ['current', 'report', 'server', 'fleet'] });
 
     // The point of the charts the viewer picked to see which programs were running then.
     const [selected, setSelected] = useState<number | null>(null);
@@ -204,6 +208,101 @@ export default function Metrics({
                     <Button asChild>
                         <Link href={teamsIndex()}>{t('Create team')}</Link>
                     </Button>
+                </div>
+            </>
+        );
+    }
+
+    const go = (next: { server?: number | 'all'; range?: MetricsRange }) =>
+        router.get(
+            index(),
+            {
+                server: next.server ?? (fleet ? 'all' : server?.id),
+                range: next.range ?? range,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+                only: ['server', 'range', 'current', 'report', 'fleet'],
+            },
+        );
+
+    const controls = (
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <Select
+                value={fleet ? 'all' : String(server?.id)}
+                onValueChange={(value) =>
+                    go({ server: value === 'all' ? 'all' : Number(value) })
+                }
+            >
+                <SelectTrigger
+                    className="w-full sm:w-56"
+                    aria-label={t('Server')}
+                >
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{t('All servers')}</SelectItem>
+                    {servers.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <div
+                className="flex gap-1 overflow-x-auto rounded-lg bg-muted p-1"
+                role="group"
+                aria-label={t('Time range')}
+            >
+                {ranges.map((item) => (
+                    <button
+                        key={item}
+                        type="button"
+                        onClick={() => go({ range: item })}
+                        aria-pressed={item === range}
+                        className={cn(
+                            'flex-1 rounded-md px-3 py-1 text-sm whitespace-nowrap transition-colors',
+                            item === range
+                                ? 'bg-background font-medium shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground',
+                        )}
+                    >
+                        {item}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+
+    if (fleet && thresholds) {
+        return (
+            <>
+                <Head title={t('Metrics')} />
+
+                <div className="mx-auto w-full max-w-[100rem] min-w-0 space-y-6 p-4 md:p-6">
+                    <div className="flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-semibold">
+                                {t('Metrics')}
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                {t(
+                                    'All servers of the team :team side by side',
+                                    { team: team.name },
+                                )}
+                            </p>
+                        </div>
+                        {controls}
+                    </div>
+
+                    <FleetView
+                        fleet={fleet}
+                        thresholds={thresholds}
+                        onOpen={(id) => go({ server: id })}
+                    />
                 </div>
             </>
         );
@@ -232,21 +331,6 @@ export default function Metrics({
             </>
         );
     }
-
-    const go = (next: { server?: number; range?: MetricsRange }) =>
-        router.get(
-            index(),
-            {
-                server: next.server ?? server.id,
-                range: next.range ?? range,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-                only: ['server', 'range', 'current', 'report'],
-            },
-        );
 
     const points = report.points;
     const times = points.map((point) => point.t);
@@ -381,54 +465,7 @@ export default function Metrics({
                         </p>
                     </div>
 
-                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-                        <Select
-                            value={String(server.id)}
-                            onValueChange={(value) =>
-                                go({ server: Number(value) })
-                            }
-                        >
-                            <SelectTrigger
-                                className="w-full sm:w-56"
-                                aria-label={t('Server')}
-                            >
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {servers.map((item) => (
-                                    <SelectItem
-                                        key={item.id}
-                                        value={String(item.id)}
-                                    >
-                                        {item.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
-                        <div
-                            className="flex gap-1 overflow-x-auto rounded-lg bg-muted p-1"
-                            role="group"
-                            aria-label={t('Time range')}
-                        >
-                            {ranges.map((item) => (
-                                <button
-                                    key={item}
-                                    type="button"
-                                    onClick={() => go({ range: item })}
-                                    aria-pressed={item === range}
-                                    className={cn(
-                                        'flex-1 rounded-md px-3 py-1 text-sm whitespace-nowrap transition-colors',
-                                        item === range
-                                            ? 'bg-background font-medium shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground',
-                                    )}
-                                >
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    {controls}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">

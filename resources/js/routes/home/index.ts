@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
 * @see app/Http/Controllers/HomeController.php:16
@@ -60,43 +60,6 @@ localized.head = (args: { locale: string | number } | [locale: string | number ]
     url: localized.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/{locale}'
-*/
-const localizedForm = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: localized.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/{locale}'
-*/
-localizedForm.get = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: localized.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
-* @route '/{locale}'
-*/
-localizedForm.head = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: localized.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-localized.form = localizedForm
 
 const home = {
     localized: Object.assign(localized, localized),

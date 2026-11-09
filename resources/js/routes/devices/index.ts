@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
 * @see app/Http/Controllers/Settings/DeviceController.php:19
@@ -44,43 +44,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
-* @route '/app/settings/devices'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
-* @route '/app/settings/devices'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
-* @route '/app/settings/devices'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
 * @see app/Http/Controllers/Settings/DeviceController.php:78
 * @route '/app/settings/devices/sign-out-others'
@@ -113,28 +76,6 @@ destroyOthers.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
     url: destroyOthers.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
-* @see app/Http/Controllers/Settings/DeviceController.php:78
-* @route '/app/settings/devices/sign-out-others'
-*/
-const destroyOthersForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroyOthers.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
-* @see app/Http/Controllers/Settings/DeviceController.php:78
-* @route '/app/settings/devices/sign-out-others'
-*/
-destroyOthersForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroyOthers.url(options),
-    method: 'post',
-})
-
-destroyOthers.form = destroyOthersForm
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::update
@@ -195,38 +136,6 @@ update.patch = (args: { device: number | { id: number } } | [device: number | { 
 })
 
 /**
-* @see \App\Http\Controllers\Settings\DeviceController::update
-* @see app/Http/Controllers/Settings/DeviceController.php:44
-* @route '/app/settings/devices/{device}'
-*/
-const updateForm = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Settings\DeviceController::update
-* @see app/Http/Controllers/Settings/DeviceController.php:44
-* @route '/app/settings/devices/{device}'
-*/
-updateForm.patch = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Settings\DeviceController::destroy
 * @see app/Http/Controllers/Settings/DeviceController.php:60
 * @route '/app/settings/devices/{device}'
@@ -283,38 +192,6 @@ destroy.delete = (args: { device: number | { id: number } } | [device: number | 
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Settings\DeviceController::destroy
-* @see app/Http/Controllers/Settings/DeviceController.php:60
-* @route '/app/settings/devices/{device}'
-*/
-const destroyForm = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Settings\DeviceController::destroy
-* @see app/Http/Controllers/Settings/DeviceController.php:60
-* @route '/app/settings/devices/{device}'
-*/
-destroyForm.delete = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const devices = {
     index: Object.assign(index, index),

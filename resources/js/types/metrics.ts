@@ -97,3 +97,42 @@ export type MetricsProcessSample = {
     memory_total: number;
     processes: MetricsProcess[];
 };
+
+export type FleetPoint = {
+    t: number;
+    samples: number;
+    cpu: number | null;
+    cpu_max: number | null;
+    ram: number | null;
+    rx: number | null;
+    tx: number | null;
+};
+
+export type FleetServer = {
+    id: number;
+    name: string;
+    status: 'unknown' | 'online' | 'offline';
+    last_seen_at: string | null;
+    open_alerts: number;
+    availability: number | null;
+    current: {
+        collected_at: string;
+        cpu_percent: number;
+        cpu_cores: number;
+        load_1: number;
+        memory_total: number;
+        memory_used: number;
+        net_rx_bps: number | null;
+        net_tx_bps: number | null;
+        uptime_seconds: number;
+        disks: { mount: string; total_bytes: number; used_bytes: number }[];
+    } | null;
+    points: FleetPoint[];
+};
+
+export type FleetReport = {
+    range: MetricsRange;
+    bucket_seconds: number;
+    generated_at: string;
+    servers: FleetServer[];
+};

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
 import metrics9dd1a4 from './metrics'
 /**
 * @see \App\Http\Controllers\Api\V1\ServerController::index
@@ -43,43 +43,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerController::index
-* @see app/Http/Controllers/Api/V1/ServerController.php:14
-* @route '/api/v1/servers'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerController::index
-* @see app/Http/Controllers/Api/V1/ServerController.php:14
-* @route '/api/v1/servers'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerController::index
-* @see app/Http/Controllers/Api/V1/ServerController.php:14
-* @route '/api/v1/servers'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\V1\ServerController::show
@@ -144,43 +107,6 @@ show.head = (args: { server: string | number } | [server: string | number ] | st
 })
 
 /**
-* @see \App\Http\Controllers\Api\V1\ServerController::show
-* @see app/Http/Controllers/Api/V1/ServerController.php:24
-* @route '/api/v1/servers/{server}'
-*/
-const showForm = (args: { server: string | number } | [server: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerController::show
-* @see app/Http/Controllers/Api/V1/ServerController.php:24
-* @route '/api/v1/servers/{server}'
-*/
-showForm.get = (args: { server: string | number } | [server: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerController::show
-* @see app/Http/Controllers/Api/V1/ServerController.php:24
-* @route '/api/v1/servers/{server}'
-*/
-showForm.head = (args: { server: string | number } | [server: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Api\V1\ServerMetricController::metrics
 * @see app/Http/Controllers/Api/V1/ServerMetricController.php:14
 * @route '/api/v1/servers/{server}/metrics'
@@ -241,43 +167,6 @@ metrics.head = (args: { server: string | number } | [server: string | number ] |
     url: metrics.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerMetricController::metrics
-* @see app/Http/Controllers/Api/V1/ServerMetricController.php:14
-* @route '/api/v1/servers/{server}/metrics'
-*/
-const metricsForm = (args: { server: string | number } | [server: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metrics.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerMetricController::metrics
-* @see app/Http/Controllers/Api/V1/ServerMetricController.php:14
-* @route '/api/v1/servers/{server}/metrics'
-*/
-metricsForm.get = (args: { server: string | number } | [server: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metrics.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\V1\ServerMetricController::metrics
-* @see app/Http/Controllers/Api/V1/ServerMetricController.php:14
-* @route '/api/v1/servers/{server}/metrics'
-*/
-metricsForm.head = (args: { server: string | number } | [server: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metrics.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-metrics.form = metricsForm
 
 const servers = {
     index: Object.assign(index, index),

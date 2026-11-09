@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ApplicationController::request
 * @see app/Http/Controllers/ApplicationController.php:65
@@ -56,28 +56,6 @@ request.post = (args: { service: number | { id: number } } | [service: number | 
     url: request.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\ApplicationController::request
-* @see app/Http/Controllers/ApplicationController.php:65
-* @route '/app/applications/{service}/journal'
-*/
-const requestForm = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: request.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\ApplicationController::request
-* @see app/Http/Controllers/ApplicationController.php:65
-* @route '/app/applications/{service}/journal'
-*/
-requestForm.post = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: request.url(args, options),
-    method: 'post',
-})
-
-request.form = requestForm
 
 const journal = {
     request: Object.assign(request, request),

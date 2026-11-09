@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
 * @see app/Http/Controllers/Api/BackupWebhookController.php:16
@@ -70,52 +70,5 @@ BackupWebhookController.head = (args: { token: string | number } | [token: strin
     url: BackupWebhookController.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-const BackupWebhookControllerForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: BackupWebhookController.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-BackupWebhookControllerForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: BackupWebhookController.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-BackupWebhookControllerForm.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: BackupWebhookController.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-BackupWebhookControllerForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: BackupWebhookController.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-BackupWebhookController.form = BackupWebhookControllerForm
 
 export default BackupWebhookController

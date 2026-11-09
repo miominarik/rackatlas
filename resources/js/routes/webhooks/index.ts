@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
 * @see app/Http/Controllers/Api/BackupWebhookController.php:16
@@ -70,53 +70,6 @@ backups.head = (args: { token: string | number } | [token: string | number ] | s
     url: backups.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-const backupsForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: backups.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-backupsForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: backups.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-backupsForm.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: backups.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BackupWebhookController::__invoke
-* @see app/Http/Controllers/Api/BackupWebhookController.php:16
-* @route '/api/webhooks/backups/{token}'
-*/
-backupsForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: backups.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-backups.form = backupsForm
 
 const webhooks = {
     backups: Object.assign(backups, backups),

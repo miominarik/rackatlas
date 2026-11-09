@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
 * @see app/Http/Controllers/Servers/TestConnectionController.php:20
@@ -32,27 +32,5 @@ TestConnectionController.post = (options?: RouteQueryOptions): RouteDefinition<'
     url: TestConnectionController.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:20
-* @route '/app/servers/test-connection'
-*/
-const TestConnectionControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: TestConnectionController.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
-* @see app/Http/Controllers/Servers/TestConnectionController.php:20
-* @route '/app/servers/test-connection'
-*/
-TestConnectionControllerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: TestConnectionController.url(options),
-    method: 'post',
-})
-
-TestConnectionController.form = TestConnectionControllerForm
 
 export default TestConnectionController

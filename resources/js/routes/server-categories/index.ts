@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Servers\ServerCategoryController::store
 * @see app/Http/Controllers/Servers/ServerCategoryController.php:13
@@ -32,28 +32,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Servers\ServerCategoryController::store
-* @see app/Http/Controllers/Servers/ServerCategoryController.php:13
-* @route '/app/server-categories'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Servers\ServerCategoryController::store
-* @see app/Http/Controllers/Servers/ServerCategoryController.php:13
-* @route '/app/server-categories'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerCategoryController::update
@@ -114,38 +92,6 @@ update.patch = (args: { serverCategory: number | { id: number } } | [serverCateg
 })
 
 /**
-* @see \App\Http\Controllers\Servers\ServerCategoryController::update
-* @see app/Http/Controllers/Servers/ServerCategoryController.php:22
-* @route '/app/server-categories/{serverCategory}'
-*/
-const updateForm = (args: { serverCategory: number | { id: number } } | [serverCategory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Servers\ServerCategoryController::update
-* @see app/Http/Controllers/Servers/ServerCategoryController.php:22
-* @route '/app/server-categories/{serverCategory}'
-*/
-updateForm.patch = (args: { serverCategory: number | { id: number } } | [serverCategory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Servers\ServerCategoryController::destroy
 * @see app/Http/Controllers/Servers/ServerCategoryController.php:31
 * @route '/app/server-categories/{serverCategory}'
@@ -202,38 +148,6 @@ destroy.delete = (args: { serverCategory: number | { id: number } } | [serverCat
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Servers\ServerCategoryController::destroy
-* @see app/Http/Controllers/Servers/ServerCategoryController.php:31
-* @route '/app/server-categories/{serverCategory}'
-*/
-const destroyForm = (args: { serverCategory: number | { id: number } } | [serverCategory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Servers\ServerCategoryController::destroy
-* @see app/Http/Controllers/Servers/ServerCategoryController.php:31
-* @route '/app/server-categories/{serverCategory}'
-*/
-destroyForm.delete = (args: { serverCategory: number | { id: number } } | [serverCategory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const serverCategories = {
     store: Object.assign(store, store),

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ApplicationController::index
 * @see app/Http/Controllers/ApplicationController.php:20
@@ -42,43 +42,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\ApplicationController::index
-* @see app/Http/Controllers/ApplicationController.php:20
-* @route '/app/applications'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\ApplicationController::index
-* @see app/Http/Controllers/ApplicationController.php:20
-* @route '/app/applications'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\ApplicationController::index
-* @see app/Http/Controllers/ApplicationController.php:20
-* @route '/app/applications'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\ApplicationController::journal
@@ -149,43 +112,6 @@ journal.head = (args: { service: number | { id: number } } | [service: number | 
 })
 
 /**
-* @see \App\Http\Controllers\ApplicationController::journal
-* @see app/Http/Controllers/ApplicationController.php:77
-* @route '/app/applications/{service}/journal'
-*/
-const journalForm = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: journal.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\ApplicationController::journal
-* @see app/Http/Controllers/ApplicationController.php:77
-* @route '/app/applications/{service}/journal'
-*/
-journalForm.get = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: journal.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\ApplicationController::journal
-* @see app/Http/Controllers/ApplicationController.php:77
-* @route '/app/applications/{service}/journal'
-*/
-journalForm.head = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: journal.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-journal.form = journalForm
-
-/**
 * @see \App\Http\Controllers\ApplicationController::requestJournal
 * @see app/Http/Controllers/ApplicationController.php:65
 * @route '/app/applications/{service}/journal'
@@ -242,28 +168,6 @@ requestJournal.post = (args: { service: number | { id: number } } | [service: nu
     url: requestJournal.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\ApplicationController::requestJournal
-* @see app/Http/Controllers/ApplicationController.php:65
-* @route '/app/applications/{service}/journal'
-*/
-const requestJournalForm = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: requestJournal.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\ApplicationController::requestJournal
-* @see app/Http/Controllers/ApplicationController.php:65
-* @route '/app/applications/{service}/journal'
-*/
-requestJournalForm.post = (args: { service: number | { id: number } } | [service: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: requestJournal.url(args, options),
-    method: 'post',
-})
-
-requestJournal.form = requestJournalForm
 
 const ApplicationController = { index, journal, requestJournal }
 

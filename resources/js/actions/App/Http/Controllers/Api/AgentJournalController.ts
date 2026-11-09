@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AgentJournalController::__invoke
 * @see app/Http/Controllers/Api/AgentJournalController.php:17
@@ -32,27 +32,5 @@ AgentJournalController.post = (options?: RouteQueryOptions): RouteDefinition<'po
     url: AgentJournalController.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AgentJournalController::__invoke
-* @see app/Http/Controllers/Api/AgentJournalController.php:17
-* @route '/api/agent/journal'
-*/
-const AgentJournalControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: AgentJournalController.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AgentJournalController::__invoke
-* @see app/Http/Controllers/Api/AgentJournalController.php:17
-* @route '/api/agent/journal'
-*/
-AgentJournalControllerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: AgentJournalController.url(options),
-    method: 'post',
-})
-
-AgentJournalController.form = AgentJournalControllerForm
 
 export default AgentJournalController
