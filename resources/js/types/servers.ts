@@ -173,6 +173,7 @@ export type SentinelReport =
     | { reachable: false; master_name: string; error: string };
 
 export type SentinelGroup = {
+    id: number;
     master_name: string;
     agree: boolean;
     masters: string[];

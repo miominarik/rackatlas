@@ -1,8 +1,23 @@
-import { Head, Link, usePoll } from "@inertiajs/react";
-import { AlertTriangle, CheckCircle2, MemoryStick, Plus } from "lucide-react";
+import { Head, Link, router, usePoll } from "@inertiajs/react";
+import {
+    AlertTriangle,
+    ArrowLeftRight,
+    CheckCircle2,
+    MemoryStick,
+    Plus,
+} from "lucide-react";
+import { useState } from "react";
+import RedisSwitchoverController from "@/actions/App/Http/Controllers/RedisSwitchoverController";
 import ServerController from "@/actions/App/Http/Controllers/Servers/ServerController";
 import UsageBar from "@/components/dashboard/usage-bar";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { useTranslation } from "@/hooks/use-translation";
 import { formatBytes, formatUptime, timeAgo } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
@@ -57,6 +72,84 @@ function Badge({
         >
             {children}
         </span>
+    );
+}
+
+function SwitchoverButton({
+    group,
+    master,
+}: {
+    group: SentinelGroup;
+    master: string;
+}) {
+    const { t } = useTranslation();
+    const [open, setOpen] = useState(false);
+    const [processing, setProcessing] = useState(false);
+
+    const start = () => {
+        router.post(
+            RedisSwitchoverController.url(group.id),
+            {},
+            {
+                preserveScroll: true,
+                onStart: () => setProcessing(true),
+                onFinish: () => {
+                    setProcessing(false);
+                    setOpen(false);
+                },
+            },
+        );
+    };
+
+    return (
+        <>
+            <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(true)}
+                data-test="switchover-button"
+            >
+                <ArrowLeftRight className="size-4" />
+                {t("Switchover")}
+            </Button>
+            <Dialog
+                open={open}
+                onOpenChange={(value) => !processing && setOpen(value)}
+            >
+                <DialogContent>
+                    <DialogTitle>
+                        {t("Switch the master of :name?", {
+                            name: group.master_name,
+                        })}
+                    </DialogTitle>
+                    <DialogDescription>
+                        {t(
+                            "Sentinel promotes a healthy replica to the new master and the current master :master becomes its replica. Clients are disconnected for a few seconds and writes in that time can fail. Sentinel checks everything again before it starts.",
+                            { master },
+                        )}
+                    </DialogDescription>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            disabled={processing}
+                            onClick={() => setOpen(false)}
+                        >
+                            {t("Cancel")}
+                        </Button>
+                        <Button
+                            type="button"
+                            disabled={processing}
+                            onClick={start}
+                            data-test="switchover-confirm"
+                        >
+                            {t("Switch the master")}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
 
@@ -218,6 +311,19 @@ export default function Redis({
                                     report.failover_in_progress,
                             );
                             const healthy = !waiting && problems.length === 0;
+                            const firstReport = reports.find(
+                                (report) => report?.reachable,
+                            );
+                            const hasReplica =
+                                firstReport?.reachable === true &&
+                                firstReport.replicas.length > 0;
+                            const master =
+                                hasReplica && firstReport?.reachable
+                                    ? (serverAt(
+                                          `${firstReport.master_ip}:${firstReport.master_port}`,
+                                      ) ??
+                                      `${firstReport.master_ip}:${firstReport.master_port}`)
+                                    : null;
 
                             return (
                                 <section
@@ -251,6 +357,15 @@ export default function Redis({
                                                     .join(" · ")}
                                             </p>
                                         </div>
+                                        {canManage &&
+                                            healthy &&
+                                            !failover &&
+                                            master !== null && (
+                                                <SwitchoverButton
+                                                    group={group}
+                                                    master={master}
+                                                />
+                                            )}
                                         {failover && (
                                             <Badge tone="bad">
                                                 {t("Failover in progress")}

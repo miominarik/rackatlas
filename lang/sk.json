@@ -1454,5 +1454,18 @@
     "If a Sentinel runs on this host, enter the master name it watches. Servers with the same master name are shown as one Sentinel group. Leave it empty if there is no Sentinel.": "Ak na tomto hoste beží Sentinel, zadajte názov mastra, ktorý sleduje. Servery s rovnakým názvom mastra sa zobrazia ako jedna Sentinel skupina. Ak Sentinel nie je, nechajte prázdne.",
     "The Sentinels disagree about which server is the master.": "Sentinely sa nezhodujú v tom, ktorý server je master.",
     "Server :server is offline.": "Server :server je offline.",
-    "Sentinel only": "Iba Sentinel"
+    "Sentinel only": "Iba Sentinel",
+    "Switchover": "Switchover",
+    "Switch the master of :name?": "Prepnúť master pre :name?",
+    "Sentinel promotes a healthy replica to the new master and the current master :master becomes its replica. Clients are disconnected for a few seconds and writes in that time can fail. Sentinel checks everything again before it starts.": "Sentinel povýši zdravú repliku na nový master a súčasný master :master sa stane jej replikou. Klienti sa na niekoľko sekúnd odpoja a zápisy v tom čase môžu zlyhať. Pred spustením všetko ešte raz skontrolujeme.",
+    "Switch the master": "Prepnúť master",
+    "This Sentinel group has no servers.": "Táto Sentinel skupina nemá žiadne servery.",
+    "Sentinel on :server does not answer, so the switch was not started.": "Sentinel na :server neodpovedá, preto sa prepnutie nespustilo.",
+    "The Sentinels disagree about which server is the master, so the switch was not started.": "Sentinely sa nezhodujú v tom, ktorý server je master, preto sa prepnutie nespustilo.",
+    "The master is down or a failover is already running, so the switch was not started.": "Master je nedostupný alebo už beží failover, preto sa prepnutie nespustilo.",
+    "Sentinel on :server cannot reach the quorum, so the switch was not started.": "Sentinel na :server nedosiahne quorum, preto sa prepnutie nespustilo.",
+    "There is no healthy replica to take over, so the switch was not started.": "Nie je zdravá replika, ktorá by master prevzala, preto sa prepnutie nespustilo.",
+    "A switch of this group was started a moment ago.": "Prepnutie tejto skupiny sa spustilo pred chvíľou.",
+    "Sentinel refused the switch:": "Sentinel prepnutie odmietol:",
+    "The switch was started. The new master shows up in a few seconds.": "Prepnutie sa spustilo. Nový master sa zobrazí o niekoľko sekúnd."
 }

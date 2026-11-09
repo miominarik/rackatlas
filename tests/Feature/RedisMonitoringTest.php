@@ -13,6 +13,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Services\Redis\RedisMetricsCollector;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -279,5 +280,46 @@ class RedisMonitoringTest extends TestCase
         $server->refresh();
         $this->assertSame(ServerStatus::Offline, $server->status);
         $this->assertSame(1, $server->errors()->count());
+    }
+
+    public function test_switchover_is_refused_when_a_sentinel_does_not_answer(): void
+    {
+        $team = Team::factory()->create();
+        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
+        $server = $this->redisServer($team, ['host' => '127.0.0.1']);
+        $server->joinSentinelGroup($group, 26379);
+
+        $this->actingAs($team->owner)
+            ->post(route('redis.switchover', $group))
+            ->assertRedirect();
+
+        $this->assertSame(0, Cache::lock('redis-failover:'.$group->id, 5)->get() ? 0 : 1);
+    }
+
+    public function test_switchover_starts_and_queues_a_new_reading_of_every_member(): void
+    {
+        Queue::fake();
+
+        $team = Team::factory()->create();
+        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
+        $this->redisServer($team)->joinSentinelGroup($group, 26379);
+        $this->sentinelServer($team)->joinSentinelGroup($group, 26379);
+
+        $this->mock(RedisMetricsCollector::class)->shouldReceive('switchover')->once()->with(\Mockery::on(fn ($given) => $given->is($group)));
+
+        $this->actingAs($team->owner)->post(route('redis.switchover', $group))->assertRedirect();
+
+        Queue::assertPushed(CollectRedisMetrics::class, 2);
+    }
+
+    public function test_switchover_needs_the_edit_permission_and_the_own_team(): void
+    {
+        $team = Team::factory()->create();
+        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
+        $member = User::factory()->create();
+        $team->members()->attach($member->id, ['role' => TeamRole::Member->value, 'permissions' => json_encode(['redis' => 'view'])]);
+
+        $this->actingAs($member)->post(route('redis.switchover', $group))->assertForbidden();
+        $this->actingAs(Team::factory()->create()->owner)->post(route('redis.switchover', $group))->assertForbidden();
     }
 }

@@ -5,8 +5,11 @@ namespace App\Services\Redis;
 use App\Enums\ServerErrorType;
 use App\Enums\ServerStatus;
 use App\Models\RedisMetric;
+use App\Models\SentinelGroup;
 use App\Models\Server;
 use App\Services\Ssh\PublicHost;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Predis\Client;
 use Predis\Connection\ConnectionException;
@@ -137,6 +140,74 @@ class RedisMetricsCollector
             'quorum_message' => mb_substr((string) $quorum, 0, 300),
             'replicas' => $replicas,
         ];
+    }
+
+    /**
+     * Start a planned switch of the master to a replica with SENTINEL FAILOVER. Before anything is sent, every
+     * Sentinel of the group is asked live, and the switch is refused unless they all answer, agree on the master,
+     * see a quorum and see a healthy replica to take over. The old master becomes a replica of the new one.
+     *
+     * @throws RuntimeException with a message for the user when the switch is not safe or the Sentinel refuses it
+     */
+    public function switchover(SentinelGroup $group): void
+    {
+        $members = $group->servers()->redisFamily()->get();
+
+        if ($members->isEmpty()) {
+            throw new RuntimeException(__('This Sentinel group has no servers.'));
+        }
+
+        $reports = $members->mapWithKeys(fn (Server $member) => [$member->id => $this->readSentinel($member)]);
+
+        foreach ($members as $member) {
+            if (! $reports[$member->id]['reachable']) {
+                throw new RuntimeException(__('Sentinel on :server does not answer, so the switch was not started.', ['server' => $member->name]));
+            }
+        }
+
+        $masters = $reports->map(fn (array $report) => $report['master_ip'].':'.$report['master_port'])->unique();
+
+        if ($masters->count() > 1) {
+            throw new RuntimeException(__('The Sentinels disagree about which server is the master, so the switch was not started.'));
+        }
+
+        foreach ($members as $member) {
+            $report = $reports[$member->id];
+
+            if ($report['master_down'] || $report['failover_in_progress']) {
+                throw new RuntimeException(__('The master is down or a failover is already running, so the switch was not started.'));
+            }
+
+            if (! $report['quorum_ok']) {
+                throw new RuntimeException(__('Sentinel on :server cannot reach the quorum, so the switch was not started.', ['server' => $member->name]));
+            }
+        }
+
+        $healthyReplicas = collect($reports->first()['replicas'])->filter(fn (array $replica) => ! array_intersect($replica['flags'], ['s_down', 'o_down', 'disconnected'])
+            && ($replica['link_status'] ?? 'ok') === 'ok');
+
+        if ($healthyReplicas->isEmpty()) {
+            throw new RuntimeException(__('There is no healthy replica to take over, so the switch was not started.'));
+        }
+
+        $lock = Cache::lock('redis-failover:'.$group->id, 60);
+
+        if (! $lock->get()) {
+            throw new RuntimeException(__('A switch of this group was started a moment ago.'));
+        }
+
+        // The lock is left to expire on its own, so a second click cannot start another switch right after.
+        $first = $members->first();
+
+        try {
+            $this->command($this->connect($first->host, (int) $first->sentinel_port, $first->username, $first->password), ['SENTINEL', 'FAILOVER', $group->master_name]);
+        } catch (Throwable $e) {
+            $lock->release();
+
+            throw new RuntimeException(__('Sentinel refused the switch:').' '.mb_substr($e->getMessage(), 0, 300));
+        }
+
+        Log::info('Redis Sentinel failover started', ['group' => $group->id, 'master_name' => $group->master_name, 'master' => $masters->first(), 'via' => $first->id]);
     }
 
     /**

@@ -75,6 +75,7 @@ class RedisController extends Controller
                     ->unique();
 
                 return [
+                    'id' => $members->first()->sentinelGroup->id,
                     'master_name' => $members->first()->sentinelGroup->master_name,
                     'members' => $reports->all(),
                     // The Sentinels disagree when they point at different masters.
