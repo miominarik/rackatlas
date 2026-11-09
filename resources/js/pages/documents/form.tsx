@@ -11,6 +11,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import Markdown from '@/components/documents/markdown';
 import { templateIcon } from '@/components/documents/meta';
+import RichTextEditor from '@/components/documents/rich-text-editor';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,7 +87,9 @@ function SectionEditor({
     onRemove: () => void;
 }) {
     const { t } = useTranslation();
-    const [preview, setPreview] = useState(false);
+    const [mode, setMode] = useState<'visual' | 'markdown' | 'preview'>(
+        'visual',
+    );
 
     return (
         <div className="space-y-3 rounded-xl border bg-card p-4">
@@ -133,24 +136,35 @@ function SectionEditor({
             <InputError message={error} />
 
             <div className="flex gap-1 text-xs">
-                {[false, true].map((value) => (
+                {(
+                    [
+                        ['visual', t('Visual')],
+                        ['markdown', 'Markdown'],
+                        ['preview', t('Preview')],
+                    ] as const
+                ).map(([value, label]) => (
                     <button
-                        key={String(value)}
+                        key={value}
                         type="button"
-                        onClick={() => setPreview(value)}
+                        onClick={() => setMode(value)}
                         className={cn(
                             'rounded-md px-2.5 py-1',
-                            preview === value
+                            mode === value
                                 ? 'bg-muted font-medium'
                                 : 'text-muted-foreground hover:bg-muted/50',
                         )}
                     >
-                        {value ? t('Preview') : t('Write')}
+                        {label}
                     </button>
                 ))}
             </div>
 
-            {preview ? (
+            {mode === 'visual' ? (
+                <RichTextEditor
+                    value={section.body}
+                    onChange={(body) => onChange({ ...section, body })}
+                />
+            ) : mode === 'preview' ? (
                 <div className="min-h-32 rounded-md border bg-background p-3">
                     {section.body.trim() ? (
                         <Markdown source={section.body} />

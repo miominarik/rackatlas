@@ -106,8 +106,9 @@ export default function Markdown({ source }: { source: string }) {
             );
         } else if (/^#{1,4}\s/.test(line)) {
             const level = line.match(/^#+/)![0].length;
+            const Heading = level <= 2 ? 'h3' : 'h4';
             blocks.push(
-                <p
+                <Heading
                     key={id}
                     className={
                         level <= 2
@@ -116,7 +117,7 @@ export default function Markdown({ source }: { source: string }) {
                     }
                 >
                     {inline(line.replace(/^#+\s+/, ''), id)}
-                </p>,
+                </Heading>,
             );
             i++;
         } else if (listItem.test(line)) {

@@ -1387,5 +1387,21 @@
     "Marked as reviewed.": "Označeno jako zkontrolované.",
     "Document deleted.": "Dokument byl smazán.",
     "Do not store private keys here. Put them into a password manager and write only where they are.": "Soukromé klíče sem neukládejte. Dejte je do správce hesel a napište jen, kde jsou.",
-    "Write and change the documentation of servers and services": "Psát a měnit dokumentaci serverů a služeb"
+    "Write and change the documentation of servers and services": "Psát a měnit dokumentaci serverů a služeb",
+    "Visual": "Vizuální",
+    "Heading": "Nadpis",
+    "Subheading": "Podnadpis",
+    "Bold": "Tučně",
+    "Italic": "Kurzíva",
+    "Bulleted list": "Odrážky",
+    "Numbered list": "Číslovaný seznam",
+    "Link": "Odkaz",
+    "Code": "Kód",
+    "Code block": "Blok kódu",
+    "Enter the address of the link (https://...)": "Zadejte adresu odkazu (https://...)",
+    "Text formatting": "Formátování textu",
+    "Insert table": "Vložit tabulku",
+    "Add row": "Přidat řádek",
+    "Add column": "Přidat sloupec",
+    "Delete table": "Smazat tabulku"
 }
