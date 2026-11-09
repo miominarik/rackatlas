@@ -42,6 +42,10 @@ const labels: Record<string, { title: string; hint: string }> = {
         title: 'MySQL',
         hint: 'See the databases, edit means changing their connection',
     },
+    docs: {
+        title: 'Documentation',
+        hint: 'Write and change the documentation of servers and services',
+    },
     database_kill: {
         title: 'Kill MySQL processes',
         hint: 'Stop running queries, nothing else can be changed',

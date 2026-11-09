@@ -18,6 +18,7 @@ enum TeamPermission: string
     case SshKeys = 'ssh_keys';
     case Databases = 'databases';
     case DatabaseKill = 'database_kill';
+    case Docs = 'docs';
 
     /**
      * The levels that make sense for the permission. Some are a switch: allowed or not.

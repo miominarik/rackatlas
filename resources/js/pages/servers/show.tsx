@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Activity, Pencil } from 'lucide-react';
 import RecentErrors from '@/components/dashboard/recent-errors';
 import RecentLogs from '@/components/dashboard/recent-logs';
+import { StatusBadge } from '@/components/documents/meta';
 import UsageBar from '@/components/dashboard/usage-bar';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
@@ -20,6 +21,10 @@ import { countryName } from '@/lib/countries';
 import { dotClass } from '@/lib/server-colors';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
+import {
+    create as createDocument,
+    show as showDocument,
+} from '@/routes/documents';
 import { index as metricsIndex } from '@/routes/metrics';
 import { edit, index as serversIndex } from '@/routes/servers';
 import type {
@@ -27,6 +32,7 @@ import type {
     DashboardLog,
     DashboardServer,
     DashboardThresholds,
+    DocumentStatus,
     MetricsIncident,
 } from '@/types';
 
@@ -57,6 +63,10 @@ type Props = {
         created_at: string | null;
     };
     canManage: boolean;
+    documents: {
+        items: { id: number; title: string; status: DocumentStatus }[];
+        canCreate: boolean;
+    } | null;
     thresholds: DashboardThresholds;
     alerts: MetricsIncident[];
     logs: DashboardLog[];
@@ -97,6 +107,7 @@ function Field({
 export default function ServerShow({
     server,
     canManage,
+    documents,
     thresholds,
     alerts,
     logs,
@@ -409,6 +420,59 @@ export default function ServerShow({
                                 </Field>
                             )}
                         </dl>
+                    </Section>
+                )}
+
+                {documents && (
+                    <Section title={t('Documentation')}>
+                        {documents.items.length === 0 ? (
+                            <p className="rounded-xl border border-dashed bg-card p-4 text-sm text-muted-foreground">
+                                {t('This server has no documentation yet.')}{' '}
+                                {documents.canCreate && (
+                                    <Link
+                                        href={createDocument({
+                                            query: {
+                                                template: 'server',
+                                                server: server.id,
+                                            },
+                                        })}
+                                        className="text-primary underline underline-offset-2"
+                                    >
+                                        {t('Write the server overview')}
+                                    </Link>
+                                )}
+                            </p>
+                        ) : (
+                            <>
+                                <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+                                    {documents.items.map((doc) => (
+                                        <li key={doc.id}>
+                                            <Link
+                                                href={showDocument(doc.id)}
+                                                className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-muted/40"
+                                            >
+                                                <span className="min-w-0 break-words">
+                                                    {doc.title}
+                                                </span>
+                                                <StatusBadge
+                                                    status={doc.status}
+                                                />
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {documents.canCreate && (
+                                    <Link
+                                        href={createDocument({
+                                            query: { server: server.id },
+                                        })}
+                                        className="text-sm text-primary underline underline-offset-2"
+                                    >
+                                        {t('Add a document')}
+                                    </Link>
+                                )}
+                            </>
+                        )}
                     </Section>
                 )}
 

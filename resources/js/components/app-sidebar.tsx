@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
+    BookOpen,
     Database,
     DatabaseBackup,
     KeyRound,
@@ -30,6 +31,7 @@ import { index as adminIndex } from '@/routes/admin';
 import { index as applicationsIndex } from '@/routes/applications';
 import { index as backupsIndex } from '@/routes/backups';
 import { index as databasesIndex } from '@/routes/databases';
+import { index as documentsIndex } from '@/routes/documents';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
 import { index as serversIndex } from '@/routes/servers';
@@ -101,6 +103,12 @@ const mainNavItems: NavItem[] = [
         permission: 'ssh_keys.view',
         href: sshKeysIndex(),
         icon: KeyRound,
+    },
+    {
+        title: 'Documentation',
+        permission: 'docs.view',
+        href: documentsIndex(),
+        icon: BookOpen,
     },
 ];
 

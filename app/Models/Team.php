@@ -71,6 +71,11 @@ class Team extends Model
         return $this->hasMany(Backup::class);
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
     public function apiTokens(): HasMany
     {
         return $this->hasMany(ApiToken::class);

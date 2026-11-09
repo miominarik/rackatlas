@@ -11,6 +11,7 @@ use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\DatabaseProcessController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MapController;
@@ -114,6 +115,15 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:10,1')
         ->name('backups.regenerate');
     Route::delete('backups/{backup}', [BackupController::class, 'destroy'])->name('backups.destroy');
+
+    Route::get('documents', [DocumentController::class, 'index'])->middleware('permission:docs.view')->name('documents.index');
+    Route::get('documents/create', [DocumentController::class, 'create'])->middleware('permission:docs.edit')->name('documents.create');
+    Route::post('documents', [DocumentController::class, 'store'])->name('documents.store');
+    Route::get('documents/{document}', [DocumentController::class, 'show'])->name('documents.show')->whereNumber('document');
+    Route::get('documents/{document}/edit', [DocumentController::class, 'edit'])->name('documents.edit')->whereNumber('document');
+    Route::put('documents/{document}', [DocumentController::class, 'update'])->name('documents.update')->whereNumber('document');
+    Route::post('documents/{document}/review', [DocumentController::class, 'review'])->name('documents.review')->whereNumber('document');
+    Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy')->whereNumber('document');
 
     Route::post('server-categories', [ServerCategoryController::class, 'store'])->name('server-categories.store');
     Route::patch('server-categories/{serverCategory}', [ServerCategoryController::class, 'update'])->name('server-categories.update');

@@ -126,6 +126,7 @@ class ServerController extends Controller
                 ] : null,
             ],
             'canManage' => request()->user()->can('permit', [$server->team, 'servers.edit']),
+            'documents' => $this->documentsOf($server),
             'thresholds' => DashboardSettings::defaults()['thresholds'],
             'alerts' => $server->alerts()->latest('opened_at')->limit(10)->get()
                 ->map(fn (ServerAlert $alert) => [
@@ -388,5 +389,30 @@ class ServerController extends Controller
         Inertia::flash('toast', ['type' => 'error', 'message' => __('Create a team first, servers belong to a team.')]);
 
         return to_route('teams.index');
+    }
+
+    /**
+     * The documentation of the server, or null when the user may not read it.
+     *
+     * @return array{items: array<int, array<string, mixed>>, canCreate: bool}|null
+     */
+    private function documentsOf(Server $server): ?array
+    {
+        $user = request()->user();
+
+        if (! $user->can('permit', [$server->team, 'docs.view'])) {
+            return null;
+        }
+
+        return [
+            'items' => $server->documents()->orderBy('title')->get(['id', 'title', 'template', 'status', 'reviewed_at'])
+                ->map(fn ($document) => [
+                    'id' => $document->id,
+                    'title' => $document->title,
+                    'template' => $document->template,
+                    'status' => $document->status->value,
+                ])->all(),
+            'canCreate' => $user->can('permit', [$server->team, 'docs.edit']),
+        ];
     }
 }

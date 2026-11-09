@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     Activity,
+    BookOpen,
     ChevronUp,
     Database,
     DatabaseBackup,
@@ -32,6 +33,7 @@ import { index as adminIndex } from '@/routes/admin';
 import { index as applicationsIndex } from '@/routes/applications';
 import { index as backupsIndex } from '@/routes/backups';
 import { index as databasesIndex } from '@/routes/databases';
+import { index as documentsIndex } from '@/routes/documents';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
 import { edit as editProfile } from '@/routes/profile';
@@ -80,6 +82,12 @@ const moreItems: Tab[] = [
         permission: 'ssh_keys.view',
         href: sshKeysIndex(),
         icon: KeyRound,
+    },
+    {
+        title: 'Documentation',
+        permission: 'docs.view',
+        href: documentsIndex(),
+        icon: BookOpen,
     },
     { title: 'Settings', href: editProfile(), icon: Settings },
 ];

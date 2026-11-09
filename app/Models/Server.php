@@ -222,6 +222,11 @@ class Server extends Model
             ->first();
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
     public function services(): HasMany
     {
         return $this->hasMany(ServerService::class);
