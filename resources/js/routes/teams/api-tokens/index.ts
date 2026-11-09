@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\ApiTokenController::store
 * @see app/Http/Controllers/Settings/ApiTokenController.php:17
@@ -58,6 +58,28 @@ store.post = (args: { team: number | { id: number } } | [team: number | { id: nu
 })
 
 /**
+* @see \App\Http\Controllers\Settings\ApiTokenController::store
+* @see app/Http/Controllers/Settings/ApiTokenController.php:17
+* @route '/app/settings/teams/{team}/api-tokens'
+*/
+const storeForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\ApiTokenController::store
+* @see app/Http/Controllers/Settings/ApiTokenController.php:17
+* @route '/app/settings/teams/{team}/api-tokens'
+*/
+storeForm.post = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+/**
 * @see \App\Http\Controllers\Settings\ApiTokenController::destroy
 * @see app/Http/Controllers/Settings/ApiTokenController.php:40
 * @route '/app/settings/teams/{team}/api-tokens/{apiToken}'
@@ -111,6 +133,38 @@ destroy.delete = (args: { team: number | { id: number }, apiToken: number | { id
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\Settings\ApiTokenController::destroy
+* @see app/Http/Controllers/Settings/ApiTokenController.php:40
+* @route '/app/settings/teams/{team}/api-tokens/{apiToken}'
+*/
+const destroyForm = (args: { team: number | { id: number }, apiToken: number | { id: number } } | [team: number | { id: number }, apiToken: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\ApiTokenController::destroy
+* @see app/Http/Controllers/Settings/ApiTokenController.php:40
+* @route '/app/settings/teams/{team}/api-tokens/{apiToken}'
+*/
+destroyForm.delete = (args: { team: number | { id: number }, apiToken: number | { id: number } } | [team: number | { id: number }, apiToken: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const apiTokens = {
     store: Object.assign(store, store),

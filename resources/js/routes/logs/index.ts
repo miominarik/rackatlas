@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Servers\LogController::index
 * @see app/Http/Controllers/Servers/LogController.php:20
@@ -44,6 +44,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Servers\LogController::index
+* @see app/Http/Controllers/Servers/LogController.php:20
+* @route '/app/logs'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\LogController::index
+* @see app/Http/Controllers/Servers/LogController.php:20
+* @route '/app/logs'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\LogController::index
+* @see app/Http/Controllers/Servers/LogController.php:20
+* @route '/app/logs'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\Servers\LogController::resolveAll
 * @see app/Http/Controllers/Servers/LogController.php:102
 * @route '/app/logs/resolve-all'
@@ -76,6 +113,28 @@ resolveAll.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: resolveAll.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Servers\LogController::resolveAll
+* @see app/Http/Controllers/Servers/LogController.php:102
+* @route '/app/logs/resolve-all'
+*/
+const resolveAllForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resolveAll.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\LogController::resolveAll
+* @see app/Http/Controllers/Servers/LogController.php:102
+* @route '/app/logs/resolve-all'
+*/
+resolveAllForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resolveAll.url(options),
+    method: 'post',
+})
+
+resolveAll.form = resolveAllForm
 
 /**
 * @see \App\Http\Controllers\Servers\LogController::resolve
@@ -136,6 +195,28 @@ resolve.post = (args: { log: number | { id: number } } | [log: number | { id: nu
 })
 
 /**
+* @see \App\Http\Controllers\Servers\LogController::resolve
+* @see app/Http/Controllers/Servers/LogController.php:81
+* @route '/app/logs/{log}/resolve'
+*/
+const resolveForm = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resolve.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\LogController::resolve
+* @see app/Http/Controllers/Servers/LogController.php:81
+* @route '/app/logs/{log}/resolve'
+*/
+resolveForm.post = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resolve.url(args, options),
+    method: 'post',
+})
+
+resolve.form = resolveForm
+
+/**
 * @see \App\Http\Controllers\Servers\LogController::reopen
 * @see app/Http/Controllers/Servers/LogController.php:90
 * @route '/app/logs/{log}/resolve'
@@ -192,6 +273,38 @@ reopen.delete = (args: { log: number | { id: number } } | [log: number | { id: n
     url: reopen.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\Servers\LogController::reopen
+* @see app/Http/Controllers/Servers/LogController.php:90
+* @route '/app/logs/{log}/resolve'
+*/
+const reopenForm = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: reopen.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\LogController::reopen
+* @see app/Http/Controllers/Servers/LogController.php:90
+* @route '/app/logs/{log}/resolve'
+*/
+reopenForm.delete = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: reopen.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+reopen.form = reopenForm
 
 const logs = {
     index: Object.assign(index, index),

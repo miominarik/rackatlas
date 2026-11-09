@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\LanguageController::update
 * @see app/Http/Controllers/Settings/LanguageController.php:18
@@ -32,6 +32,38 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(options),
     method: 'put',
 })
+
+/**
+* @see \App\Http\Controllers\Settings\LanguageController::update
+* @see app/Http/Controllers/Settings/LanguageController.php:18
+* @route '/language'
+*/
+const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\LanguageController::update
+* @see app/Http/Controllers/Settings/LanguageController.php:18
+* @route '/language'
+*/
+updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
 
 /**
 * @see \Illuminate\Routing\RedirectController::__invoke
@@ -136,6 +168,128 @@ edit.query = (options?: RouteQueryOptions): RouteDefinition<'query'> => ({
     url: edit.url(options),
     method: 'query',
 })
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+const editForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url(options),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.options = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'OPTIONS',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/settings/language'
+*/
+editForm.query = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: edit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'QUERY',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+edit.form = editForm
 
 const language = {
     update: Object.assign(update, update),

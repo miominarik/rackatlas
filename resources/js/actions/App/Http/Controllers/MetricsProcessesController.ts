@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\MetricsProcessesController::__invoke
 * @see app/Http/Controllers/MetricsProcessesController.php:17
@@ -42,5 +42,42 @@ MetricsProcessesController.head = (options?: RouteQueryOptions): RouteDefinition
     url: MetricsProcessesController.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\MetricsProcessesController::__invoke
+* @see app/Http/Controllers/MetricsProcessesController.php:17
+* @route '/app/metrics/processes'
+*/
+const MetricsProcessesControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: MetricsProcessesController.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MetricsProcessesController::__invoke
+* @see app/Http/Controllers/MetricsProcessesController.php:17
+* @route '/app/metrics/processes'
+*/
+MetricsProcessesControllerForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: MetricsProcessesController.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MetricsProcessesController::__invoke
+* @see app/Http/Controllers/MetricsProcessesController.php:17
+* @route '/app/metrics/processes'
+*/
+MetricsProcessesControllerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: MetricsProcessesController.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+MetricsProcessesController.form = MetricsProcessesControllerForm
 
 export default MetricsProcessesController

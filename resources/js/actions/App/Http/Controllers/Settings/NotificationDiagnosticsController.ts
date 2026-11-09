@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
 * @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
@@ -44,6 +44,43 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @route '/app/settings/notifications/diagnostics'
+*/
+const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @route '/app/settings/notifications/diagnostics'
+*/
+showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @route '/app/settings/notifications/diagnostics'
+*/
+showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
 * @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
 * @route '/app/settings/notifications/diagnostics/connectivity'
@@ -78,6 +115,28 @@ connectivity.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
+* @route '/app/settings/notifications/diagnostics/connectivity'
+*/
+const connectivityForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: connectivity.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
+* @route '/app/settings/notifications/diagnostics/connectivity'
+*/
+connectivityForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: connectivity.url(options),
+    method: 'post',
+})
+
+connectivity.form = connectivityForm
+
+/**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
 * @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
 * @route '/app/settings/notifications/diagnostics/push'
@@ -110,6 +169,28 @@ push.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: push.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
+* @route '/app/settings/notifications/diagnostics/push'
+*/
+const pushForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: push.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
+* @route '/app/settings/notifications/diagnostics/push'
+*/
+pushForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: push.url(options),
+    method: 'post',
+})
+
+push.form = pushForm
 
 const NotificationDiagnosticsController = { show, connectivity, push }
 

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::store
 * @see app/Http/Controllers/Settings/PushSubscriptionController.php:22
@@ -32,6 +32,28 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Settings\PushSubscriptionController::store
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:22
+* @route '/app/settings/notifications/push'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\PushSubscriptionController::store
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:22
+* @route '/app/settings/notifications/push'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
@@ -90,6 +112,38 @@ destroy.delete = (args: { subscription: number | { id: number } } | [subscriptio
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:58
+* @route '/app/settings/notifications/push/{subscription}'
+*/
+const destroyForm = (args: { subscription: number | { id: number } } | [subscription: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\PushSubscriptionController::destroy
+* @see app/Http/Controllers/Settings/PushSubscriptionController.php:58
+* @route '/app/settings/notifications/push/{subscription}'
+*/
+destroyForm.delete = (args: { subscription: number | { id: number } } | [subscription: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const pushSubscriptions = {
     store: Object.assign(store, store),

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\TwoFactorRequiredController::show
 * @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
@@ -42,6 +42,43 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::show
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::show
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\TwoFactorRequiredController::show
+* @see app/Http/Controllers/Settings/TwoFactorRequiredController.php:18
+* @route '/app/two-factor-required'
+*/
+showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
 
 const TwoFactorRequiredController = { show }
 

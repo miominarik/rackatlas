@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import agent from './agent'
 import hostKey from './host-key'
 /**
@@ -46,6 +46,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Servers\ServerController::index
+* @see app/Http/Controllers/Servers/ServerController.php:28
+* @route '/app/servers'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::index
+* @see app/Http/Controllers/Servers/ServerController.php:28
+* @route '/app/servers'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::index
+* @see app/Http/Controllers/Servers/ServerController.php:28
+* @route '/app/servers'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\Servers\ServerController::create
 * @see app/Http/Controllers/Servers/ServerController.php:166
 * @route '/app/servers/create'
@@ -90,6 +127,43 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Servers\ServerController::create
+* @see app/Http/Controllers/Servers/ServerController.php:166
+* @route '/app/servers/create'
+*/
+const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: create.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::create
+* @see app/Http/Controllers/Servers/ServerController.php:166
+* @route '/app/servers/create'
+*/
+createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: create.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::create
+* @see app/Http/Controllers/Servers/ServerController.php:166
+* @route '/app/servers/create'
+*/
+createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: create.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+create.form = createForm
+
+/**
 * @see \App\Http\Controllers\Servers\ServerController::store
 * @see app/Http/Controllers/Servers/ServerController.php:182
 * @route '/app/servers'
@@ -124,6 +198,28 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Servers\ServerController::store
+* @see app/Http/Controllers/Servers/ServerController.php:182
+* @route '/app/servers'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::store
+* @see app/Http/Controllers/Servers/ServerController.php:182
+* @route '/app/servers'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+/**
 * @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
 * @see app/Http/Controllers/Servers/TestConnectionController.php:20
 * @route '/app/servers/test-connection'
@@ -156,6 +252,28 @@ testConnection.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
     url: testConnection.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
+* @see app/Http/Controllers/Servers/TestConnectionController.php:20
+* @route '/app/servers/test-connection'
+*/
+const testConnectionForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: testConnection.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\TestConnectionController::__invoke
+* @see app/Http/Controllers/Servers/TestConnectionController.php:20
+* @route '/app/servers/test-connection'
+*/
+testConnectionForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: testConnection.url(options),
+    method: 'post',
+})
+
+testConnection.form = testConnectionForm
 
 /**
 * @see \App\Http\Controllers\Servers\ServerController::show
@@ -226,6 +344,43 @@ show.head = (args: { server: number | { id: number } } | [server: number | { id:
 })
 
 /**
+* @see \App\Http\Controllers\Servers\ServerController::show
+* @see app/Http/Controllers/Servers/ServerController.php:73
+* @route '/app/servers/{server}'
+*/
+const showForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::show
+* @see app/Http/Controllers/Servers/ServerController.php:73
+* @route '/app/servers/{server}'
+*/
+showForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::show
+* @see app/Http/Controllers/Servers/ServerController.php:73
+* @route '/app/servers/{server}'
+*/
+showForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\Servers\ServerController::edit
 * @see app/Http/Controllers/Servers/ServerController.php:196
 * @route '/app/servers/{server}/edit'
@@ -294,6 +449,43 @@ edit.head = (args: { server: number | { id: number } } | [server: number | { id:
 })
 
 /**
+* @see \App\Http\Controllers\Servers\ServerController::edit
+* @see app/Http/Controllers/Servers/ServerController.php:196
+* @route '/app/servers/{server}/edit'
+*/
+const editForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::edit
+* @see app/Http/Controllers/Servers/ServerController.php:196
+* @route '/app/servers/{server}/edit'
+*/
+editForm.get = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::edit
+* @see app/Http/Controllers/Servers/ServerController.php:196
+* @route '/app/servers/{server}/edit'
+*/
+editForm.head = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+edit.form = editForm
+
+/**
 * @see \App\Http\Controllers\Servers\ServerController::update
 * @see app/Http/Controllers/Servers/ServerController.php:239
 * @route '/app/servers/{server}'
@@ -352,6 +544,38 @@ update.put = (args: { server: number | { id: number } } | [server: number | { id
 })
 
 /**
+* @see \App\Http\Controllers\Servers\ServerController::update
+* @see app/Http/Controllers/Servers/ServerController.php:239
+* @route '/app/servers/{server}'
+*/
+const updateForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::update
+* @see app/Http/Controllers/Servers/ServerController.php:239
+* @route '/app/servers/{server}'
+*/
+updateForm.put = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
+
+/**
 * @see \App\Http\Controllers\Servers\ServerController::destroy
 * @see app/Http/Controllers/Servers/ServerController.php:264
 * @route '/app/servers/{server}'
@@ -408,6 +632,38 @@ destroy.delete = (args: { server: number | { id: number } } | [server: number | 
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::destroy
+* @see app/Http/Controllers/Servers/ServerController.php:264
+* @route '/app/servers/{server}'
+*/
+const destroyForm = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Servers\ServerController::destroy
+* @see app/Http/Controllers/Servers/ServerController.php:264
+* @route '/app/servers/{server}'
+*/
+destroyForm.delete = (args: { server: number | { id: number } } | [server: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const servers = {
     index: Object.assign(index, index),

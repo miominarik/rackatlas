@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\TeamController::update
 * @see app/Http/Controllers/Admin/TeamController.php:103
@@ -56,6 +56,38 @@ update.put = (args: { team: number | { id: number } } | [team: number | { id: nu
     url: update.url(args, options),
     method: 'put',
 })
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::update
+* @see app/Http/Controllers/Admin/TeamController.php:103
+* @route '/app/admin/teams/{team}/owner'
+*/
+const updateForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::update
+* @see app/Http/Controllers/Admin/TeamController.php:103
+* @route '/app/admin/teams/{team}/owner'
+*/
+updateForm.put = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
 
 const owner = {
     update: Object.assign(update, update),

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 import sessions from './sessions'
 /**
 * @see \App\Http\Controllers\Api\TerminalBridgeController::exchange
@@ -35,6 +35,28 @@ exchange.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::exchange
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:24
+* @route '/api/terminal/exchange'
+*/
+const exchangeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: exchange.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::exchange
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:24
+* @route '/api/terminal/exchange'
+*/
+exchangeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: exchange.url(options),
+    method: 'post',
+})
+
+exchange.form = exchangeForm
+
+/**
 * @see \App\Http\Controllers\Api\TerminalBridgeController::agentAuth
 * @see app/Http/Controllers/Api/TerminalBridgeController.php:79
 * @route '/api/terminal/agent-auth'
@@ -67,6 +89,28 @@ agentAuth.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: agentAuth.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::agentAuth
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:79
+* @route '/api/terminal/agent-auth'
+*/
+const agentAuthForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: agentAuth.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::agentAuth
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:79
+* @route '/api/terminal/agent-auth'
+*/
+agentAuthForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: agentAuth.url(options),
+    method: 'post',
+})
+
+agentAuth.form = agentAuthForm
 
 /**
 * @see \App\Http\Controllers\Api\TerminalBridgeController::sessionEnded
@@ -103,6 +147,28 @@ sessionEnded.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::sessionEnded
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:95
+* @route '/api/terminal/session-ended'
+*/
+const sessionEndedForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: sessionEnded.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::sessionEnded
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:95
+* @route '/api/terminal/session-ended'
+*/
+sessionEndedForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: sessionEnded.url(options),
+    method: 'post',
+})
+
+sessionEnded.form = sessionEndedForm
+
+/**
 * @see \App\Http\Controllers\Api\TerminalBridgeController::hostKey
 * @see app/Http/Controllers/Api/TerminalBridgeController.php:118
 * @route '/api/terminal/host-key'
@@ -135,6 +201,28 @@ hostKey.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: hostKey.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::hostKey
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:118
+* @route '/api/terminal/host-key'
+*/
+const hostKeyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: hostKey.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\TerminalBridgeController::hostKey
+* @see app/Http/Controllers/Api/TerminalBridgeController.php:118
+* @route '/api/terminal/host-key'
+*/
+hostKeyForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: hostKey.url(options),
+    method: 'post',
+})
+
+hostKey.form = hostKeyForm
 
 const terminal = {
     sessions: Object.assign(sessions, sessions),

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 import activity from './activity'
 import users from './users'
 import teams from './teams'
@@ -105,6 +105,128 @@ index.query = (options?: RouteQueryOptions): RouteDefinition<'query'> => ({
     url: index.url(options),
     method: 'query',
 })
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: index.url(options),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.options = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'OPTIONS',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/app/admin'
+*/
+indexForm.query = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'QUERY',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+index.form = indexForm
 
 const admin = {
     index: Object.assign(index, index),

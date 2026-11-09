@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
 * @see app/Http/Controllers/Api/AgentIngestController.php:21
@@ -32,5 +32,27 @@ AgentIngestController.post = (options?: RouteQueryOptions): RouteDefinition<'pos
     url: AgentIngestController.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AgentIngestController::__invoke
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
+* @route '/api/agent/ingest'
+*/
+const AgentIngestControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: AgentIngestController.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentIngestController::__invoke
+* @see app/Http/Controllers/Api/AgentIngestController.php:21
+* @route '/api/agent/ingest'
+*/
+AgentIngestControllerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: AgentIngestController.url(options),
+    method: 'post',
+})
+
+AgentIngestController.form = AgentIngestControllerForm
 
 export default AgentIngestController

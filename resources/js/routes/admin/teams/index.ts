@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 import owner from './owner'
 import members from './members'
 /**
@@ -46,6 +46,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Admin\TeamController::index
+* @see app/Http/Controllers/Admin/TeamController.php:19
+* @route '/app/admin/teams'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::index
+* @see app/Http/Controllers/Admin/TeamController.php:19
+* @route '/app/admin/teams'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::index
+* @see app/Http/Controllers/Admin/TeamController.php:19
+* @route '/app/admin/teams'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\Admin\TeamController::store
 * @see app/Http/Controllers/Admin/TeamController.php:52
 * @route '/app/admin/teams'
@@ -78,6 +115,28 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::store
+* @see app/Http/Controllers/Admin/TeamController.php:52
+* @route '/app/admin/teams'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::store
+* @see app/Http/Controllers/Admin/TeamController.php:52
+* @route '/app/admin/teams'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Admin\TeamController::show
@@ -148,6 +207,43 @@ show.head = (args: { team: number | { id: number } } | [team: number | { id: num
 })
 
 /**
+* @see \App\Http\Controllers\Admin\TeamController::show
+* @see app/Http/Controllers/Admin/TeamController.php:69
+* @route '/app/admin/teams/{team}'
+*/
+const showForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::show
+* @see app/Http/Controllers/Admin/TeamController.php:69
+* @route '/app/admin/teams/{team}'
+*/
+showForm.get = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::show
+* @see app/Http/Controllers/Admin/TeamController.php:69
+* @route '/app/admin/teams/{team}'
+*/
+showForm.head = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\Admin\TeamController::update
 * @see app/Http/Controllers/Admin/TeamController.php:91
 * @route '/app/admin/teams/{team}'
@@ -206,6 +302,38 @@ update.put = (args: { team: number | { id: number } } | [team: number | { id: nu
 })
 
 /**
+* @see \App\Http\Controllers\Admin\TeamController::update
+* @see app/Http/Controllers/Admin/TeamController.php:91
+* @route '/app/admin/teams/{team}'
+*/
+const updateForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::update
+* @see app/Http/Controllers/Admin/TeamController.php:91
+* @route '/app/admin/teams/{team}'
+*/
+updateForm.put = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
+
+/**
 * @see \App\Http\Controllers\Admin\TeamController::destroy
 * @see app/Http/Controllers/Admin/TeamController.php:170
 * @route '/app/admin/teams/{team}'
@@ -262,6 +390,38 @@ destroy.delete = (args: { team: number | { id: number } } | [team: number | { id
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::destroy
+* @see app/Http/Controllers/Admin/TeamController.php:170
+* @route '/app/admin/teams/{team}'
+*/
+const destroyForm = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\TeamController::destroy
+* @see app/Http/Controllers/Admin/TeamController.php:170
+* @route '/app/admin/teams/{team}'
+*/
+destroyForm.delete = (args: { team: number | { id: number } } | [team: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const teams = {
     index: Object.assign(index, index),

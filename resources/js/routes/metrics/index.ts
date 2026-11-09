@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\MetricsController::index
 * @see app/Http/Controllers/MetricsController.php:18
@@ -44,6 +44,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\MetricsController::index
+* @see app/Http/Controllers/MetricsController.php:18
+* @route '/app/metrics'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MetricsController::index
+* @see app/Http/Controllers/MetricsController.php:18
+* @route '/app/metrics'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MetricsController::index
+* @see app/Http/Controllers/MetricsController.php:18
+* @route '/app/metrics'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\MetricsProcessesController::__invoke
 * @see app/Http/Controllers/MetricsProcessesController.php:17
 * @route '/app/metrics/processes'
@@ -86,6 +123,43 @@ processes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: processes.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\MetricsProcessesController::__invoke
+* @see app/Http/Controllers/MetricsProcessesController.php:17
+* @route '/app/metrics/processes'
+*/
+const processesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: processes.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MetricsProcessesController::__invoke
+* @see app/Http/Controllers/MetricsProcessesController.php:17
+* @route '/app/metrics/processes'
+*/
+processesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: processes.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\MetricsProcessesController::__invoke
+* @see app/Http/Controllers/MetricsProcessesController.php:17
+* @route '/app/metrics/processes'
+*/
+processesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: processes.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+processes.form = processesForm
 
 const metrics = {
     index: Object.assign(index, index),
