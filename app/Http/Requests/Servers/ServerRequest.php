@@ -43,7 +43,9 @@ class ServerRequest extends FormRequest
     {
         $team = $this->team();
         $isMysql = $this->serverType() === ServerType::Mysql;
-        $isRedis = $this->serverType() === ServerType::Redis;
+        $isSentinel = $this->serverType() === ServerType::Sentinel;
+        // A Redis server and a Sentinel-only server log in the same way.
+        $isRedis = $isSentinel || $this->serverType() === ServerType::Redis;
         $isDatabase = $isMysql || $isRedis;
         // A database always logs in with a password, over the network. Redis may have none.
         $isPassword = $isMysql || $this->input('auth_type') === ServerAuthType::Password->value;
@@ -69,15 +71,9 @@ class ServerRequest extends FormRequest
             'uses_agent' => ['nullable', 'boolean'],
             'agent_terminal' => ['nullable', 'boolean'],
             'password' => [Rule::requiredIf($isPassword && ! $existing), 'nullable', 'string', 'max:1000'],
-            'sentinel_peer_id' => [
-                'nullable',
-                Rule::exists('servers', 'id')
-                    ->where('team_id', $team->id)
-                    ->where('type', ServerType::Redis->value)
-                    ->whereNot('id', $this->route('server')?->id ?? 0),
-            ],
-            'sentinel_port' => [Rule::requiredIf($isRedis && filled($this->input('sentinel_peer_id'))), 'nullable', 'integer', 'between:1,65535'],
-            'sentinel_master_name' => [Rule::requiredIf($isRedis && filled($this->input('sentinel_peer_id'))), 'nullable', 'string', 'max:100', 'regex:/^\S+$/'],
+            // Servers with the same master name belong to one Redis Sentinel setup. A Sentinel-only server must have one.
+            'sentinel_master_name' => [Rule::requiredIf($isSentinel || ($isRedis && filled($this->input('sentinel_port')))), 'nullable', 'string', 'max:100', 'regex:/^\S+$/'],
+            'sentinel_port' => [Rule::requiredIf($isRedis && ! $isSentinel && filled($this->input('sentinel_master_name'))), 'nullable', 'integer', 'between:1,65535'],
             'ssh_key_id' => [
                 Rule::requiredIf($isKey),
                 'nullable',

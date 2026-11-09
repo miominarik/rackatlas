@@ -16,7 +16,7 @@ export type SshKey = {
     servers_count?: number;
 };
 
-export type ServerType = 'server' | 'mysql' | 'redis';
+export type ServerType = 'server' | 'mysql' | 'redis' | 'sentinel';
 
 export type ServerStatus = 'unknown' | 'online' | 'offline';
 
@@ -63,16 +63,8 @@ export type ServerFormData = {
     server_category_id: number | null;
     ssh_host_fingerprint?: string | null;
     ignored_alerts: string[];
-    sentinel_peer_id: number | null;
     sentinel_port: number | null;
     sentinel_master_name: string | null;
-};
-
-export type RedisServerOption = {
-    id: number;
-    name: string;
-    host: string;
-    port: number;
 };
 
 export type Backup = {
@@ -153,7 +145,7 @@ export type RedisSummary = {
     port: number;
     status: ServerStatus;
     last_checked_at: string | null;
-    sentinel_peer_id: number | null;
+    sentinel_master_name: string | null;
     metric: RedisMetric | null;
 };
 
@@ -187,9 +179,11 @@ export type SentinelGroup = {
     members: {
         server_id: number;
         server_name: string;
+        type: 'redis' | 'sentinel';
+        status: ServerStatus;
+        role: string | null;
         port: number | null;
         collected_at: string | null;
         sentinel: SentinelReport | null;
     }[];
-    roles: Record<string, string | null>;
 };

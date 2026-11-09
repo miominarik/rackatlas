@@ -8,11 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Redis servers and Sentinel-only servers that run in one Redis Sentinel setup watch the same master.
+        Schema::create('sentinel_groups', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('team_id')->constrained()->cascadeOnDelete();
+            $table->string('master_name', 100);
+            $table->timestamps();
+
+            $table->unique(['team_id', 'master_name']);
+        });
+
         Schema::table('servers', function (Blueprint $table) {
-            // Two Redis servers that Redis Sentinel runs on are linked to each other, in both directions.
-            $table->foreignId('sentinel_peer_id')->nullable()->after('ssh_key_id')->constrained('servers')->nullOnDelete();
-            $table->unsignedSmallInteger('sentinel_port')->nullable()->after('sentinel_peer_id');
-            $table->string('sentinel_master_name', 100)->nullable()->after('sentinel_port');
+            $table->foreignId('sentinel_group_id')->nullable()->after('ssh_key_id')->constrained('sentinel_groups')->nullOnDelete();
+            $table->unsignedSmallInteger('sentinel_port')->nullable()->after('sentinel_group_id');
         });
 
         Schema::create('redis_metrics', function (Blueprint $table) {
@@ -51,8 +59,10 @@ return new class extends Migration
         Schema::dropIfExists('redis_metrics');
 
         Schema::table('servers', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('sentinel_peer_id');
-            $table->dropColumn(['sentinel_port', 'sentinel_master_name']);
+            $table->dropConstrainedForeignId('sentinel_group_id');
+            $table->dropColumn('sentinel_port');
         });
+
+        Schema::dropIfExists('sentinel_groups');
     }
 };

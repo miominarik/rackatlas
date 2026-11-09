@@ -128,7 +128,7 @@ export default function Redis({
                     )}
                 </div>
 
-                {servers.length === 0 ? (
+                {servers.length === 0 && sentinels.length === 0 ? (
                     <div className="rounded-xl border border-dashed bg-card p-10 text-center">
                         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted">
                             <MemoryStick className="size-7 text-muted-foreground" />
@@ -153,7 +153,7 @@ export default function Redis({
                             if (!group.agree) {
                                 problems.push(
                                     t(
-                                        "The two Sentinels disagree about which server is the master.",
+                                        "The Sentinels disagree about which server is the master.",
                                     ),
                                 );
                             }
@@ -162,6 +162,14 @@ export default function Redis({
                                 const report = member.sentinel;
 
                                 if (report === null) {
+                                    if (member.status === "offline") {
+                                        problems.push(
+                                            t("Server :server is offline.", {
+                                                server: member.server_name,
+                                            }),
+                                        );
+                                    }
+
                                     return;
                                 }
 
@@ -240,7 +248,7 @@ export default function Redis({
                                             <p className="text-sm text-muted-foreground">
                                                 {group.members
                                                     .map((m) => m.server_name)
-                                                    .join(" ⇄ ")}
+                                                    .join(" · ")}
                                             </p>
                                         </div>
                                         {failover && (
@@ -294,6 +302,14 @@ export default function Redis({
                                                         <span className="ml-2 font-mono text-xs text-muted-foreground">
                                                             :{member.port}
                                                         </span>
+                                                        {member.type ===
+                                                            "sentinel" && (
+                                                            <span className="ml-2 text-xs font-normal text-muted-foreground">
+                                                                {t(
+                                                                    "Sentinel only",
+                                                                )}
+                                                            </span>
+                                                        )}
                                                     </p>
                                                     {report === null ? (
                                                         <p className="text-sm text-muted-foreground">

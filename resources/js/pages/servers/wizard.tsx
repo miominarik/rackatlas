@@ -6,6 +6,7 @@ import {
     KeyRound,
     Lock,
     MemoryStick,
+    ShieldCheck,
     Plus,
     Radio,
     ServerCog,
@@ -40,7 +41,6 @@ import { index } from '@/routes/servers';
 import type {
     ServerAuthType,
     ServerCategory,
-    RedisServerOption,
     ServerFormData,
     SshKey,
 } from '@/types';
@@ -50,7 +50,7 @@ type Props = {
     server: ServerFormData | null;
     categories: ServerCategory[];
     sshKeys: SshKey[];
-    redisServers: RedisServerOption[];
+    sentinelMasters: string[];
 };
 
 type TestResult = { success: boolean; message: string };
@@ -87,9 +87,8 @@ const stepFields: Record<number, string[]> = {
         'username',
         'password',
         'ssh_key_id',
-        'sentinel_peer_id',
-        'sentinel_port',
         'sentinel_master_name',
+        'sentinel_port',
     ],
 };
 
@@ -98,7 +97,7 @@ export default function ServerWizard({
     server,
     categories,
     sshKeys: initialKeys,
-    redisServers,
+    sentinelMasters,
 }: Props) {
     const { t, locale } = useTranslation();
     const countries = sortedCountries(locale);
@@ -115,7 +114,11 @@ export default function ServerWizard({
     const [testResult, setTestResult] = useState<TestResult | null>(null);
 
     const form = useForm({
-        type: (server?.type ?? 'server') as 'server' | 'mysql' | 'redis',
+        type: (server?.type ?? 'server') as
+            | 'server'
+            | 'mysql'
+            | 'redis'
+            | 'sentinel' | 'sentinel',
         name: server?.name ?? '',
         provider: server?.provider ?? '',
         country: server?.country ?? '',
@@ -132,11 +135,8 @@ export default function ServerWizard({
         password: '',
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
         ignored_alerts: server?.ignored_alerts ?? ([] as string[]),
-        sentinel_peer_id: server?.sentinel_peer_id
-            ? String(server.sentinel_peer_id)
-            : '',
+        sentinel_master_name: server?.sentinel_master_name ?? '',
         sentinel_port: String(server?.sentinel_port ?? 26379),
-        sentinel_master_name: server?.sentinel_master_name ?? 'mymaster',
     });
 
     const tester = useHttp<Record<string, string>, TestResult>({});
@@ -148,10 +148,13 @@ export default function ServerWizard({
     ];
 
     const isMysql = form.data.type === 'mysql';
-    const isRedis = form.data.type === 'redis';
+    const isSentinel = form.data.type === 'sentinel';
+    const isRedis = form.data.type === 'redis' || isSentinel;
     const isDatabase = isMysql || isRedis;
-    const hasSentinel = isRedis && form.data.sentinel_peer_id !== '';
-    const sentinelPeers = redisServers.filter((peer) => peer.id !== server?.id);
+    // A Redis server may run a Sentinel next to it, a Sentinel-only server always does.
+    const hasSentinel =
+        isSentinel ||
+        (form.data.type === 'redis' && form.data.sentinel_master_name.trim() !== '');
     const isAgent = !isDatabase && form.data.auth_type === 'agent';
     const sendsViaAgent = isAgent || form.data.uses_agent;
 
@@ -195,9 +198,10 @@ export default function ServerWizard({
                 return [
                     'host',
                     'port',
-                    ...(hasSentinel
+                    ...(hasSentinel && !isSentinel
                         ? ['sentinel_port', 'sentinel_master_name']
                         : []),
+                    ...(isSentinel ? ['sentinel_master_name'] : []),
                 ];
             }
 
@@ -256,16 +260,21 @@ export default function ServerWizard({
         }));
     };
 
-    const chooseType = (type: 'server' | 'mysql' | 'redis') => {
+    const chooseType = (type: 'server' | 'mysql' | 'redis' | 'sentinel') => {
         const database = type !== 'server';
 
         form.setData((data) => ({
             ...data,
             type,
             auth_type: database ? 'password' : 'agent',
-            port: { server: '22', mysql: '3306', redis: '6379' }[type],
+            port: {
+                server: '22',
+                mysql: '3306',
+                redis: '6379',
+                sentinel: '26379',
+            }[type],
             username: database ? '' : 'root',
-            sentinel_peer_id: '',
+            sentinel_master_name: '',
             uses_agent: false,
             agent_terminal: false,
         }));
@@ -282,7 +291,8 @@ export default function ServerWizard({
             auth_type: form.data.auth_type,
             password: form.data.password,
             ssh_key_id: form.data.ssh_key_id,
-            sentinel_port: hasSentinel ? form.data.sentinel_port : '',
+            sentinel_port:
+                hasSentinel && !isSentinel ? form.data.sentinel_port : '',
             sentinel_master_name: hasSentinel
                 ? form.data.sentinel_master_name
                 : '',
@@ -427,6 +437,14 @@ export default function ServerWizard({
                                                     'Memory, clients, commands and replication of a Redis server, optionally with Redis Sentinel.',
                                                 ),
                                                 MemoryStick,
+                                            ],
+                                            [
+                                                'sentinel',
+                                                t('Redis Sentinel only'),
+                                                t(
+                                                    'A server that runs only Redis Sentinel, without Redis, for example to have a quorum.',
+                                                ),
+                                                ShieldCheck,
                                             ],
                                         ] as const
                                     ).map(([value, title, hint, Icon]) => (
@@ -777,7 +795,9 @@ export default function ServerWizard({
                                             <Label htmlFor="port">
                                                 {isMysql
                                                     ? t('MySQL port')
-                                                    : isRedis
+                                                    : isSentinel
+                                                      ? t('Sentinel port')
+                                                      : isRedis
                                                       ? t('Redis port')
                                                       : t('SSH port')}
                                             </Label>
@@ -894,81 +914,58 @@ export default function ServerWizard({
                                         {t('Redis Sentinel')}
                                     </legend>
                                     <p className="text-sm text-muted-foreground">
-                                        {t(
-                                            'If this server and another Redis server are connected through Redis Sentinel, choose the other one. Sentinel is expected on the same host and uses the same username and password.',
-                                        )}
+                                        {isSentinel
+                                            ? t(
+                                                  'Servers with the same master name belong to one Sentinel group. Use the name of the master from the Sentinel configuration, the same as on the Redis servers.',
+                                              )
+                                            : t(
+                                                  'If a Sentinel runs on this host, enter the master name it watches. Servers with the same master name are shown as one Sentinel group. Leave it empty if there is no Sentinel.',
+                                              )}
                                     </p>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="sentinel_peer_id">
-                                            {t('Connected with')}
-                                        </Label>
-                                        <Select
-                                            value={
-                                                form.data.sentinel_peer_id ||
-                                                NO_SENTINEL
-                                            }
-                                            onValueChange={(value) =>
-                                                form.setData(
-                                                    'sentinel_peer_id',
-                                                    value === NO_SENTINEL
-                                                        ? ''
-                                                        : value,
-                                                )
-                                            }
-                                        >
-                                            <SelectTrigger
-                                                id="sentinel_peer_id"
-                                                data-test="sentinel-peer-select"
-                                            >
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value={NO_SENTINEL}>
-                                                    {t('No Sentinel')}
-                                                </SelectItem>
-                                                {sentinelPeers.map((peer) => (
-                                                    <SelectItem
-                                                        key={peer.id}
-                                                        value={String(peer.id)}
-                                                    >
-                                                        {peer.name} (
-                                                        {peer.host}:{peer.port})
-                                                    </SelectItem>
+                                    <div
+                                        className={
+                                            isSentinel
+                                                ? 'grid gap-4'
+                                                : 'grid gap-4 sm:grid-cols-[1fr_9rem]'
+                                        }
+                                    >
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="sentinel_master_name">
+                                                {t('Master name')}
+                                            </Label>
+                                            <Input
+                                                id="sentinel_master_name"
+                                                list="sentinel-masters"
+                                                value={
+                                                    form.data
+                                                        .sentinel_master_name
+                                                }
+                                                onChange={(e) =>
+                                                    form.setData(
+                                                        'sentinel_master_name',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                placeholder="mymaster"
+                                                autoComplete="off"
+                                                data-test="sentinel-master-name"
+                                            />
+                                            <datalist id="sentinel-masters">
+                                                {sentinelMasters.map((name) => (
+                                                    <option
+                                                        key={name}
+                                                        value={name}
+                                                    />
                                                 ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <InputError
-                                            message={form.errors.sentinel_peer_id}
-                                        />
-                                    </div>
-                                    {hasSentinel && (
-                                        <div className="grid gap-4 sm:grid-cols-[1fr_9rem]">
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="sentinel_master_name">
-                                                    {t('Master name')}
-                                                </Label>
-                                                <Input
-                                                    id="sentinel_master_name"
-                                                    value={
-                                                        form.data
-                                                            .sentinel_master_name
-                                                    }
-                                                    onChange={(e) =>
-                                                        form.setData(
-                                                            'sentinel_master_name',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    placeholder="mymaster"
-                                                    autoComplete="off"
-                                                />
-                                                <InputError
-                                                    message={
-                                                        form.errors
-                                                            .sentinel_master_name
-                                                    }
-                                                />
-                                            </div>
+                                            </datalist>
+                                            <InputError
+                                                message={
+                                                    form.errors
+                                                        .sentinel_master_name
+                                                }
+                                            />
+                                        </div>
+                                        {!isSentinel && (
                                             <div className="grid gap-2">
                                                 <Label htmlFor="sentinel_port">
                                                     {t('Sentinel port')}
@@ -993,8 +990,8 @@ export default function ServerWizard({
                                                     }
                                                 />
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </fieldset>
                             )}
 
@@ -1134,7 +1131,9 @@ export default function ServerWizard({
                                         ? [
                                               [
                                                   t('Redis Sentinel'),
-                                                  `${form.data.sentinel_master_name} · ${t('port :port', { port: form.data.sentinel_port })} · ${sentinelPeers.find((peer) => String(peer.id) === form.data.sentinel_peer_id)?.name ?? ''}`,
+                                                  isSentinel
+                                                      ? form.data.sentinel_master_name
+                                                      : `${form.data.sentinel_master_name} · ${t('port :port', { port: form.data.sentinel_port })}`,
                                               ],
                                           ]
                                         : []),

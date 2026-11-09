@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
@@ -36,9 +35,8 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property bool $agent_terminal Whether the terminal runs through the agent, which connects out, instead of over SSH
  * @property string|null $password
  * @property int|null $ssh_key_id
- * @property int|null $sentinel_peer_id The other Redis server Redis Sentinel runs with
- * @property int|null $sentinel_port
- * @property string|null $sentinel_master_name The name of the monitored master in the Sentinel configuration
+ * @property int|null $sentinel_group_id The Redis Sentinel setup this server belongs to
+ * @property int|null $sentinel_port Where Redis Sentinel listens on this host
  * @property string|null $agent_token_hash
  * @property string|null $agent_version
  * @property array<int, string>|null $failed_units
@@ -48,7 +46,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
  */
-#[Fillable(['team_id', 'type', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts', 'sentinel_peer_id', 'sentinel_port', 'sentinel_master_name'])]
+#[Fillable(['team_id', 'type', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts', 'sentinel_group_id', 'sentinel_port'])]
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
@@ -105,6 +103,14 @@ class Server extends Model
     public function isRedis(): bool
     {
         return $this->type === ServerType::Redis;
+    }
+
+    /**
+     * Whether this server only runs Redis Sentinel, without a Redis server of its own.
+     */
+    public function isSentinel(): bool
+    {
+        return $this->type === ServerType::Sentinel;
     }
 
     /**
@@ -169,6 +175,15 @@ class Server extends Model
     }
 
     /**
+     * @param  Builder<Server>  $query
+     */
+    #[Scope]
+    protected function redisFamily(Builder $query): void
+    {
+        $query->whereIn('type', [ServerType::Redis->value, ServerType::Sentinel->value]);
+    }
+
+    /**
      * Servers that send their data through the agent, with or without SSH access.
      *
      * @param  Builder<Server>  $query
@@ -221,42 +236,32 @@ class Server extends Model
         return $this->hasOne(RedisMetric::class)->latestOfMany('collected_at');
     }
 
-    public function sentinelPeer(): BelongsTo
+    public function sentinelGroup(): BelongsTo
     {
-        return $this->belongsTo(self::class, 'sentinel_peer_id');
+        return $this->belongsTo(SentinelGroup::class);
     }
 
     /**
-     * Link this Redis server with the other one Redis Sentinel runs with, in both directions, or remove
-     * the link. The master name is shared, the port of the Sentinel is the own one of each server.
+     * Put this server into a Redis Sentinel group, or take it out of its group. A group that is left
+     * without servers is deleted.
      */
-    public function linkSentinel(?self $peer, ?int $port, ?string $masterName): void
+    public function joinSentinelGroup(?SentinelGroup $group, ?int $port): void
     {
-        DB::transaction(function () use ($peer, $port, $masterName) {
-            $previousId = $this->sentinel_peer_id;
+        $previous = $this->sentinelGroup;
 
-            if ($previousId !== null && $previousId !== $peer?->id) {
-                static::whereKey($previousId)->update(['sentinel_peer_id' => null, 'sentinel_port' => null, 'sentinel_master_name' => null]);
-            }
+        $this->forceFill([
+            'sentinel_group_id' => $group?->id,
+            'sentinel_port' => $group !== null ? $port : null,
+        ])->unsetRelation('sentinelGroup')->save();
 
-            if ($peer === null) {
-                $this->forceFill(['sentinel_peer_id' => null, 'sentinel_port' => null, 'sentinel_master_name' => null])->save();
+        if ($previous !== null && $previous->id !== $group?->id) {
+            $previous->deleteIfEmpty();
+        }
+    }
 
-                return;
-            }
-
-            // The peer may have been linked to a third server before.
-            if ($peer->sentinel_peer_id !== null && $peer->sentinel_peer_id !== $this->id) {
-                static::whereKey($peer->sentinel_peer_id)->update(['sentinel_peer_id' => null, 'sentinel_port' => null, 'sentinel_master_name' => null]);
-            }
-
-            $this->forceFill(['sentinel_peer_id' => $peer->id, 'sentinel_port' => $port, 'sentinel_master_name' => $masterName])->save();
-            $peer->forceFill([
-                'sentinel_peer_id' => $this->id,
-                'sentinel_port' => $peer->sentinel_peer_id === $this->id && $peer->sentinel_port !== null ? $peer->sentinel_port : $port,
-                'sentinel_master_name' => $masterName,
-            ])->save();
-        });
+    protected static function booted(): void
+    {
+        static::deleted(fn (self $server) => $server->sentinelGroup?->deleteIfEmpty());
     }
 
     public function latestMetric(): HasOne
@@ -312,7 +317,7 @@ class Server extends Model
     {
         return LogOptions::defaults()
             ->useLogName('server')
-            ->logOnly(['type', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts', 'sentinel_peer_id', 'sentinel_port', 'sentinel_master_name'])
+            ->logOnly(['type', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts', 'sentinel_group_id', 'sentinel_port'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

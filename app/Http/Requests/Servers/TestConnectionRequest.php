@@ -20,8 +20,8 @@ class TestConnectionRequest extends ServerRequest
     public function rules(): array
     {
         $team = $this->team();
-        $isDatabase = in_array($this->input('type'), [ServerType::Mysql->value, ServerType::Redis->value], true);
-        $isRedis = $this->input('type') === ServerType::Redis->value;
+        $isDatabase = in_array($this->input('type'), [ServerType::Mysql->value, ServerType::Redis->value, ServerType::Sentinel->value], true);
+        $isRedis = in_array($this->input('type'), [ServerType::Redis->value, ServerType::Sentinel->value], true);
 
         return [
             'type' => ['nullable', Rule::enum(ServerType::class)],

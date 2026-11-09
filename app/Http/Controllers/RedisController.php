@@ -23,19 +23,19 @@ class RedisController extends Controller
             return Inertia::render('redis/index', ['team' => null]);
         }
 
-        $servers = $team->servers()->redis()->with('latestRedisMetric')->orderBy('name')->get();
+        $servers = $team->servers()->redisFamily()->with(['latestRedisMetric', 'sentinelGroup'])->orderBy('name')->get();
 
         return Inertia::render('redis/index', [
             'team' => $team->only('id', 'name'),
             'canManage' => $request->user()->can('permit', [$team, 'redis.edit']),
-            'servers' => $servers->map(fn (Server $server) => [
+            'servers' => $servers->filter(fn (Server $server) => $server->isRedis())->map(fn (Server $server) => [
                 'id' => $server->id,
                 'name' => $server->name,
                 'host' => $server->host,
                 'port' => $server->port,
                 'status' => $server->status->value,
                 'last_checked_at' => $server->last_checked_at?->toIso8601String(),
-                'sentinel_peer_id' => $server->sentinel_peer_id,
+                'sentinel_master_name' => $server->sentinelGroup?->master_name,
                 'metric' => $this->presentMetric($server->latestRedisMetric),
             ])->values(),
             'sentinels' => $this->sentinelGroups($servers),
@@ -44,32 +44,30 @@ class RedisController extends Controller
     }
 
     /**
-     * One entry for every pair of servers that Redis Sentinel connects, with what the Sentinel of each
-     * of the two reports. The pair is listed once, from the server with the lower id.
+     * One entry for every Redis Sentinel setup: what the Sentinel of each member reports. The members are
+     * Redis servers that run a Sentinel and servers that only run a Sentinel.
      *
      * @param  Collection<int, Server>  $servers
      * @return array<int, array<string, mixed>>
      */
     private function sentinelGroups(Collection $servers): array
     {
-        $byId = $servers->keyBy('id');
-
         return $servers
-            ->filter(fn (Server $server) => $server->sentinel_peer_id !== null
-                && $byId->has($server->sentinel_peer_id)
-                && $server->id < $server->sentinel_peer_id)
-            ->map(function (Server $server) use ($byId) {
-                $peer = $byId[$server->sentinel_peer_id];
-                $members = [$server, $peer];
-                $reports = array_map(fn (Server $member) => [
+            ->filter(fn (Server $server) => $server->sentinelGroup !== null)
+            ->groupBy('sentinel_group_id')
+            ->map(function (Collection $members) {
+                $reports = $members->map(fn (Server $member) => [
                     'server_id' => $member->id,
                     'server_name' => $member->name,
+                    'type' => $member->type->value,
+                    'status' => $member->status->value,
                     'port' => $member->sentinel_port,
+                    'role' => $member->latestRedisMetric?->role,
                     'collected_at' => $member->latestRedisMetric?->collected_at->toIso8601String(),
                     'sentinel' => $member->latestRedisMetric?->sentinel,
-                ], $members);
+                ])->values();
 
-                $masters = collect($reports)
+                $masters = $reports
                     ->map(fn (array $report) => $report['sentinel']['reachable'] ?? false
                         ? ($report['sentinel']['master_ip'].':'.$report['sentinel']['master_port'])
                         : null)
@@ -77,14 +75,14 @@ class RedisController extends Controller
                     ->unique();
 
                 return [
-                    'master_name' => $server->sentinel_master_name,
-                    'members' => $reports,
+                    'master_name' => $members->first()->sentinelGroup->master_name,
+                    'members' => $reports->all(),
                     // The Sentinels disagree when they point at different masters.
                     'agree' => $masters->count() <= 1,
                     'masters' => $masters->values(),
-                    'roles' => collect($members)->mapWithKeys(fn (Server $member) => [$member->id => $member->latestRedisMetric?->role]),
                 ];
             })
+            ->sortBy('master_name')
             ->values()
             ->all();
     }

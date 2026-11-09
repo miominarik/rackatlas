@@ -64,7 +64,8 @@ function ServerRow({
     const { t } = useTranslation();
 
     const isMysql = server.type === 'mysql';
-    const isRedis = server.type === 'redis';
+    const isSentinel = server.type === 'sentinel';
+    const isRedis = server.type === 'redis' || isSentinel;
     const Icon = isMysql ? Database : isRedis ? MemoryStick : Server;
 
     const statusLabel = {
@@ -152,7 +153,7 @@ function ServerRow({
                 ) : isRedis ? (
                     <>
                         <MemoryStick className="size-3" />
-                        Redis
+                        {isSentinel ? 'Redis Sentinel' : 'Redis'}
                     </>
                 ) : server.uses_agent ? (
                     <>

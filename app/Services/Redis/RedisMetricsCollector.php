@@ -23,18 +23,31 @@ class RedisMetricsCollector
      */
     public function collect(Server $server): ?RedisMetric
     {
+        $data = [];
+
         try {
-            $data = $this->read($server);
+            // A server that only runs Redis Sentinel has no Redis server to read.
+            if (! $server->isSentinel()) {
+                $data = $this->read($server);
+                $data['commands_per_second'] = $this->commandsPerSecond($server, $data);
+            }
         } catch (Throwable $e) {
             $this->recordError($server, $e);
 
             return null;
         }
 
+        $sentinel = $server->sentinel_port !== null ? $this->readSentinel($server) : null;
+
+        if ($server->isSentinel() && ! ($sentinel['reachable'] ?? false)) {
+            $this->recordError($server, new RuntimeException((string) ($sentinel['error'] ?? 'Sentinel does not answer.')));
+
+            return null;
+        }
+
         $metric = $server->redisMetrics()->create([
             ...$data,
-            'commands_per_second' => $this->commandsPerSecond($server, $data),
-            'sentinel' => $server->sentinel_port !== null ? $this->readSentinel($server) : null,
+            'sentinel' => $sentinel,
             'collected_at' => now(),
         ]);
 
@@ -49,19 +62,23 @@ class RedisMetricsCollector
 
     /**
      * Check that the details log in, without storing anything. With a Sentinel port and master name
-     * the Sentinel on the same host is checked too.
+     * the Sentinel on the same host is checked too. A server that only runs Sentinel passes no Redis port.
      *
      * @return array{success: bool, message: string}
      */
-    public function test(string $host, int $port, ?string $username, ?string $password, ?int $sentinelPort = null, ?string $masterName = null): array
+    public function test(string $host, ?int $port, ?string $username, ?string $password, ?int $sentinelPort = null, ?string $masterName = null): array
     {
-        try {
-            $info = $this->parseInfo($this->command($this->connect($host, $port, $username, $password), ['INFO', 'server']));
-        } catch (Throwable $e) {
-            return ['success' => false, 'message' => $this->describe($e, $host, $port)];
-        }
+        $message = __('Connection successful.');
 
-        $message = __('Connection successful.').' Redis '.($info['redis_version'] ?? '?');
+        if ($port !== null) {
+            try {
+                $info = $this->parseInfo($this->command($this->connect($host, $port, $username, $password), ['INFO', 'server']));
+            } catch (Throwable $e) {
+                return ['success' => false, 'message' => $this->describe($e, $host, $port)];
+            }
+
+            $message .= ' Redis '.($info['redis_version'] ?? '?');
+        }
 
         if ($sentinelPort !== null && $masterName !== null) {
             try {
@@ -85,7 +102,7 @@ class RedisMetricsCollector
      */
     public function readSentinel(Server $server): array
     {
-        $name = (string) $server->sentinel_master_name;
+        $name = (string) $server->sentinelGroup?->master_name;
 
         try {
             $client = $this->connect($server->host, (int) $server->sentinel_port, $server->username, $server->password);
