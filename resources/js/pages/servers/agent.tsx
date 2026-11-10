@@ -75,10 +75,13 @@ function RedisAgentSetup() {
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <Label htmlFor="redis-port">{t('Redis port')}</Label>
+                    <Label htmlFor="redis-port">
+                        {t('Redis port (more ports separated by a comma)')}
+                    </Label>
                     <Input
                         id="redis-port"
                         inputMode="numeric"
+                        placeholder="7000,7001"
                         value={port}
                         onChange={(e) => setPort(e.target.value)}
                     />

@@ -163,6 +163,28 @@ class RedisMonitoringTest extends TestCase
         $this->assertSame($id, $metric->cluster['nodes'][1]['master_id']);
     }
 
+    public function test_agent_report_with_two_redis_instances_stores_both_and_the_page_lists_both(): void
+    {
+        $team = Team::factory()->create();
+        $server = $team->servers()->create(['name' => 'php-01', 'host' => '10.0.0.1', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+
+        $this->ingest($server, $this->agentReport(
+            "###REDIS_INFO\nredis_version:7.2.4\nrole:master\nrackatlas_port:7000\n"
+            ."###REDIS_INFO_1\nredis_version:7.2.4\nrole:slave\nrackatlas_port:7001\n"
+        ));
+
+        $this->assertEqualsCanonicalizing([7000, 7001], $server->redisMetrics()->pluck('port')->all());
+
+        $this->actingAs($team->owner)
+            ->get(route('redis.index'))
+            ->assertInertia(fn ($page) => $page
+                ->has('servers', 2)
+                ->where('servers.0.name', 'php-01:7000')
+                ->where('servers.0.metric.role', 'master')
+                ->where('servers.1.name', 'php-01:7001')
+                ->where('servers.1.metric.role', 'slave'));
+    }
+
     public function test_agent_report_without_redis_sections_stores_no_redis_reading(): void
     {
         $server = Team::factory()->create()->servers()->create(['name' => 'Web', 'host' => '10.0.0.1', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);

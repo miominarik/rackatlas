@@ -138,6 +138,7 @@ export type RedisMetric = {
 };
 
 export type RedisSummary = {
+    key: string;
     id: number;
     name: string;
     host: string;
@@ -184,6 +185,6 @@ export type RedisCluster = {
     problems: { type: 'state' | 'slots_unassigned' | 'node'; detail: string }[];
     unmonitored_nodes: number;
     nodes: RedisClusterNode[];
-    server_ids: number[];
+    server_ids: string[];
     collected_at: string;
 };

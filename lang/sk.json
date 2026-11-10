@@ -1454,5 +1454,6 @@
     "If Redis (or a node of a Redis Cluster) runs on this server, the agent reads it without any open port. Fill in the details, run the one command on this server and repeat it on every node of the cluster. The password stays in your browser.": "Ak na tomto serveri beží Redis (alebo uzol Redis Clustera), agent ho číta bez otvoreného portu. Vyplňte údaje, spustite jeden príkaz na tomto serveri a zopakujte ho na každom uzle clustera. Heslo ostáva len vo vašom prehliadači.",
     "Address (optional, default 127.0.0.1)": "Adresa (voliteľné, predvolene 127.0.0.1)",
     "Redis uses TLS": "Redis používa TLS",
-    "Agent and Redis": "Agent a Redis"
+    "Agent and Redis": "Agent a Redis",
+    "Redis port (more ports separated by a comma)": "Port Redisu (viac portov oddeľte čiarkou)"
 }

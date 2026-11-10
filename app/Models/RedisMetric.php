@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $server_id
  * @property Carbon $collected_at
+ * @property int|null $port The port of the Redis instance, a server can run more of them
  * @property string|null $version
  * @property string|null $role master or replica
  * @property int $uptime_seconds
@@ -39,7 +40,7 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed>|null $cluster The cluster as this node sees it, null when the server is not a cluster node, see RedisParser::cluster()
  */
 #[Fillable([
-    'server_id', 'collected_at', 'version', 'role', 'uptime_seconds', 'connected_clients', 'blocked_clients', 'max_clients',
+    'server_id', 'port', 'collected_at', 'version', 'role', 'uptime_seconds', 'connected_clients', 'blocked_clients', 'max_clients',
     'used_memory', 'max_memory', 'used_memory_rss', 'commands_total', 'commands_per_second', 'keyspace_hits_total',
     'keyspace_misses_total', 'evicted_keys_total', 'rejected_connections_total', 'keys_count', 'connected_replicas',
     'master_host', 'master_link_status', 'master_last_io_seconds_ago', 'persistence_ok', 'cluster',

@@ -46,6 +46,7 @@ class RedisParser
         ]);
 
         return [
+            'port' => (int) ($info['rackatlas_port'] ?? $info['tcp_port'] ?? 0) ?: null,
             'version' => mb_substr((string) ($info['redis_version'] ?? ''), 0, 50) ?: null,
             'role' => mb_substr((string) ($info['role'] ?? ''), 0, 20) ?: null,
             'uptime_seconds' => (int) ($info['uptime_in_seconds'] ?? 0),

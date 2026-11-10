@@ -387,7 +387,7 @@ export default function Redis({
 
                                 return (
                                     <li
-                                        key={server.id}
+                                        key={server.key}
                                         className="space-y-4 rounded-xl border bg-card p-4"
                                     >
                                         <div className="flex items-center gap-3">

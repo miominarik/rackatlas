@@ -17,12 +17,31 @@ VERSION="@VERSION@"
 # Redis on this machine is read only when REDIS_PORT or REDIS_HOST is set in the configuration.
 redis_run() {
   # The password goes through the environment, never through the command line.
-  set -- --no-auth-warning ${REDIS_USER:+--user "$REDIS_USER"} -h "${REDIS_HOST:-127.0.0.1}" -p "${REDIS_PORT:-6379}" "$@"
+  set -- --no-auth-warning ${REDIS_USER:+--user "$REDIS_USER"} -h "${REDIS_HOST:-127.0.0.1}" -p "$RPORT" "$@"
   [ "$REDIS_TLS" = 1 ] && set -- --tls "$@"
   if command -v timeout >/dev/null 2>&1; then
     REDISCLI_AUTH="$REDIS_PASSWORD" timeout 5 redis-cli "$@" 2>&1 | head -c 100000
   else
     REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli "$@" 2>&1 | head -c 100000
+  fi
+}
+
+# One instance. REDIS_PORT may list more ports (7000,7001) when several Redis servers run on this machine.
+redis_instance() {
+  SUF="$1"
+
+  INFO="$(redis_run INFO everything)"
+  if ! printf '%s\n' "$INFO" | grep -q '^redis_version:'; then
+    ERR="$(printf '%s\n' "$INFO" | tr -d '\r' | grep -v '^[[:space:]]*$' | head -n 1 | cut -c1-300)"
+    [ -n "$ERR" ] || ERR="No answer from Redis at ${REDIS_HOST:-127.0.0.1}:$RPORT (timeout, wrong port, or TLS needed: REDIS_TLS=1)."
+    echo "###REDIS_ERROR$SUF"; printf 'port %s: %s\n' "$RPORT" "$ERR"
+    return
+  fi
+
+  echo "###REDIS_INFO$SUF"; printf '%s\n' "$INFO"; echo "rackatlas_port:$RPORT"
+  if printf '%s\n' "$INFO" | grep -q '^cluster_enabled:1'; then
+    echo "###REDIS_CLUSTER_INFO$SUF"; redis_run CLUSTER INFO
+    echo "###REDIS_CLUSTER_NODES$SUF"; redis_run CLUSTER NODES
   fi
 }
 
@@ -32,17 +51,14 @@ redis_section() {
     return
   fi
 
-  INFO="$(redis_run INFO everything)"
-  if ! printf '%s\n' "$INFO" | grep -q '^redis_version:'; then
-    echo '###REDIS_ERROR'; printf '%s\n' "$INFO" | head -n 1 | cut -c1-300
-    return
-  fi
-
-  echo '###REDIS_INFO'; printf '%s\n' "$INFO"
-  if printf '%s\n' "$INFO" | grep -q '^cluster_enabled:1'; then
-    echo '###REDIS_CLUSTER_INFO'; redis_run CLUSTER INFO
-    echo '###REDIS_CLUSTER_NODES'; redis_run CLUSTER NODES
-  fi
+  N=0
+  for RPORT in $(printf '%s' "${REDIS_PORT:-6379}" | tr ',' ' '); do
+    SUF=""
+    [ "$N" -gt 0 ] && SUF="_$N"
+    redis_instance "$SUF"
+    N=$((N + 1))
+    [ "$N" -ge 8 ] && break
+  done
 }
 
 CONF="${RACKATLAS_CONF:-/etc/rackatlas-agent/agent.conf}"

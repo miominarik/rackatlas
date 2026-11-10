@@ -50,24 +50,28 @@ class AgentIngestor
             ];
         }
 
-        $redisMetric = $this->redisMetric($server, $sections);
+        $redisMetrics = $this->redisMetrics($server, $sections);
+        $redisFailed = false;
 
-        if (isset($sections['REDIS_ERROR'])) {
-            $entries[] = [
-                'level' => 'error',
-                'source' => 'redis',
-                'message' => 'Redis: '.mb_substr(trim($sections['REDIS_ERROR']), 0, 300),
-                'count' => 1,
-                'occurred_at' => now(),
-            ];
+        foreach ($sections as $name => $body) {
+            if (preg_match('/^REDIS_ERROR(_\d+)?$/', $name) === 1) {
+                $redisFailed = true;
+                $entries[] = [
+                    'level' => 'error',
+                    'source' => 'redis',
+                    'message' => 'Redis: '.mb_substr(trim($body), 0, 300),
+                    'count' => 1,
+                    'occurred_at' => now(),
+                ];
+            }
         }
 
         $fresh = [];
 
-        DB::transaction(function () use ($server, $data, $sections, $entries, $failedNow, $systemInfo, $agentVersion, $redisMetric, &$fresh) {
+        DB::transaction(function () use ($server, $data, $sections, $entries, $failedNow, $systemInfo, $agentVersion, $redisMetrics, &$fresh) {
             $this->collector->store($server, $data);
 
-            if ($redisMetric !== null) {
+            foreach ($redisMetrics as $redisMetric) {
                 $server->redisMetrics()->create($redisMetric);
             }
 
@@ -93,7 +97,7 @@ class AgentIngestor
 
         $this->resolveRecoveredUnits($server, $failedNow);
 
-        if (isset($sections['REDIS_INFO'])) {
+        if ($redisMetrics !== [] && ! $redisFailed) {
             $server->logs()->open()->where('source', 'redis')->update(['resolved_at' => now(), 'resolved_by' => null]);
         }
 
@@ -103,37 +107,44 @@ class AgentIngestor
     }
 
     /**
-     * The reading of the Redis server on this machine, when the agent sent one (and the cluster it belongs to).
+     * The readings of the Redis instances on this machine. The first instance is sent in the sections REDIS_INFO,
+     * REDIS_CLUSTER_INFO and REDIS_CLUSTER_NODES, the next ones with the suffix _1, _2 and so on.
      *
      * @param  array<string, string>  $sections
-     * @return array<string, mixed>|null
+     * @return array<int, array<string, mixed>>
      */
-    private function redisMetric(Server $server, array $sections): ?array
+    private function redisMetrics(Server $server, array $sections): array
     {
-        if (! isset($sections['REDIS_INFO'])) {
-            return null;
+        $readings = [];
+
+        foreach (array_keys($sections) as $name) {
+            if (preg_match('/^REDIS_INFO(_\d+)?$/', $name, $match) !== 1) {
+                continue;
+            }
+
+            $suffix = $match[1] ?? '';
+            $info = $this->redis->keyValues($sections[$name]);
+
+            if (! isset($info['redis_version'])) {
+                continue;
+            }
+
+            $data = $this->redis->metric($info);
+            $data['cluster'] = isset($sections['REDIS_CLUSTER_INFO'.$suffix])
+                ? $this->redis->cluster($sections['REDIS_CLUSTER_INFO'.$suffix], $sections['REDIS_CLUSTER_NODES'.$suffix] ?? '')
+                : null;
+
+            $previous = $server->redisMetrics()->where('port', $data['port'])->latest('collected_at')->first();
+            $seconds = $previous?->collected_at->diffInSeconds(now(), true);
+            // A restart resets the counter, so there is no value then.
+            $data['commands_per_second'] = $previous !== null && $seconds > 0 && $data['commands_total'] >= $previous->commands_total
+                ? round(($data['commands_total'] - $previous->commands_total) / $seconds, 2)
+                : null;
+            $data['collected_at'] = now();
+            $readings[] = $data;
         }
 
-        $info = $this->redis->keyValues($sections['REDIS_INFO']);
-
-        if (! isset($info['redis_version'])) {
-            return null;
-        }
-
-        $data = $this->redis->metric($info);
-        $data['cluster'] = isset($sections['REDIS_CLUSTER_INFO'])
-            ? $this->redis->cluster($sections['REDIS_CLUSTER_INFO'], $sections['REDIS_CLUSTER_NODES'] ?? '')
-            : null;
-
-        $previous = $server->redisMetrics()->latest('collected_at')->first();
-        $seconds = $previous?->collected_at->diffInSeconds(now(), true);
-        // A restart resets the counter, so there is no value then.
-        $data['commands_per_second'] = $previous !== null && $seconds > 0 && $data['commands_total'] >= $previous->commands_total
-            ? round(($data['commands_total'] - $previous->commands_total) / $seconds, 2)
-            : null;
-        $data['collected_at'] = now();
-
-        return $data;
+        return $readings;
     }
 
     /**

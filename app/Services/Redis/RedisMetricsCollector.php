@@ -35,6 +35,7 @@ class RedisMetricsCollector
 
         $metric = $server->redisMetrics()->create([
             ...$data,
+            'port' => $server->port,
             'commands_per_second' => $this->commandsPerSecond($server, $data),
             'collected_at' => now(),
         ]);

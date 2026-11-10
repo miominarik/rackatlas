@@ -24,21 +24,40 @@ class RedisController extends Controller
         }
 
         $servers = $team->servers()
-            ->with('latestRedisMetric')
             ->where(fn ($query) => $query->redis()->orWhereHas('redisMetrics'))
             ->orderBy('name')
             ->get();
 
-        $presented = $servers->map(fn (Server $server) => [
-            'id' => $server->id,
-            'name' => $server->name,
-            'host' => $server->host,
-            'port' => $server->port,
-            'status' => $server->status->value,
-            'last_checked_at' => $server->last_checked_at?->toIso8601String(),
-            'via_agent' => ! $server->isRedis(),
-            'metric' => $this->presentMetric($server->latestRedisMetric),
-        ]);
+        // The latest reading of every Redis instance: a server can run more of them on different ports.
+        $latest = RedisMetric::query()
+            ->whereIn('id', RedisMetric::query()
+                ->selectRaw('max(id)')
+                ->whereIn('server_id', $servers->modelKeys())
+                ->groupBy('server_id', 'port'))
+            ->orderBy('port')
+            ->get()
+            ->groupBy('server_id');
+
+        $presented = $servers->flatMap(function (Server $server) use ($latest) {
+            $metrics = $latest->get($server->id, collect());
+
+            // A server added as Redis that has no reading yet is still listed.
+            if ($metrics->isEmpty()) {
+                $metrics = collect([null]);
+            }
+
+            return $metrics->map(fn (?RedisMetric $metric) => [
+                'key' => $server->id.':'.($metric?->port ?? $server->port),
+                'id' => $server->id,
+                'name' => $metrics->count() > 1 ? $server->name.':'.$metric?->port : $server->name,
+                'host' => $server->host,
+                'port' => $metric?->port ?? $server->port,
+                'status' => $server->status->value,
+                'last_checked_at' => $server->last_checked_at?->toIso8601String(),
+                'via_agent' => ! $server->isRedis(),
+                'metric' => $this->presentMetric($metric),
+            ]);
+        });
 
         return Inertia::render('redis/index', [
             'team' => $team->only('id', 'name'),
@@ -113,7 +132,7 @@ class RedisController extends Controller
                     'problems' => $problems,
                     'unmonitored_nodes' => $unmonitored,
                     'nodes' => $cluster['nodes'],
-                    'server_ids' => $group->pluck('id')->values(),
+                    'server_ids' => $group->pluck('key')->values(),
                     'collected_at' => $latest['metric']['collected_at'],
                 ];
             })
