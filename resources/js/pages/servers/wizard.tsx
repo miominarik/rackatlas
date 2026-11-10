@@ -75,6 +75,7 @@ const stepFields: Record<number, string[]> = {
         'server_category_id',
         'new_category',
         'ignored_alerts',
+        'in_maintenance',
     ],
     1: [
         'auth_type',
@@ -126,6 +127,7 @@ export default function ServerWizard({
         password: '',
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
         ignored_alerts: server?.ignored_alerts ?? ([] as string[]),
+        in_maintenance: server?.in_maintenance ?? false,
     });
 
     const tester = useHttp<Record<string, string>, TestResult>({});
@@ -572,6 +574,30 @@ export default function ServerWizard({
                                     }
                                 />
                             </div>
+
+                            <label className="flex cursor-pointer items-start gap-2 text-sm">
+                                <Checkbox
+                                    checked={form.data.in_maintenance}
+                                    onCheckedChange={(checked) =>
+                                        form.setData(
+                                            'in_maintenance',
+                                            checked === true,
+                                        )
+                                    }
+                                    className="mt-0.5"
+                                    data-test="in-maintenance"
+                                />
+                                <span>
+                                    <span className="font-medium">
+                                        {t('Maintenance')}
+                                    </span>
+                                    <span className="block text-muted-foreground">
+                                        {t(
+                                            'While on, this server raises no warnings and sends no notifications.',
+                                        )}
+                                    </span>
+                                </span>
+                            </label>
 
                             <fieldset className="grid gap-3">
                                 <legend className="text-sm font-medium">

@@ -63,6 +63,7 @@ export type ServerFormData = {
     server_category_id: number | null;
     ssh_host_fingerprint?: string | null;
     ignored_alerts: string[];
+    in_maintenance?: boolean;
 };
 
 export type Backup = {

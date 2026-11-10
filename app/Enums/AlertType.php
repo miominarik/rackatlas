@@ -8,6 +8,8 @@ enum AlertType: string
     case Resource = 'resource';
     case Service = 'service';
     case Log = 'log';
+    case Database = 'database';
+    case Redis = 'redis';
 
     /**
      * The column of the notification preferences that switches this kind of alert on or off.
@@ -19,6 +21,8 @@ enum AlertType: string
             self::Resource => 'notify_resources',
             self::Service => 'notify_services',
             self::Log => 'notify_logs',
+            self::Database => 'notify_database',
+            self::Redis => 'notify_redis',
         };
     }
 }

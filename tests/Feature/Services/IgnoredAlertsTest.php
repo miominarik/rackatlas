@@ -91,4 +91,34 @@ class IgnoredAlertsTest extends TestCase
         $this->actingAs($server->team->owner)->put(route('servers.update', $server), $payload);
         $this->assertNull($server->fresh()->ignored_alerts);
     }
+
+    public function test_a_server_in_maintenance_raises_no_alerts_and_sends_nothing(): void
+    {
+        Notification::fake();
+        $server = $this->busyServer(null);
+        $server->update(['in_maintenance' => true]);
+
+        $this->assertSame([], $this->openKeys($server));
+        app(AlertEvaluator::class)->notifyLogs($server, [['level' => 'critical', 'source' => 'app', 'message' => 'boom']]);
+        Notification::assertNothingSent();
+
+        $server->update(['in_maintenance' => false]);
+        $this->assertSame(['cpu', 'ram', 'unit:nginx.service'], $this->openKeys($server));
+    }
+
+    public function test_maintenance_is_saved_with_the_settings_of_a_server(): void
+    {
+        $server = $this->busyServer(null);
+        $payload = [
+            'name' => 'db', 'host' => 'example.com', 'port' => 22, 'username' => 'root',
+            'auth_type' => 'password', 'password' => '',
+        ];
+
+        $this->actingAs($server->team->owner)->put(route('servers.update', $server), [...$payload, 'in_maintenance' => true])
+            ->assertSessionHasNoErrors();
+        $this->assertTrue($server->fresh()->in_maintenance);
+
+        $this->actingAs($server->team->owner)->put(route('servers.update', $server), $payload);
+        $this->assertFalse($server->fresh()->in_maintenance);
+    }
 }

@@ -58,6 +58,7 @@ type Props = {
               })
             | null;
         system_info: SystemInfo | null;
+        in_maintenance: boolean;
         ssh_key_name: string | null;
         ssh_host_fingerprint: string | null;
         agent_version: string | null;
@@ -385,6 +386,9 @@ export default function ServerShow({
                         </Field>
                         <Field label={t('Added')}>
                             {server.created_at ? ago(server.created_at) : '–'}
+                        </Field>
+                        <Field label={t('Maintenance')}>
+                            {server.in_maintenance ? t('On') : t('Off')}
                         </Field>
                         <Field label={t('Ignore warnings about')}>
                             {server.ignored_alerts.length > 0

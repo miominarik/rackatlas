@@ -29,14 +29,34 @@ class AlertEvaluator
 
     private const LOG_THROTTLE_MINUTES = 15;
 
+    /** Percent of connections or memory in use at which a database or Redis alert is raised. */
+    private const SATURATION_LIMIT = 90;
+
+    /** A replica this many seconds behind its source raises an alert. */
+    private const REPLICA_LAG_LIMIT = 300;
+
+    /** A reading older than this is no longer proof that a database or Redis problem is gone. */
+    private const FRESH_MINUTES = 5;
+
     /**
      * Compare the current state of the server with its open alerts. Safe to call as often
      * as needed: at most one evaluation of a server runs at a time.
      */
     public function evaluate(Server $server): void
     {
+        // Maintenance: nothing is opened or resolved, so the state is judged again once it ends.
+        if ($server->in_maintenance) {
+            return;
+        }
+
         try {
-            Cache::lock('alerts:server:'.$server->id, 30)->get(fn () => $this->sync($server->fresh()));
+            Cache::lock('alerts:server:'.$server->id, 30)->get(function () use ($server) {
+                $fresh = $server->fresh();
+
+                if (! $fresh->in_maintenance) {
+                    $this->sync($fresh);
+                }
+            });
         } catch (Throwable $e) {
             // A broken notification must never break the collection of metrics.
             report($e);
@@ -56,7 +76,7 @@ class AlertEvaluator
             fn (array $entry) => $entry['level'] === 'critical' && $entry['source'] !== 'systemd',
         ));
 
-        if ($server->ignoresAlert('logs') || $critical === [] || ! Cache::add('alerts:log:'.$server->id, true, now()->addMinutes(self::LOG_THROTTLE_MINUTES))) {
+        if ($server->in_maintenance || $server->ignoresAlert('logs') || $critical === [] || ! Cache::add('alerts:log:'.$server->id, true, now()->addMinutes(self::LOG_THROTTLE_MINUTES))) {
             return;
         }
 
@@ -94,7 +114,7 @@ class AlertEvaluator
         }
 
         foreach ($open as $key => $alert) {
-            if (isset($detected[$key]) || ($offline && $key !== 'offline') || ($server->status === ServerStatus::Unknown)) {
+            if (isset($detected[$key]) || ($offline && $key !== 'offline') || ($server->status === ServerStatus::Unknown) || ! $this->hasFreshReading($server, $key)) {
                 continue;
             }
 
@@ -174,7 +194,105 @@ class AlertEvaluator
             $found['unit:'.$unit] = [AlertType::Service, ['unit' => $unit]];
         }
 
+        return $found + $this->detectDatabase($server, $openKeys) + $this->detectRedis($server, $openKeys);
+    }
+
+    /**
+     * Connections running out and a broken or lagging replica, judged from the newest reading.
+     *
+     * @param  array<int, string>  $openKeys
+     * @return array<string, array{0: AlertType, 1: array<string, mixed>}>
+     */
+    private function detectDatabase(Server $server, array $openKeys): array
+    {
+        $metric = $server->databaseMetrics()->where('collected_at', '>=', now()->subMinutes(self::FRESH_MINUTES))->latest('collected_at')->first();
+
+        if ($metric === null) {
+            return [];
+        }
+
+        $found = [];
+        $connections = $metric->connectionsPercent();
+        $limit = self::SATURATION_LIMIT;
+
+        if ($connections >= (in_array('db:connections', $openKeys, true) ? $limit - self::HYSTERESIS : $limit)) {
+            $found['db:connections'] = [AlertType::Database, ['value' => (int) round($connections), 'limit' => $limit]];
+        }
+
+        if ($metric->replica_io_running === false || $metric->replica_sql_running === false) {
+            $found['db:replication'] = [AlertType::Database, ['error' => mb_substr((string) $metric->replica_error, 0, 300)]];
+        }
+
+        $lagLimit = in_array('db:lag', $openKeys, true) ? self::REPLICA_LAG_LIMIT * 0.8 : self::REPLICA_LAG_LIMIT;
+
+        if ($metric->replica_lag_seconds !== null && $metric->replica_lag_seconds >= $lagLimit) {
+            $found['db:lag'] = [AlertType::Database, ['seconds' => $metric->replica_lag_seconds]];
+        }
+
         return $found;
+    }
+
+    /**
+     * Memory, replication, saving to disk and cluster state of every Redis instance of the server.
+     *
+     * @param  array<int, string>  $openKeys
+     * @return array<string, array{0: AlertType, 1: array<string, mixed>}>
+     */
+    private function detectRedis(Server $server, array $openKeys): array
+    {
+        $found = [];
+        $limit = self::SATURATION_LIMIT;
+
+        $metrics = $server->redisMetrics()->where('collected_at', '>=', now()->subMinutes(self::FRESH_MINUTES))
+            ->latest('collected_at')->get()->unique('port');
+
+        foreach ($metrics as $metric) {
+            $port = (int) $metric->port;
+            $memory = $metric->memoryPercent();
+
+            if ($memory !== null && $memory >= (in_array('redis:memory:'.$port, $openKeys, true) ? $limit - self::HYSTERESIS : $limit)) {
+                $found['redis:memory:'.$port] = [AlertType::Redis, ['port' => $port, 'value' => (int) round($memory), 'limit' => $limit]];
+            }
+
+            if ($metric->role === 'replica' && $metric->master_link_status === 'down') {
+                $found['redis:replication:'.$port] = [AlertType::Redis, ['port' => $port]];
+            }
+
+            if ($metric->persistence_ok === false) {
+                $found['redis:persistence:'.$port] = [AlertType::Redis, ['port' => $port]];
+            }
+
+            $state = $metric->cluster['state'] ?? null;
+
+            if ($state !== null && $state !== 'ok') {
+                $found['redis:cluster:'.$port] = [AlertType::Redis, ['port' => $port, 'state' => $state]];
+            }
+        }
+
+        return $found;
+    }
+
+    /**
+     * Whether the newest reading is recent enough to say a database or Redis problem is gone.
+     * Other alerts are always judged.
+     */
+    private function hasFreshReading(Server $server, string $key): bool
+    {
+        $since = now()->subMinutes(self::FRESH_MINUTES);
+
+        if (str_starts_with($key, 'db:')) {
+            return $server->databaseMetrics()->where('collected_at', '>=', $since)->exists();
+        }
+
+        if (preg_match('/^redis:[a-z]+:(\d+)$/', $key, $match) === 1) {
+            $port = (int) $match[1];
+
+            return $server->redisMetrics()->where('collected_at', '>=', $since)
+                ->where(fn ($query) => $query->where('port', $port)->when($port === 0, fn ($query) => $query->orWhereNull('port')))
+                ->exists();
+        }
+
+        return true;
     }
 
     /**

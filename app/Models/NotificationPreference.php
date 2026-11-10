@@ -16,18 +16,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $notify_resources
  * @property bool $notify_services
  * @property bool $notify_logs
+ * @property bool $notify_database
+ * @property bool $notify_redis
  * @property bool $notify_recovery
  */
 #[Fillable([
     'user_id', 'email_enabled', 'push_enabled', 'notify_offline', 'notify_resources',
-    'notify_services', 'notify_logs', 'notify_recovery',
+    'notify_services', 'notify_logs', 'notify_database', 'notify_redis', 'notify_recovery',
 ])]
 class NotificationPreference extends Model
 {
     public const FLAGS = [
         'email_enabled', 'push_enabled', 'notify_offline', 'notify_resources',
-        'notify_services', 'notify_logs', 'notify_recovery',
+        'notify_services', 'notify_logs', 'notify_database', 'notify_redis', 'notify_recovery',
     ];
+
+    protected function casts(): array
+    {
+        return array_fill_keys(self::FLAGS, 'boolean');
+    }
 
     /**
      * Until a user saves their choices everything is on, so nobody misses an outage.

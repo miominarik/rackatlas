@@ -19,6 +19,8 @@ type Preferences = {
     notify_resources: boolean;
     notify_services: boolean;
     notify_logs: boolean;
+    notify_database: boolean;
+    notify_redis: boolean;
     notify_recovery: boolean;
 };
 
@@ -203,6 +205,24 @@ export default function Notifications({
                             )}
                             checked={form.data.notify_logs}
                             onChange={set('notify_logs')}
+                        />
+                        <Row
+                            id="notify_database"
+                            title={t('Database problems')}
+                            description={t(
+                                'Connections almost exhausted or a broken or lagging replica.',
+                            )}
+                            checked={form.data.notify_database}
+                            onChange={set('notify_database')}
+                        />
+                        <Row
+                            id="notify_redis"
+                            title={t('Redis problems')}
+                            description={t(
+                                'Memory almost full, replication down, failed save to disk or an unhealthy cluster.',
+                            )}
+                            checked={form.data.notify_redis}
+                            onChange={set('notify_redis')}
                         />
                         <Row
                             id="notify_recovery"

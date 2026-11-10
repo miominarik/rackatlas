@@ -39,12 +39,13 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string|null $agent_version
  * @property array<int, string>|null $failed_units
  * @property array<int, string>|null $ignored_alerts
+ * @property bool $in_maintenance While true the server raises no alerts and sends no notifications
  * @property array<string, string|int|bool>|null $system_info Facts the agent reports: OS, kernel, CPU model, pending updates
  * @property ServerStatus $status
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
  */
-#[Fillable(['team_id', 'type', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts'])]
+#[Fillable(['team_id', 'type', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts', 'in_maintenance'])]
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
@@ -73,6 +74,7 @@ class Server extends Model
             'last_seen_at' => 'datetime',
             'failed_units' => 'array',
             'ignored_alerts' => 'array',
+            'in_maintenance' => 'boolean',
             'system_info' => 'array',
         ];
     }
@@ -270,7 +272,7 @@ class Server extends Model
     {
         return LogOptions::defaults()
             ->useLogName('server')
-            ->logOnly(['type', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
+            ->logOnly(['type', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts', 'in_maintenance'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }
