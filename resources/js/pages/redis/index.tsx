@@ -1,35 +1,20 @@
-import { Head, Link, router, usePoll } from "@inertiajs/react";
-import {
-    AlertTriangle,
-    ArrowLeftRight,
-    CheckCircle2,
-    MemoryStick,
-    Plus,
-} from "lucide-react";
-import { useState } from "react";
-import RedisSwitchoverController from "@/actions/App/Http/Controllers/RedisSwitchoverController";
+import { Head, Link, usePoll } from "@inertiajs/react";
+import { AlertTriangle, CheckCircle2, MemoryStick, Plus } from "lucide-react";
 import ServerController from "@/actions/App/Http/Controllers/Servers/ServerController";
 import UsageBar from "@/components/dashboard/usage-bar";
 import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogTitle,
-} from "@/components/ui/dialog";
 import { useTranslation } from "@/hooks/use-translation";
 import { formatBytes, formatUptime, timeAgo } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
 import { index as redisIndex } from "@/routes/redis";
 import { index as teamsIndex } from "@/routes/teams";
-import type { RedisSummary, SentinelGroup, ServerStatus } from "@/types";
+import type { RedisCluster, RedisSummary, ServerStatus } from "@/types";
 
 type Props = {
     team: { id: number; name: string } | null;
     canManage: boolean;
     servers: RedisSummary[];
-    sentinels: SentinelGroup[];
+    clusters: RedisCluster[];
     generated_at: string;
 };
 
@@ -75,94 +60,16 @@ function Badge({
     );
 }
 
-function SwitchoverButton({
-    group,
-    master,
-}: {
-    group: SentinelGroup;
-    master: string;
-}) {
-    const { t } = useTranslation();
-    const [open, setOpen] = useState(false);
-    const [processing, setProcessing] = useState(false);
-
-    const start = () => {
-        router.post(
-            RedisSwitchoverController.url(group.id),
-            {},
-            {
-                preserveScroll: true,
-                onStart: () => setProcessing(true),
-                onFinish: () => {
-                    setProcessing(false);
-                    setOpen(false);
-                },
-            },
-        );
-    };
-
-    return (
-        <>
-            <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setOpen(true)}
-                data-test="switchover-button"
-            >
-                <ArrowLeftRight className="size-4" />
-                {t("Switchover")}
-            </Button>
-            <Dialog
-                open={open}
-                onOpenChange={(value) => !processing && setOpen(value)}
-            >
-                <DialogContent>
-                    <DialogTitle>
-                        {t("Switch the master of :name?", {
-                            name: group.master_name,
-                        })}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {t(
-                            "Sentinel promotes a healthy replica to the new master and the current master :master becomes its replica. Clients are disconnected for a few seconds and writes in that time can fail. Sentinel checks everything again before it starts.",
-                            { master },
-                        )}
-                    </DialogDescription>
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            disabled={processing}
-                            onClick={() => setOpen(false)}
-                        >
-                            {t("Cancel")}
-                        </Button>
-                        <Button
-                            type="button"
-                            disabled={processing}
-                            onClick={start}
-                            data-test="switchover-confirm"
-                        >
-                            {t("Switch the master")}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </>
-    );
-}
-
 export default function Redis({
     team,
     canManage,
     servers,
-    sentinels,
+    clusters,
     generated_at,
 }: Props) {
     const { t, locale } = useTranslation();
 
-    usePoll(30000, { only: ["servers", "sentinels", "generated_at"] });
+    usePoll(30000, { only: ["servers", "clusters", "generated_at"] });
 
     if (!team) {
         return (
@@ -221,7 +128,7 @@ export default function Redis({
                     )}
                 </div>
 
-                {servers.length === 0 && sentinels.length === 0 ? (
+                {servers.length === 0 && clusters.length === 0 ? (
                     <div className="rounded-xl border border-dashed bg-card p-10 text-center">
                         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted">
                             <MemoryStick className="size-7 text-muted-foreground" />
@@ -231,331 +138,245 @@ export default function Redis({
                         </p>
                         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
                             {t(
-                                "Add a server and choose the type Redis server.",
+                                "Add a server and choose the type Redis server, or let the agent of a server report its Redis.",
                             )}
                         </p>
                     </div>
                 ) : (
                     <>
-                        {sentinels.map((group) => {
-                            const reports = group.members.map(
-                                (member) => member.sentinel,
-                            );
-                            const problems: string[] = [];
-
-                            if (!group.agree) {
-                                problems.push(
-                                    t(
-                                        "The Sentinels disagree about which server is the master.",
-                                    ),
+                        {clusters.map((cluster) => {
+                            const serverOf = (id: string) =>
+                                servers.find(
+                                    (server) =>
+                                        server.metric?.cluster?.myself === id,
                                 );
-                            }
-
-                            group.members.forEach((member) => {
-                                const report = member.sentinel;
-
-                                if (report === null) {
-                                    if (member.status === "offline") {
-                                        problems.push(
-                                            t("Server :server is offline.", {
-                                                server: member.server_name,
-                                            }),
-                                        );
-                                    }
-
-                                    return;
-                                }
-
-                                if (!report.reachable) {
-                                    problems.push(
-                                        t(
-                                            "Sentinel on :server does not answer: :error",
-                                            {
-                                                server: member.server_name,
-                                                error: report.error,
-                                            },
-                                        ),
-                                    );
-
-                                    return;
-                                }
-
-                                if (report.master_down) {
-                                    problems.push(
-                                        t(
-                                            "Sentinel on :server reports the master as down.",
-                                            { server: member.server_name },
-                                        ),
-                                    );
-                                }
-
-                                if (!report.quorum_ok) {
-                                    problems.push(
-                                        t(
-                                            "Sentinel on :server cannot reach the quorum: :message",
-                                            {
-                                                server: member.server_name,
-                                                message: report.quorum_message,
-                                            },
-                                        ),
-                                    );
-                                }
-                            });
-
-                            const waiting = reports.every(
-                                (report) => report === null,
-                            );
-                            const failover = reports.some(
-                                (report) =>
-                                    report?.reachable &&
-                                    report.failover_in_progress,
-                            );
-                            const healthy = !waiting && problems.length === 0;
-                            const firstReport = reports.find(
-                                (report) => report?.reachable,
-                            );
-                            const hasReplica =
-                                firstReport?.reachable === true &&
-                                firstReport.replicas.length > 0;
-                            const master =
-                                hasReplica && firstReport?.reachable
-                                    ? (serverAt(
-                                          `${firstReport.master_ip}:${firstReport.master_port}`,
-                                      ) ??
-                                      `${firstReport.master_ip}:${firstReport.master_port}`)
-                                    : null;
 
                             return (
                                 <section
-                                    key={group.members
-                                        .map((m) => m.server_id)
-                                        .join("-")}
-                                    className="space-y-4 rounded-xl border bg-card p-4"
-                                    data-test="sentinel-group"
+                                    key={cluster.server_ids.join("-")}
+                                    className="space-y-3 rounded-xl border bg-card p-4"
+                                    data-test="redis-cluster"
                                 >
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        {healthy ? (
-                                            <CheckCircle2 className="size-5 text-emerald-500" />
-                                        ) : (
-                                            <AlertTriangle
-                                                className={cn(
-                                                    "size-5",
-                                                    waiting
-                                                        ? "text-zinc-400"
-                                                        : "text-red-500",
-                                                )}
-                                            />
-                                        )}
-                                        <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <div>
                                             <h2 className="font-medium">
-                                                {t("Redis Sentinel")} ·{" "}
-                                                {group.master_name}
+                                                {t("Redis Cluster")}
                                             </h2>
-                                            <p className="text-sm text-muted-foreground">
-                                                {group.members
-                                                    .map((m) => m.server_name)
-                                                    .join(" · ")}
+                                            <p className="text-xs text-muted-foreground">
+                                                {t(
+                                                    ":nodes nodes, :masters masters",
+                                                    {
+                                                        nodes: cluster.known_nodes,
+                                                        masters: cluster.size,
+                                                    },
+                                                )}
+                                                {" · "}
+                                                {t("Last check :time.", {
+                                                    time: timeAgo(
+                                                        cluster.collected_at,
+                                                        generated_at,
+                                                        locale,
+                                                    ),
+                                                })}
                                             </p>
                                         </div>
-                                        {canManage &&
-                                            healthy &&
-                                            !failover &&
-                                            master !== null && (
-                                                <SwitchoverButton
-                                                    group={group}
-                                                    master={master}
-                                                />
-                                            )}
-                                        {failover && (
-                                            <Badge tone="bad">
-                                                {t("Failover in progress")}
-                                            </Badge>
-                                        )}
                                         <Badge
                                             tone={
-                                                waiting
-                                                    ? "neutral"
-                                                    : healthy
-                                                      ? "ok"
-                                                      : "bad"
+                                                cluster.state === "ok"
+                                                    ? "ok"
+                                                    : "bad"
                                             }
                                         >
-                                            {waiting
-                                                ? t(
-                                                      "Waiting for the first check…",
-                                                  )
-                                                : healthy
-                                                  ? t("Healthy")
-                                                  : t("Needs attention")}
+                                            {cluster.state === "ok"
+                                                ? t("Cluster is healthy")
+                                                : t("Cluster is down")}
                                         </Badge>
                                     </div>
 
-                                    {problems.length > 0 && (
-                                        <ul className="space-y-1 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
-                                            {problems.map((problem) => (
-                                                <li key={problem}>{problem}</li>
-                                            ))}
+                                    <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                        <Stat
+                                            label={t("Slots assigned")}
+                                            value={`${cluster.slots_assigned.toLocaleString(locale)} / 16 384`}
+                                        />
+                                        <Stat
+                                            label={t("Failing slots")}
+                                            value={String(
+                                                cluster.slots_fail +
+                                                    cluster.slots_pfail,
+                                            )}
+                                        />
+                                        <Stat
+                                            label={t("Config epoch")}
+                                            value={String(
+                                                cluster.current_epoch,
+                                            )}
+                                        />
+                                        <Stat
+                                            label={t("Without agent")}
+                                            value={String(
+                                                cluster.unmonitored_nodes,
+                                            )}
+                                        />
+                                    </dl>
+
+                                    {cluster.problems.length > 0 && (
+                                        <ul className="space-y-1 rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
+                                            {cluster.problems.map(
+                                                (problem, index) => (
+                                                    <li
+                                                        key={index}
+                                                        className="flex gap-2"
+                                                    >
+                                                        <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                                                        <span>
+                                                            {problem.type ===
+                                                            "state"
+                                                                ? t(
+                                                                      "The cluster state is :state.",
+                                                                      {
+                                                                          state: problem.detail,
+                                                                      },
+                                                                  )
+                                                                : problem.type ===
+                                                                    "slots_unassigned"
+                                                                  ? t(
+                                                                        ":count slots are not assigned to any node.",
+                                                                        {
+                                                                            count: problem.detail,
+                                                                        },
+                                                                    )
+                                                                  : t(
+                                                                        "Node :node has a problem.",
+                                                                        {
+                                                                            node: problem.detail,
+                                                                        },
+                                                                    )}
+                                                        </span>
+                                                    </li>
+                                                ),
+                                            )}
                                         </ul>
                                     )}
 
-                                    <div className="grid gap-3 md:grid-cols-2">
-                                        {group.members.map((member) => {
-                                            const report = member.sentinel;
+                                    <ul className="divide-y rounded-lg border text-sm">
+                                        {[...cluster.nodes]
+                                            .sort(
+                                                (a, b) =>
+                                                    Number(
+                                                        b.flags.includes(
+                                                            "master",
+                                                        ),
+                                                    ) -
+                                                        Number(
+                                                            a.flags.includes(
+                                                                "master",
+                                                            ),
+                                                        ) ||
+                                                    a.address.localeCompare(
+                                                        b.address,
+                                                    ),
+                                            )
+                                            .map((node) => {
+                                                const isMaster =
+                                                    node.flags.includes(
+                                                        "master",
+                                                    );
+                                                const bad =
+                                                    node.flags.some((flag) =>
+                                                        [
+                                                            "fail",
+                                                            "fail?",
+                                                            "handshake",
+                                                            "noaddr",
+                                                        ].includes(flag),
+                                                    ) ||
+                                                    node.link_state !==
+                                                        "connected";
+                                                const master = node.master_id
+                                                    ? cluster.nodes.find(
+                                                          (other) =>
+                                                              other.id ===
+                                                              node.master_id,
+                                                      )
+                                                    : null;
 
-                                            return (
-                                                <div
-                                                    key={member.server_id}
-                                                    className="space-y-3 rounded-lg border p-3"
-                                                >
-                                                    <p className="text-sm font-medium">
-                                                        {t(
-                                                            "Sentinel on :server",
-                                                            {
-                                                                server: member.server_name,
-                                                            },
-                                                        )}
-                                                        <span className="ml-2 font-mono text-xs text-muted-foreground">
-                                                            :{member.port}
-                                                        </span>
-                                                        {member.type ===
-                                                            "sentinel" && (
-                                                            <span className="ml-2 text-xs font-normal text-muted-foreground">
-                                                                {t(
-                                                                    "Sentinel only",
-                                                                )}
+                                                return (
+                                                    <li
+                                                        key={node.id}
+                                                        className="flex flex-wrap items-center justify-between gap-2 px-3 py-2"
+                                                    >
+                                                        <span className="min-w-0">
+                                                            <span className="font-medium">
+                                                                {serverOf(
+                                                                    node.id,
+                                                                )?.name ??
+                                                                    node.address}
                                                             </span>
-                                                        )}
-                                                    </p>
-                                                    {report === null ? (
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {t(
-                                                                "Waiting for the first check…",
-                                                            )}
-                                                        </p>
-                                                    ) : !report.reachable ? (
-                                                        <p className="text-sm text-red-600 dark:text-red-400">
-                                                            {report.error}
-                                                        </p>
-                                                    ) : (
-                                                        <>
-                                                            <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                                                <Stat
-                                                                    label={t(
-                                                                        "Master",
+                                                            <span className="ml-2 font-mono text-xs text-muted-foreground">
+                                                                {node.address}
+                                                            </span>
+                                                        </span>
+                                                        <span className="flex flex-wrap items-center gap-1.5">
+                                                            {isMaster && (
+                                                                <Badge tone="neutral">
+                                                                    {t(
+                                                                        "Slots: :count",
+                                                                        {
+                                                                            count: node.slots,
+                                                                        },
                                                                     )}
-                                                                    value={
-                                                                        serverAt(
-                                                                            `${report.master_ip}:${report.master_port}`,
-                                                                        ) ??
-                                                                        `${report.master_ip}:${report.master_port}`
-                                                                    }
-                                                                />
-                                                                <Stat
-                                                                    label={t(
-                                                                        "Quorum",
-                                                                    )}
-                                                                    value={`${report.quorum ?? "–"}`}
-                                                                />
-                                                                <Stat
-                                                                    label={t(
-                                                                        "Sentinels",
-                                                                    )}
-                                                                    value={`${report.known_sentinels}`}
-                                                                />
-                                                                <Stat
-                                                                    label={t(
-                                                                        "Replicas",
-                                                                    )}
-                                                                    value={`${report.replicas.length}`}
-                                                                />
-                                                            </dl>
-                                                            <div className="flex flex-wrap gap-1.5">
-                                                                {report.master_flags.map(
-                                                                    (flag) => (
-                                                                        <Badge
-                                                                            key={
-                                                                                flag
-                                                                            }
-                                                                            tone={
-                                                                                flag ===
-                                                                                "master"
-                                                                                    ? "ok"
-                                                                                    : "bad"
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                flag
-                                                                            }
-                                                                        </Badge>
-                                                                    ),
-                                                                )}
-                                                                <Badge
-                                                                    tone={
-                                                                        report.quorum_ok
-                                                                            ? "ok"
-                                                                            : "bad"
-                                                                    }
-                                                                >
-                                                                    {report.quorum_ok
-                                                                        ? t(
-                                                                              "Quorum reachable",
-                                                                          )
-                                                                        : t(
-                                                                              "No quorum",
-                                                                          )}
                                                                 </Badge>
-                                                            </div>
-                                                            {report.replicas
-                                                                .length > 0 && (
-                                                                <ul className="space-y-1 text-xs">
-                                                                    {report.replicas.map(
-                                                                        (
-                                                                            replica,
-                                                                        ) => (
-                                                                            <li
-                                                                                key={`${replica.ip}:${replica.port}`}
-                                                                                className="flex flex-wrap items-center justify-between gap-2"
-                                                                            >
-                                                                                <span className="font-mono">
-                                                                                    {serverAt(
-                                                                                        `${replica.ip}:${replica.port}`,
-                                                                                    ) ??
-                                                                                        `${replica.ip}:${replica.port}`}
-                                                                                </span>
-                                                                                <Badge
-                                                                                    tone={
-                                                                                        replica.flags.some(
-                                                                                            (
-                                                                                                flag,
-                                                                                            ) =>
-                                                                                                flag.endsWith(
-                                                                                                    "down",
-                                                                                                ),
-                                                                                        ) ||
-                                                                                        replica.link_status ===
-                                                                                            "err"
-                                                                                            ? "bad"
-                                                                                            : "ok"
-                                                                                    }
-                                                                                >
-                                                                                    {replica.flags.join(
-                                                                                        ", ",
-                                                                                    )}
-                                                                                    {replica.link_status
-                                                                                        ? ` · ${replica.link_status}`
-                                                                                        : ""}
-                                                                                </Badge>
-                                                                            </li>
-                                                                        ),
-                                                                    )}
-                                                                </ul>
                                                             )}
-                                                        </>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                                            {master && (
+                                                                <Badge tone="neutral">
+                                                                    {t(
+                                                                        "Replica of :master",
+                                                                        {
+                                                                            master:
+                                                                                serverOf(
+                                                                                    master.id,
+                                                                                )
+                                                                                    ?.name ??
+                                                                                master.address,
+                                                                        },
+                                                                    )}
+                                                                </Badge>
+                                                            )}
+                                                            <Badge
+                                                                tone={
+                                                                    bad
+                                                                        ? "bad"
+                                                                        : isMaster
+                                                                          ? "ok"
+                                                                          : "neutral"
+                                                                }
+                                                            >
+                                                                {bad
+                                                                    ? node.flags
+                                                                          .filter(
+                                                                              (
+                                                                                  flag,
+                                                                              ) =>
+                                                                                  flag !==
+                                                                                  "myself",
+                                                                          )
+                                                                          .join(
+                                                                              ", ",
+                                                                          ) ||
+                                                                      node.link_state
+                                                                    : isMaster
+                                                                      ? t(
+                                                                            "Master",
+                                                                        )
+                                                                      : t(
+                                                                            "Replica",
+                                                                        )}
+                                                            </Badge>
+                                                        </span>
+                                                    </li>
+                                                );
+                                            })}
+                                    </ul>
                                 </section>
                             );
                         })}
@@ -584,7 +405,9 @@ export default function Redis({
                                                     {server.name}
                                                 </p>
                                                 <p className="truncate font-mono text-xs text-muted-foreground">
-                                                    {server.host}:{server.port}
+                                                    {server.via_agent
+                                                        ? t("Agent")
+                                                        : `${server.host}:${server.port}`}
                                                     {metric?.version &&
                                                         ` · ${metric.version}`}
                                                 </p>

@@ -13,7 +13,6 @@ use App\Models\Team;
 use App\Models\User;
 use App\Services\Redis\RedisMetricsCollector;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -31,18 +30,6 @@ class RedisMonitoringTest extends TestCase
             'auth_type' => ServerAuthType::Password->value,
             ...$overrides,
         ]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function sentinelReport(string $masterIp = '8.8.8.8'): array
-    {
-        return [
-            'reachable' => true, 'master_name' => 'mymaster', 'master_ip' => $masterIp, 'master_port' => 6379,
-            'master_flags' => ['master'], 'master_down' => false, 'failover_in_progress' => false, 'quorum' => 2,
-            'known_sentinels' => 2, 'quorum_ok' => true, 'quorum_message' => 'OK 2 usable Sentinels', 'replicas' => [],
-        ];
     }
 
     public function test_redis_server_is_added_without_username_and_password(): void
@@ -77,121 +64,31 @@ class RedisMonitoringTest extends TestCase
         $this->assertSame('secret', $server->password);
     }
 
-    private function sentinelServer(Team $team, array $overrides = []): Server
+    private function clusterView(string $myself, array $nodeIds, string $state = 'ok'): array
     {
-        return $team->servers()->create([
-            'type' => ServerType::Sentinel->value,
-            'name' => 'Quorum',
-            'host' => '1.1.1.1',
-            'port' => 26379,
-            'auth_type' => ServerAuthType::Password->value,
-            ...$overrides,
+        return [
+            'state' => $state, 'slots_assigned' => 16384, 'slots_ok' => 16384, 'slots_pfail' => 0, 'slots_fail' => 0,
+            'known_nodes' => count($nodeIds), 'size' => 1, 'current_epoch' => 3, 'myself' => $myself,
+            'nodes' => array_map(fn (string $id) => [
+                'id' => $id, 'address' => '10.0.0.'.ord($id[0]).':6379', 'flags' => [$id === $myself ? 'myself' : 'slave'],
+                'myself' => $id === $myself, 'master_id' => null, 'link_state' => 'connected', 'config_epoch' => 1,
+                'slots' => 0, 'migrating' => false,
+            ], $nodeIds),
+        ];
+    }
+
+    public function test_redis_page_lists_redis_servers_and_servers_whose_agent_reports_redis(): void
+    {
+        $team = Team::factory()->create();
+        $direct = $this->redisServer($team, ['name' => 'Cache 1']);
+        $agent = $team->servers()->create(['name' => 'Node 1', 'host' => '10.0.0.1', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+        $team->servers()->create(['name' => 'Web', 'host' => '8.8.4.4', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+
+        $direct->redisMetrics()->create([
+            'collected_at' => now(), 'version' => '7.2.4', 'role' => 'master', 'used_memory' => 500, 'max_memory' => 1000,
+            'keyspace_hits_total' => 3, 'keyspace_misses_total' => 1,
         ]);
-    }
-
-    public function test_servers_with_the_same_master_name_share_one_sentinel_group(): void
-    {
-        $team = Team::factory()->create();
-        $first = $this->redisServer($team, ['name' => 'Cache 1']);
-        $second = $this->redisServer($team, ['name' => 'Cache 2', 'host' => '8.8.4.4']);
-
-        foreach ([$first, $second] as $server) {
-            $this->actingAs($team->owner)
-                ->put(route('servers.update', $server), [
-                    'name' => $server->name, 'host' => $server->host, 'port' => 6379,
-                    'sentinel_port' => 26379, 'sentinel_master_name' => 'mymaster',
-                ])
-                ->assertSessionHasNoErrors();
-        }
-
-        $this->assertSame(1, $team->sentinelGroups()->count());
-        $this->assertSame($first->refresh()->sentinel_group_id, $second->refresh()->sentinel_group_id);
-        $this->assertSame(26379, $second->sentinel_port);
-
-        $this->actingAs($team->owner)
-            ->put(route('servers.update', $first), ['name' => 'Cache 1', 'host' => '8.8.8.8', 'port' => 6379, 'sentinel_master_name' => ''])
-            ->assertSessionHasNoErrors();
-
-        $this->assertNull($first->refresh()->sentinel_group_id);
-        $this->assertNull($first->sentinel_port);
-        $this->assertNotNull($second->refresh()->sentinel_group_id);
-        $this->assertSame(1, $team->sentinelGroups()->count());
-    }
-
-    public function test_a_redis_server_with_a_master_name_needs_a_sentinel_port(): void
-    {
-        $team = Team::factory()->create();
-        $first = $this->redisServer($team);
-
-        $this->actingAs($team->owner)
-            ->put(route('servers.update', $first), ['name' => 'Cache 1', 'host' => '8.8.8.8', 'port' => 6379, 'sentinel_master_name' => 'mymaster'])
-            ->assertSessionHasErrors('sentinel_port');
-    }
-
-    public function test_sentinel_only_server_is_added_into_a_group_with_its_port(): void
-    {
-        $team = Team::factory()->create();
-        $redis = $this->redisServer($team);
-        $this->actingAs($team->owner)
-            ->put(route('servers.update', $redis), [
-                'name' => 'Cache 1', 'host' => '8.8.8.8', 'port' => 6379, 'sentinel_port' => 26379, 'sentinel_master_name' => 'mymaster',
-            ]);
-
-        $this->actingAs($team->owner)
-            ->post(route('servers.store'), ['type' => 'sentinel', 'name' => 'Quorum', 'host' => '8.8.4.4', 'port' => 26379])
-            ->assertSessionHasErrors('sentinel_master_name');
-
-        $this->actingAs($team->owner)
-            ->post(route('servers.store'), ['type' => 'sentinel', 'name' => 'Quorum', 'host' => '8.8.4.4', 'port' => 26379, 'sentinel_master_name' => 'mymaster'])
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('servers.index'));
-
-        $server = $team->servers()->where('type', 'sentinel')->firstOrFail();
-        $this->assertTrue($server->isSentinel());
-        $this->assertFalse($server->isRedis());
-        $this->assertSame($redis->refresh()->sentinel_group_id, $server->sentinel_group_id);
-        $this->assertSame(26379, $server->sentinel_port);
-        $this->assertSame(1, $team->sentinelGroups()->count());
-    }
-
-    public function test_deleting_the_last_server_of_a_group_deletes_the_group(): void
-    {
-        $team = Team::factory()->create();
-        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
-        $first = $this->redisServer($team);
-        $second = $this->sentinelServer($team);
-        $first->joinSentinelGroup($group, 26379);
-        $second->joinSentinelGroup($group, 26379);
-
-        $first->delete();
-        $this->assertSame(1, $team->sentinelGroups()->count());
-
-        $second->delete();
-        $this->assertSame(0, $team->sentinelGroups()->count());
-    }
-
-    public function test_redis_page_lists_only_redis_servers_and_shows_the_sentinel_state(): void
-    {
-        $team = Team::factory()->create();
-        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
-        $first = $this->redisServer($team, ['name' => 'Cache 1']);
-        $second = $this->redisServer($team, ['name' => 'Cache 2', 'host' => '8.8.4.4']);
-        $quorum = $this->sentinelServer($team);
-        foreach ([$first, $second, $quorum] as $server) {
-            $server->joinSentinelGroup($group, 26379);
-        }
-        $team->servers()->create([
-            'name' => 'Web', 'host' => '8.8.4.4', 'port' => 22, 'username' => 'root',
-            'auth_type' => ServerAuthType::Password->value, 'password' => 'x',
-        ]);
-
-        foreach ([[$first, 'master', '8.8.8.8'], [$second, 'slave', '8.8.8.8']] as [$server, $role, $masterIp]) {
-            $server->redisMetrics()->create([
-                'collected_at' => now(), 'version' => '7.2.4', 'role' => $role, 'used_memory' => 500, 'max_memory' => 1000,
-                'keyspace_hits_total' => 3, 'keyspace_misses_total' => 1, 'sentinel' => $this->sentinelReport($masterIp),
-            ]);
-        }
-        $quorum->redisMetrics()->create(['collected_at' => now(), 'sentinel' => $this->sentinelReport('8.8.8.8')]);
+        $agent->redisMetrics()->create(['collected_at' => now(), 'version' => '7.2.4', 'role' => 'master']);
 
         $this->actingAs($team->owner)
             ->get(route('redis.index'))
@@ -199,43 +96,93 @@ class RedisMonitoringTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('redis/index')
                 ->has('servers', 2)
+                ->where('servers.0.via_agent', false)
                 ->where('servers.0.metric.memory_percent', 50)
                 ->where('servers.0.metric.hit_rate_percent', 75)
-                ->has('sentinels', 1)
-                ->where('sentinels.0.master_name', 'mymaster')
-                ->where('sentinels.0.agree', true)
-                ->has('sentinels.0.members', 3)
-                ->where('sentinels.0.members.2.type', 'sentinel'));
+                ->where('servers.1.via_agent', true)
+                ->has('clusters', 0));
     }
 
-    public function test_sentinels_that_point_at_different_masters_disagree(): void
+    public function test_nodes_that_know_each_other_are_shown_as_one_cluster_and_problems_are_listed(): void
     {
         $team = Team::factory()->create();
-        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
-        $first = $this->redisServer($team);
-        $quorum = $this->sentinelServer($team);
-        $first->joinSentinelGroup($group, 26379);
-        $quorum->joinSentinelGroup($group, 26379);
+        $ids = ['a'.str_repeat('1', 39), 'b'.str_repeat('2', 39), 'c'.str_repeat('3', 39)];
 
-        $first->redisMetrics()->create(['collected_at' => now(), 'sentinel' => $this->sentinelReport('8.8.8.8')]);
-        $quorum->redisMetrics()->create(['collected_at' => now(), 'sentinel' => $this->sentinelReport('8.8.4.4')]);
+        foreach ([0, 1] as $i) {
+            $server = $team->servers()->create(['name' => 'Node '.$i, 'host' => '10.0.0.'.$i, 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+            $server->redisMetrics()->create([
+                'collected_at' => now()->addSeconds($i), 'version' => '7.2.4', 'role' => 'master',
+                'cluster' => $this->clusterView($ids[$i], $ids, $i === 1 ? 'fail' : 'ok'),
+            ]);
+        }
+
+        // A separate cluster with another set of nodes.
+        $other = $team->servers()->create(['name' => 'Other', 'host' => '10.0.1.1', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+        $other->redisMetrics()->create(['collected_at' => now(), 'cluster' => $this->clusterView('d'.str_repeat('4', 39), ['d'.str_repeat('4', 39)])]);
 
         $this->actingAs($team->owner)
             ->get(route('redis.index'))
-            ->assertInertia(fn ($page) => $page->where('sentinels.0.agree', false));
+            ->assertInertia(fn ($page) => $page
+                ->has('clusters', 2)
+                ->where('clusters.0.known_nodes', 3)
+                ->where('clusters.0.server_ids', fn ($ids) => count($ids) === 2)
+                ->where('clusters.0.unmonitored_nodes', 1)
+                ->where('clusters.0.problems.0.type', 'state')
+                ->where('clusters.1.problems', []));
     }
 
-    public function test_sentinel_only_server_is_collected_and_redirects_to_the_redis_page(): void
+    private function agentReport(string $redis): string
     {
-        Queue::fake();
+        return "###CPU1\ncpu  100 0 100 800 0 0 0 0 0 0\n###CPU2\ncpu  150 0 150 900 0 0 0 0 0 0\n###LOAD\n0.1 0.1 0.1 1/1 1\n###CORES\n2\n###MEM\nMemTotal: 1000 kB\nMemAvailable: 500 kB\n###UPTIME\n10\n".$redis;
+    }
 
-        $team = Team::factory()->create();
-        $server = $this->sentinelServer($team);
+    private function ingest(Server $server, string $report): void
+    {
+        $this->call('POST', route('agent.ingest'), [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer '.$server->issueAgentToken()], $report)->assertOk();
+    }
 
-        $this->artisan('redis:collect-metrics')->assertSuccessful();
-        Queue::assertPushed(CollectRedisMetrics::class, 1);
+    public function test_agent_report_with_redis_sections_stores_the_redis_reading_and_the_cluster(): void
+    {
+        $server = Team::factory()->create()->servers()->create(['name' => 'Node 1', 'host' => '10.0.0.1', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+        $id = str_repeat('a', 40);
+        $redis = "###REDIS_INFO\r\n# Server\r\nredis_version:7.2.4\r\nrole:master\r\nconnected_clients:3\r\nused_memory:2048\r\nmaxmemory:4096\r\ntotal_commands_processed:100\r\n# Keyspace\r\ndb0:keys=5,expires=0,avg_ttl=0\r\n"
+            ."###REDIS_CLUSTER_INFO\r\ncluster_state:ok\r\ncluster_slots_assigned:16384\r\ncluster_known_nodes:2\r\ncluster_size:1\r\n"
+            ."###REDIS_CLUSTER_NODES\n{$id} 10.0.0.1:6379@16379 myself,master - 0 0 1 connected 0-5460 [5461->-".str_repeat('b', 40)."]\n".str_repeat('b', 40)." 10.0.0.2:6379@16379,node2 slave {$id} 0 1 1 connected\n";
 
-        $this->actingAs($team->owner)->get(route('servers.show', $server))->assertRedirect(route('redis.index'));
+        $this->ingest($server, $this->agentReport($redis));
+
+        $metric = $server->redisMetrics()->firstOrFail();
+        $this->assertSame('7.2.4', $metric->version);
+        $this->assertSame(2048, $metric->used_memory);
+        $this->assertSame(5, $metric->keys_count);
+        $this->assertSame('ok', $metric->cluster['state']);
+        $this->assertSame($id, $metric->cluster['myself']);
+        $this->assertSame(5461, $metric->cluster['nodes'][0]['slots']);
+        $this->assertTrue($metric->cluster['nodes'][0]['migrating']);
+        $this->assertSame('10.0.0.2:6379', $metric->cluster['nodes'][1]['address']);
+        $this->assertSame($id, $metric->cluster['nodes'][1]['master_id']);
+    }
+
+    public function test_agent_report_without_redis_sections_stores_no_redis_reading(): void
+    {
+        $server = Team::factory()->create()->servers()->create(['name' => 'Web', 'host' => '10.0.0.1', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+
+        $this->ingest($server, $this->agentReport(''));
+
+        $this->assertSame(0, $server->redisMetrics()->count());
+    }
+
+    public function test_redis_error_of_the_agent_is_logged_until_redis_answers_again(): void
+    {
+        $server = Team::factory()->create()->servers()->create(['name' => 'Node 1', 'host' => '10.0.0.1', 'port' => 22, 'auth_type' => ServerAuthType::Agent->value]);
+
+        $this->ingest($server, $this->agentReport("###REDIS_ERROR\nCould not connect to Redis at 127.0.0.1:6379: Connection refused\n"));
+        $this->assertSame(1, $server->logs()->open()->where('source', 'redis')->count());
+        $this->assertSame(0, $server->redisMetrics()->count());
+
+        $this->ingest($server, $this->agentReport("###REDIS_INFO\nredis_version:7.2.4\nrole:master\n"));
+        $this->assertSame(0, $server->logs()->open()->where('source', 'redis')->count());
+        $this->assertSame(1, $server->redisMetrics()->count());
     }
 
     public function test_redis_page_is_hidden_from_a_member_without_the_permission(): void
@@ -280,46 +227,5 @@ class RedisMonitoringTest extends TestCase
         $server->refresh();
         $this->assertSame(ServerStatus::Offline, $server->status);
         $this->assertSame(1, $server->errors()->count());
-    }
-
-    public function test_switchover_is_refused_when_a_sentinel_does_not_answer(): void
-    {
-        $team = Team::factory()->create();
-        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
-        $server = $this->redisServer($team, ['host' => '127.0.0.1']);
-        $server->joinSentinelGroup($group, 26379);
-
-        $this->actingAs($team->owner)
-            ->post(route('redis.switchover', $group))
-            ->assertRedirect();
-
-        $this->assertSame(0, Cache::lock('redis-failover:'.$group->id, 5)->get() ? 0 : 1);
-    }
-
-    public function test_switchover_starts_and_queues_a_new_reading_of_every_member(): void
-    {
-        Queue::fake();
-
-        $team = Team::factory()->create();
-        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
-        $this->redisServer($team)->joinSentinelGroup($group, 26379);
-        $this->sentinelServer($team)->joinSentinelGroup($group, 26379);
-
-        $this->mock(RedisMetricsCollector::class)->shouldReceive('switchover')->once()->with(\Mockery::on(fn ($given) => $given->is($group)));
-
-        $this->actingAs($team->owner)->post(route('redis.switchover', $group))->assertRedirect();
-
-        Queue::assertPushed(CollectRedisMetrics::class, 2);
-    }
-
-    public function test_switchover_needs_the_edit_permission_and_the_own_team(): void
-    {
-        $team = Team::factory()->create();
-        $group = $team->sentinelGroups()->create(['master_name' => 'mymaster']);
-        $member = User::factory()->create();
-        $team->members()->attach($member->id, ['role' => TeamRole::Member->value, 'permissions' => json_encode(['redis' => 'view'])]);
-
-        $this->actingAs($member)->post(route('redis.switchover', $group))->assertForbidden();
-        $this->actingAs(Team::factory()->create()->owner)->post(route('redis.switchover', $group))->assertForbidden();
     }
 }

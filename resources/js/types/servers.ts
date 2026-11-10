@@ -16,7 +16,7 @@ export type SshKey = {
     servers_count?: number;
 };
 
-export type ServerType = 'server' | 'mysql' | 'redis' | 'sentinel';
+export type ServerType = 'server' | 'mysql' | 'redis';
 
 export type ServerStatus = 'unknown' | 'online' | 'offline';
 
@@ -63,8 +63,6 @@ export type ServerFormData = {
     server_category_id: number | null;
     ssh_host_fingerprint?: string | null;
     ignored_alerts: string[];
-    sentinel_port: number | null;
-    sentinel_master_name: string | null;
 };
 
 export type Backup = {
@@ -136,6 +134,7 @@ export type RedisMetric = {
     master_link_status: string | null;
     master_last_io_seconds_ago: number | null;
     persistence_ok: boolean | null;
+    cluster: RedisClusterView | null;
 };
 
 export type RedisSummary = {
@@ -145,46 +144,46 @@ export type RedisSummary = {
     port: number;
     status: ServerStatus;
     last_checked_at: string | null;
-    sentinel_master_name: string | null;
+    via_agent: boolean;
     metric: RedisMetric | null;
 };
 
-export type SentinelReport =
-    | {
-          reachable: true;
-          master_name: string;
-          master_ip: string | null;
-          master_port: number | null;
-          master_flags: string[];
-          master_down: boolean;
-          failover_in_progress: boolean;
-          quorum: number | null;
-          known_sentinels: number;
-          quorum_ok: boolean;
-          quorum_message: string;
-          replicas: {
-              ip: string | null;
-              port: number | null;
-              flags: string[];
-              link_status: string | null;
-              link_down_seconds: number | null;
-          }[];
-      }
-    | { reachable: false; master_name: string; error: string };
+export type RedisClusterNode = {
+    id: string;
+    address: string;
+    flags: string[];
+    myself: boolean;
+    master_id: string | null;
+    link_state: string;
+    config_epoch: number;
+    slots: number;
+    migrating: boolean;
+};
 
-export type SentinelGroup = {
-    id: number;
-    master_name: string;
-    agree: boolean;
-    masters: string[];
-    members: {
-        server_id: number;
-        server_name: string;
-        type: 'redis' | 'sentinel';
-        status: ServerStatus;
-        role: string | null;
-        port: number | null;
-        collected_at: string | null;
-        sentinel: SentinelReport | null;
-    }[];
+export type RedisClusterView = {
+    state: string;
+    slots_assigned: number;
+    slots_ok: number;
+    slots_pfail: number;
+    slots_fail: number;
+    known_nodes: number;
+    size: number;
+    current_epoch: number;
+    myself: string | null;
+    nodes: RedisClusterNode[];
+};
+
+export type RedisCluster = {
+    state: string;
+    slots_assigned: number;
+    slots_fail: number;
+    slots_pfail: number;
+    known_nodes: number;
+    size: number;
+    current_epoch: number;
+    problems: { type: 'state' | 'slots_unassigned' | 'node'; detail: string }[];
+    unmonitored_nodes: number;
+    nodes: RedisClusterNode[];
+    server_ids: number[];
+    collected_at: string;
 };

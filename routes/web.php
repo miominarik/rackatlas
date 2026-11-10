@@ -19,7 +19,6 @@ use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\MetricsProcessesController;
 use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\RedisController;
-use App\Http\Controllers\RedisSwitchoverController;
 use App\Http\Controllers\Servers\LogController;
 use App\Http\Controllers\Servers\ServerAgentController;
 use App\Http\Controllers\Servers\ServerCategoryController;
@@ -80,10 +79,6 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
         ->whereNumber(['server', 'process']);
 
     Route::get('redis', [RedisController::class, 'index'])->middleware('permission:redis.view')->name('redis.index');
-    Route::post('redis/groups/{group}/switchover', RedisSwitchoverController::class)
-        ->middleware('throttle:6,1')
-        ->name('redis.switchover')
-        ->whereNumber('group');
 
     Route::get('map', MapController::class)->middleware('permission:map.view')->name('map');
     Route::get('terminal', TerminalController::class)->middleware('permission:terminal.edit')->name('terminal');

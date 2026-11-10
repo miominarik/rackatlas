@@ -56,11 +56,6 @@ class Team extends Model
         return $this->servers()->where('type', ServerType::Server->value);
     }
 
-    public function sentinelGroups(): HasMany
-    {
-        return $this->hasMany(SentinelGroup::class);
-    }
-
     public function serverCategories(): HasMany
     {
         return $this->hasMany(ServerCategory::class);

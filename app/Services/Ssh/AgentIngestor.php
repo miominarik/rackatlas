@@ -6,6 +6,7 @@ use App\Enums\ServerStatus;
 use App\Exceptions\MetricsCollectionException;
 use App\Models\Server;
 use App\Services\Alerts\AlertEvaluator;
+use App\Services\Redis\RedisParser;
 use Illuminate\Support\Facades\DB;
 
 class AgentIngestor
@@ -16,6 +17,7 @@ class AgentIngestor
         private readonly ServerMetricsCollector $collector,
         private readonly AlertEvaluator $alerts,
         private readonly ServiceSync $services,
+        private readonly RedisParser $redis,
     ) {}
 
     /**
@@ -48,10 +50,26 @@ class AgentIngestor
             ];
         }
 
+        $redisMetric = $this->redisMetric($server, $sections);
+
+        if (isset($sections['REDIS_ERROR'])) {
+            $entries[] = [
+                'level' => 'error',
+                'source' => 'redis',
+                'message' => 'Redis: '.mb_substr(trim($sections['REDIS_ERROR']), 0, 300),
+                'count' => 1,
+                'occurred_at' => now(),
+            ];
+        }
+
         $fresh = [];
 
-        DB::transaction(function () use ($server, $data, $sections, $entries, $failedNow, $systemInfo, $agentVersion, &$fresh) {
+        DB::transaction(function () use ($server, $data, $sections, $entries, $failedNow, $systemInfo, $agentVersion, $redisMetric, &$fresh) {
             $this->collector->store($server, $data);
+
+            if ($redisMetric !== null) {
+                $server->redisMetrics()->create($redisMetric);
+            }
 
             if (isset($sections['SERVICES'])) {
                 $this->services->sync($server, $sections['SERVICES']);
@@ -75,9 +93,47 @@ class AgentIngestor
 
         $this->resolveRecoveredUnits($server, $failedNow);
 
+        if (isset($sections['REDIS_INFO'])) {
+            $server->logs()->open()->where('source', 'redis')->update(['resolved_at' => now(), 'resolved_by' => null]);
+        }
+
         // Live: a problem is reported as soon as the agent sends the report that shows it.
         $this->alerts->evaluate($server);
         $this->alerts->notifyLogs($server, $fresh);
+    }
+
+    /**
+     * The reading of the Redis server on this machine, when the agent sent one (and the cluster it belongs to).
+     *
+     * @param  array<string, string>  $sections
+     * @return array<string, mixed>|null
+     */
+    private function redisMetric(Server $server, array $sections): ?array
+    {
+        if (! isset($sections['REDIS_INFO'])) {
+            return null;
+        }
+
+        $info = $this->redis->keyValues($sections['REDIS_INFO']);
+
+        if (! isset($info['redis_version'])) {
+            return null;
+        }
+
+        $data = $this->redis->metric($info);
+        $data['cluster'] = isset($sections['REDIS_CLUSTER_INFO'])
+            ? $this->redis->cluster($sections['REDIS_CLUSTER_INFO'], $sections['REDIS_CLUSTER_NODES'] ?? '')
+            : null;
+
+        $previous = $server->redisMetrics()->latest('collected_at')->first();
+        $seconds = $previous?->collected_at->diffInSeconds(now(), true);
+        // A restart resets the counter, so there is no value then.
+        $data['commands_per_second'] = $previous !== null && $seconds > 0 && $data['commands_total'] >= $previous->commands_total
+            ? round(($data['commands_total'] - $previous->commands_total) / $seconds, 2)
+            : null;
+        $data['collected_at'] = now();
+
+        return $data;
     }
 
     /**

@@ -12,8 +12,8 @@ use Inertia\Response;
 class RedisController extends Controller
 {
     /**
-     * The Redis servers of the current team with their latest reading, and the state of Redis Sentinel
-     * for the servers that are linked through it.
+     * The servers of the current team that run Redis, with their latest reading: servers added as Redis, and
+     * servers whose agent reports the Redis on the machine. Cluster nodes are grouped into clusters.
      */
     public function index(Request $request): Response
     {
@@ -23,67 +23,101 @@ class RedisController extends Controller
             return Inertia::render('redis/index', ['team' => null]);
         }
 
-        $servers = $team->servers()->redisFamily()->with(['latestRedisMetric', 'sentinelGroup'])->orderBy('name')->get();
+        $servers = $team->servers()
+            ->with('latestRedisMetric')
+            ->where(fn ($query) => $query->redis()->orWhereHas('redisMetrics'))
+            ->orderBy('name')
+            ->get();
+
+        $presented = $servers->map(fn (Server $server) => [
+            'id' => $server->id,
+            'name' => $server->name,
+            'host' => $server->host,
+            'port' => $server->port,
+            'status' => $server->status->value,
+            'last_checked_at' => $server->last_checked_at?->toIso8601String(),
+            'via_agent' => ! $server->isRedis(),
+            'metric' => $this->presentMetric($server->latestRedisMetric),
+        ]);
 
         return Inertia::render('redis/index', [
             'team' => $team->only('id', 'name'),
             'canManage' => $request->user()->can('permit', [$team, 'redis.edit']),
-            'servers' => $servers->filter(fn (Server $server) => $server->isRedis())->map(fn (Server $server) => [
-                'id' => $server->id,
-                'name' => $server->name,
-                'host' => $server->host,
-                'port' => $server->port,
-                'status' => $server->status->value,
-                'last_checked_at' => $server->last_checked_at?->toIso8601String(),
-                'sentinel_master_name' => $server->sentinelGroup?->master_name,
-                'metric' => $this->presentMetric($server->latestRedisMetric),
-            ])->values(),
-            'sentinels' => $this->sentinelGroups($servers),
+            'servers' => $presented->values(),
+            'clusters' => $this->clusters($presented),
             'generated_at' => now()->toIso8601String(),
         ]);
     }
 
     /**
-     * One entry for every Redis Sentinel setup: what the Sentinel of each member reports. The members are
-     * Redis servers that run a Sentinel and servers that only run a Sentinel.
+     * Servers whose reading shows a cluster, grouped: two servers belong to one cluster when one of them
+     * is listed among the nodes the other one sees.
      *
-     * @param  Collection<int, Server>  $servers
+     * @param  Collection<int, array<string, mixed>>  $servers
      * @return array<int, array<string, mixed>>
      */
-    private function sentinelGroups(Collection $servers): array
+    private function clusters(Collection $servers): array
     {
-        return $servers
-            ->filter(fn (Server $server) => $server->sentinelGroup !== null)
-            ->groupBy('sentinel_group_id')
-            ->map(function (Collection $members) {
-                $reports = $members->map(fn (Server $member) => [
-                    'server_id' => $member->id,
-                    'server_name' => $member->name,
-                    'type' => $member->type->value,
-                    'status' => $member->status->value,
-                    'port' => $member->sentinel_port,
-                    'role' => $member->latestRedisMetric?->role,
-                    'collected_at' => $member->latestRedisMetric?->collected_at->toIso8601String(),
-                    'sentinel' => $member->latestRedisMetric?->sentinel,
-                ])->values();
+        $members = $servers->filter(fn (array $server) => isset($server['metric']['cluster']['myself']))->values();
+        $parent = $members->keys()->all();
 
-                $masters = $reports
-                    ->map(fn (array $report) => $report['sentinel']['reachable'] ?? false
-                        ? ($report['sentinel']['master_ip'].':'.$report['sentinel']['master_port'])
-                        : null)
-                    ->filter()
-                    ->unique();
+        $find = function (int $i) use (&$parent, &$find): int {
+            return $parent[$i] === $i ? $i : $parent[$i] = $find($parent[$i]);
+        };
+
+        foreach ($members as $i => $server) {
+            $seen = collect($server['metric']['cluster']['nodes'])->pluck('id');
+
+            foreach ($members as $j => $other) {
+                if ($seen->contains($other['metric']['cluster']['myself'])) {
+                    $parent[$find($i)] = $find($j);
+                }
+            }
+        }
+
+        return $members
+            ->groupBy(fn (array $server, int $i) => $find($i))
+            ->map(function (Collection $group) {
+                // The view of the most recent reading is the one shown for the cluster.
+                $latest = $group->sortByDesc(fn (array $server) => $server['metric']['collected_at'])->first();
+                $cluster = $latest['metric']['cluster'];
+                $ownIds = $group->pluck('metric.cluster.myself')->all();
+                $problems = [];
+
+                if ($cluster['state'] !== 'ok') {
+                    $problems[] = ['type' => 'state', 'detail' => $cluster['state']];
+                }
+
+                if ($cluster['slots_assigned'] < 16384) {
+                    $problems[] = ['type' => 'slots_unassigned', 'detail' => (string) (16384 - $cluster['slots_assigned'])];
+                }
+
+                foreach ($cluster['nodes'] as $node) {
+                    $broken = array_intersect($node['flags'], ['fail', 'fail?', 'handshake', 'noaddr']);
+
+                    if ($broken !== [] || $node['link_state'] !== 'connected') {
+                        $problems[] = ['type' => 'node', 'detail' => $node['address'].' ('.implode(',', $broken ?: [$node['link_state']]).')'];
+                    }
+                }
+
+                $unmonitored = collect($cluster['nodes'])->filter(fn (array $node) => ! in_array($node['id'], $ownIds, true))->count();
 
                 return [
-                    'id' => $members->first()->sentinelGroup->id,
-                    'master_name' => $members->first()->sentinelGroup->master_name,
-                    'members' => $reports->all(),
-                    // The Sentinels disagree when they point at different masters.
-                    'agree' => $masters->count() <= 1,
-                    'masters' => $masters->values(),
+                    'state' => $cluster['state'],
+                    'slots_assigned' => $cluster['slots_assigned'],
+                    'slots_fail' => $cluster['slots_fail'],
+                    'slots_pfail' => $cluster['slots_pfail'],
+                    'known_nodes' => $cluster['known_nodes'],
+                    'size' => $cluster['size'],
+                    'current_epoch' => $cluster['current_epoch'],
+                    'problems' => $problems,
+                    'unmonitored_nodes' => $unmonitored,
+                    'nodes' => $cluster['nodes'],
+                    'server_ids' => $group->pluck('id')->values(),
+                    'collected_at' => $latest['metric']['collected_at'],
                 ];
             })
-            ->sortBy('master_name')
+            ->sortByDesc('known_nodes')
             ->values()
             ->all();
     }
@@ -119,6 +153,7 @@ class RedisController extends Controller
             'master_link_status' => $metric->master_link_status,
             'master_last_io_seconds_ago' => $metric->master_last_io_seconds_ago,
             'persistence_ok' => $metric->persistence_ok,
+            'cluster' => $metric->cluster,
         ];
     }
 }

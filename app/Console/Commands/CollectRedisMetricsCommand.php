@@ -9,13 +9,13 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 #[Signature('redis:collect-metrics {--server= : Collect only this server id} {--sync : Run now instead of queueing}')]
-#[Description('Collect the status of all Redis and Sentinel servers')]
+#[Description('Collect the status of all Redis servers')]
 class CollectRedisMetricsCommand extends Command
 {
     public function handle(): int
     {
         $servers = Server::query()
-            ->redisFamily()
+            ->redis()
             ->when($this->option('server'), fn ($query, $id) => $query->whereKey($id))
             ->get();
 

@@ -14,6 +14,14 @@ case "$1" in
 # RackAtlas agent. Both values are shown in RackAtlas when you add the server.
 # URL=https://rackatlas.example.com
 # TOKEN=ra_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#
+# Optional: monitor the Redis server on this machine (needs redis-cli, package redis-tools).
+# For a Redis Cluster the node reports the state of the cluster as well.
+# REDIS_PORT=6379
+# REDIS_HOST=127.0.0.1
+# REDIS_USER=
+# REDIS_PASSWORD=
+# REDIS_TLS=1
 CONF
     fi
     chown root:rackatlas-agent /etc/rackatlas-agent /etc/rackatlas-agent/agent.conf

@@ -1,4 +1,5 @@
 import { Head, Link, router, usePoll } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     CheckCircle2,
     KeyRound,
@@ -8,6 +9,9 @@ import {
 import ServerAgentController from '@/actions/App/Http/Controllers/Servers/ServerAgentController';
 import CopyField from '@/components/servers/copy-field';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 import { timeAgo } from '@/lib/dashboard';
 import { cn } from '@/lib/utils';
@@ -29,6 +33,99 @@ type Props = {
     base_url: string;
     generated_at: string;
 };
+
+const shellQuote = (value: string) => `'${value.replace(/'/g, `'\\''`)}'`;
+
+/**
+ * Builds one command for the server. It is made in the browser only: the Redis password is never sent to RackAtlas.
+ */
+function RedisAgentSetup() {
+    const { t } = useTranslation();
+    const [port, setPort] = useState('6379');
+    const [password, setPassword] = useState('');
+    const [user, setUser] = useState('');
+    const [host, setHost] = useState('');
+    const [tls, setTls] = useState(false);
+
+    const lines = [
+        `REDIS_PORT=${port.trim() || '6379'}`,
+        ...(host.trim() ? [`REDIS_HOST=${host.trim()}`] : []),
+        ...(user.trim() ? [`REDIS_USER=${user.trim()}`] : []),
+        ...(password ? [`REDIS_PASSWORD=${password}`] : []),
+        ...(tls ? ['REDIS_TLS=1'] : []),
+    ];
+
+    const conf = '/etc/rackatlas-agent/agent.conf';
+    const command = [
+        'sudo apt-get install -y redis-tools',
+        `sudo sed -i '/^REDIS_/d' ${conf}`,
+        `printf '\\n%s\\n' ${lines.map(shellQuote).join(' ')} | sudo tee -a ${conf} >/dev/null`,
+        'sudo systemctl start rackatlas-agent.service',
+    ].join(' && ');
+
+    return (
+        <div className="space-y-3 rounded-xl border bg-card p-4 text-sm">
+            <p className="font-medium">
+                {t('Monitor Redis through the agent')}
+            </p>
+            <p className="text-muted-foreground">
+                {t(
+                    'If Redis (or a node of a Redis Cluster) runs on this server, the agent reads it without any open port. Fill in the details, run the one command on this server and repeat it on every node of the cluster. The password stays in your browser.',
+                )}
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-1.5">
+                    <Label htmlFor="redis-port">{t('Redis port')}</Label>
+                    <Input
+                        id="redis-port"
+                        inputMode="numeric"
+                        value={port}
+                        onChange={(e) => setPort(e.target.value)}
+                    />
+                </div>
+                <div className="grid gap-1.5">
+                    <Label htmlFor="redis-password">{t('Password')}</Label>
+                    <Input
+                        id="redis-password"
+                        type="password"
+                        autoComplete="off"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                <div className="grid gap-1.5">
+                    <Label htmlFor="redis-user">
+                        {t('Username (optional)')}
+                    </Label>
+                    <Input
+                        id="redis-user"
+                        autoComplete="off"
+                        value={user}
+                        onChange={(e) => setUser(e.target.value)}
+                    />
+                </div>
+                <div className="grid gap-1.5">
+                    <Label htmlFor="redis-host">
+                        {t('Address (optional, default 127.0.0.1)')}
+                    </Label>
+                    <Input
+                        id="redis-host"
+                        value={host}
+                        onChange={(e) => setHost(e.target.value)}
+                    />
+                </div>
+            </div>
+            <label className="flex items-center gap-2">
+                <Checkbox
+                    checked={tls}
+                    onCheckedChange={(value) => setTls(value === true)}
+                />
+                {t('Redis uses TLS')}
+            </label>
+            <CopyField value={command} />
+        </div>
+    );
+}
 
 export default function AgentInstall({
     server,
@@ -199,6 +296,8 @@ export default function AgentInstall({
                         <CopyField value={terminal_command} />
                     </div>
                 )}
+
+                <RedisAgentSetup />
 
                 <details className="rounded-xl border bg-card p-4 text-sm">
                     <summary className="cursor-pointer font-medium">

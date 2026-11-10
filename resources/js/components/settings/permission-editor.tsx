@@ -44,7 +44,7 @@ const labels: Record<string, { title: string; hint: string }> = {
     },
     redis: {
         title: 'Redis',
-        hint: 'See the Redis servers and Sentinel, edit means changing their connection',
+        hint: 'See the Redis servers and clusters, edit means changing their connection',
     },
     docs: {
         title: 'Documentation',

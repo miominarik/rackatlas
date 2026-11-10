@@ -50,7 +50,6 @@ type Props = {
     server: ServerFormData | null;
     categories: ServerCategory[];
     sshKeys: SshKey[];
-    sentinelMasters: string[];
 };
 
 type TestResult = { success: boolean; message: string };
@@ -58,7 +57,6 @@ type TestResult = { success: boolean; message: string };
 const NEW_CATEGORY = '__new__';
 const NO_CATEGORY = '__none__';
 const NO_COUNTRY = '__none__';
-const NO_SENTINEL = '__none__';
 
 const ignorableAlerts: [string, string][] = [
     ['cpu', 'CPU'],
@@ -87,8 +85,6 @@ const stepFields: Record<number, string[]> = {
         'username',
         'password',
         'ssh_key_id',
-        'sentinel_master_name',
-        'sentinel_port',
     ],
 };
 
@@ -97,7 +93,6 @@ export default function ServerWizard({
     server,
     categories,
     sshKeys: initialKeys,
-    sentinelMasters,
 }: Props) {
     const { t, locale } = useTranslation();
     const countries = sortedCountries(locale);
@@ -114,11 +109,7 @@ export default function ServerWizard({
     const [testResult, setTestResult] = useState<TestResult | null>(null);
 
     const form = useForm({
-        type: (server?.type ?? 'server') as
-            | 'server'
-            | 'mysql'
-            | 'redis'
-            | 'sentinel' | 'sentinel',
+        type: (server?.type ?? 'server') as 'server' | 'mysql' | 'redis',
         name: server?.name ?? '',
         provider: server?.provider ?? '',
         country: server?.country ?? '',
@@ -135,8 +126,6 @@ export default function ServerWizard({
         password: '',
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
         ignored_alerts: server?.ignored_alerts ?? ([] as string[]),
-        sentinel_master_name: server?.sentinel_master_name ?? '',
-        sentinel_port: String(server?.sentinel_port ?? 26379),
     });
 
     const tester = useHttp<Record<string, string>, TestResult>({});
@@ -148,13 +137,8 @@ export default function ServerWizard({
     ];
 
     const isMysql = form.data.type === 'mysql';
-    const isSentinel = form.data.type === 'sentinel';
-    const isRedis = form.data.type === 'redis' || isSentinel;
+    const isRedis = form.data.type === 'redis';
     const isDatabase = isMysql || isRedis;
-    // A Redis server may run a Sentinel next to it, a Sentinel-only server always does.
-    const hasSentinel =
-        isSentinel ||
-        (form.data.type === 'redis' && form.data.sentinel_master_name.trim() !== '');
     const isAgent = !isDatabase && form.data.auth_type === 'agent';
     const sendsViaAgent = isAgent || form.data.uses_agent;
 
@@ -195,14 +179,7 @@ export default function ServerWizard({
 
         if (step === 1 && !isAgent) {
             if (isRedis) {
-                return [
-                    'host',
-                    'port',
-                    ...(hasSentinel && !isSentinel
-                        ? ['sentinel_port', 'sentinel_master_name']
-                        : []),
-                    ...(isSentinel ? ['sentinel_master_name'] : []),
-                ];
+                return ['host', 'port'];
             }
 
             const address = ['host', 'port', 'username'];
@@ -260,7 +237,7 @@ export default function ServerWizard({
         }));
     };
 
-    const chooseType = (type: 'server' | 'mysql' | 'redis' | 'sentinel') => {
+    const chooseType = (type: 'server' | 'mysql' | 'redis') => {
         const database = type !== 'server';
 
         form.setData((data) => ({
@@ -271,10 +248,8 @@ export default function ServerWizard({
                 server: '22',
                 mysql: '3306',
                 redis: '6379',
-                sentinel: '26379',
             }[type],
             username: database ? '' : 'root',
-            sentinel_master_name: '',
             uses_agent: false,
             agent_terminal: false,
         }));
@@ -291,11 +266,6 @@ export default function ServerWizard({
             auth_type: form.data.auth_type,
             password: form.data.password,
             ssh_key_id: form.data.ssh_key_id,
-            sentinel_port:
-                hasSentinel && !isSentinel ? form.data.sentinel_port : '',
-            sentinel_master_name: hasSentinel
-                ? form.data.sentinel_master_name
-                : '',
             server_id: server ? String(server.id) : '',
         }));
 
@@ -434,17 +404,9 @@ export default function ServerWizard({
                                                 'redis',
                                                 t('Redis server'),
                                                 t(
-                                                    'Memory, clients, commands and replication of a Redis server, optionally with Redis Sentinel.',
+                                                    'Memory, clients, commands and replication of a Redis server. A Redis Cluster behind a private network is monitored by the agent of its servers.',
                                                 ),
                                                 MemoryStick,
-                                            ],
-                                            [
-                                                'sentinel',
-                                                t('Redis Sentinel only'),
-                                                t(
-                                                    'A server that runs only Redis Sentinel, without Redis, for example to have a quorum.',
-                                                ),
-                                                ShieldCheck,
                                             ],
                                         ] as const
                                     ).map(([value, title, hint, Icon]) => (
@@ -659,69 +621,72 @@ export default function ServerWizard({
                     {step === 1 && (
                         <>
                             {!isDatabase && (
-                            <div
-                                role="radiogroup"
-                                aria-label={t('How do we get the data?')}
-                                className="grid gap-3 sm:grid-cols-3"
-                            >
-                                {(
-                                    [
+                                <div
+                                    role="radiogroup"
+                                    aria-label={t('How do we get the data?')}
+                                    className="grid gap-3 sm:grid-cols-3"
+                                >
+                                    {(
                                         [
-                                            'agent',
-                                            t('Agent only'),
-                                            t(
-                                                'Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords. No terminal.',
-                                            ),
-                                            Radio,
-                                        ],
-                                        [
-                                            'key',
-                                            t('SSH key'),
-                                            t(
-                                                'We log in over SSH, for the terminal and optionally for collecting data. More secure than a password, reusable across servers.',
-                                            ),
-                                            KeyRound,
-                                        ],
-                                        [
-                                            'password',
-                                            t('Password'),
-                                            t(
-                                                'We log in over SSH with a password, for the terminal and optionally for collecting data. Simple, but weaker than a key.',
-                                            ),
-                                            Lock,
-                                        ],
-                                    ] as const
-                                ).map(([value, title, hint, Icon]) => (
-                                    <button
-                                        key={value}
-                                        type="button"
-                                        role="radio"
-                                        aria-checked={
-                                            form.data.auth_type === value
-                                        }
-                                        onClick={() => {
-                                            form.setData('auth_type', value);
-                                            form.clearErrors();
-                                        }}
-                                        className={cn(
-                                            'flex items-start gap-3 rounded-lg border bg-card p-4 text-left transition-colors',
-                                            form.data.auth_type === value
-                                                ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                                : 'hover:bg-muted/50',
-                                        )}
-                                    >
-                                        <Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
-                                        <span>
-                                            <span className="block font-medium">
-                                                {title}
+                                            [
+                                                'agent',
+                                                t('Agent only'),
+                                                t(
+                                                    'Recommended. A small program on the server sends the data to us. No IP allowlist, no stored passwords. No terminal.',
+                                                ),
+                                                Radio,
+                                            ],
+                                            [
+                                                'key',
+                                                t('SSH key'),
+                                                t(
+                                                    'We log in over SSH, for the terminal and optionally for collecting data. More secure than a password, reusable across servers.',
+                                                ),
+                                                KeyRound,
+                                            ],
+                                            [
+                                                'password',
+                                                t('Password'),
+                                                t(
+                                                    'We log in over SSH with a password, for the terminal and optionally for collecting data. Simple, but weaker than a key.',
+                                                ),
+                                                Lock,
+                                            ],
+                                        ] as const
+                                    ).map(([value, title, hint, Icon]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={
+                                                form.data.auth_type === value
+                                            }
+                                            onClick={() => {
+                                                form.setData(
+                                                    'auth_type',
+                                                    value,
+                                                );
+                                                form.clearErrors();
+                                            }}
+                                            className={cn(
+                                                'flex items-start gap-3 rounded-lg border bg-card p-4 text-left transition-colors',
+                                                form.data.auth_type === value
+                                                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                                    : 'hover:bg-muted/50',
+                                            )}
+                                        >
+                                            <Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+                                            <span>
+                                                <span className="block font-medium">
+                                                    {title}
+                                                </span>
+                                                <span className="block text-sm text-muted-foreground">
+                                                    {hint}
+                                                </span>
                                             </span>
-                                            <span className="block text-sm text-muted-foreground">
-                                                {hint}
-                                            </span>
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
+                                        </button>
+                                    ))}
+                                </div>
                             )}
 
                             {isAgent && (
@@ -795,9 +760,7 @@ export default function ServerWizard({
                                             <Label htmlFor="port">
                                                 {isMysql
                                                     ? t('MySQL port')
-                                                    : isSentinel
-                                                      ? t('Sentinel port')
-                                                      : isRedis
+                                                    : isRedis
                                                       ? t('Redis port')
                                                       : t('SSH port')}
                                             </Label>
@@ -906,93 +869,6 @@ export default function ServerWizard({
                                         {t('The password is stored encrypted.')}
                                     </p>
                                 </div>
-                            )}
-
-                            {isRedis && (
-                                <fieldset className="space-y-4 rounded-lg border bg-card p-4">
-                                    <legend className="px-1 text-sm font-medium">
-                                        {t('Redis Sentinel')}
-                                    </legend>
-                                    <p className="text-sm text-muted-foreground">
-                                        {isSentinel
-                                            ? t(
-                                                  'Servers with the same master name belong to one Sentinel group. Use the name of the master from the Sentinel configuration, the same as on the Redis servers.',
-                                              )
-                                            : t(
-                                                  'If a Sentinel runs on this host, enter the master name it watches. Servers with the same master name are shown as one Sentinel group. Leave it empty if there is no Sentinel.',
-                                              )}
-                                    </p>
-                                    <div
-                                        className={
-                                            isSentinel
-                                                ? 'grid gap-4'
-                                                : 'grid gap-4 sm:grid-cols-[1fr_9rem]'
-                                        }
-                                    >
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="sentinel_master_name">
-                                                {t('Master name')}
-                                            </Label>
-                                            <Input
-                                                id="sentinel_master_name"
-                                                list="sentinel-masters"
-                                                value={
-                                                    form.data
-                                                        .sentinel_master_name
-                                                }
-                                                onChange={(e) =>
-                                                    form.setData(
-                                                        'sentinel_master_name',
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                placeholder="mymaster"
-                                                autoComplete="off"
-                                                data-test="sentinel-master-name"
-                                            />
-                                            <datalist id="sentinel-masters">
-                                                {sentinelMasters.map((name) => (
-                                                    <option
-                                                        key={name}
-                                                        value={name}
-                                                    />
-                                                ))}
-                                            </datalist>
-                                            <InputError
-                                                message={
-                                                    form.errors
-                                                        .sentinel_master_name
-                                                }
-                                            />
-                                        </div>
-                                        {!isSentinel && (
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="sentinel_port">
-                                                    {t('Sentinel port')}
-                                                </Label>
-                                                <Input
-                                                    id="sentinel_port"
-                                                    inputMode="numeric"
-                                                    value={
-                                                        form.data.sentinel_port
-                                                    }
-                                                    onChange={(e) =>
-                                                        form.setData(
-                                                            'sentinel_port',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                <InputError
-                                                    message={
-                                                        form.errors
-                                                            .sentinel_port
-                                                    }
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                </fieldset>
                             )}
 
                             {form.data.auth_type === 'key' && (
@@ -1127,16 +1003,6 @@ export default function ServerWizard({
                                                   `${form.data.username ? `${form.data.username}@` : ''}${form.data.host}:${form.data.port}`,
                                               ],
                                           ]),
-                                    ...(hasSentinel
-                                        ? [
-                                              [
-                                                  t('Redis Sentinel'),
-                                                  isSentinel
-                                                      ? form.data.sentinel_master_name
-                                                      : `${form.data.sentinel_master_name} · ${t('port :port', { port: form.data.sentinel_port })}`,
-                                              ],
-                                          ]
-                                        : []),
                                     [
                                         t('Category'),
                                         categoryChoice === NEW_CATEGORY

@@ -36,13 +36,13 @@ use Illuminate\Support\Carbon;
  * @property string|null $master_link_status up or down, on a replica
  * @property int|null $master_last_io_seconds_ago
  * @property bool|null $persistence_ok Whether the last save to disk worked, null when persistence is off
- * @property array<string, mixed>|null $sentinel What Redis Sentinel on this server reports, see RedisMetricsCollector::readSentinel()
+ * @property array<string, mixed>|null $cluster The cluster as this node sees it, null when the server is not a cluster node, see RedisParser::cluster()
  */
 #[Fillable([
     'server_id', 'collected_at', 'version', 'role', 'uptime_seconds', 'connected_clients', 'blocked_clients', 'max_clients',
     'used_memory', 'max_memory', 'used_memory_rss', 'commands_total', 'commands_per_second', 'keyspace_hits_total',
     'keyspace_misses_total', 'evicted_keys_total', 'rejected_connections_total', 'keys_count', 'connected_replicas',
-    'master_host', 'master_link_status', 'master_last_io_seconds_ago', 'persistence_ok', 'sentinel',
+    'master_host', 'master_link_status', 'master_last_io_seconds_ago', 'persistence_ok', 'cluster',
 ])]
 class RedisMetric extends Model
 {
@@ -57,7 +57,7 @@ class RedisMetric extends Model
         return [
             'collected_at' => 'datetime',
             'persistence_ok' => 'boolean',
-            'sentinel' => 'array',
+            'cluster' => 'array',
         ];
     }
 

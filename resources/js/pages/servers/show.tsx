@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
-import { Activity, Pencil } from 'lucide-react';
+import { Activity, MemoryStick, Pencil } from 'lucide-react';
+import ServerAgentController from '@/actions/App/Http/Controllers/Servers/ServerAgentController';
 import RecentErrors from '@/components/dashboard/recent-errors';
 import RecentLogs from '@/components/dashboard/recent-logs';
 import { StatusBadge } from '@/components/documents/meta';
@@ -206,6 +207,20 @@ export default function ServerShow({
                                 {t('Metrics')}
                             </Link>
                         </Button>
+                        {canManage &&
+                            (server.auth_type === 'agent' ||
+                                server.uses_agent) && (
+                                <Button variant="outline" asChild>
+                                    <Link
+                                        href={ServerAgentController.show(
+                                            server.id,
+                                        )}
+                                    >
+                                        <MemoryStick className="size-4" />
+                                        {t('Agent and Redis')}
+                                    </Link>
+                                </Button>
+                            )}
                         {canManage && (
                             <Button variant="outline" asChild>
                                 <Link href={edit(server.id)}>

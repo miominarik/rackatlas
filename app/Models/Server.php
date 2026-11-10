@@ -35,8 +35,6 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property bool $agent_terminal Whether the terminal runs through the agent, which connects out, instead of over SSH
  * @property string|null $password
  * @property int|null $ssh_key_id
- * @property int|null $sentinel_group_id The Redis Sentinel setup this server belongs to
- * @property int|null $sentinel_port Where Redis Sentinel listens on this host
  * @property string|null $agent_token_hash
  * @property string|null $agent_version
  * @property array<int, string>|null $failed_units
@@ -46,7 +44,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $last_seen_at
  */
-#[Fillable(['team_id', 'type', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts', 'sentinel_group_id', 'sentinel_port'])]
+#[Fillable(['team_id', 'type', 'server_category_id', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'password', 'ssh_key_id', 'ignored_alerts'])]
 #[Hidden(['password', 'agent_token_hash'])]
 class Server extends Model
 {
@@ -103,14 +101,6 @@ class Server extends Model
     public function isRedis(): bool
     {
         return $this->type === ServerType::Redis;
-    }
-
-    /**
-     * Whether this server only runs Redis Sentinel, without a Redis server of its own.
-     */
-    public function isSentinel(): bool
-    {
-        return $this->type === ServerType::Sentinel;
     }
 
     /**
@@ -175,15 +165,6 @@ class Server extends Model
     }
 
     /**
-     * @param  Builder<Server>  $query
-     */
-    #[Scope]
-    protected function redisFamily(Builder $query): void
-    {
-        $query->whereIn('type', [ServerType::Redis->value, ServerType::Sentinel->value]);
-    }
-
-    /**
      * Servers that send their data through the agent, with or without SSH access.
      *
      * @param  Builder<Server>  $query
@@ -234,34 +215,6 @@ class Server extends Model
     public function latestRedisMetric(): HasOne
     {
         return $this->hasOne(RedisMetric::class)->latestOfMany('collected_at');
-    }
-
-    public function sentinelGroup(): BelongsTo
-    {
-        return $this->belongsTo(SentinelGroup::class);
-    }
-
-    /**
-     * Put this server into a Redis Sentinel group, or take it out of its group. A group that is left
-     * without servers is deleted.
-     */
-    public function joinSentinelGroup(?SentinelGroup $group, ?int $port): void
-    {
-        $previous = $this->sentinelGroup;
-
-        $this->forceFill([
-            'sentinel_group_id' => $group?->id,
-            'sentinel_port' => $group !== null ? $port : null,
-        ])->unsetRelation('sentinelGroup')->save();
-
-        if ($previous !== null && $previous->id !== $group?->id) {
-            $previous->deleteIfEmpty();
-        }
-    }
-
-    protected static function booted(): void
-    {
-        static::deleted(fn (self $server) => $server->sentinelGroup?->deleteIfEmpty());
     }
 
     public function latestMetric(): HasOne
@@ -317,7 +270,7 @@ class Server extends Model
     {
         return LogOptions::defaults()
             ->useLogName('server')
-            ->logOnly(['type', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts', 'sentinel_group_id', 'sentinel_port'])
+            ->logOnly(['type', 'name', 'provider', 'country', 'host', 'port', 'username', 'auth_type', 'uses_agent', 'agent_terminal', 'server_category_id', 'ssh_key_id', 'team_id', 'ignored_alerts'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

@@ -24,8 +24,7 @@ class TestConnectionController extends Controller
         $team = $request->team();
 
         $isMysql = ($data['type'] ?? null) === ServerType::Mysql->value;
-        $isSentinel = ($data['type'] ?? null) === ServerType::Sentinel->value;
-        $isRedis = $isSentinel || ($data['type'] ?? null) === ServerType::Redis->value;
+        $isRedis = ($data['type'] ?? null) === ServerType::Redis->value;
         $usesPassword = $isMysql || $isRedis || $data['auth_type'] === ServerAuthType::Password->value;
         $password = $data['password'] ?? null;
         $key = null;
@@ -50,14 +49,7 @@ class TestConnectionController extends Controller
         }
 
         if ($isRedis) {
-            return response()->json($redis->test(
-                $data['host'],
-                $isSentinel ? null : (int) $data['port'],
-                $data['username'] ?? null,
-                $password,
-                $isSentinel ? (int) $data['port'] : (filled($data['sentinel_port'] ?? null) ? (int) $data['sentinel_port'] : null),
-                $data['sentinel_master_name'] ?? null,
-            ));
+            return response()->json($redis->test($data['host'], (int) $data['port'], $data['username'] ?? null, $password));
         }
 
         if ($isMysql) {

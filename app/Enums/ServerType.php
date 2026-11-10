@@ -8,6 +8,4 @@ enum ServerType: string
     case Server = 'server';
     case Mysql = 'mysql';
     case Redis = 'redis';
-    /** A server that only runs Redis Sentinel, for example for the quorum. */
-    case Sentinel = 'sentinel';
 }

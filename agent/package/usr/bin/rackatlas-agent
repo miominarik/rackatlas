@@ -14,6 +14,37 @@
 set -u
 
 VERSION="@VERSION@"
+# Redis on this machine is read only when REDIS_PORT or REDIS_HOST is set in the configuration.
+redis_run() {
+  # The password goes through the environment, never through the command line.
+  set -- --no-auth-warning ${REDIS_USER:+--user "$REDIS_USER"} -h "${REDIS_HOST:-127.0.0.1}" -p "${REDIS_PORT:-6379}" "$@"
+  [ "$REDIS_TLS" = 1 ] && set -- --tls "$@"
+  if command -v timeout >/dev/null 2>&1; then
+    REDISCLI_AUTH="$REDIS_PASSWORD" timeout 5 redis-cli "$@" 2>&1 | head -c 100000
+  else
+    REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli "$@" 2>&1 | head -c 100000
+  fi
+}
+
+redis_section() {
+  if ! command -v redis-cli >/dev/null 2>&1; then
+    echo '###REDIS_ERROR'; echo 'redis-cli is not installed (apt install redis-tools).'
+    return
+  fi
+
+  INFO="$(redis_run INFO everything)"
+  if ! printf '%s\n' "$INFO" | grep -q '^redis_version:'; then
+    echo '###REDIS_ERROR'; printf '%s\n' "$INFO" | head -n 1 | cut -c1-300
+    return
+  fi
+
+  echo '###REDIS_INFO'; printf '%s\n' "$INFO"
+  if printf '%s\n' "$INFO" | grep -q '^cluster_enabled:1'; then
+    echo '###REDIS_CLUSTER_INFO'; redis_run CLUSTER INFO
+    echo '###REDIS_CLUSTER_NODES'; redis_run CLUSTER NODES
+  fi
+}
+
 CONF="${RACKATLAS_CONF:-/etc/rackatlas-agent/agent.conf}"
 STATE_DIR="${RACKATLAS_STATE:-/var/lib/rackatlas-agent}"
 PROC_DIR="${RACKATLAS_PROC:-/proc}"
@@ -31,12 +62,22 @@ esac
 
 URL=""
 TOKEN=""
+REDIS_HOST=""
+REDIS_PORT=""
+REDIS_USER=""
+REDIS_PASSWORD=""
+REDIS_TLS=""
 if [ -r "$CONF" ]; then
-  # Only two known keys are read. The file is never executed.
+  # Only the known keys are read. The file is never executed.
   while IFS='=' read -r key value; do
     case "$key" in
       URL) URL="$value" ;;
       TOKEN) TOKEN="$value" ;;
+      REDIS_HOST) REDIS_HOST="$value" ;;
+      REDIS_PORT) REDIS_PORT="$value" ;;
+      REDIS_USER) REDIS_USER="$value" ;;
+      REDIS_PASSWORD) REDIS_PASSWORD="$value" ;;
+      REDIS_TLS) REDIS_TLS="$value" ;;
     esac
   done < "$CONF"
 fi
@@ -315,6 +356,10 @@ proc_scan full > "$TMP.proc"
   if command -v journalctl >/dev/null 2>&1; then
     journal_section JOURNAL_CRITICAL 'emerg..crit' critical
     journal_section JOURNAL_ERROR 'err..err' error
+  fi
+
+  if [ -n "$REDIS_HOST$REDIS_PORT" ]; then
+    redis_section
   fi
 
   if command -v systemctl >/dev/null 2>&1; then
