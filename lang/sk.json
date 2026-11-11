@@ -1475,5 +1475,14 @@
     "Redis problems": "Problémy Redisu",
     "Memory almost full, replication down, failed save to disk or an unhealthy cluster.": "Takmer plná pamäť, nefunkčná replikácia, zlyhané ukladanie na disk alebo nezdravý cluster.",
     "Maintenance": "Údržba",
-    "While on, this server raises no warnings and sends no notifications.": "Kým je zapnutá, server nevyvoláva žiadne varovania a neposiela žiadne oznámenia."
+    "While on, this server raises no warnings and sends no notifications.": "Kým je zapnutá, server nevyvoláva žiadne varovania a neposiela žiadne oznámenia.",
+    "IO stopped": "IO zastavené",
+    "SQL stopped": "SQL zastavené",
+    "Lag :seconds s": "Oneskorenie :seconds s",
+    "Replicating": "Replikuje",
+    "Not monitored in this team": "Nie je sledované v tomto tíme",
+    "Relay": "Sprostredkovateľ",
+    "Cluster :number": "Cluster :number",
+    "Replication is healthy": "Replikácia je v poriadku",
+    "Replication has a problem": "Replikácia má problém"
 }

@@ -189,3 +189,30 @@ export type RedisCluster = {
     server_ids: string[];
     collected_at: string;
 };
+
+export type ReplicationLink = {
+    state: 'ok' | 'lagging' | 'broken';
+    io_running: boolean | null;
+    sql_running: boolean | null;
+    lag_seconds: number | null;
+    error: string | null;
+};
+
+export type ReplicationNode = {
+    id: number | null;
+    name: string;
+    host: string | null;
+    port: number | null;
+    status: ServerStatus;
+    version: string | null;
+    connections_percent: number | null;
+    queries_per_second: number | null;
+    external: boolean;
+    link: ReplicationLink | null;
+    replicas: ReplicationNode[];
+};
+
+export type ReplicationTopology = {
+    healthy: boolean;
+    source: ReplicationNode;
+};

@@ -267,4 +267,51 @@ class DatabaseMonitoringTest extends TestCase
             ->get(route('databases.show', $server))
             ->assertInertia(fn ($page) => $page->where('database.metric.replication', null)->where('range', '24h'));
     }
+
+    public function test_the_list_joins_replicas_with_their_sources_into_trees(): void
+    {
+        $team = Team::factory()->create();
+        $reading = ['collected_at' => now(), 'threads_connected' => 1, 'max_connections' => 100];
+
+        $masterA = $this->mysqlServer($team, ['name' => 'A master', 'host' => '10.0.0.1']);
+        $replicaA = $this->mysqlServer($team, ['name' => 'A replica', 'host' => '10.0.0.2']);
+        $masterB = $this->mysqlServer($team, ['name' => 'B master', 'host' => '10.0.1.1']);
+        $replicaB = $this->mysqlServer($team, ['name' => 'B replica', 'host' => '10.0.1.2']);
+        $alone = $this->mysqlServer($team, ['name' => 'Alone', 'host' => '10.0.2.1']);
+
+        foreach ([$masterA, $masterB, $alone] as $server) {
+            $server->databaseMetrics()->create($reading);
+        }
+        $replicaA->databaseMetrics()->create([...$reading, 'replica_io_running' => true, 'replica_sql_running' => true, 'replica_lag_seconds' => 2, 'replica_source' => '10.0.0.1:3306']);
+        $replicaB->databaseMetrics()->create([...$reading, 'replica_io_running' => true, 'replica_sql_running' => false, 'replica_source' => '10.0.1.1:3306', 'replica_error' => 'Duplicate entry']);
+
+        $this->actingAs($team->owner)
+            ->get(route('databases.index'))
+            ->assertInertia(fn ($page) => $page
+                ->has('replication', 2)
+                ->where('replication.0.source.name', 'A master')
+                ->where('replication.0.healthy', true)
+                ->where('replication.0.source.replicas.0.name', 'A replica')
+                ->where('replication.0.source.replicas.0.link.lag_seconds', 2)
+                ->where('replication.1.source.name', 'B master')
+                ->where('replication.1.healthy', false)
+                ->where('replication.1.source.replicas.0.link.state', 'broken'));
+    }
+
+    public function test_a_source_that_is_not_monitored_is_shown_as_an_external_node(): void
+    {
+        $team = Team::factory()->create();
+        $replica = $this->mysqlServer($team, ['name' => 'Replica']);
+        $replica->databaseMetrics()->create([
+            'collected_at' => now(), 'replica_io_running' => true, 'replica_sql_running' => true,
+            'replica_lag_seconds' => 0, 'replica_source' => 'db.internal:3306',
+        ]);
+
+        $this->actingAs($team->owner)
+            ->get(route('databases.index'))
+            ->assertInertia(fn ($page) => $page
+                ->has('replication', 1)
+                ->where('replication.0.source.external', true)
+                ->where('replication.0.source.host', 'db.internal'));
+    }
 }

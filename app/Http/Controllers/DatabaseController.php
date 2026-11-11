@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DatabaseMetric;
 use App\Models\Server;
 use App\Models\ServerError;
+use App\Services\Database\ReplicationTopology;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +21,7 @@ class DatabaseController extends Controller
     /**
      * The MySQL servers of the current team with their latest reading.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, ReplicationTopology $topology): Response
     {
         $team = $request->user()->currentTeam();
 
@@ -43,6 +44,7 @@ class DatabaseController extends Controller
                 'last_checked_at' => $server->last_checked_at?->toIso8601String(),
                 'metric' => $this->presentMetric($server->latestDatabaseMetric),
             ])->values(),
+            'replication' => $topology->build($servers),
             'generated_at' => now()->toIso8601String(),
         ]);
     }
