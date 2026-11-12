@@ -1510,5 +1510,16 @@
     ":count containers on :servers servers": ":count kontejnerů na :servers serverech",
     "All categories": "Všechny kategorie",
     "No server matches the filters.": "Žádný server nevyhovuje filtrům.",
-    "Compact view": "Kompaktní zobrazení"
+    "Compact view": "Kompaktní zobrazení",
+    "Unlock RackAtlas": "Odemknout RackAtlas",
+    "Turn on biometric unlock": "Zapnout biometrické odemknutí",
+    "RackAtlas is locked": "RackAtlas je zamčený",
+    "Unlock": "Odemknout",
+    "Use biometric unlock?": "Použít biometrické odemknutí?",
+    "Unlock the app with your fingerprint or face. You will stay signed in on this device.": "Odemykejte aplikaci otiskem prstu nebo obličejem. Na tomto zařízení zůstanete přihlášeni.",
+    "Not now": "Teď ne",
+    "Turn on": "Zapnout",
+    "Biometric unlock": "Biometrické odemknutí",
+    "Biometric unlock is on.": "Biometrické odemknutí je zapnuto.",
+    "Biometric unlock is off.": "Biometrické odemknutí je vypnuto."
 }

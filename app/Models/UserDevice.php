@@ -23,12 +23,13 @@ use Illuminate\Support\Facades\Session;
  * @property string|null $browser
  * @property string|null $platform
  * @property string $type
+ * @property bool $biometrics_enabled
  * @property string|null $ip_address
  * @property string|null $session_id
  * @property Carbon|null $last_active_at
  * @property Carbon|null $revoked_at
  */
-#[Fillable(['user_id', 'token_hash', 'name', 'browser', 'platform', 'type', 'ip_address', 'session_id', 'last_active_at', 'revoked_at'])]
+#[Fillable(['user_id', 'token_hash', 'name', 'browser', 'platform', 'type', 'biometrics_enabled', 'ip_address', 'session_id', 'last_active_at', 'revoked_at'])]
 #[Hidden(['token_hash', 'session_id'])]
 class UserDevice extends Model
 {
@@ -42,6 +43,7 @@ class UserDevice extends Model
         return [
             'last_active_at' => 'datetime',
             'revoked_at' => 'datetime',
+            'biometrics_enabled' => 'boolean',
         ];
     }
 

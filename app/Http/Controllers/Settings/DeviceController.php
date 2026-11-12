@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\TrackDevice;
 use App\Models\UserDevice;
+use App\Support\NativeApp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -36,6 +37,7 @@ class DeviceController extends Controller
                     'created_at' => $device->created_at?->toIso8601String(),
                     'is_current' => $current?->id === $device->id,
                     'has_push' => $device->push_subscriptions_count > 0,
+                    'biometrics_enabled' => $device->biometrics_enabled,
                 ])->values(),
             'generated_at' => now()->toIso8601String(),
         ]);
@@ -50,6 +52,28 @@ class DeviceController extends Controller
         $device->update(['name' => filled($validated['name'] ?? null) ? trim($validated['name']) : null]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Device renamed.')]);
+
+        return back();
+    }
+
+    /**
+     * Biometric unlock of the mobile app on this device. While it is on, the device is never signed out.
+     */
+    public function updateBiometrics(Request $request): RedirectResponse
+    {
+        abort_unless(NativeApp::isRequest($request), 403);
+
+        $device = TrackDevice::current($request);
+
+        abort_if($device === null, 404);
+
+        $validated = $request->validate(['enabled' => ['required', 'boolean']]);
+
+        $device->update(['biometrics_enabled' => $validated['enabled']]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $validated['enabled']
+            ? __('Biometric unlock is on.')
+            : __('Biometric unlock is off.')]);
 
         return back();
     }

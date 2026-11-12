@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('app/settings/devices/sign-out-others', [DeviceController::class, 'destroyOthers'])
         ->middleware('throttle:10,1')
         ->name('devices.destroy-others');
+    Route::put('app/settings/devices/current/biometrics', [DeviceController::class, 'updateBiometrics'])->name('devices.biometrics.update');
     Route::patch('app/settings/devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
     Route::delete('app/settings/devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
 

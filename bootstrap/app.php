@@ -9,9 +9,11 @@ use App\Http\Middleware\RememberMobileLogin;
 use App\Http\Middleware\RequireTwoFactor;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\SignInBiometricDevice;
 use App\Http\Middleware\TrackDevice;
 use App\Http\Middleware\TrustCloudflareProxies;
 use App\Http\Middleware\VerifyTurnstile;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -39,8 +41,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // The biometric device must be signed in before the auth middleware looks for a user.
+        $middleware->prependToPriorityList(before: AuthenticatesRequests::class, prepend: SignInBiometricDevice::class);
+
         $middleware->web(append: [
             'throttle:web',
+            SignInBiometricDevice::class,
             'auth.session',
             HandleAppearance::class,
             SetLocale::class,

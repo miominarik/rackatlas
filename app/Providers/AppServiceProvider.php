@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\DisableBiometricsOnLogout;
 use App\Listeners\LogAuthActivity;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -42,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(Login::class, [LogAuthActivity::class, 'login']);
         Event::listen(Logout::class, [LogAuthActivity::class, 'logout']);
+        Event::listen(Logout::class, DisableBiometricsOnLogout::class);
         Event::listen(Failed::class, [LogAuthActivity::class, 'failed']);
         Event::listen(PasswordReset::class, [LogAuthActivity::class, 'passwordReset']);
 

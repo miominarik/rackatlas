@@ -79,3 +79,64 @@ export function initNative(): void {
         attributeFilter: ['class'],
     });
 }
+
+type BiometricPlugin = {
+    checkBiometry(): Promise<{ isAvailable: boolean }>;
+    internalAuthenticate(options: {
+        reason?: string;
+        allowDeviceCredential?: boolean;
+    }): Promise<void>;
+};
+
+let biometricPlugin: BiometricPlugin | null | undefined;
+
+/** The biometric plugin is registered on demand because the remote site has no bundled plugin imports. */
+function biometric(): BiometricPlugin | null {
+    if (biometricPlugin !== undefined) {
+        return biometricPlugin;
+    }
+
+    const capacitor = (
+        window as unknown as {
+            Capacitor?: {
+                registerPlugin?: (name: string) => BiometricPlugin;
+            };
+        }
+    ).Capacitor;
+
+    try {
+        biometricPlugin =
+            isNativeApp() && capacitor?.registerPlugin
+                ? capacitor.registerPlugin('BiometricAuthNative')
+                : null;
+    } catch {
+        biometricPlugin = null;
+    }
+
+    return biometricPlugin;
+}
+
+/** True only inside the app on a device that has biometrics (or a device passcode) set up. */
+export async function biometricsAvailable(): Promise<boolean> {
+    try {
+        return (await biometric()?.checkBiometry())?.isAvailable ?? false;
+    } catch {
+        return false;
+    }
+}
+
+/** Shows the system fingerprint / face prompt. Resolves false when cancelled or failed. */
+export async function authenticateWithBiometrics(
+    reason: string,
+): Promise<boolean> {
+    try {
+        await biometric()?.internalAuthenticate({
+            reason,
+            allowDeviceCredential: true,
+        });
+
+        return biometric() !== null;
+    } catch {
+        return false;
+    }
+}

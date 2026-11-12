@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import {
     Bell,
     Check,
+    Fingerprint,
     LogOut,
     Pencil,
     Smartphone,
@@ -9,14 +10,20 @@ import {
     Laptop,
     X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DeviceController from '@/actions/App/Http/Controllers/Settings/DeviceController';
 import { SettingsSection } from '@/components/settings/section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/hooks/use-translation';
 import { timeAgo } from '@/lib/dashboard';
+import {
+    authenticateWithBiometrics,
+    biometricsAvailable,
+    isNativeApp,
+} from '@/lib/native';
 import { cn } from '@/lib/utils';
 import { index } from '@/routes/devices';
 
@@ -32,6 +39,7 @@ type Device = {
     created_at: string | null;
     is_current: boolean;
     has_push: boolean;
+    biometrics_enabled: boolean;
 };
 
 const icons = { mobile: Smartphone, tablet: Tablet, desktop: Laptop } as const;
@@ -56,6 +64,28 @@ function DeviceCard({
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(device.name ?? '');
     const Icon = icons[device.type];
+    const [canUseBiometrics, setCanUseBiometrics] = useState(false);
+
+    useEffect(() => {
+        if (device.is_current && isNativeApp()) {
+            void biometricsAvailable().then(setCanUseBiometrics);
+        }
+    }, [device.is_current]);
+
+    const toggleBiometrics = async (enabled: boolean) => {
+        if (
+            enabled &&
+            !(await authenticateWithBiometrics(t('Turn on biometric unlock')))
+        ) {
+            return;
+        }
+
+        router.put(
+            DeviceController.updateBiometrics.url(),
+            { enabled },
+            { preserveScroll: true },
+        );
+    };
     const detail = [device.browser, device.platform]
         .filter(Boolean)
         .join(' · ');
@@ -172,6 +202,22 @@ function DeviceCard({
                     </Detail>
                 )}
             </dl>
+
+            {device.is_current && canUseBiometrics && (
+                <div className="flex items-center justify-between gap-3 border-t pt-3">
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                        <Fingerprint className="size-4 shrink-0 text-muted-foreground" />
+                        <span>{t('Biometric unlock')}</span>
+                    </div>
+                    <Switch
+                        checked={device.biometrics_enabled}
+                        onCheckedChange={(enabled) =>
+                            void toggleBiometrics(enabled)
+                        }
+                        aria-label={t('Biometric unlock')}
+                    />
+                </div>
+            )}
 
             {!editing && (
                 <div className="mt-auto flex gap-2">

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
+* @see app/Http/Controllers/Settings/DeviceController.php:20
 * @route '/app/settings/devices'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
+* @see app/Http/Controllers/Settings/DeviceController.php:20
 * @route '/app/settings/devices'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
+* @see app/Http/Controllers/Settings/DeviceController.php:20
 * @route '/app/settings/devices'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
+* @see app/Http/Controllers/Settings/DeviceController.php:20
 * @route '/app/settings/devices'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
+* @see app/Http/Controllers/Settings/DeviceController.php:20
 * @route '/app/settings/devices'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
+* @see app/Http/Controllers/Settings/DeviceController.php:20
 * @route '/app/settings/devices'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::index
-* @see app/Http/Controllers/Settings/DeviceController.php:19
+* @see app/Http/Controllers/Settings/DeviceController.php:20
 * @route '/app/settings/devices'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
-* @see app/Http/Controllers/Settings/DeviceController.php:78
+* @see app/Http/Controllers/Settings/DeviceController.php:102
 * @route '/app/settings/devices/sign-out-others'
 */
 export const destroyOthers = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ destroyOthers.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
-* @see app/Http/Controllers/Settings/DeviceController.php:78
+* @see app/Http/Controllers/Settings/DeviceController.php:102
 * @route '/app/settings/devices/sign-out-others'
 */
 destroyOthers.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ destroyOthers.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
-* @see app/Http/Controllers/Settings/DeviceController.php:78
+* @see app/Http/Controllers/Settings/DeviceController.php:102
 * @route '/app/settings/devices/sign-out-others'
 */
 destroyOthers.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ destroyOthers.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
-* @see app/Http/Controllers/Settings/DeviceController.php:78
+* @see app/Http/Controllers/Settings/DeviceController.php:102
 * @route '/app/settings/devices/sign-out-others'
 */
 const destroyOthersForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const destroyOthersForm = (options?: RouteQueryOptions): RouteFormDefinition<'po
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroyOthers
-* @see app/Http/Controllers/Settings/DeviceController.php:78
+* @see app/Http/Controllers/Settings/DeviceController.php:102
 * @route '/app/settings/devices/sign-out-others'
 */
 destroyOthersForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -137,8 +137,74 @@ destroyOthersForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 destroyOthers.form = destroyOthersForm
 
 /**
+* @see \App\Http\Controllers\Settings\DeviceController::updateBiometrics
+* @see app/Http/Controllers/Settings/DeviceController.php:62
+* @route '/app/settings/devices/current/biometrics'
+*/
+export const updateBiometrics = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updateBiometrics.url(options),
+    method: 'put',
+})
+
+updateBiometrics.definition = {
+    methods: ["put"],
+    url: '/app/settings/devices/current/biometrics',
+} satisfies RouteDefinition<["put"]>
+
+/**
+* @see \App\Http\Controllers\Settings\DeviceController::updateBiometrics
+* @see app/Http/Controllers/Settings/DeviceController.php:62
+* @route '/app/settings/devices/current/biometrics'
+*/
+updateBiometrics.url = (options?: RouteQueryOptions) => {
+    return updateBiometrics.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Settings\DeviceController::updateBiometrics
+* @see app/Http/Controllers/Settings/DeviceController.php:62
+* @route '/app/settings/devices/current/biometrics'
+*/
+updateBiometrics.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updateBiometrics.url(options),
+    method: 'put',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\DeviceController::updateBiometrics
+* @see app/Http/Controllers/Settings/DeviceController.php:62
+* @route '/app/settings/devices/current/biometrics'
+*/
+const updateBiometricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateBiometrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Settings\DeviceController::updateBiometrics
+* @see app/Http/Controllers/Settings/DeviceController.php:62
+* @route '/app/settings/devices/current/biometrics'
+*/
+updateBiometricsForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateBiometrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+updateBiometrics.form = updateBiometricsForm
+
+/**
 * @see \App\Http\Controllers\Settings\DeviceController::update
-* @see app/Http/Controllers/Settings/DeviceController.php:44
+* @see app/Http/Controllers/Settings/DeviceController.php:46
 * @route '/app/settings/devices/{device}'
 */
 export const update = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -153,7 +219,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::update
-* @see app/Http/Controllers/Settings/DeviceController.php:44
+* @see app/Http/Controllers/Settings/DeviceController.php:46
 * @route '/app/settings/devices/{device}'
 */
 update.url = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -186,7 +252,7 @@ update.url = (args: { device: number | { id: number } } | [device: number | { id
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::update
-* @see app/Http/Controllers/Settings/DeviceController.php:44
+* @see app/Http/Controllers/Settings/DeviceController.php:46
 * @route '/app/settings/devices/{device}'
 */
 update.patch = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -196,7 +262,7 @@ update.patch = (args: { device: number | { id: number } } | [device: number | { 
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::update
-* @see app/Http/Controllers/Settings/DeviceController.php:44
+* @see app/Http/Controllers/Settings/DeviceController.php:46
 * @route '/app/settings/devices/{device}'
 */
 const updateForm = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -211,7 +277,7 @@ const updateForm = (args: { device: number | { id: number } } | [device: number 
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::update
-* @see app/Http/Controllers/Settings/DeviceController.php:44
+* @see app/Http/Controllers/Settings/DeviceController.php:46
 * @route '/app/settings/devices/{device}'
 */
 updateForm.patch = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -228,7 +294,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroy
-* @see app/Http/Controllers/Settings/DeviceController.php:60
+* @see app/Http/Controllers/Settings/DeviceController.php:84
 * @route '/app/settings/devices/{device}'
 */
 export const destroy = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -243,7 +309,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroy
-* @see app/Http/Controllers/Settings/DeviceController.php:60
+* @see app/Http/Controllers/Settings/DeviceController.php:84
 * @route '/app/settings/devices/{device}'
 */
 destroy.url = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -276,7 +342,7 @@ destroy.url = (args: { device: number | { id: number } } | [device: number | { i
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroy
-* @see app/Http/Controllers/Settings/DeviceController.php:60
+* @see app/Http/Controllers/Settings/DeviceController.php:84
 * @route '/app/settings/devices/{device}'
 */
 destroy.delete = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -286,7 +352,7 @@ destroy.delete = (args: { device: number | { id: number } } | [device: number | 
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroy
-* @see app/Http/Controllers/Settings/DeviceController.php:60
+* @see app/Http/Controllers/Settings/DeviceController.php:84
 * @route '/app/settings/devices/{device}'
 */
 const destroyForm = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -301,7 +367,7 @@ const destroyForm = (args: { device: number | { id: number } } | [device: number
 
 /**
 * @see \App\Http\Controllers\Settings\DeviceController::destroy
-* @see app/Http/Controllers/Settings/DeviceController.php:60
+* @see app/Http/Controllers/Settings/DeviceController.php:84
 * @route '/app/settings/devices/{device}'
 */
 destroyForm.delete = (args: { device: number | { id: number } } | [device: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -316,6 +382,6 @@ destroyForm.delete = (args: { device: number | { id: number } } | [device: numbe
 
 destroy.form = destroyForm
 
-const DeviceController = { index, destroyOthers, update, destroy }
+const DeviceController = { index, destroyOthers, updateBiometrics, update, destroy }
 
 export default DeviceController
