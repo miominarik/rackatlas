@@ -25,7 +25,6 @@ import {
     SheetDescription,
     SheetTitle,
 } from '@/components/ui/sheet';
-import { haptic } from '@/lib/native';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useTranslation } from '@/hooks/use-translation';
@@ -156,7 +155,6 @@ export function MobileTabBar() {
                                 <Link
                                     href={tab.href}
                                     prefetch
-                                    onClick={() => haptic()}
                                     data-native-press
                                     aria-current={active ? 'page' : undefined}
                                     className={cn(
@@ -179,10 +177,7 @@ export function MobileTabBar() {
                     <li>
                         <button
                             type="button"
-                            onClick={() => {
-                                haptic();
-                                setOpen(true);
-                            }}
+                            onClick={() => setOpen(true)}
                             data-native-press
                             aria-haspopup="dialog"
                             aria-expanded={open}

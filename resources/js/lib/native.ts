@@ -6,10 +6,6 @@ type NativePlugins = {
     SystemBars?: {
         setStyle(options: { style: 'DARK' | 'LIGHT' }): Promise<void>;
     };
-    Haptics?: {
-        impact(options: { style: 'LIGHT' | 'MEDIUM' | 'HEAVY' }): Promise<void>;
-        selectionChanged?(): Promise<void>;
-    };
 };
 
 const plugins = (): NativePlugins | undefined =>
@@ -56,14 +52,6 @@ function dropServiceWorker(): void {
             }
         })
         .catch(() => {});
-}
-
-export function haptic(): void {
-    if (!isNativeApp()) {
-        return;
-    }
-
-    void plugins()?.Haptics?.impact({ style: 'LIGHT' })?.catch(() => {});
 }
 
 /** Light text on the status bar in dark mode, dark text in light mode; follows the theme toggle. */

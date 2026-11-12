@@ -4,7 +4,6 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { TeamSwitcher } from '@/components/team-switcher';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useTranslation } from '@/hooks/use-translation';
-import { haptic } from '@/lib/native';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
 /** Title bar of the mobile shell: frosted glass under the status bar, a back button, the page title. */
@@ -20,7 +19,6 @@ function NativeTopBar({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[] }) {
                     {parent && (
                         <Link
                             href={parent.href}
-                            onClick={() => haptic()}
                             data-native-press
                             className="-ml-1 flex min-w-0 items-center text-primary"
                         >
