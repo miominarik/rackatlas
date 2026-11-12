@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Http\Middleware\TrackDevice;
 use App\Models\UserDevice;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Database\QueryException;
 
 /**
  * Whoever signs out of the app, on purpose or because the password changed, is signed out for real:
@@ -20,6 +21,10 @@ class DisableBiometricsOnLogout
             return;
         }
 
-        UserDevice::where('token_hash', UserDevice::hashToken($token))->update(['biometrics_enabled' => false]);
+        try {
+            UserDevice::where('token_hash', UserDevice::hashToken($token))->update(['biometrics_enabled' => false]);
+        } catch (QueryException) {
+            // The biometrics column is not migrated yet, so there is nothing to turn off.
+        }
     }
 }

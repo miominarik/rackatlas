@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\UserDevice;
 use Closure;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,11 +31,15 @@ class SignInBiometricDevice
             return $next($request);
         }
 
-        $device = UserDevice::active()
-            ->where('token_hash', UserDevice::hashToken($token))
-            ->where('biometrics_enabled', true)
-            ->with('user')
-            ->first();
+        try {
+            $device = UserDevice::active()
+                ->where('token_hash', UserDevice::hashToken($token))
+                ->where('biometrics_enabled', true)
+                ->with('user')
+                ->first();
+        } catch (QueryException) {
+            return $next($request);
+        }
 
         if ($device?->user !== null) {
             $guard->login($device->user, true);
