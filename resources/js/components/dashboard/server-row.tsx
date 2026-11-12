@@ -24,9 +24,11 @@ const text: Record<string, string> = {
 export default function ServerRow({
     evaluated,
     settings,
+    className,
 }: {
     evaluated: Evaluated;
     settings: DashboardSettings;
+    className?: string;
 }) {
     const { t } = useTranslation();
     const { server, level } = evaluated;
@@ -57,7 +59,17 @@ export default function ServerRow({
     );
 
     return (
-        <li className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 text-sm">
+        <li
+            className={cn(
+                'flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 text-sm',
+                level !== 'ok' &&
+                    level !== 'unknown' &&
+                    (level === 'warning' || level === 'stale'
+                        ? 'bg-amber-500/[0.05]'
+                        : 'bg-red-500/[0.05]'),
+                className,
+            )}
+        >
             <span
                 className={cn(
                     'size-2.5 shrink-0 rounded-full',
@@ -75,6 +87,23 @@ export default function ServerRow({
                 <span className="block truncate font-mono text-xs text-muted-foreground">
                     {serverAddress(server, t('Agent'))}
                 </span>
+                {evaluated.problems.length > 0 && (
+                    <span
+                        className={cn(
+                            'block truncate text-xs',
+                            level === 'warning' || level === 'stale'
+                                ? text.warning
+                                : text.critical,
+                        )}
+                        title={evaluated.problems
+                            .map((problem) => problem.message)
+                            .join(', ')}
+                    >
+                        {evaluated.problems
+                            .map((problem) => problem.message)
+                            .join(' · ')}
+                    </span>
+                )}
             </span>
             {server.category && (
                 <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">

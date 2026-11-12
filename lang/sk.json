@@ -1507,5 +1507,8 @@
     "The log is empty.": "Log je prázdny.",
     "Done.": "Hotovo.",
     "RAM": "RAM",
-    ":count containers on :servers servers": ":count kontajnerov na :servers serveroch"
+    ":count containers on :servers servers": ":count kontajnerov na :servers serveroch",
+    "All categories": "Všetky kategórie",
+    "No server matches the filters.": "Žiadny server nevyhovuje filtrom.",
+    "Compact view": "Kompaktné zobrazenie"
 }

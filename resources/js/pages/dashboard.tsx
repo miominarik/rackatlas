@@ -10,15 +10,12 @@ import CustomizeSheet from '@/components/dashboard/customize-sheet';
 import BackupsOverview from '@/components/dashboard/backups-overview';
 import ProblemsList from '@/components/dashboard/problems-list';
 import RecentErrors from '@/components/dashboard/recent-errors';
-import ServerCard from '@/components/dashboard/server-card';
-import ServerRow from '@/components/dashboard/server-row';
+import ServerOverview from '@/components/dashboard/server-overview';
 import SummaryTiles from '@/components/dashboard/summary-tiles';
 import TopLists from '@/components/dashboard/top-lists';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
-import { evaluateServer, levelRank } from '@/lib/dashboard';
-import type { Evaluated } from '@/lib/dashboard';
-import { dotClass } from '@/lib/server-colors';
+import { evaluateServer } from '@/lib/dashboard';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { create as createServer } from '@/routes/servers';
@@ -52,6 +49,9 @@ const POLLED = [
     'generated_at',
 ];
 
+/** The other sections are short lists that sit two side by side on a wide screen. */
+const FULL_WIDTH = ['summary', 'servers'];
+
 function Poller({ seconds }: { seconds: number }) {
     usePoll(
         Math.max(seconds, 1) * 1000,
@@ -60,153 +60,6 @@ function Poller({ seconds }: { seconds: number }) {
     );
 
     return null;
-}
-
-function sortItems(
-    items: Evaluated[],
-    sort: DashboardSettings['servers']['sort'],
-) {
-    const by = {
-        name: (a: Evaluated, b: Evaluated) =>
-            a.server.name.localeCompare(b.server.name),
-        status: (a: Evaluated, b: Evaluated) =>
-            levelRank[b.level] - levelRank[a.level] ||
-            a.server.name.localeCompare(b.server.name),
-        cpu: (a: Evaluated, b: Evaluated) => (b.cpu ?? -1) - (a.cpu ?? -1),
-        ram: (a: Evaluated, b: Evaluated) => (b.ram ?? -1) - (a.ram ?? -1),
-        disk: (a: Evaluated, b: Evaluated) => (b.disk ?? -1) - (a.disk ?? -1),
-    }[sort];
-
-    return [...items].sort(by);
-}
-
-function ServerGrid({
-    items,
-    settings,
-    history,
-    generatedAt,
-}: {
-    items: Evaluated[];
-    settings: DashboardSettings;
-    history: DashboardHistory;
-    generatedAt: string;
-}) {
-    const { t } = useTranslation();
-    const compact = settings.servers.density === 'compact';
-
-    const sorted = sortItems(items, settings.servers.sort);
-
-    type Group = {
-        key: string;
-        category: DashboardServer['category'];
-        items: Evaluated[];
-    };
-
-    const groups: Group[] = settings.servers.group_by_category
-        ? [
-              ...new Map(
-                  sorted
-                      .filter((item) => item.server.category)
-                      .map((item) => [
-                          item.server.category!.id,
-                          item.server.category!,
-                      ]),
-              ).values(),
-          ]
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((category) => ({
-                  key: String(category.id),
-                  category,
-                  items: sorted.filter(
-                      (item) => item.server.category?.id === category.id,
-                  ),
-              }))
-        : [];
-
-    if (settings.servers.group_by_category) {
-        const rest = sorted.filter((item) => !item.server.category);
-
-        if (rest.length > 0) {
-            groups.push({ key: 'none', category: null, items: rest });
-        }
-    }
-
-    const fixedColumns = (
-        {
-            1: 'grid-cols-1',
-            2: 'grid-cols-1 sm:grid-cols-2',
-            3: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3',
-            4: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4',
-        } as Record<number, string>
-    )[settings.servers.columns];
-
-    const grid = cn(
-        'grid gap-4',
-        fixedColumns ??
-            (compact
-                ? 'grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3'
-                : 'grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]'),
-        fixedColumns && compact && 'gap-3',
-    );
-
-    const cards = (list: Evaluated[]) =>
-        settings.servers.layout === 'list' ? (
-            <ul className="divide-y overflow-hidden rounded-xl border bg-card">
-                {list.map((evaluated) => (
-                    <ServerRow
-                        key={evaluated.server.id}
-                        evaluated={evaluated}
-                        settings={settings}
-                    />
-                ))}
-            </ul>
-        ) : (
-            <div className={grid}>
-                {list.map((evaluated) => (
-                    <ServerCard
-                        key={evaluated.server.id}
-                        evaluated={evaluated}
-                        settings={settings}
-                        history={history[evaluated.server.id] ?? []}
-                        generatedAt={generatedAt}
-                    />
-                ))}
-            </div>
-        );
-
-    return (
-        <section aria-label={t('Server cards')} className="space-y-3">
-            <h2 className="text-sm font-medium">
-                {t('Servers')}{' '}
-                <span className="text-muted-foreground">{items.length}</span>
-            </h2>
-            {settings.servers.group_by_category ? (
-                <div className="space-y-6">
-                    {groups.map((group) => (
-                        <div key={group.key} className="space-y-3">
-                            <h3 className="flex items-center gap-2 text-sm text-muted-foreground">
-                                {group.category && (
-                                    <span
-                                        className={cn(
-                                            'size-2 rounded-full',
-                                            dotClass(group.category.color),
-                                        )}
-                                    />
-                                )}
-                                {group.category?.name ?? t('No category')}
-                                <span className="text-xs">
-                                    {group.items.length}
-                                </span>
-                            </h3>
-                            {cards(group.items)}
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                cards(sorted)
-            )}
-        </section>
-    );
 }
 
 function DashboardContent({
@@ -247,7 +100,7 @@ function DashboardContent({
         summary: <SummaryTiles items={items} backups={backups} />,
         problems: <ProblemsList problems={problems} />,
         servers: (
-            <ServerGrid
+            <ServerOverview
                 items={items}
                 settings={settings}
                 history={history}
@@ -336,11 +189,22 @@ function DashboardContent({
                         </Button>
                     </div>
                 ) : (
-                    settings.widgets
-                        .filter((widget) => widget.visible)
-                        .map((widget) => (
-                            <div key={widget.id}>{widgets[widget.id]}</div>
-                        ))
+                    <div className="grid gap-6 xl:grid-cols-2">
+                        {settings.widgets
+                            .filter((widget) => widget.visible)
+                            .map((widget) => (
+                                <div
+                                    key={widget.id}
+                                    className={cn(
+                                        'min-w-0',
+                                        FULL_WIDTH.includes(widget.id) &&
+                                            'xl:col-span-2',
+                                    )}
+                                >
+                                    {widgets[widget.id]}
+                                </div>
+                            ))}
+                    </div>
                 )}
 
                 {settings.widgets.every((widget) => !widget.visible) && (
