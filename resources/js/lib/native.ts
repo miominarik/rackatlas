@@ -16,9 +16,47 @@ const plugins = (): NativePlugins | undefined =>
     (window as unknown as { Capacitor?: { Plugins?: NativePlugins } })
         .Capacitor?.Plugins;
 
+const USER_AGENT_TOKEN = 'RackAtlasApp';
+
+/** The shell appends a token to the WebView user agent; this is the reliable signal inside the page. */
 export const isNativeApp = (): boolean =>
-    typeof document !== 'undefined' &&
-    document.documentElement.classList.contains('native-app');
+    typeof navigator !== 'undefined' &&
+    navigator.userAgent.includes(USER_AGENT_TOKEN);
+
+/**
+ * The service worker re-fetches every page with its own user agent, which lacks the token, so the server
+ * would serve the plain website. The app needs no service worker (it has native push), so remove it and
+ * reload once to get the app layout.
+ */
+function dropServiceWorker(): void {
+    if (!('serviceWorker' in navigator)) {
+        return;
+    }
+
+    void navigator.serviceWorker
+        .getRegistrations()
+        .then(async (registrations) => {
+            await Promise.all(registrations.map((r) => r.unregister()));
+
+            const missingLayout =
+                !document.documentElement.classList.contains('native-app');
+
+            if (registrations.length > 0 && missingLayout) {
+                try {
+                    if (sessionStorage.getItem('native-reloaded')) {
+                        return;
+                    }
+
+                    sessionStorage.setItem('native-reloaded', '1');
+                } catch {
+                    return;
+                }
+
+                window.location.reload();
+            }
+        })
+        .catch(() => {});
+}
 
 export function haptic(): void {
     if (!isNativeApp()) {
@@ -35,6 +73,10 @@ export function initNative(): void {
     }
 
     const root = document.documentElement;
+
+    root.classList.add('native-app');
+    dropServiceWorker();
+
     const syncStatusBar = () => {
         void plugins()
             ?.SystemBars?.setStyle({
