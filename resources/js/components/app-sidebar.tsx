@@ -2,13 +2,12 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
     BookOpen,
+    Container,
     Database,
     DatabaseBackup,
     KeyRound,
     Layers,
     LayoutGrid,
-    Map as MapIcon,
-    Map,
     MemoryStick,
     ScrollText,
     Server,
@@ -27,11 +26,12 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, map as mapRoute, terminal } from '@/routes';
+import { dashboard, terminal } from '@/routes';
 import { index as adminIndex } from '@/routes/admin';
 import { index as applicationsIndex } from '@/routes/applications';
 import { index as backupsIndex } from '@/routes/backups';
 import { index as databasesIndex } from '@/routes/databases';
+import { index as dockerIndex } from '@/routes/docker';
 import { index as documentsIndex } from '@/routes/documents';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
@@ -71,12 +71,6 @@ const mainNavItems: NavItem[] = [
         icon: Server,
     },
     {
-        title: 'Map',
-        permission: 'map.view',
-        href: mapRoute(),
-        icon: MapIcon,
-    },
-    {
         title: 'Terminal',
         permission: 'terminal.edit',
         href: terminal(),
@@ -87,6 +81,12 @@ const mainNavItems: NavItem[] = [
         permission: 'applications.view',
         href: applicationsIndex(),
         icon: Layers,
+    },
+    {
+        title: 'Docker',
+        permission: 'docker.view',
+        href: dockerIndex(),
+        icon: Container,
     },
     {
         title: 'Metrics',

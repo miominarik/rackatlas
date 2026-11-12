@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:21
+* @see app/Http/Controllers/Api/AgentIngestController.php:22
 * @route '/api/agent/ingest'
 */
 export const ingest = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ ingest.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:21
+* @see app/Http/Controllers/Api/AgentIngestController.php:22
 * @route '/api/agent/ingest'
 */
 ingest.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ ingest.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:21
+* @see app/Http/Controllers/Api/AgentIngestController.php:22
 * @route '/api/agent/ingest'
 */
 ingest.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ ingest.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:21
+* @see app/Http/Controllers/Api/AgentIngestController.php:22
 * @route '/api/agent/ingest'
 */
 const ingestForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const ingestForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Api\AgentIngestController::__invoke
-* @see app/Http/Controllers/Api/AgentIngestController.php:21
+* @see app/Http/Controllers/Api/AgentIngestController.php:22
 * @route '/api/agent/ingest'
 */
 ingestForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -110,6 +110,62 @@ journalForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 })
 
 journal.form = journalForm
+
+/**
+* @see \App\Http\Controllers\Api\AgentDockerLogsController::__invoke
+* @see app/Http/Controllers/Api/AgentDockerLogsController.php:17
+* @route '/api/agent/docker-logs'
+*/
+export const dockerLogs = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: dockerLogs.url(options),
+    method: 'post',
+})
+
+dockerLogs.definition = {
+    methods: ["post"],
+    url: '/api/agent/docker-logs',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\AgentDockerLogsController::__invoke
+* @see app/Http/Controllers/Api/AgentDockerLogsController.php:17
+* @route '/api/agent/docker-logs'
+*/
+dockerLogs.url = (options?: RouteQueryOptions) => {
+    return dockerLogs.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\AgentDockerLogsController::__invoke
+* @see app/Http/Controllers/Api/AgentDockerLogsController.php:17
+* @route '/api/agent/docker-logs'
+*/
+dockerLogs.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: dockerLogs.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentDockerLogsController::__invoke
+* @see app/Http/Controllers/Api/AgentDockerLogsController.php:17
+* @route '/api/agent/docker-logs'
+*/
+const dockerLogsForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: dockerLogs.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentDockerLogsController::__invoke
+* @see app/Http/Controllers/Api/AgentDockerLogsController.php:17
+* @route '/api/agent/docker-logs'
+*/
+dockerLogsForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: dockerLogs.url(options),
+    method: 'post',
+})
+
+dockerLogs.form = dockerLogsForm
 
 /**
 * @see \App\Http\Controllers\Api\AgentTerminalController::__invoke
@@ -195,6 +251,7 @@ terminal.form = terminalForm
 const agent = {
     ingest: Object.assign(ingest, ingest),
     journal: Object.assign(journal, journal),
+    dockerLogs: Object.assign(dockerLogs, dockerLogs),
     terminal: Object.assign(terminal, terminal),
 }
 

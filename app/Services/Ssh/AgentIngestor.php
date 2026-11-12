@@ -6,6 +6,7 @@ use App\Enums\ServerStatus;
 use App\Exceptions\MetricsCollectionException;
 use App\Models\Server;
 use App\Services\Alerts\AlertEvaluator;
+use App\Services\Docker\DockerSync;
 use App\Services\Redis\RedisParser;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +19,7 @@ class AgentIngestor
         private readonly AlertEvaluator $alerts,
         private readonly ServiceSync $services,
         private readonly RedisParser $redis,
+        private readonly DockerSync $docker,
     ) {}
 
     /**
@@ -73,6 +75,10 @@ class AgentIngestor
 
             foreach ($redisMetrics as $redisMetric) {
                 $server->redisMetrics()->create($redisMetric);
+            }
+
+            if ($server->has_docker) {
+                $this->docker->sync($server, $sections);
             }
 
             if (isset($sections['SERVICES'])) {

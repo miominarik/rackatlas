@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AgentDockerLogsController;
 use App\Http\Controllers\Api\AgentIngestController;
 use App\Http\Controllers\Api\AgentJournalController;
 use App\Http\Controllers\Api\AgentTerminalController;
@@ -19,6 +20,10 @@ Route::post('agent/ingest', AgentIngestController::class)
 Route::post('agent/journal', AgentJournalController::class)
     ->middleware(['throttle:agent', AuthenticateAgent::class])
     ->name('agent.journal');
+
+Route::post('agent/docker-logs', AgentDockerLogsController::class)
+    ->middleware(['throttle:agent', AuthenticateAgent::class])
+    ->name('agent.docker-logs');
 
 Route::get('agent/terminal', AgentTerminalController::class)
     ->middleware(['throttle:agent', AuthenticateAgent::class])

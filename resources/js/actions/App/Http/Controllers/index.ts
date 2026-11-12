@@ -11,9 +11,9 @@ import Servers from './Servers'
 import DatabaseController from './DatabaseController'
 import DatabaseProcessController from './DatabaseProcessController'
 import RedisController from './RedisController'
-import MapController from './MapController'
 import Terminal from './Terminal'
 import ApplicationController from './ApplicationController'
+import DockerController from './DockerController'
 import MetricsController from './MetricsController'
 import MetricsProcessesController from './MetricsProcessesController'
 import BackupController from './BackupController'
@@ -34,9 +34,9 @@ const Controllers = {
     DatabaseController: Object.assign(DatabaseController, DatabaseController),
     DatabaseProcessController: Object.assign(DatabaseProcessController, DatabaseProcessController),
     RedisController: Object.assign(RedisController, RedisController),
-    MapController: Object.assign(MapController, MapController),
     Terminal: Object.assign(Terminal, Terminal),
     ApplicationController: Object.assign(ApplicationController, ApplicationController),
+    DockerController: Object.assign(DockerController, DockerController),
     MetricsController: Object.assign(MetricsController, MetricsController),
     MetricsProcessesController: Object.assign(MetricsProcessesController, MetricsProcessesController),
     BackupController: Object.assign(BackupController, BackupController),

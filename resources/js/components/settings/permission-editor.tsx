@@ -19,7 +19,6 @@ const labels: Record<string, { title: string; hint: string }> = {
         title: 'Servers',
         hint: 'Add, change and remove servers and categories',
     },
-    map: { title: 'Map', hint: 'See the map of the servers' },
     terminal: {
         title: 'Terminal',
         hint: 'Open an SSH terminal to the servers',
@@ -27,6 +26,10 @@ const labels: Record<string, { title: string; hint: string }> = {
     applications: {
         title: 'Applications',
         hint: 'Services running on the servers and their journal',
+    },
+    docker: {
+        title: 'Docker',
+        hint: 'Containers on the servers; Edit starts, stops and restarts them',
     },
     metrics: { title: 'Metrics', hint: 'Charts and running processes' },
     logs: { title: 'Logs', hint: 'Edit means marking entries as resolved' },

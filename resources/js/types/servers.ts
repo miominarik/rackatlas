@@ -59,6 +59,7 @@ export type ServerFormData = {
     auth_type: ServerAuthType;
     uses_agent: boolean;
     agent_terminal: boolean;
+    has_docker: boolean;
     ssh_key_id: number | null;
     server_category_id: number | null;
     ssh_host_fingerprint?: string | null;

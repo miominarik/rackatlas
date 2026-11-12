@@ -11,10 +11,10 @@ use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\DatabaseProcessController;
+use App\Http\Controllers\DockerController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\MapController;
 use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\MetricsProcessesController;
 use App\Http\Controllers\PrivacyController;
@@ -80,7 +80,6 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
 
     Route::get('redis', [RedisController::class, 'index'])->middleware('permission:redis.view')->name('redis.index');
 
-    Route::get('map', MapController::class)->middleware('permission:map.view')->name('map');
     Route::get('terminal', TerminalController::class)->middleware('permission:terminal.edit')->name('terminal');
     Route::post('terminal/sessions', [TerminalSessionController::class, 'store'])
         ->middleware('throttle:30,1')
@@ -93,6 +92,20 @@ Route::prefix('app')->middleware(['auth', 'verified'])->group(function () {
         ->whereNumber('service')
         ->middleware('throttle:10,1')
         ->name('applications.journal.request');
+
+    Route::get('docker', [DockerController::class, 'index'])->middleware('permission:docker.view')->name('docker.index');
+    Route::post('docker/containers/{container}/logs', [DockerController::class, 'requestLogs'])
+        ->whereNumber('container')
+        ->middleware('throttle:30,1')
+        ->name('docker.containers.logs.request');
+    Route::get('docker/containers/{container}/logs', [DockerController::class, 'logs'])
+        ->whereNumber('container')
+        ->name('docker.containers.logs');
+    Route::post('docker/containers/{container}/{action}', [DockerController::class, 'act'])
+        ->whereNumber('container')
+        ->whereIn('action', ['start', 'stop', 'restart'])
+        ->middleware('throttle:30,1')
+        ->name('docker.containers.act');
 
     Route::get('metrics', [MetricsController::class, 'index'])->middleware('permission:metrics.view')->name('metrics.index');
     Route::get('metrics/processes', MetricsProcessesController::class)

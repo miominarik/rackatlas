@@ -9,9 +9,9 @@ namespace App\Enums;
 enum TeamPermission: string
 {
     case Servers = 'servers';
-    case Map = 'map';
     case Terminal = 'terminal';
     case Applications = 'applications';
+    case Docker = 'docker';
     case Metrics = 'metrics';
     case Logs = 'logs';
     case Backups = 'backups';

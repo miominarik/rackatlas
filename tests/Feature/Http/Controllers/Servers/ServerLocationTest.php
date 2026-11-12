@@ -46,20 +46,4 @@ class ServerLocationTest extends TestCase
 
         $this->assertSame(0, $team->servers()->count());
     }
-
-    public function test_map_lists_servers_with_their_country(): void
-    {
-        $team = Team::factory()->create();
-        $team->servers()->create([
-            'name' => 'web', 'provider' => 'OVH', 'country' => 'FR',
-            'auth_type' => ServerAuthType::Agent, 'port' => 22,
-        ]);
-
-        $this->actingAs($team->owner)
-            ->get(route('map'))->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('map')
-                ->where('servers.0.country', 'FR')
-                ->where('servers.0.provider', 'OVH'));
-    }
 }

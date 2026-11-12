@@ -67,7 +67,7 @@ separate service in the same package. The metrics agent above is unchanged and k
 - **Runs unprivileged and sandboxed** (see the `.service`: `ProtectSystem=strict`, `PrivateTmp`, `NoNewPrivileges`, ...).
   The only writable place is `/var/lib/rackatlas-agent` (`StateDirectory`). Reading the journal works through
   the `systemd-journal` group. If a new feature needs more access, relax the unit as little as possible.
-- **Be fast and bounded.** It runs every minute; `TimeoutStartSec=45`, `curl --max-time 25`. Cap the amount
+- **Be fast and bounded.** It runs every minute; `TimeoutStartSec=90` (the Docker actions need the room), `curl --max-time 25`. Cap the amount
   of data (`MAX_LOG_LINES`, `head -n`), and the server rejects reports over 256 KB.
 - **Never lose or duplicate data.** Journal cursors are written to the state directory only after the server
   answered 2xx. Keep that order. The CPU value is an average over the time since the previous run
@@ -93,6 +93,16 @@ are monitored over SSH by `MetricsParser::SCRIPT`, so metrics sections must stay
   has to behave differently for old agents.
 - The rate limit (`AppServiceProvider`, `throttle:agent`) is 10 requests per minute per token. A new feature
   must not send more than one request per run.
+
+## Docker (optional, off until the server asks for it)
+
+Docker is reported and controlled only for servers with `servers.has_docker`. The server says so in its answer to
+every report: `"docker":true`, plus `"docker_actions":["restart:<id>"]` (at most two, each handed out once) and
+`"docker_logs":["<id>"]`. The agent remembers the flag in `$STATE_DIR/docker-enabled` and from the next run on adds the
+sections `DOCKER` (docker ps -a), `DOCKER_STATS`, `DOCKER_ERROR` and `DOCKER_RESULT` (the outcome of the actions, sent once
+after 2xx). Logs go to `POST /api/agent/docker-logs` with `X-Container`. Only `start|stop|restart` and a hexadecimal
+container id are accepted. The agent user needs `sudo usermod -aG docker rackatlas-agent`, which is root equivalent, so the
+package never does it. The Laravel side is `App\Services\Docker\DockerSync` (same sections as the SSH collector `DockerSsh`).
 
 ## Releasing a new version
 
@@ -166,7 +176,7 @@ arguments, change both.
 ## Checklist before you finish
 
 - [ ] If the terminal service changed: `go vet`, `go build`, `resources/terminal/server.mjs` and the copy in `resources/terminal/Dockerfile` are in sync.
-- [ ] Script is POSIX `sh`, secrets are not printed, runtime stays well below 45 s.
+- [ ] Script is POSIX `sh`, secrets are not printed, a normal run stays well below 45 s (Docker actions are the exception, at most two per run).
 - [ ] Report format change is backward compatible and handled in `MetricsParser`/`LogParser`/`AgentIngestor`.
 - [ ] `agent/VERSION` is raised, `DEBIAN` scripts are idempotent.
 - [ ] Package and repository tested in a temporary directory, nothing left in `public/apt`.

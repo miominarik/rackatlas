@@ -3,13 +3,13 @@ import {
     Activity,
     BookOpen,
     ChevronUp,
+    Container,
     Database,
     DatabaseBackup,
     KeyRound,
     Layers,
     LayoutGrid,
     LogOut,
-    Map as MapIcon,
     MemoryStick,
     ScrollText,
     Server,
@@ -29,11 +29,12 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
-import { dashboard, logout, map as mapRoute, terminal } from '@/routes';
+import { dashboard, logout, terminal } from '@/routes';
 import { index as adminIndex } from '@/routes/admin';
 import { index as applicationsIndex } from '@/routes/applications';
 import { index as backupsIndex } from '@/routes/backups';
 import { index as databasesIndex } from '@/routes/databases';
+import { index as dockerIndex } from '@/routes/docker';
 import { index as documentsIndex } from '@/routes/documents';
 import { index as logsIndex } from '@/routes/logs';
 import { index as metricsIndex } from '@/routes/metrics';
@@ -54,7 +55,6 @@ const tabs: Tab[] = [
 
 /** Everything else the sidebar offers, shown in the sheet behind the "More" tab. */
 const moreItems: Tab[] = [
-    { title: 'Map', permission: 'map.view', href: mapRoute(), icon: MapIcon },
     {
         title: 'Terminal',
         permission: 'terminal.edit',
@@ -66,6 +66,12 @@ const moreItems: Tab[] = [
         permission: 'applications.view',
         href: applicationsIndex(),
         icon: Layers,
+    },
+    {
+        title: 'Docker',
+        permission: 'docker.view',
+        href: dockerIndex(),
+        icon: Container,
     },
     {
         title: 'Backups',

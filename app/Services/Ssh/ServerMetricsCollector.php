@@ -69,7 +69,7 @@ class ServerMetricsCollector
     /**
      * @throws MetricsCollectionException
      */
-    private function run(Server $server): string
+    public function connect(Server $server): SSH2
     {
         $credential = $this->credential($server);
 
@@ -102,6 +102,16 @@ class ServerMetricsCollector
         if ($server->ssh_host_fingerprint === null) {
             $server->forceFill(['ssh_host_fingerprint' => $fingerprint])->save();
         }
+
+        return $ssh;
+    }
+
+    /**
+     * @throws MetricsCollectionException
+     */
+    private function run(Server $server): string
+    {
+        $ssh = $this->connect($server);
 
         try {
             $output = $ssh->exec('sh -c '.escapeshellarg(MetricsParser::SCRIPT));

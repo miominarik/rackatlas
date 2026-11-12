@@ -15,6 +15,7 @@ Artisan::command('inspire', function () {
 Schedule::command('servers:collect-metrics')->everyMinute()->withoutOverlapping(5)->runInBackground();
 Schedule::command('databases:collect-metrics')->everyMinute()->withoutOverlapping(5)->runInBackground();
 Schedule::command('redis:collect-metrics')->everyMinute()->withoutOverlapping(5)->runInBackground();
+Schedule::command('docker:collect')->everyMinute()->withoutOverlapping(5)->runInBackground();
 Schedule::command('servers:check-agents')->everyMinute()->withoutOverlapping(2)->runInBackground();
 Schedule::command('servers:evaluate-alerts')->everyMinute()->withoutOverlapping(2)->runInBackground();
 Schedule::command('backups:check')->everyFiveMinutes()->withoutOverlapping(5)->runInBackground();

@@ -69,6 +69,7 @@ class ServerRequest extends FormRequest
             'auth_type' => [$isDatabase ? 'nullable' : 'required', Rule::enum(ServerAuthType::class)],
             'uses_agent' => ['nullable', 'boolean'],
             'agent_terminal' => ['nullable', 'boolean'],
+            'has_docker' => ['nullable', 'boolean'],
             'password' => [Rule::requiredIf($isPassword && ! $existing), 'nullable', 'string', 'max:1000'],
             'ssh_key_id' => [
                 Rule::requiredIf($isKey),

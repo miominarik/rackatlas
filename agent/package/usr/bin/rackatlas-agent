@@ -117,7 +117,7 @@ fi
 
 mkdir -p "$STATE_DIR" 2>/dev/null || true
 TMP="$(mktemp)" || exit 1
-trap 'rm -f "$TMP" "$TMP.out" "$TMP.proc" "$TMP.proc-base" "$TMP.states" "$TMP.journal" "$TMP.units" "$TMP".cursor-*' EXIT
+trap 'rm -f "$TMP" "$TMP.out" "$TMP.proc" "$TMP.proc-base" "$TMP.states" "$TMP.journal" "$TMP.dlog" "$TMP.units" "$TMP".cursor-*' EXIT
 
 export LC_ALL=C
 
@@ -325,6 +325,72 @@ send_requested_journals() {
   done
 }
 
+# Docker is reported only after RackAtlas said (in its last answer) that Docker is switched on for this server.
+# The agent user must be allowed to use docker: `sudo usermod -aG docker rackatlas-agent`. That group can
+# control the whole machine, so it is a decision of the admin and is never done by the package.
+DOCKER_FLAG="$STATE_DIR/docker-enabled"
+DOCKER_RESULT="$STATE_DIR/docker-result"
+DOCKER_FORMAT='{{.ID}}|{{.Names}}|{{.Image}}|{{.State}}|{{.Status}}|{{.Ports}}'
+export DOCKER_CONFIG="$STATE_DIR"
+
+# One section for the containers (docker ps -a), one for their CPU and memory, and the outcome of the
+# actions carried out since the last report.
+docker_section() {
+  [ -e "$DOCKER_FLAG" ] || return 0
+  if ! command -v docker >/dev/null 2>&1; then
+    echo '###DOCKER_ERROR'; echo 'Docker is not installed on this server.'
+    return 0
+  fi
+  if dockerout="$(timeout 15 docker ps -a --format "$DOCKER_FORMAT" 2>&1)"; then
+    echo '###DOCKER'; printf '%s\n' "$dockerout" | head -n 300 | cut -c1-600
+    echo '###DOCKER_STATS'
+    timeout 20 docker stats --no-stream --format '{{.ID}}|{{.CPUPerc}}|{{.MemUsage}}' 2>/dev/null | head -n 300
+  else
+    echo '###DOCKER_ERROR'; printf '%s\n' "$dockerout" | head -n 3 | cut -c1-300
+  fi
+  if [ -s "$DOCKER_RESULT" ]; then
+    echo '###DOCKER_RESULT'; cat "$DOCKER_RESULT"
+  fi
+}
+
+# RackAtlas lists in its answer "docker":true when Docker is on, the actions to carry out as
+# "docker_actions":["restart:<id>"] (at most two) and the container whose log is wanted as "docker_logs":["<id>"].
+# Only a plain action and a hexadecimal container id are accepted. The outcome goes into the next report.
+handle_docker() {
+  if grep -q '"docker":true' "$TMP.out" 2>/dev/null; then
+    : > "$DOCKER_FLAG" 2>/dev/null
+  else
+    rm -f "$DOCKER_FLAG" "$DOCKER_RESULT"
+    return 0
+  fi
+  command -v docker >/dev/null 2>&1 || return 0
+
+  items="$(sed -n 's/.*"docker_actions":\[\([^]]*\)\].*/\1/p' "$TMP.out" | tr -d '"' | tr ',' ' ')"
+  for item in $items; do
+    printf '%s\n' "$item" | grep -Eq '^(start|stop|restart):[a-f0-9]{12,64}$' || continue
+    action="${item%%:*}"
+    id="${item#*:}"
+    opt=""
+    [ "$action" = start ] || opt="-t 8"
+    if dockerout="$(timeout 20 docker "$action" $opt "$id" 2>&1)"; then outcome=ok; else outcome=fail; fi
+    printf '%s|%s|%s|%s\n' "$id" "$action" "$outcome" "$(printf '%s' "$dockerout" | head -n 1 | tr '|' '/' | cut -c1-200)" >> "$DOCKER_RESULT"
+  done
+
+  ids="$(sed -n 's/.*"docker_logs":\[\([^]]*\)\].*/\1/p' "$TMP.out" | tr -d '"' | tr ',' ' ')"
+  for id in $ids; do
+    printf '%s\n' "$id" | grep -Eq '^[a-f0-9]{12,64}$' || continue
+    timeout 20 docker logs --tail 500 --timestamps "$id" 2>&1 | cut -c1-500 | tail -c "$JOURNAL_BYTES" > "$TMP.dlog"
+    printf 'Authorization: Bearer %s\n' "$TOKEN" | curl -sS -o /dev/null --max-time 15 \
+      -X POST \
+      -H @- \
+      -H "X-Agent-Version: $VERSION" \
+      -H "X-Container: $id" \
+      -H 'Content-Type: text/plain' \
+      --data-binary @"$TMP.dlog" \
+      "$URL/api/agent/docker-logs" || echo "rackatlas-agent: could not send the log of container $id" >&2
+  done
+}
+
 CPU_PREV_FILE="$STATE_DIR/cpu-prev"
 CPU_NOW="$(head -n1 "$PROC_DIR/stat")"
 CPU_FIRST=""
@@ -378,6 +444,8 @@ proc_scan full > "$TMP.proc"
     redis_section
   fi
 
+  docker_section
+
   if command -v systemctl >/dev/null 2>&1; then
     SERVICES="$(services_section)"
     if [ -n "$SERVICES" ]; then
@@ -418,7 +486,9 @@ case "$status" in
       kind="${file##*.cursor-}"
       mv "$file" "$STATE_DIR/cursor-$kind"
     done
+    rm -f "$DOCKER_RESULT"
     send_requested_journals
+    handle_docker
     ;;
   401)
     echo "rackatlas-agent: the token was rejected. Install the agent again with a new token." >&2

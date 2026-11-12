@@ -76,6 +76,7 @@ const stepFields: Record<number, string[]> = {
         'new_category',
         'ignored_alerts',
         'in_maintenance',
+        'has_docker',
     ],
     1: [
         'auth_type',
@@ -128,6 +129,7 @@ export default function ServerWizard({
         ssh_key_id: server?.ssh_key_id ? String(server.ssh_key_id) : '',
         ignored_alerts: server?.ignored_alerts ?? ([] as string[]),
         in_maintenance: server?.in_maintenance ?? false,
+        has_docker: server?.has_docker ?? false,
     });
 
     const tester = useHttp<Record<string, string>, TestResult>({});
@@ -254,6 +256,7 @@ export default function ServerWizard({
             username: database ? '' : 'root',
             uses_agent: false,
             agent_terminal: false,
+            has_docker: false,
         }));
         form.clearErrors();
     };
@@ -598,6 +601,32 @@ export default function ServerWizard({
                                     </span>
                                 </span>
                             </label>
+
+                            {!isDatabase && (
+                                <label className="flex cursor-pointer items-start gap-2 text-sm">
+                                    <Checkbox
+                                        checked={form.data.has_docker}
+                                        onCheckedChange={(checked) =>
+                                            form.setData(
+                                                'has_docker',
+                                                checked === true,
+                                            )
+                                        }
+                                        className="mt-0.5"
+                                        data-test="has-docker"
+                                    />
+                                    <span>
+                                        <span className="font-medium">
+                                            {t('Docker')}
+                                        </span>
+                                        <span className="block text-muted-foreground">
+                                            {t(
+                                                'Docker runs on this server. Its containers are listed in the Docker section, where you can start, stop and restart them and read their logs.',
+                                            )}
+                                        </span>
+                                    </span>
+                                </label>
+                            )}
 
                             <fieldset className="grid gap-3">
                                 <legend className="text-sm font-medium">
