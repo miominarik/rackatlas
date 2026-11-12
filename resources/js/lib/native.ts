@@ -3,9 +3,8 @@
  * plugins are reached through window.Capacitor instead of imports. Everything is a no-op on the web.
  */
 type NativePlugins = {
-    StatusBar?: {
+    SystemBars?: {
         setStyle(options: { style: 'DARK' | 'LIGHT' }): Promise<void>;
-        setOverlaysWebView?(options: { overlay: boolean }): Promise<void>;
     };
     Haptics?: {
         impact(options: { style: 'LIGHT' | 'MEDIUM' | 'HEAVY' }): Promise<void>;
@@ -37,11 +36,10 @@ export function initNative(): void {
 
     const root = document.documentElement;
     const syncStatusBar = () => {
-        const bar = plugins()?.StatusBar;
-
-        void bar?.setOverlaysWebView?.({ overlay: true })?.catch(() => {});
-        void bar
-            ?.setStyle({ style: root.classList.contains('dark') ? 'DARK' : 'LIGHT' })
+        void plugins()
+            ?.SystemBars?.setStyle({
+                style: root.classList.contains('dark') ? 'DARK' : 'LIGHT',
+            })
             ?.catch(() => {});
     };
 
