@@ -1506,5 +1506,6 @@
     "Loading…": "Načítava sa…",
     "The log is empty.": "Log je prázdny.",
     "Done.": "Hotovo.",
-    "RAM": "RAM"
+    "RAM": "RAM",
+    ":count containers on :servers servers": ":count kontajnerov na :servers serveroch"
 }

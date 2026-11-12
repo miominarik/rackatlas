@@ -230,7 +230,7 @@ export default function Applications({ team, servers, generated_at }: Props) {
         <>
             <Head title={t('Applications')} />
 
-            <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6">
+            <div className="mx-auto flex w-full max-w-[100rem] min-w-0 flex-col gap-5 p-4 md:p-6">
                 <div className="space-y-1">
                     <h1 className="text-2xl font-semibold">
                         {t('Applications')}

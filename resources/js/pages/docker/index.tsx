@@ -1,5 +1,6 @@
 import { Head, router, useHttp } from '@inertiajs/react';
 import {
+    ChevronDown,
     Container,
     FileText,
     Play,
@@ -112,6 +113,7 @@ export default function DockerPage({
     const [group, setGroup] = useState<Group | typeof ALL>(ALL);
     const [server, setServer] = useState<string>(ALL);
     const [search, setSearch] = useState('');
+    const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
     const [logsOf, setLogsOf] = useState<{
         container: Container;
         serverName: string;
@@ -145,6 +147,17 @@ export default function DockerPage({
     };
 
     const query = search.trim().toLowerCase();
+    const filtering = group !== ALL || query !== '';
+
+    const toggleCollapsed = (id: number) => {
+        const next = new Set(collapsed);
+
+        if (!next.delete(id)) {
+            next.add(id);
+        }
+
+        setCollapsed(next);
+    };
     const dirty = group !== ALL || server !== ALL || query !== '';
 
     const candidates = useMemo(
@@ -176,6 +189,11 @@ export default function DockerPage({
     const visible = candidates
         .map((s) => ({
             ...s,
+            summary: s.containers.reduce((result, c) => {
+                result[groupOf(c)] += 1;
+
+                return result;
+            }, emptyCounts()),
             containers: s.containers
                 .filter((c) => group === ALL || groupOf(c) === group)
                 .sort(
@@ -185,6 +203,8 @@ export default function DockerPage({
         }))
         // A server with a problem is shown even when no container matches the filter.
         .filter((s) => s.containers.length > 0 || (s.error && !dirty));
+
+    const total = visible.reduce((sum, s) => sum + s.containers.length, 0);
 
     const clearFilters = () => {
         setGroup(ALL);
@@ -196,7 +216,7 @@ export default function DockerPage({
         <>
             <Head title={t('Docker')} />
 
-            <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6">
+            <div className="mx-auto flex w-full max-w-[100rem] min-w-0 flex-col gap-5 p-4 md:p-6">
                 <div className="space-y-1">
                     <h1 className="text-2xl font-semibold">{t('Docker')}</h1>
                     <p className="text-sm text-muted-foreground">
@@ -319,80 +339,186 @@ export default function DockerPage({
                         </div>
 
                         {visible.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-muted-foreground">
-                                {t('No container matches the filters.')}
-                            </p>
+                            <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-10 text-center">
+                                <p className="text-sm text-muted-foreground">
+                                    {t('No container matches the filters.')}
+                                </p>
+                                {dirty && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={clearFilters}
+                                    >
+                                        {t('Clear filters')}
+                                    </Button>
+                                )}
+                            </div>
                         ) : (
-                            visible.map((s) => (
-                                <section
-                                    key={s.id}
-                                    className="overflow-hidden rounded-xl border"
-                                >
-                                    <header className="flex flex-wrap items-center justify-between gap-2 border-b bg-muted/40 px-4 py-2.5">
-                                        <h2 className="font-medium">
-                                            {s.name}
-                                        </h2>
-                                        <span className="text-xs text-muted-foreground">
-                                            {s.via_agent
-                                                ? t('via the agent')
-                                                : t('via SSH')}
-                                            {s.checked_at &&
-                                                ` · ${timeAgo(s.checked_at, generated_at, locale)}`}
-                                        </span>
-                                    </header>
+                            <>
+                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <span>
+                                        {t(
+                                            ':count containers on :servers servers',
+                                            {
+                                                count: String(total),
+                                                servers: String(visible.length),
+                                            },
+                                        )}
+                                    </span>
+                                    {visible.length > 1 && (
+                                        <button
+                                            type="button"
+                                            className="hover:text-foreground hover:underline"
+                                            onClick={() =>
+                                                setCollapsed(
+                                                    collapsed.size === 0
+                                                        ? new Set(
+                                                              visible.map(
+                                                                  (s) => s.id,
+                                                              ),
+                                                          )
+                                                        : new Set(),
+                                                )
+                                            }
+                                        >
+                                            {collapsed.size === 0
+                                                ? t('Collapse all')
+                                                : t('Expand all')}
+                                        </button>
+                                    )}
+                                </div>
+                                {visible.map((s) => (
+                                    <section
+                                        key={s.id}
+                                        className="overflow-hidden rounded-xl border bg-card"
+                                    >
+                                        <button
+                                            type="button"
+                                            aria-expanded={
+                                                filtering ||
+                                                !collapsed.has(s.id)
+                                            }
+                                            onClick={() =>
+                                                toggleCollapsed(s.id)
+                                            }
+                                            className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left hover:bg-muted/40"
+                                        >
+                                            <ChevronDown
+                                                className={cn(
+                                                    'size-4 shrink-0 text-muted-foreground transition-transform',
+                                                    !filtering &&
+                                                        collapsed.has(s.id) &&
+                                                        '-rotate-90',
+                                                )}
+                                            />
+                                            <h2 className="font-semibold">
+                                                {s.name}
+                                            </h2>
+                                            <span className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                                                {GROUPS.filter(
+                                                    (key) => s.summary[key] > 0,
+                                                ).map((key) => (
+                                                    <span
+                                                        key={key}
+                                                        className={cn(
+                                                            'flex items-center gap-1',
+                                                            key === 'problem' &&
+                                                                'font-medium text-red-600 dark:text-red-400',
+                                                        )}
+                                                        title={labels[key]}
+                                                    >
+                                                        <span
+                                                            className={cn(
+                                                                'size-2 rounded-full',
+                                                                DOT[key],
+                                                            )}
+                                                            aria-hidden
+                                                        />
+                                                        <span className="tabular-nums">
+                                                            {s.summary[key]}
+                                                        </span>
+                                                    </span>
+                                                ))}
+                                            </span>
+                                            <span className="ml-auto text-xs text-muted-foreground">
+                                                {s.via_agent
+                                                    ? t('via the agent')
+                                                    : t('via SSH')}
+                                                {s.checked_at &&
+                                                    ` · ${timeAgo(s.checked_at, generated_at, locale)}`}
+                                            </span>
+                                        </button>
 
-                                    {s.error && (
-                                        <div className="flex items-start gap-2 border-b bg-amber-500/10 px-4 py-3 text-sm">
-                                            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600" />
-                                            <div className="space-y-1">
-                                                <p className="font-mono text-xs break-all">
-                                                    {s.error}
-                                                </p>
-                                                {/permission denied/i.test(
-                                                    s.error,
-                                                ) && (
-                                                    <p className="text-muted-foreground">
-                                                        {s.via_agent
+                                        {(filtering ||
+                                            !collapsed.has(s.id)) && (
+                                            <>
+                                                {s.error && (
+                                                    <div className="flex items-start gap-2 border-t bg-amber-500/10 px-4 py-3 text-sm">
+                                                        <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600" />
+                                                        <div className="space-y-1">
+                                                            <p className="font-mono text-xs break-all">
+                                                                {s.error}
+                                                            </p>
+                                                            {/permission denied/i.test(
+                                                                s.error,
+                                                            ) && (
+                                                                <p className="text-muted-foreground">
+                                                                    {s.via_agent
+                                                                        ? t(
+                                                                              'Let the agent use Docker with: sudo usermod -aG docker rackatlas-agent. This gives it full control of Docker, so do it only where you want that.',
+                                                                          )
+                                                                        : t(
+                                                                              'The SSH user is not allowed to use Docker. Add it to the docker group.',
+                                                                          )}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {s.containers.length === 0 ? (
+                                                    <p className="border-t px-4 py-6 text-center text-sm text-muted-foreground">
+                                                        {s.checked_at === null
                                                             ? t(
-                                                                  'Let the agent use Docker with: sudo usermod -aG docker rackatlas-agent. This gives it full control of Docker, so do it only where you want that.',
+                                                                  'Waiting for the first reading of the containers.',
                                                               )
                                                             : t(
-                                                                  'The SSH user is not allowed to use Docker. Add it to the docker group.',
+                                                                  'No containers.',
                                                               )}
                                                     </p>
+                                                ) : (
+                                                    <ul className="divide-y border-t">
+                                                        {s.containers.map(
+                                                            (c) => (
+                                                                <ContainerRow
+                                                                    key={c.id}
+                                                                    container={
+                                                                        c
+                                                                    }
+                                                                    canManage={
+                                                                        canManage
+                                                                    }
+                                                                    onAct={act}
+                                                                    onLogs={() =>
+                                                                        setLogsOf(
+                                                                            {
+                                                                                container:
+                                                                                    c,
+                                                                                serverName:
+                                                                                    s.name,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                />
+                                                            ),
+                                                        )}
+                                                    </ul>
                                                 )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {s.containers.length === 0 ? (
-                                        <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-                                            {s.checked_at === null
-                                                ? t(
-                                                      'Waiting for the first reading of the containers.',
-                                                  )
-                                                : t('No containers.')}
-                                        </p>
-                                    ) : (
-                                        <ul className="divide-y">
-                                            {s.containers.map((c) => (
-                                                <ContainerRow
-                                                    key={c.id}
-                                                    container={c}
-                                                    canManage={canManage}
-                                                    onAct={act}
-                                                    onLogs={() =>
-                                                        setLogsOf({
-                                                            container: c,
-                                                            serverName: s.name,
-                                                        })
-                                                    }
-                                                />
-                                            ))}
-                                        </ul>
-                                    )}
-                                </section>
-                            ))
+                                            </>
+                                        )}
+                                    </section>
+                                ))}
+                            </>
                         )}
                     </>
                 )}
@@ -427,116 +553,118 @@ function ContainerRow({
     const busy = container.pending_action !== null;
 
     return (
-        <li className="grid gap-2 px-4 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-            <div className="min-w-0 space-y-0.5">
-                <div className="flex items-center gap-2">
-                    <span
-                        className={cn(
-                            'size-2.5 shrink-0 rounded-full',
-                            DOT[group],
-                        )}
-                    />
-                    <span className="truncate font-medium">
-                        {container.name}
-                    </span>
-                    <span className="truncate text-sm text-muted-foreground">
+        <li className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 hover:bg-muted/30">
+            <span
+                className={cn('size-2.5 shrink-0 rounded-full', DOT[group])}
+                aria-hidden
+            />
+            <div className="min-w-0 flex-1 basis-48">
+                <p className="truncate text-sm font-medium">
+                    {container.name}
+                    <span className="ml-2 font-normal text-muted-foreground">
                         {container.image}
                     </span>
-                </div>
-                <p className="pl-[18px] text-xs text-muted-foreground">
-                    {container.status ?? container.state}
-                    {container.ports && ` · ${container.ports}`}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                    {container.ports ?? container.state}
                 </p>
                 {container.action_result && (
-                    <p className="pl-[18px] text-xs text-red-600">
+                    <p className="text-xs text-red-600 dark:text-red-400">
                         {container.action_result}
                     </p>
                 )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pl-[18px] md:pl-0">
-                {running && container.cpu_percent !== null && (
-                    <span className="text-xs text-muted-foreground tabular-nums">
-                        {t('CPU')} {container.cpu_percent.toFixed(1)} %
-                    </span>
+            <div className="hidden w-52 shrink-0 overflow-hidden text-right text-xs text-muted-foreground sm:block">
+                <p
+                    className={cn(
+                        'truncate',
+                        group === 'problem' &&
+                            'font-medium text-red-600 dark:text-red-400',
+                    )}
+                >
+                    {container.status ?? container.state}
+                </p>
+                {running && (
+                    <p className="truncate tabular-nums">
+                        {container.cpu_percent !== null &&
+                            `${t('CPU')} ${container.cpu_percent.toFixed(1)} %`}
+                        {container.memory_bytes !== null &&
+                            ` · ${t('RAM')} ${formatBytes(container.memory_bytes)}`}
+                    </p>
                 )}
-                {running && container.memory_bytes !== null && (
-                    <span className="text-xs text-muted-foreground tabular-nums">
-                        {t('RAM')} {formatBytes(container.memory_bytes)}
-                        {container.memory_limit_bytes
-                            ? ` / ${formatBytes(container.memory_limit_bytes)}`
-                            : ''}
-                    </span>
-                )}
+            </div>
 
-                {busy && (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex shrink-0 items-center justify-end gap-1 md:w-72">
+                {busy ? (
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Spinner className="size-3.5" />
-                        {t('Waiting for the agent…')}
+                        <span className="hidden md:inline">
+                            {t('Waiting for the agent…')}
+                        </span>
                     </span>
-                )}
-
-                <div className="flex items-center gap-1">
-                    {canManage && !running && (
+                ) : (
+                    <>
+                        {canManage && !running && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onAct(container, 'start')}
+                                aria-label={t('Start :name', {
+                                    name: container.name,
+                                })}
+                            >
+                                <Play className="size-3.5" />
+                                <span className="hidden md:inline">
+                                    {t('Start')}
+                                </span>
+                            </Button>
+                        )}
+                        {canManage && running && (
+                            <>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => onAct(container, 'restart')}
+                                    aria-label={t('Restart :name', {
+                                        name: container.name,
+                                    })}
+                                >
+                                    <RotateCw className="size-3.5" />
+                                    <span className="hidden md:inline">
+                                        {t('Restart')}
+                                    </span>
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => onAct(container, 'stop')}
+                                    aria-label={t('Stop :name', {
+                                        name: container.name,
+                                    })}
+                                >
+                                    <Square className="size-3.5" />
+                                    <span className="hidden md:inline">
+                                        {t('Stop')}
+                                    </span>
+                                </Button>
+                            </>
+                        )}
                         <Button
                             variant="ghost"
                             size="sm"
-                            disabled={busy}
-                            onClick={() => onAct(container, 'start')}
-                            aria-label={t('Start :name', {
+                            onClick={onLogs}
+                            aria-label={t('Logs of :name', {
                                 name: container.name,
                             })}
                         >
-                            <Play className="size-3.5" />
+                            <FileText className="size-3.5" />
                             <span className="hidden md:inline">
-                                {t('Start')}
+                                {t('Logs')}
                             </span>
                         </Button>
-                    )}
-                    {canManage && running && (
-                        <>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={busy}
-                                onClick={() => onAct(container, 'restart')}
-                                aria-label={t('Restart :name', {
-                                    name: container.name,
-                                })}
-                            >
-                                <RotateCw className="size-3.5" />
-                                <span className="hidden md:inline">
-                                    {t('Restart')}
-                                </span>
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={busy}
-                                onClick={() => onAct(container, 'stop')}
-                                aria-label={t('Stop :name', {
-                                    name: container.name,
-                                })}
-                            >
-                                <Square className="size-3.5" />
-                                <span className="hidden md:inline">
-                                    {t('Stop')}
-                                </span>
-                            </Button>
-                        </>
-                    )}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onLogs}
-                        aria-label={t('Logs of :name', {
-                            name: container.name,
-                        })}
-                    >
-                        <FileText className="size-3.5" />
-                        <span className="hidden md:inline">{t('Logs')}</span>
-                    </Button>
-                </div>
+                    </>
+                )}
             </div>
         </li>
     );
