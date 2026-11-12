@@ -7,6 +7,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Only inside the Capacitor mobile shell (html.native-app, set from the WebView user agent). */
+@custom-variant native (&:is(.native-app *));
+
 @theme {
     --font-sans:
         'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
@@ -269,5 +272,52 @@
             opacity: 0;
             transform: translateY(12px);
         }
+    }
+}
+
+/* Mobile shell: behave like a native app, not like a web page. */
+@layer base {
+    .native-app,
+    .native-app body {
+        overscroll-behavior: none;
+        -webkit-touch-callout: none;
+    }
+
+    .native-app body {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .native-app input,
+    .native-app textarea,
+    .native-app pre,
+    .native-app code,
+    .native-app [contenteditable],
+    .native-app .xterm,
+    .native-app [data-selectable] {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+
+    /* iOS zooms into fields smaller than 16px. */
+    .native-app input,
+    .native-app select,
+    .native-app textarea {
+        font-size: 16px;
+    }
+
+    .native-app a,
+    .native-app img {
+        -webkit-user-drag: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .native-app [data-native-press] {
+        transition: transform 0.12s ease;
+    }
+
+    .native-app [data-native-press]:active {
+        transform: scale(0.92);
     }
 }

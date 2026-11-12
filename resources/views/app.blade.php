@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+@php($native = \App\Support\NativeApp::isRequest())
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark', 'native-app' => $native])>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1{{ $native ? ', maximum-scale=1, viewport-fit=cover' : '' }}">
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>

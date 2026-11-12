@@ -185,11 +185,11 @@ export default function AuthSplitLayout({
                 </p>
             </div>
 
-            <div className="flex flex-col px-6 py-6 sm:px-10">
-                <div className="flex items-center justify-between">
+            <div className="flex flex-col px-6 py-6 native:pt-[calc(env(safe-area-inset-top)+1rem)] native:pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-10">
+                <div className="flex items-center justify-between native:justify-end">
                     <Link
                         href={home()}
-                        className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                        className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground native:hidden"
                     >
                         <ArrowLeft className="size-4" aria-hidden />
                         {t('Back to home')}
@@ -200,7 +200,7 @@ export default function AuthSplitLayout({
                     <div className="flex w-full max-w-sm flex-col gap-8">
                         <Link
                             href={home()}
-                            className="flex items-center gap-2.5 font-semibold tracking-tight lg:hidden"
+                            className="flex items-center gap-2.5 font-semibold tracking-tight native:pointer-events-none lg:hidden"
                         >
                             <span className="flex size-8 items-center justify-center rounded-lg bg-primary">
                                 <AppLogoIcon

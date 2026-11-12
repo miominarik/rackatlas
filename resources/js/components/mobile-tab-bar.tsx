@@ -25,6 +25,7 @@ import {
     SheetDescription,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { haptic } from '@/lib/native';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useTranslation } from '@/hooks/use-translation';
@@ -107,7 +108,13 @@ const moreItems: Tab[] = [
 ];
 
 const tabClass =
-    'flex min-h-14 w-full flex-col items-center justify-center gap-1 px-1 text-[11px] font-medium transition-colors';
+    'flex min-h-14 w-full flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors';
+
+const iconPill = (active: boolean) =>
+    cn(
+        'flex items-center justify-center transition-colors native:rounded-full native:px-4 native:py-1',
+        active && 'native:bg-primary/15',
+    );
 
 /**
  * Thumb-reach navigation for phones. Hidden from the `md` breakpoint up, where the sidebar takes over.
@@ -138,7 +145,7 @@ export function MobileTabBar() {
         <>
             <nav
                 aria-label={t('Platform')}
-                className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden"
+                className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-background/80 native:inset-x-3 native:bottom-[calc(env(safe-area-inset-bottom)+0.25rem)] native:rounded-[1.75rem] native:border native:bg-background/70 native:pb-0 native:shadow-xl native:shadow-black/10 native:backdrop-blur-2xl native:backdrop-saturate-150 md:hidden"
             >
                 <ul className="grid grid-cols-5">
                     {tabs.map((tab) => {
@@ -149,6 +156,8 @@ export function MobileTabBar() {
                                 <Link
                                     href={tab.href}
                                     prefetch
+                                    onClick={() => haptic()}
+                                    data-native-press
                                     aria-current={active ? 'page' : undefined}
                                     className={cn(
                                         tabClass,
@@ -157,7 +166,9 @@ export function MobileTabBar() {
                                             : 'text-muted-foreground active:text-foreground',
                                     )}
                                 >
-                                    <tab.icon className="size-5" />
+                                    <span className={iconPill(active)}>
+                                        <tab.icon className="size-5" />
+                                    </span>
                                     <span className="max-w-full truncate">
                                         {t(tab.title)}
                                     </span>
@@ -168,7 +179,11 @@ export function MobileTabBar() {
                     <li>
                         <button
                             type="button"
-                            onClick={() => setOpen(true)}
+                            onClick={() => {
+                                haptic();
+                                setOpen(true);
+                            }}
+                            data-native-press
                             aria-haspopup="dialog"
                             aria-expanded={open}
                             data-test="mobile-more-button"
@@ -179,7 +194,9 @@ export function MobileTabBar() {
                                     : 'text-muted-foreground active:text-foreground',
                             )}
                         >
-                            <ChevronUp className="size-5" />
+                            <span className={iconPill(moreActive)}>
+                                <ChevronUp className="size-5" />
+                            </span>
                             <span className="max-w-full truncate">
                                 {t('More')}
                             </span>

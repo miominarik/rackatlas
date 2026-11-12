@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 export const localized = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ localized.definition = {
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 localized.url = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ localized.url = (args: { locale: string | number } | [locale: string | number ] 
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 localized.get = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ localized.get = (args: { locale: string | number } | [locale: string | number ] 
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 localized.head = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ localized.head = (args: { locale: string | number } | [locale: string | number ]
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 const localizedForm = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ const localizedForm = (args: { locale: string | number } | [locale: string | num
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 localizedForm.get = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -83,7 +83,7 @@ localizedForm.get = (args: { locale: string | number } | [locale: string | numbe
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 localizedForm.head = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

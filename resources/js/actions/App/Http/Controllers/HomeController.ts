@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/'
 */
 const HomeController980bb49ee7ae63891f1d891d2fbcf1c9 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ HomeController980bb49ee7ae63891f1d891d2fbcf1c9.definition = {
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/'
 */
 HomeController980bb49ee7ae63891f1d891d2fbcf1c9.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ HomeController980bb49ee7ae63891f1d891d2fbcf1c9.url = (options?: RouteQueryOption
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/'
 */
 HomeController980bb49ee7ae63891f1d891d2fbcf1c9.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ HomeController980bb49ee7ae63891f1d891d2fbcf1c9.get = (options?: RouteQueryOption
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/'
 */
 HomeController980bb49ee7ae63891f1d891d2fbcf1c9.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ HomeController980bb49ee7ae63891f1d891d2fbcf1c9.head = (options?: RouteQueryOptio
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/'
 */
 const HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form = (options?: RouteQuery
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/'
 */
 HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form.get = (options?: RouteQueryOp
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/'
 */
 HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -81,7 +81,7 @@ HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form.head = (options?: RouteQueryO
 HomeController980bb49ee7ae63891f1d891d2fbcf1c9.form = HomeController980bb49ee7ae63891f1d891d2fbcf1c9Form
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 const HomeControllerbf65595efa5b2f0b55f31d01179be727 = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -96,7 +96,7 @@ HomeControllerbf65595efa5b2f0b55f31d01179be727.definition = {
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 HomeControllerbf65595efa5b2f0b55f31d01179be727.url = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -123,7 +123,7 @@ HomeControllerbf65595efa5b2f0b55f31d01179be727.url = (args: { locale: string | n
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 HomeControllerbf65595efa5b2f0b55f31d01179be727.get = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -133,7 +133,7 @@ HomeControllerbf65595efa5b2f0b55f31d01179be727.get = (args: { locale: string | n
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 HomeControllerbf65595efa5b2f0b55f31d01179be727.head = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -143,7 +143,7 @@ HomeControllerbf65595efa5b2f0b55f31d01179be727.head = (args: { locale: string | 
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 const HomeControllerbf65595efa5b2f0b55f31d01179be727Form = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -153,7 +153,7 @@ const HomeControllerbf65595efa5b2f0b55f31d01179be727Form = (args: { locale: stri
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 HomeControllerbf65595efa5b2f0b55f31d01179be727Form.get = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -163,7 +163,7 @@ HomeControllerbf65595efa5b2f0b55f31d01179be727Form.get = (args: { locale: string
 
 /**
 * @see \App\Http\Controllers\HomeController::__invoke
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:19
 * @route '/{locale}'
 */
 HomeControllerbf65595efa5b2f0b55f31d01179be727Form.head = (args: { locale: string | number } | [locale: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

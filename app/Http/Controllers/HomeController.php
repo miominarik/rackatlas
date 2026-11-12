@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\NativeApp;
 use App\Support\Seo;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -12,9 +14,14 @@ class HomeController extends Controller
 {
     /**
      * The public home page. Signed-in users see it too, with a link to the app.
+     * The mobile app has no marketing page: it goes straight to the login or the dashboard.
      */
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request): Response|RedirectResponse
     {
+        if (NativeApp::isRequest($request)) {
+            return redirect()->route($request->user() ? 'dashboard' : 'login');
+        }
+
         $faq = [
             [__('What does the agent collect?'), __('CPU, load, memory, swap, disk usage, the names and resource use of the busiest processes, failed systemd services and critical log entries. It does not read your files or application data.')],
             [__('Do I need to open any ports?'), __('No. The agent sends data to RackAtlas over HTTPS once a minute. Nothing connects into your server, so your firewall stays as it is.')],
