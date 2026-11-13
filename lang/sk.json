@@ -1521,5 +1521,6 @@
     "Turn on": "Zapnúť",
     "Biometric unlock": "Biometrické odomknutie",
     "Biometric unlock is on.": "Biometrické odomknutie je zapnuté.",
-    "Biometric unlock is off.": "Biometrické odomknutie je vypnuté."
+    "Biometric unlock is off.": "Biometrické odomknutie je vypnuté.",
+    "Biometrics are not available on this device.": "Biometria nie je na tomto zariadení dostupná. Nastav si v telefóne odtlačok, tvár alebo zámku obrazovky."
 }

@@ -65,12 +65,13 @@ function DeviceCard({
     const [name, setName] = useState(device.name ?? '');
     const Icon = icons[device.type];
     const [canUseBiometrics, setCanUseBiometrics] = useState(false);
+    const inApp = device.is_current && isNativeApp();
 
     useEffect(() => {
-        if (device.is_current && isNativeApp()) {
+        if (inApp) {
             void biometricsAvailable().then(setCanUseBiometrics);
         }
-    }, [device.is_current]);
+    }, [inApp]);
 
     const toggleBiometrics = async (enabled: boolean) => {
         if (
@@ -203,17 +204,23 @@ function DeviceCard({
                 )}
             </dl>
 
-            {device.is_current && canUseBiometrics && (
+            {inApp && (
                 <div className="flex items-center justify-between gap-3 border-t pt-3">
                     <div className="flex min-w-0 items-center gap-2 text-sm">
                         <Fingerprint className="size-4 shrink-0 text-muted-foreground" />
                         <span>{t('Biometric unlock')}</span>
                     </div>
+                    {!canUseBiometrics && !device.biometrics_enabled && (
+                        <span className="text-xs text-muted-foreground">
+                            {t('Biometrics are not available on this device.')}
+                        </span>
+                    )}
                     <Switch
                         checked={device.biometrics_enabled}
                         onCheckedChange={(enabled) =>
                             void toggleBiometrics(enabled)
                         }
+                        disabled={!canUseBiometrics && !device.biometrics_enabled}
                         aria-label={t('Biometric unlock')}
                     />
                 </div>

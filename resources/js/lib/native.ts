@@ -81,7 +81,10 @@ export function initNative(): void {
 }
 
 type BiometricPlugin = {
-    checkBiometry(): Promise<{ isAvailable: boolean }>;
+    checkBiometry(): Promise<{
+        isAvailable: boolean;
+        deviceIsSecure?: boolean;
+    }>;
     internalAuthenticate(options: {
         reason?: string;
         allowDeviceCredential?: boolean;
@@ -119,7 +122,9 @@ function biometric(): BiometricPlugin | null {
 /** True only inside the app on a device that has biometrics (or a device passcode) set up. */
 export async function biometricsAvailable(): Promise<boolean> {
     try {
-        return (await biometric()?.checkBiometry())?.isAvailable ?? false;
+        const result = await biometric()?.checkBiometry();
+
+        return Boolean(result?.isAvailable || result?.deviceIsSecure);
     } catch {
         return false;
     }
