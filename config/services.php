@@ -33,6 +33,11 @@ return [
         'subject' => env('VAPID_SUBJECT', 'mailto:'.env('MAIL_FROM_ADDRESS', 'hello@example.com')),
     ],
 
+    'android_app' => [
+        'package' => env('ANDROID_APP_PACKAGE', 'dev.rackatlas.app'),
+        'sha256_fingerprints' => env('ANDROID_APP_SHA256'),
+    ],
+
     'fcm' => [
         'credentials_path' => env('FIREBASE_CREDENTIALS'),
         'credentials_json' => env('FIREBASE_CREDENTIALS_JSON'),

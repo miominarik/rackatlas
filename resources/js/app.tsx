@@ -1,8 +1,8 @@
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
-import { initNative, isNativeApp } from '@/lib/native';
+import { initNative, isNativeApp, startAppLinks } from '@/lib/native';
 import AdminLayout from '@/layouts/admin/layout';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
@@ -46,6 +46,11 @@ void createInertiaApp({
 // This will set light / dark mode on load...
 initializeTheme();
 initNative();
+
+// Links from emails open the app; wait until the page has mounted before following them.
+window.addEventListener('load', () =>
+    window.setTimeout(() => startAppLinks((path) => router.visit(path)), 500),
+);
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator && !isNativeApp()) {
     window.addEventListener('load', () => {

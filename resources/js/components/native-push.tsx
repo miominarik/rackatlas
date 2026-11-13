@@ -1,8 +1,8 @@
-import { router } from "@inertiajs/react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import FcmTokenController from "@/actions/App/Http/Controllers/Settings/FcmTokenController";
-import { Button } from "@/components/ui/button";
+import { router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import FcmTokenController from '@/actions/App/Http/Controllers/Settings/FcmTokenController';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -10,20 +10,20 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import { useTranslation } from "@/hooks/use-translation";
+} from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import {
     PUSH_ANSWERED_EVENT,
     PUSH_CHOICE_KEY,
     isNativeApp,
     startNativePush,
-} from "@/lib/native";
+} from '@/lib/native';
 
 const readChoice = (): string | null => {
     try {
         return localStorage.getItem(PUSH_CHOICE_KEY);
     } catch {
-        return "0";
+        return '0';
     }
 };
 
@@ -38,9 +38,9 @@ export function NativePush() {
     const start = () =>
         void startNativePush({
             tokenUrl: FcmTokenController.store.url(),
-            deviceName: "RackAtlas app · Android",
+            deviceName: 'RackAtlas app · Android',
             onNotification: ({ title, body }) =>
-                toast(title ?? "RackAtlas", { description: body }),
+                toast(title ?? 'RackAtlas', { description: body }),
             onOpen: (url) => router.visit(url),
         });
 
@@ -51,7 +51,7 @@ export function NativePush() {
 
         const choice = readChoice();
 
-        if (choice === "1") {
+        if (choice === '1') {
             start();
         } else if (choice === null) {
             setAsking(true);
@@ -61,7 +61,7 @@ export function NativePush() {
 
     const answer = (accepted: boolean) => {
         try {
-            localStorage.setItem(PUSH_CHOICE_KEY, accepted ? "1" : "0");
+            localStorage.setItem(PUSH_CHOICE_KEY, accepted ? '1' : '0');
         } catch {
             // Asked again next start.
         }
@@ -78,18 +78,18 @@ export function NativePush() {
         <Dialog open={asking} onOpenChange={(open) => !open && answer(false)}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{t("Turn on notifications?")}</DialogTitle>
+                    <DialogTitle>{t('Turn on notifications?')}</DialogTitle>
                     <DialogDescription>
                         {t(
-                            "Get critical server alerts on this phone, even when the screen is off.",
+                            'Get critical server alerts on this phone, even when the screen is off.',
                         )}
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => answer(false)}>
-                        {t("Not now")}
+                        {t('Not now')}
                     </Button>
-                    <Button onClick={() => answer(true)}>{t("Turn on")}</Button>
+                    <Button onClick={() => answer(true)}>{t('Turn on')}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

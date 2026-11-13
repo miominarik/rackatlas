@@ -23,17 +23,17 @@ function callNative<T = unknown>(
         .Capacitor;
 
     if (!bridge?.nativePromise) {
-        return Promise.reject(new Error("Native bridge unavailable"));
+        return Promise.reject(new Error('Native bridge unavailable'));
     }
 
     return bridge.nativePromise(plugin, method, options) as Promise<T>;
 }
 
-const USER_AGENT_TOKEN = "RackAtlasApp";
+const USER_AGENT_TOKEN = 'RackAtlasApp';
 
 /** The shell appends a token to the WebView user agent; this is the reliable signal inside the page. */
 export const isNativeApp = (): boolean =>
-    typeof navigator !== "undefined" &&
+    typeof navigator !== 'undefined' &&
     navigator.userAgent.includes(USER_AGENT_TOKEN);
 
 /**
@@ -42,7 +42,7 @@ export const isNativeApp = (): boolean =>
  * reload once to get the app layout.
  */
 function dropServiceWorker(): void {
-    if (!("serviceWorker" in navigator)) {
+    if (!('serviceWorker' in navigator)) {
         return;
     }
 
@@ -52,15 +52,15 @@ function dropServiceWorker(): void {
             await Promise.all(registrations.map((r) => r.unregister()));
 
             const missingLayout =
-                !document.documentElement.classList.contains("native-app");
+                !document.documentElement.classList.contains('native-app');
 
             if (registrations.length > 0 && missingLayout) {
                 try {
-                    if (sessionStorage.getItem("native-reloaded")) {
+                    if (sessionStorage.getItem('native-reloaded')) {
                         return;
                     }
 
-                    sessionStorage.setItem("native-reloaded", "1");
+                    sessionStorage.setItem('native-reloaded', '1');
                 } catch {
                     return;
                 }
@@ -79,19 +79,19 @@ export function initNative(): void {
 
     const root = document.documentElement;
 
-    root.classList.add("native-app");
+    root.classList.add('native-app');
     dropServiceWorker();
 
     const syncStatusBar = () => {
-        callNative("SystemBars", "setStyle", {
-            style: root.classList.contains("dark") ? "DARK" : "LIGHT",
+        callNative('SystemBars', 'setStyle', {
+            style: root.classList.contains('dark') ? 'DARK' : 'LIGHT',
         }).catch(() => {});
     };
 
     syncStatusBar();
     new MutationObserver(syncStatusBar).observe(root, {
         attributes: true,
-        attributeFilter: ["class"],
+        attributeFilter: ['class'],
     });
 }
 
@@ -105,7 +105,7 @@ export async function biometricsAvailable(): Promise<boolean> {
         const result = await callNative<{
             isAvailable?: boolean;
             deviceIsSecure?: boolean;
-        }>("BiometricAuthNative", "checkBiometry");
+        }>('BiometricAuthNative', 'checkBiometry');
 
         return Boolean(result?.isAvailable || result?.deviceIsSecure);
     } catch {
@@ -118,7 +118,7 @@ export async function authenticateWithBiometrics(
     reason: string,
 ): Promise<boolean> {
     try {
-        await callNative("BiometricAuthNative", "internalAuthenticate", {
+        await callNative('BiometricAuthNative', 'internalAuthenticate', {
             reason,
             allowDeviceCredential: true,
         });
@@ -155,18 +155,18 @@ function listenNative<T>(
         }
     ).Capacitor;
 
-    bridge?.nativeCallback?.(plugin, "addListener", { eventName }, callback);
+    bridge?.nativeCallback?.(plugin, 'addListener', { eventName }, callback);
 }
 
 function xsrfToken(): string {
     const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
 
-    return match ? decodeURIComponent(match[1]) : "";
+    return match ? decodeURIComponent(match[1]) : '';
 }
 
-export const PUSH_CHOICE_KEY = "ra_push";
-export const BIOMETRIC_ASKED_KEY = "ra_biometrics_asked";
-export const PUSH_ANSWERED_EVENT = "ra:push-answered";
+export const PUSH_CHOICE_KEY = 'ra_push';
+export const BIOMETRIC_ASKED_KEY = 'ra_biometrics_asked';
+export const PUSH_ANSWERED_EVENT = 'ra:push-answered';
 
 /** After signing out, the app asks about push and biometrics again at the next sign-in. */
 export function resetNativePrompts(): void {
@@ -200,31 +200,31 @@ export async function startNativePush(options: {
 
     try {
         let { receive } = await callNative<{ receive: string }>(
-            "PushNotifications",
-            "checkPermissions",
+            'PushNotifications',
+            'checkPermissions',
         );
 
-        if (receive === "prompt" || receive === "prompt-with-rationale") {
+        if (receive === 'prompt' || receive === 'prompt-with-rationale') {
             ({ receive } = await callNative<{ receive: string }>(
-                "PushNotifications",
-                "requestPermissions",
+                'PushNotifications',
+                'requestPermissions',
             ));
         }
 
-        if (receive !== "granted") {
+        if (receive !== 'granted') {
             pushStarted = false;
 
             return;
         }
 
-        await callNative("PushNotifications", "createChannel", {
-            id: "alerts",
-            name: "Critical alerts",
+        await callNative('PushNotifications', 'createChannel', {
+            id: 'alerts',
+            name: 'Critical alerts',
             description:
-                "Servers going offline, failed services and other critical problems.",
+                'Servers going offline, failed services and other critical problems.',
             importance: 5,
             visibility: 1,
-            sound: "default",
+            sound: 'default',
             vibration: true,
             lights: true,
         });
@@ -233,16 +233,16 @@ export async function startNativePush(options: {
             pushListening = true;
 
             listenNative<{ value: string }>(
-                "PushNotifications",
-                "registration",
+                'PushNotifications',
+                'registration',
                 ({ value }) => {
                     void fetch(options.tokenUrl, {
-                        method: "POST",
-                        credentials: "same-origin",
+                        method: 'POST',
+                        credentials: 'same-origin',
                         headers: {
-                            "Content-Type": "application/json",
-                            Accept: "application/json",
-                            "X-XSRF-TOKEN": xsrfToken(),
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                            'X-XSRF-TOKEN': xsrfToken(),
                         },
                         body: JSON.stringify({
                             token: value,
@@ -252,28 +252,92 @@ export async function startNativePush(options: {
                 },
             );
             listenNative<PushNotificationData>(
-                "PushNotifications",
-                "pushNotificationReceived",
+                'PushNotifications',
+                'pushNotificationReceived',
                 options.onNotification,
             );
             listenNative<{ notification?: PushNotificationData }>(
-                "PushNotifications",
-                "pushNotificationActionPerformed",
+                'PushNotifications',
+                'pushNotificationActionPerformed',
                 ({ notification }) => {
                     const url = notification?.data?.url;
 
-                    if (url?.startsWith("/")) {
+                    if (url?.startsWith('/')) {
                         options.onOpen(url);
                     }
                 },
             );
         }
 
-        await callNative("PushNotifications", "register");
+        await callNative('PushNotifications', 'register');
     } catch {
         pushStarted = false;
     } finally {
         // Registering again after the next sign-in is allowed, the server removed the token at sign-out.
         pushStarted = false;
     }
+}
+
+const APP_LINK_HOSTS = ['rackatlas.dev'];
+
+/** A link from outside the app (an email) as a path inside the site, or null when it is not ours. */
+function appLinkPath(link: string | undefined): string | null {
+    if (!link) {
+        return null;
+    }
+
+    try {
+        const url = new URL(link);
+
+        return url.protocol === 'https:' &&
+            APP_LINK_HOSTS.includes(url.hostname)
+            ? `${url.pathname}${url.search}${url.hash}`
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+let appLinksStarted = false;
+
+/**
+ * Links to the site that open the Android app (see the intent filter in the manifest): the link that
+ * started the app, and links tapped while the app is already running.
+ */
+export function startAppLinks(open: (path: string) => void): void {
+    if (appLinksStarted || !isNativeApp()) {
+        return;
+    }
+
+    appLinksStarted = true;
+
+    listenNative<{ url?: string }>('App', 'appUrlOpen', ({ url }) => {
+        const path = appLinkPath(url);
+
+        if (path) {
+            open(path);
+        }
+    });
+
+    void callNative<{ url?: string } | null>('App', 'getLaunchUrl')
+        .then((launch) => {
+            const path = appLinkPath(launch?.url);
+
+            if (!path) {
+                return;
+            }
+
+            try {
+                if (sessionStorage.getItem('ra_launch_link') === launch?.url) {
+                    return;
+                }
+
+                sessionStorage.setItem('ra_launch_link', launch?.url ?? '');
+            } catch {
+                // Without storage the link may open again after a reload; that is harmless.
+            }
+
+            open(path);
+        })
+        .catch(() => {});
 }

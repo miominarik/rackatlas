@@ -106,3 +106,16 @@ Route::get('.well-known/passkey-endpoints', function () {
         'manage' => route('security.edit'),
     ]);
 })->name('well-known.passkeys');
+
+Route::get('.well-known/assetlinks.json', function () {
+    $fingerprints = array_values(array_filter(array_map('trim', explode(',', (string) config('services.android_app.sha256_fingerprints')))));
+
+    return response()->json([[
+        'relation' => ['delegate_permission/common.handle_all_urls'],
+        'target' => [
+            'namespace' => 'android_app',
+            'package_name' => config('services.android_app.package'),
+            'sha256_cert_fingerprints' => $fingerprints,
+        ],
+    ]]);
+})->name('well-known.assetlinks');
