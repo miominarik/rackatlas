@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\NotificationPreference;
 use App\Models\PushSubscription;
+use App\Notifications\Channels\FcmChannel;
 use App\Notifications\Channels\WebPushChannel;
 use App\Notifications\TestNotification;
 use Illuminate\Http\RedirectResponse;
@@ -82,6 +83,16 @@ class NotificationController extends Controller
             } catch (Throwable $e) {
                 report($e);
                 $failure = mb_substr($e->getMessage(), 0, 200);
+            }
+        }
+
+        if (in_array(FcmChannel::class, $notification->via($user), true)) {
+            try {
+                $failed = collect(app(FcmChannel::class)->push($user, $notification))->firstWhere('ok', false);
+                $failure ??= $failed ? ($failed['reason'] ?: __('unknown error')) : null;
+            } catch (Throwable $e) {
+                report($e);
+                $failure ??= mb_substr($e->getMessage(), 0, 200);
             }
         }
 

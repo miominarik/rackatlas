@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Listeners\DisableBiometricsOnLogout;
 use App\Listeners\LogAuthActivity;
+use App\Listeners\RemoveFcmTokensOnLogout;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Failed;
@@ -44,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, [LogAuthActivity::class, 'login']);
         Event::listen(Logout::class, [LogAuthActivity::class, 'logout']);
         Event::listen(Logout::class, DisableBiometricsOnLogout::class);
+        Event::listen(Logout::class, RemoveFcmTokensOnLogout::class);
         Event::listen(Failed::class, [LogAuthActivity::class, 'failed']);
         Event::listen(PasswordReset::class, [LogAuthActivity::class, 'passwordReset']);
 

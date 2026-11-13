@@ -4,6 +4,7 @@ namespace App\Notifications\Concerns;
 
 use App\Models\NotificationPreference;
 use App\Models\User;
+use App\Notifications\Channels\FcmChannel;
 use App\Notifications\Channels\WebPushChannel;
 
 trait UsesPreferredChannels
@@ -25,6 +26,10 @@ trait UsesPreferredChannels
 
         if ($preference->push_enabled && WebPushChannel::configured() && $notifiable->pushSubscriptions()->exists()) {
             $channels[] = WebPushChannel::class;
+        }
+
+        if ($preference->push_enabled && FcmChannel::configured() && $notifiable->fcmTokens()->exists()) {
+            $channels[] = FcmChannel::class;
         }
 
         return $channels;

@@ -4,6 +4,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { BiometricGate } from '@/components/biometric-gate';
 import { MobileTabBar } from '@/components/mobile-tab-bar';
+import { NativePush } from '@/components/native-push';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppSidebarLayout({
@@ -22,6 +23,7 @@ export default function AppSidebarLayout({
             </AppContent>
             <MobileTabBar />
             <BiometricGate />
+            <NativePush />
         </AppShell>
     );
 }

@@ -82,6 +82,12 @@ class UserDevice extends Model
         return trim(implode(' · ', array_filter([$this->browser, $this->platform]))) ?: __('Unknown device');
     }
 
+    /** @return HasMany<FcmToken, $this> */
+    public function fcmTokens(): HasMany
+    {
+        return $this->hasMany(FcmToken::class);
+    }
+
     /** @return HasMany<PushSubscription, $this> */
     public function pushSubscriptions(): HasMany
     {

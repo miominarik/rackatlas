@@ -6,6 +6,7 @@ import DeviceController from './DeviceController'
 import NotificationController from './NotificationController'
 import NotificationDiagnosticsController from './NotificationDiagnosticsController'
 import PushSubscriptionController from './PushSubscriptionController'
+import FcmTokenController from './FcmTokenController'
 import TeamController from './TeamController'
 import TeamMemberController from './TeamMemberController'
 import ApiTokenController from './ApiTokenController'
@@ -21,6 +22,7 @@ const Settings = {
     NotificationController: Object.assign(NotificationController, NotificationController),
     NotificationDiagnosticsController: Object.assign(NotificationDiagnosticsController, NotificationDiagnosticsController),
     PushSubscriptionController: Object.assign(PushSubscriptionController, PushSubscriptionController),
+    FcmTokenController: Object.assign(FcmTokenController, FcmTokenController),
     TeamController: Object.assign(TeamController, TeamController),
     TeamMemberController: Object.assign(TeamMemberController, TeamMemberController),
     ApiTokenController: Object.assign(ApiTokenController, ApiTokenController),

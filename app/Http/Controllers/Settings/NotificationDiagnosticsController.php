@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Notifications\Channels\FcmChannel;
 use App\Notifications\Channels\WebPushChannel;
 use App\Notifications\TestNotification;
 use App\Services\Notifications\PushDiagnostics;
@@ -30,12 +31,15 @@ class NotificationDiagnosticsController extends Controller
      */
     public function push(Request $request): JsonResponse
     {
-        if (! WebPushChannel::configured()) {
-            return response()->json(['error' => 'The VAPID keys are not configured.', 'results' => []]);
+        if (! WebPushChannel::configured() && ! FcmChannel::configured()) {
+            return response()->json(['error' => 'Neither the VAPID keys nor the Firebase credentials are configured.', 'results' => []]);
         }
 
         try {
-            $results = app(WebPushChannel::class)->push($request->user(), new TestNotification);
+            $results = [
+                ...app(WebPushChannel::class)->push($request->user(), new TestNotification),
+                ...app(FcmChannel::class)->push($request->user(), new TestNotification),
+            ];
         } catch (Throwable $e) {
             report($e);
 

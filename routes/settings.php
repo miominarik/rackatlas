@@ -3,6 +3,7 @@
 use App\Http\Controllers\Settings\AcceptTeamInvitationController;
 use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\Settings\DeviceController;
+use App\Http\Controllers\Settings\FcmTokenController;
 use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\NotificationDiagnosticsController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -66,6 +67,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('app/settings/notifications/push', [PushSubscriptionController::class, 'store'])
         ->middleware('throttle:20,1')
         ->name('push-subscriptions.store');
+    Route::post('app/settings/notifications/fcm', [FcmTokenController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('fcm-tokens.store');
     Route::delete('app/settings/notifications/push/{subscription}', [PushSubscriptionController::class, 'destroy'])
         ->name('push-subscriptions.destroy');
 

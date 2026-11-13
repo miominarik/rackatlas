@@ -75,6 +75,12 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         return $this->hasMany(UserDevice::class);
     }
 
+    /** @return HasMany<FcmToken, $this> */
+    public function fcmTokens(): HasMany
+    {
+        return $this->hasMany(FcmToken::class);
+    }
+
     /** @return HasMany<PushSubscription, $this> */
     public function pushSubscriptions(): HasMany
     {

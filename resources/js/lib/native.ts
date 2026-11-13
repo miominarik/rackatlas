@@ -128,3 +128,129 @@ export async function authenticateWithBiometrics(
         return false;
     }
 }
+
+type PushEvent<T> = (data: T) => void;
+
+type PushNotificationData = {
+    title?: string;
+    body?: string;
+    data?: { url?: string };
+};
+
+function listenNative<T>(
+    plugin: string,
+    eventName: string,
+    callback: PushEvent<T>,
+): void {
+    const bridge = (
+        window as unknown as {
+            Capacitor?: {
+                nativeCallback?: (
+                    plugin: string,
+                    method: string,
+                    options: Record<string, unknown>,
+                    callback: PushEvent<T>,
+                ) => void;
+            };
+        }
+    ).Capacitor;
+
+    bridge?.nativeCallback?.(plugin, 'addListener', { eventName }, callback);
+}
+
+function xsrfToken(): string {
+    const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
+
+    return match ? decodeURIComponent(match[1]) : '';
+}
+
+let pushStarted = false;
+
+/**
+ * Android only: asks for the notification permission, creates the high-importance "alerts" channel
+ * (sound, shows on the lock screen), and sends the Firebase token to the server so critical alerts
+ * arrive even when the screen is off and the app is closed.
+ */
+export async function startNativePush(options: {
+    tokenUrl: string;
+    deviceName: string;
+    onNotification: (notification: PushNotificationData) => void;
+    onOpen: (url: string) => void;
+}): Promise<void> {
+    if (pushStarted || !isNativeApp()) {
+        return;
+    }
+
+    pushStarted = true;
+
+    try {
+        let { receive } = await callNative<{ receive: string }>(
+            'PushNotifications',
+            'checkPermissions',
+        );
+
+        if (receive === 'prompt' || receive === 'prompt-with-rationale') {
+            ({ receive } = await callNative<{ receive: string }>(
+                'PushNotifications',
+                'requestPermissions',
+            ));
+        }
+
+        if (receive !== 'granted') {
+            pushStarted = false;
+
+            return;
+        }
+
+        await callNative('PushNotifications', 'createChannel', {
+            id: 'alerts',
+            name: 'Critical alerts',
+            description: 'Servers going offline, failed services and other critical problems.',
+            importance: 5,
+            visibility: 1,
+            sound: 'default',
+            vibration: true,
+            lights: true,
+        });
+
+        listenNative<{ value: string }>(
+            'PushNotifications',
+            'registration',
+            ({ value }) => {
+                void fetch(options.tokenUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-XSRF-TOKEN': xsrfToken(),
+                    },
+                    body: JSON.stringify({
+                        token: value,
+                        name: options.deviceName,
+                    }),
+                }).catch(() => {});
+            },
+        );
+        listenNative<PushNotificationData>(
+            'PushNotifications',
+            'pushNotificationReceived',
+            options.onNotification,
+        );
+        listenNative<{ notification?: PushNotificationData }>(
+            'PushNotifications',
+            'pushNotificationActionPerformed',
+            ({ notification }) => {
+                const url = notification?.data?.url;
+
+                if (url?.startsWith('/')) {
+                    options.onOpen(url);
+                }
+            },
+        );
+
+        await callNative('PushNotifications', 'register');
+    } catch {
+        pushStarted = false;
+    }
+}

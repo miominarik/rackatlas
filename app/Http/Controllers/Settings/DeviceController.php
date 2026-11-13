@@ -22,7 +22,7 @@ class DeviceController extends Controller
         $current = TrackDevice::current($request);
 
         return Inertia::render('settings/devices', [
-            'devices' => $request->user()->devices()->active()->withCount('pushSubscriptions')
+            'devices' => $request->user()->devices()->active()->withCount(['pushSubscriptions', 'fcmTokens'])
                 ->orderByDesc('last_active_at')
                 ->get()
                 ->map(fn (UserDevice $device) => [
@@ -36,7 +36,7 @@ class DeviceController extends Controller
                     'last_active_at' => $device->last_active_at?->toIso8601String(),
                     'created_at' => $device->created_at?->toIso8601String(),
                     'is_current' => $current?->id === $device->id,
-                    'has_push' => $device->push_subscriptions_count > 0,
+                    'has_push' => $device->push_subscriptions_count + $device->fcm_tokens_count > 0,
                     'biometrics_enabled' => $device->biometrics_enabled,
                 ])->values(),
             'generated_at' => now()->toIso8601String(),

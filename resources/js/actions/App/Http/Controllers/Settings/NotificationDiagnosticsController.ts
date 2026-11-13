@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:16
 * @route '/app/settings/notifications/diagnostics'
 */
 export const show = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:16
 * @route '/app/settings/notifications/diagnostics'
 */
 show.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ show.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:16
 * @route '/app/settings/notifications/diagnostics'
 */
 show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:16
 * @route '/app/settings/notifications/diagnostics'
 */
 show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:16
 * @route '/app/settings/notifications/diagnostics'
 */
 const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:16
 * @route '/app/settings/notifications/diagnostics'
 */
 showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::show
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:15
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:16
 * @route '/app/settings/notifications/diagnostics'
 */
 showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:24
 * @route '/app/settings/notifications/diagnostics/connectivity'
 */
 export const connectivity = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ connectivity.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:24
 * @route '/app/settings/notifications/diagnostics/connectivity'
 */
 connectivity.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ connectivity.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:24
 * @route '/app/settings/notifications/diagnostics/connectivity'
 */
 connectivity.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ connectivity.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:24
 * @route '/app/settings/notifications/diagnostics/connectivity'
 */
 const connectivityForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const connectivityForm = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::connectivity
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:23
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:24
 * @route '/app/settings/notifications/diagnostics/connectivity'
 */
 connectivityForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ connectivity.form = connectivityForm
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:32
 * @route '/app/settings/notifications/diagnostics/push'
 */
 export const push = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -153,7 +153,7 @@ push.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:32
 * @route '/app/settings/notifications/diagnostics/push'
 */
 push.url = (options?: RouteQueryOptions) => {
@@ -162,7 +162,7 @@ push.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:32
 * @route '/app/settings/notifications/diagnostics/push'
 */
 push.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ push.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:32
 * @route '/app/settings/notifications/diagnostics/push'
 */
 const pushForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -182,7 +182,7 @@ const pushForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 
 /**
 * @see \App\Http\Controllers\Settings\NotificationDiagnosticsController::push
-* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:31
+* @see app/Http/Controllers/Settings/NotificationDiagnosticsController.php:32
 * @route '/app/settings/notifications/diagnostics/push'
 */
 pushForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

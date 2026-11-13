@@ -33,6 +33,11 @@ return [
         'subject' => env('VAPID_SUBJECT', 'mailto:'.env('MAIL_FROM_ADDRESS', 'hello@example.com')),
     ],
 
+    'fcm' => [
+        'credentials_path' => env('FIREBASE_CREDENTIALS'),
+        'credentials_json' => env('FIREBASE_CREDENTIALS_JSON'),
+    ],
+
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],
