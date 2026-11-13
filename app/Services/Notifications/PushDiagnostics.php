@@ -4,6 +4,7 @@ namespace App\Services\Notifications;
 
 use App\Models\NotificationPreference;
 use App\Models\User;
+use App\Notifications\Channels\FcmChannel;
 use App\Notifications\Channels\WebPushChannel;
 use App\Notifications\TestNotification;
 use Illuminate\Support\Facades\Http;
@@ -33,6 +34,7 @@ class PushDiagnostics
 
         $preference = NotificationPreference::for($user);
         $devices = $user->pushSubscriptions()->get();
+        $fcmTokens = $user->fcmTokens()->get();
 
         $checks = [
             ['id' => 'vapid_public', 'status' => $publicBytes === 65 && $public[0] === 'B' ? 'ok' : 'fail',
@@ -50,7 +52,13 @@ class PushDiagnostics
                 'detail' => $preference->push_enabled ? 'on' : 'push is switched off in the notification settings'],
             ['id' => 'devices', 'status' => $devices->isNotEmpty() ? 'ok' : 'fail',
                 'detail' => $devices->isEmpty() ? 'no device registered for this account' : $devices->map(fn ($d) => ($d->name ?? 'device').' @ '.parse_url($d->endpoint, PHP_URL_HOST).($d->last_error ? ' — last error: '.$d->last_error : ($d->last_used_at ? ' — last ok '.$d->last_used_at->toDateTimeString() : '')))->implode("\n")],
-            ['id' => 'channels', 'status' => in_array(WebPushChannel::class, (new TestNotification)->via($user), true) ? 'ok' : 'fail',
+            ['id' => 'fcm_credentials', 'status' => FcmClient::configured() ? 'ok' : 'fail',
+                'detail' => FcmClient::configured()
+                    ? 'project '.FcmClient::credentials()['project_id']
+                    : 'FIREBASE_CREDENTIALS is empty, the file was not found, or it is not a valid service account JSON (run php artisan config:clear after changing .env)'],
+            ['id' => 'fcm_devices', 'status' => $fcmTokens->isNotEmpty() ? 'ok' : 'fail',
+                'detail' => $fcmTokens->isEmpty() ? 'no Android app registered for this account: open the app once, allow notifications, and make sure google-services.json is in the build' : $fcmTokens->map(fn ($t) => ($t->name ?? 'app').($t->last_error ? ' — last error: '.$t->last_error : ($t->last_used_at ? ' — last ok '.$t->last_used_at->toDateTimeString() : '')))->implode("\n")],
+            ['id' => 'channels', 'status' => array_intersect([WebPushChannel::class, FcmChannel::class], (new TestNotification)->via($user)) !== [] ? 'ok' : 'fail',
                 'detail' => implode(', ', array_map(fn (string $c) => class_basename($c), (new TestNotification)->via($user))) ?: 'none (nothing would be sent)'],
         ];
 

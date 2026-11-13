@@ -17,6 +17,13 @@ class FcmPushTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.fcm.credentials_json' => null, 'services.fcm.credentials_path' => null]);
+    }
+
     private function configureFirebase(): void
     {
         openssl_pkey_export(openssl_pkey_new(['private_key_bits' => 2048]), $privateKey);

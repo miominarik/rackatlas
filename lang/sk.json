@@ -1522,5 +1522,7 @@
     "Biometric unlock": "Biometrické odomknutie",
     "Biometric unlock is on.": "Biometrické odomknutie je zapnuté.",
     "Biometric unlock is off.": "Biometrické odomknutie je vypnuté.",
-    "Biometrics are not available on this device.": "Biometria nie je na tomto zariadení dostupná. Nastav si v telefóne odtlačok, tvár alebo zámku obrazovky."
+    "Biometrics are not available on this device.": "Biometria nie je na tomto zariadení dostupná. Nastav si v telefóne odtlačok, tvár alebo zámku obrazovky.",
+    "Firebase credentials on the server": "Firebase prihlasovacie údaje na serveri",
+    "Registered Android apps": "Zaregistrované Android appky"
 }

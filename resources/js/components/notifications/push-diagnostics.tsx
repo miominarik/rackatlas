@@ -207,6 +207,8 @@ export function PushDiagnostics({
         https: t('The site uses HTTPS'),
         preference: t('Push is on in your settings'),
         devices: t('Registered devices'),
+        fcm_credentials: t('Firebase credentials on the server'),
+        fcm_devices: t('Registered Android apps'),
         channels: t('Channels used for you'),
         secure: t('Secure connection (HTTPS)'),
         standalone: t('Opened as'),
