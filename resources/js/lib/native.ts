@@ -2,15 +2,32 @@
  * Bridge to the Capacitor mobile shell (/mobile). The app loads this site remotely, so the native
  * plugins are reached through window.Capacitor instead of imports. Everything is a no-op on the web.
  */
-type NativePlugins = {
-    SystemBars?: {
-        setStyle(options: { style: 'DARK' | 'LIGHT' }): Promise<void>;
-    };
+type NativeBridge = {
+    nativePromise?: (
+        plugin: string,
+        method: string,
+        options?: Record<string, unknown>,
+    ) => Promise<unknown>;
 };
 
-const plugins = (): NativePlugins | undefined =>
-    (window as unknown as { Capacitor?: { Plugins?: NativePlugins } })
-        .Capacitor?.Plugins;
+/**
+ * The remote page only gets the raw native bridge (no bundled Capacitor runtime), so plugins are called
+ * by name through nativePromise instead of registerPlugin().
+ */
+function callNative<T = unknown>(
+    plugin: string,
+    method: string,
+    options: Record<string, unknown> = {},
+): Promise<T> {
+    const bridge = (window as unknown as { Capacitor?: NativeBridge })
+        .Capacitor;
+
+    if (!bridge?.nativePromise) {
+        return Promise.reject(new Error('Native bridge unavailable'));
+    }
+
+    return bridge.nativePromise(plugin, method, options) as Promise<T>;
+}
 
 const USER_AGENT_TOKEN = 'RackAtlasApp';
 
@@ -66,11 +83,9 @@ export function initNative(): void {
     dropServiceWorker();
 
     const syncStatusBar = () => {
-        void plugins()
-            ?.SystemBars?.setStyle({
-                style: root.classList.contains('dark') ? 'DARK' : 'LIGHT',
-            })
-            ?.catch(() => {});
+        callNative('SystemBars', 'setStyle', {
+            style: root.classList.contains('dark') ? 'DARK' : 'LIGHT',
+        }).catch(() => {});
     };
 
     syncStatusBar();
@@ -80,49 +95,17 @@ export function initNative(): void {
     });
 }
 
-type BiometricPlugin = {
-    checkBiometry(): Promise<{
-        isAvailable: boolean;
-        deviceIsSecure?: boolean;
-    }>;
-    internalAuthenticate(options: {
-        reason?: string;
-        allowDeviceCredential?: boolean;
-    }): Promise<void>;
-};
-
-let biometricPlugin: BiometricPlugin | null | undefined;
-
-/** The biometric plugin is registered on demand because the remote site has no bundled plugin imports. */
-function biometric(): BiometricPlugin | null {
-    if (biometricPlugin !== undefined) {
-        return biometricPlugin;
-    }
-
-    const capacitor = (
-        window as unknown as {
-            Capacitor?: {
-                registerPlugin?: (name: string) => BiometricPlugin;
-            };
-        }
-    ).Capacitor;
-
-    try {
-        biometricPlugin =
-            isNativeApp() && capacitor?.registerPlugin
-                ? capacitor.registerPlugin('BiometricAuthNative')
-                : null;
-    } catch {
-        biometricPlugin = null;
-    }
-
-    return biometricPlugin;
-}
-
 /** True only inside the app on a device that has biometrics (or a device passcode) set up. */
 export async function biometricsAvailable(): Promise<boolean> {
+    if (!isNativeApp()) {
+        return false;
+    }
+
     try {
-        const result = await biometric()?.checkBiometry();
+        const result = await callNative<{
+            isAvailable?: boolean;
+            deviceIsSecure?: boolean;
+        }>('BiometricAuthNative', 'checkBiometry');
 
         return Boolean(result?.isAvailable || result?.deviceIsSecure);
     } catch {
@@ -135,12 +118,12 @@ export async function authenticateWithBiometrics(
     reason: string,
 ): Promise<boolean> {
     try {
-        await biometric()?.internalAuthenticate({
+        await callNative('BiometricAuthNative', 'internalAuthenticate', {
             reason,
             allowDeviceCredential: true,
         });
 
-        return biometric() !== null;
+        return true;
     } catch {
         return false;
     }
