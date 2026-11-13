@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/collapsible';
 import Heading from '@/components/heading';
 import { useTranslation } from '@/hooks/use-translation';
+import { isNativeApp } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
 type Status = 'ok' | 'warn' | 'fail';
@@ -421,7 +422,7 @@ export function PushDiagnostics({
                 )}
 
                 {renderChecks(t('Server'), server)}
-                {renderChecks(t('This browser'), client)}
+                {!isNativeApp() && renderChecks(t('This browser'), client)}
             </CollapsibleContent>
         </Collapsible>
     );

@@ -1,8 +1,8 @@
-import { router, usePage } from '@inertiajs/react';
-import { Fingerprint } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import DeviceController from '@/actions/App/Http/Controllers/Settings/DeviceController';
-import { Button } from '@/components/ui/button';
+import { router, usePage } from "@inertiajs/react";
+import { Fingerprint } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import DeviceController from "@/actions/App/Http/Controllers/Settings/DeviceController";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -10,15 +10,17 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
-import { useTranslation } from '@/hooks/use-translation';
+} from "@/components/ui/dialog";
+import { useTranslation } from "@/hooks/use-translation";
 import {
+    BIOMETRIC_ASKED_KEY as ASKED_KEY,
+    PUSH_ANSWERED_EVENT,
+    PUSH_CHOICE_KEY,
     authenticateWithBiometrics,
     biometricsAvailable,
     isNativeApp,
-} from '@/lib/native';
+} from "@/lib/native";
 
-const ASKED_KEY = 'ra_biometrics_asked';
 const RELOCK_AFTER_MS = 30_000;
 
 /**
@@ -27,10 +29,28 @@ const RELOCK_AFTER_MS = 30_000;
  */
 export function BiometricGate() {
     const { t } = useTranslation();
-    const enabled = Boolean(usePage<{ biometrics?: boolean }>().props.biometrics);
+    const enabled = Boolean(
+        usePage<{ biometrics?: boolean }>().props.biometrics,
+    );
     const [locked, setLocked] = useState(enabled && isNativeApp());
     const [offer, setOffer] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [pushDecided, setPushDecided] = useState(() => {
+        try {
+            return localStorage.getItem(PUSH_CHOICE_KEY) !== null;
+        } catch {
+            return true;
+        }
+    });
+
+    useEffect(() => {
+        const onAnswered = () => setPushDecided(true);
+
+        window.addEventListener(PUSH_ANSWERED_EVENT, onAnswered);
+
+        return () =>
+            window.removeEventListener(PUSH_ANSWERED_EVENT, onAnswered);
+    }, []);
     const hiddenAt = useRef<number | null>(null);
     const prompting = useRef(false);
 
@@ -42,7 +62,7 @@ export function BiometricGate() {
         prompting.current = true;
 
         try {
-            if (await authenticateWithBiometrics(t('Unlock RackAtlas'))) {
+            if (await authenticateWithBiometrics(t("Unlock RackAtlas"))) {
                 setLocked(false);
             }
         } finally {
@@ -78,10 +98,10 @@ export function BiometricGate() {
             hiddenAt.current = null;
         };
 
-        document.addEventListener('visibilitychange', onVisibility);
+        document.addEventListener("visibilitychange", onVisibility);
 
         return () =>
-            document.removeEventListener('visibilitychange', onVisibility);
+            document.removeEventListener("visibilitychange", onVisibility);
     }, [enabled]);
 
     useEffect(() => {
@@ -102,7 +122,7 @@ export function BiometricGate() {
 
     const answer = (accepted: boolean) => {
         try {
-            localStorage.setItem(ASKED_KEY, '1');
+            localStorage.setItem(ASKED_KEY, "1");
         } catch {
             // Asking again next start is acceptable.
         }
@@ -114,7 +134,7 @@ export function BiometricGate() {
         }
 
         setBusy(true);
-        void authenticateWithBiometrics(t('Turn on biometric unlock')).then(
+        void authenticateWithBiometrics(t("Turn on biometric unlock")).then(
             (ok) => {
                 if (!ok) {
                     setBusy(false);
@@ -142,27 +162,32 @@ export function BiometricGate() {
             {locked && (
                 <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-background p-8 text-center">
                     <Fingerprint className="size-16 text-primary" />
-                    <p className="text-lg font-medium">{t('RackAtlas is locked')}</p>
-                    <Button onClick={() => void unlock()}>{t('Unlock')}</Button>
+                    <p className="text-lg font-medium">
+                        {t("RackAtlas is locked")}
+                    </p>
+                    <Button onClick={() => void unlock()}>{t("Unlock")}</Button>
                 </div>
             )}
 
-            <Dialog open={offer && !locked} onOpenChange={(open) => !open && answer(false)}>
+            <Dialog
+                open={offer && !locked && pushDecided}
+                onOpenChange={(open) => !open && answer(false)}
+            >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{t('Use biometric unlock?')}</DialogTitle>
+                        <DialogTitle>{t("Use biometric unlock?")}</DialogTitle>
                         <DialogDescription>
                             {t(
-                                'Unlock the app with your fingerprint or face. You will stay signed in on this device.',
+                                "Unlock the app with your fingerprint or face. You will stay signed in on this device.",
                             )}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => answer(false)}>
-                            {t('Not now')}
+                            {t("Not now")}
                         </Button>
                         <Button disabled={busy} onClick={() => answer(true)}>
-                            {t('Turn on')}
+                            {t("Turn on")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

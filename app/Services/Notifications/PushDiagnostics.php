@@ -50,8 +50,8 @@ class PushDiagnostics
                 'detail' => 'APP_URL='.config('app.url').', request is '.(request()->isSecure() ? 'secure' : 'not secure')],
             ['id' => 'preference', 'status' => $preference->push_enabled ? 'ok' : 'fail',
                 'detail' => $preference->push_enabled ? 'on' : 'push is switched off in the notification settings'],
-            ['id' => 'devices', 'status' => $devices->isNotEmpty() ? 'ok' : 'fail',
-                'detail' => $devices->isEmpty() ? 'no device registered for this account' : $devices->map(fn ($d) => ($d->name ?? 'device').' @ '.parse_url($d->endpoint, PHP_URL_HOST).($d->last_error ? ' — last error: '.$d->last_error : ($d->last_used_at ? ' — last ok '.$d->last_used_at->toDateTimeString() : '')))->implode("\n")],
+            ['id' => 'devices', 'status' => $devices->isNotEmpty() ? 'ok' : ($fcmTokens->isNotEmpty() ? 'warn' : 'fail'),
+                'detail' => $devices->isEmpty() ? 'no browser registered for web push (not needed for the Android app)' : $devices->map(fn ($d) => ($d->name ?? 'device').' @ '.parse_url($d->endpoint, PHP_URL_HOST).($d->last_error ? ' — last error: '.$d->last_error : ($d->last_used_at ? ' — last ok '.$d->last_used_at->toDateTimeString() : '')))->implode("\n")],
             ['id' => 'fcm_credentials', 'status' => FcmClient::configured() ? 'ok' : 'fail',
                 'detail' => FcmClient::configured()
                     ? 'project '.FcmClient::credentials()['project_id']

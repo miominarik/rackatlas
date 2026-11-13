@@ -1524,5 +1524,7 @@
     "Biometric unlock is off.": "Biometrické odemknutí je vypnuto.",
     "Biometrics are not available on this device.": "Biometrie není na tomto zařízení dostupná. Nastavte si v telefonu otisk, obličej nebo zámek obrazovky.",
     "Firebase credentials on the server": "Přihlašovací údaje Firebase na serveru",
-    "Registered Android apps": "Zaregistrované Android aplikace"
+    "Registered Android apps": "Zaregistrované Android aplikace",
+    "Turn on notifications?": "Zapnout notifikace?",
+    "Get critical server alerts on this phone, even when the screen is off.": "Dostávejte kritická upozornění ze serverů na tento telefon, i když je obrazovka vypnutá."
 }
